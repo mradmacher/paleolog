@@ -4,7 +4,7 @@ require 'test_helper'
 
 require 'capybara/minitest'
 require 'capybara/minitest/spec'
-require './web'
+require './web/app'
 
 Capybara.app = PaleologWeb
 

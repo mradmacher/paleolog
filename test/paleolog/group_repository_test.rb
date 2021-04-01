@@ -2,9 +2,9 @@
 
 require 'test_helper'
 
-describe Paleolog::Repositories::GroupRepository do
+describe Paleolog::Repository::Group do
   before do
-    @repository = Paleolog::Repositories::GroupRepository.new(Paleolog::Repositories::Repository.db)
+    @repository = Paleolog::Repository::Group.new(Paleolog::Repository::Config.db)
     @repository.clear
   end
 

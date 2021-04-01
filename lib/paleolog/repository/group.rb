@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
 require 'rom-repository'
+require 'rom-changeset'
 
 module Paleolog
-  module Repositories
-    # Paleolog::Repository
-    class GroupRepository < ROM::Repository[:groups]
-      struct_namespace Paleolog
+  module Repository
+    class Group < ROM::Repository[:groups]
       commands :create, update: :by_pk, delete: :by_pk
 
       def clear
@@ -22,8 +21,11 @@ module Paleolog
       end
 
       def add_species(group, attributes)
-        # species.combine(:group).command(:create).call(attributes.merge(group_id: group.id))
         species.changeset(:create, attributes).associate(group).commit
+      end
+
+      def add_field(group, attributes)
+        fields.changeset(:create, attributes).associate(group).commit
       end
     end
   end

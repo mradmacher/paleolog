@@ -1,9 +1,10 @@
 <div class="ui grid">
-  <div class="four wide column"></div>
-  <div class="twelve wide column">
+  <div class="two wide column">
+  </div>
+  <div class="fourteen wide column">
     <h1 class="ui header">Species list (<%= @species.size %>)</h1>
   </div>
-  <div class="four wide column">
+  <div class="two wide column">
     <form id="species-search" class="ui form">
       <fieldset>
         <legend>Find species</legend>
@@ -25,7 +26,7 @@
     </form>
   </div>
 
-  <div class="twelve wide column">
+  <div class="fourteen wide column">
     <% if @species.any? %>
       <table id="species-list" class="ui celled table">
         <thead>
@@ -39,7 +40,7 @@
           <% @species.each do |one_species| %>
             <tr class="species">
               <td>
-                <%= one_species.name %>
+                <a href="<%= species_path(one_species) %>"><%= one_species.name %></a>
               </td>
               <td>
                 <%= one_species.group.name %>

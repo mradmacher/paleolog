@@ -1,0 +1,43 @@
+<div class="ui grid">
+  <div class="two wide column"></div>
+  <div class="fourteen wide column">
+    <fieldset>
+      <legend>Project</legend>
+      <h1 class="ui header"><a href="<%= project_path(@project) %>"><%= @project.name %></a></h1>
+    </fieldset>
+  </div>
+  <div class="two wide column">
+    <fieldset>
+      <legend>Details</legend>
+      <h2 class="ui header">Researchers</h2>
+      <p>
+        <ul>
+        <% @project.users.each do |user| %>
+          <li><%= user.name %>
+        <% end %>
+        </ul>
+      </p>
+
+      <h2 class="ui header">Countings</h2>
+      <p>
+        <ul>
+        <% @project.countings.each do |counting| %>
+          <li><a href="<%= counting_path(@project, counting) %>"><%= counting.name %></a></li>
+        <% end %>
+        </ul>
+      </p>
+
+      <h2 class="ui header">Sections</h2>
+      <p>
+        <ul>
+        <% @project.sections.each do |section| %>
+          <li><a href="<%= section_path(@project, section) %>"><%= section.name %></a></li>
+        <% end %>
+        </ul>
+      </p>
+    </fieldset>
+  </div>
+  <div class="fourteen wide column">
+    <%= yield %>
+  </div>
+</div>

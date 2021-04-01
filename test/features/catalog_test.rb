@@ -2,9 +2,9 @@
 
 require 'features_helper'
 
-describe 'Catalogue' do
-  let(:group_repository) { Paleolog::Repositories::GroupRepository.new(Paleolog::Repositories::Repository.db) }
-  let(:species_repository) { Paleolog::Repositories::SpeciesRepository.new(Paleolog::Repositories::Repository.db) }
+describe 'Catalog' do
+  let(:group_repository) { Paleolog::Repository::Group.new(Paleolog::Repository::Config.db) }
+  let(:species_repository) { Paleolog::Repository::Species.new(Paleolog::Repository::Config.db) }
 
   before do
     species_repository.clear
@@ -18,7 +18,7 @@ describe 'Catalogue' do
   end
 
   it 'displays species' do
-    visit '/catalogue'
+    visit '/catalog'
 
     page.must_have_content('Species list (2)')
     within('#species-list') do
@@ -27,7 +27,7 @@ describe 'Catalogue' do
   end
 
   it 'displays all when searching with empty criteria' do
-    visit '/catalogue'
+    visit '/catalog'
 
     within('#species-search') do
       click_on('Search')
@@ -38,7 +38,7 @@ describe 'Catalogue' do
   end
 
   it 'allows searching species' do
-    visit '/catalogue'
+    visit '/catalog'
 
     within('#species-search') do
       fill_in('Name', with: 'costa')

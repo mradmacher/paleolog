@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
-require './web'
+require './web/app'
 
 run PaleologWeb

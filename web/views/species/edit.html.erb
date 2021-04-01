@@ -1,0 +1,5 @@
+<%= render_title @specimen.name %>
+<%= render_actions [['Cancel', specimen_path(@specimen.id)]] %>
+<h1>Editing species</h1>
+
+<%= render :partial => 'form' %>

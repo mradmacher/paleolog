@@ -9,7 +9,10 @@
 /test/tmp/
 /test/version_tmp/
 /tmp/
+*.sqlite
+*.swp
 
+/web/public/images/*
 # Used by dotenv library to load environment variables.
 # .env
 

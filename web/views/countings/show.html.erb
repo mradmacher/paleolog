@@ -1,0 +1,20 @@
+<fieldset>
+  <legend>Counting</legend>
+  <a class="ui primary button" href="<%= occurrences_path(@project, counting: @counting) %>">Count</a>
+  <dl>
+    <dt>Name</dt>
+    <dd><h2><%= @counting.name %></h2></dd>
+    <% unless @counting.group.nil? %>
+      <dt>Counting's Group</dt>
+      <dd><%= @counting.group.name %></dd>
+    <% end %>
+    <% unless @counting.marker.nil? %>
+      <dt>Marker</dt>
+      <dd><%= @counting.marker.name %> (<%= @counting.marker.group.name %>)</dd>
+    <% end %>
+    <% if @counting.marker_count %>
+      <dt>Marker Count</dt>
+      <dd><%= @counting.marker_count %></dd>
+    <% end %>
+  </dl>
+</fieldset>

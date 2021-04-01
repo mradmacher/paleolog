@@ -1,0 +1,38 @@
+<div class="ui grid">
+  <div class="two wide column"></div>
+  <div class="fourteen wide column">
+    <h1 class="ui header">Projects (<%= @projects.size %>)</h1>
+  </div>
+  <div class="two wide column">
+    <form id="species-search" class="ui form">
+      <fieldset>
+        <legend>Find project</legend>
+        <div class="field">
+          <label for="search_name">Name</label>
+          <input id="search_name" type="text" name="name" value="<%= @filters[:name] %>"/>
+        </div>
+        <button class="ui button" type="submit">Search</button>
+      </fieldset>
+    </form>
+  </div>
+  <div class="fourteen wide column">
+    <table class="ui celled table">
+    <thead>
+      <tr>
+        <th>Project name</th>
+        <th>Date created</th>
+        <th>Participants</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @projects.each do |project| %>
+        <tr>
+          <td><a href="<%= project_path(project) %>"><%= project.name %></a></td>
+          <td><%= project.created_at.to_date %></td>
+          <td><%= project.research_participations.size %></td>
+        </tr>
+      <% end %>
+    </tbody>
+    </table>
+  </div>
+</div>
