@@ -8,6 +8,10 @@ module Paleolog
     class Group < ROM::Repository[:groups]
       commands :create, update: :by_pk, delete: :by_pk
 
+      def self.new(container = Paleolog::Repository::Config.db)
+        super(container)
+      end
+
       def clear
         groups.delete
       end

@@ -1,7 +1,18 @@
 # frozen_string_literal: true
 
 require 'paleolog/repository/config'
+require 'paleolog/repository/counting'
 require 'paleolog/repository/group'
 require 'paleolog/repository/field'
+require 'paleolog/repository/occurrence'
 require 'paleolog/repository/project'
+require 'paleolog/repository/sample'
+require 'paleolog/repository/section'
 require 'paleolog/repository/species'
+require 'paleolog/entities'
+require 'paleolog/counting_summary'
+require 'paleolog/paleorep/column_group'
+require 'paleolog/paleorep/field'
+require 'paleolog/paleorep/textizer'
+require 'paleolog/paleorep/simple_textizer'
+require 'paleolog/report'

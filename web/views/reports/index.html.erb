@@ -1,0 +1,238 @@
+<form class="ui form" id="new_report" method="post">
+  <input type="hidden" name="section_id" value="<%= @section&.id %>" />
+  <input type="hidden" name="counting_id" value="<%= @counting&.id %>" />
+
+  <button class="ui primary button" type="submit">Generate</button>
+  <table class="ui celled table">
+    <thead>
+      <tr>
+        <th><label for="type">Data</label></th>
+        <th><label for="view">View</label></th>
+        <th><label for="reverse_rows">Reverse Rows</label></th>
+        <th><label for="show_symbols">Show symbols for species outside of counting</label></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <select name="type">
+            <% Paleolog::Report::TYPE_NAMES.each_pair do |k, v| %>
+              <option value="<%= k %>"><%= v %></option>
+            <% end %>
+          </select>
+        </td>
+        <td>
+          <select name="view">
+            <% Paleolog::Report::VIEW_NAMES.each_pair do |k, v| %>
+              <option value="<%= k %>"><%= v %></option>
+            <% end %>
+          </select>
+        </td>
+        <td>
+          <input type="checkbox" name="reverse_rows" value="1">
+        </td>
+        <td>
+          <input type="checkbox" name="show_symbols" value="1">
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="ui celled table">
+    <thead>
+      <tr>
+        <th>Samples</th>
+        <th>
+          <div class="inline fields">
+            <label for="columns[0][header]" class="ui hidden">A</label>
+            <input type="text" name="columns[0][header]" placeholder="Header">
+          </div>
+        </th>
+        <th>
+          <div class="inline fields">
+            <label for="columns[1][header]" class="ui hidden">B</label>
+            <input type="text" name="columns[1][header]" placeholder="Header">
+          </div>
+        </th>
+        <th>
+          <div class="inline fields">
+            <label for="columns[2][header]" class="ui hidden">C</label>
+            <input type="text" name="columns[2][header]" placeholder="Header">
+          </div>
+        </th>
+        <th>
+          <div class="inline fields">
+            <label for="columns[3][header]" class="ui hidden">Computed</label>
+            <input type="text" name="columns[3][header]" placeholder="Header">
+          </div>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td></td>
+        <% 3.times do |index| %>
+          <td>
+            <div class="field">
+            </div>
+            <table class="ui definition table">
+              <thead>
+                <tr>
+                  <td></td>
+                  <th>Data</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <label for="columns[<%= index %>][merge]">Merge</label>
+                  </td>
+                  <td>
+                    <select name="columns[<%= index %>][merge]">
+                      <option value=""></option>
+                      <option value="sum">Sum Specimens</option>
+                      <option value="count">Count Species</option>
+                      <option value="most_abundant">Most Abundant</option>
+                      <option value="second_most_abundant">Second Most Abundant</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="columns[<%= index %>][percentages]">Percentages</label>
+                  </td>
+                  <td>
+                    <input type="checkbox" name="columns[<%= index %>][percentages]" value="1">
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        <% end %>
+        <td class="vector" data-vector="column" data-index="3">
+          <div class="field">
+            <label for=columns[3][computed]>Formula</label>
+            <input type="text" name="columns[3][computed]" placeholder="A * (B + C)">
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td></td>
+        <% 3.times do |index| %>
+          <td class="vector" data-vector="column" data-index="<%= index %>">
+            <div class="filter" data-source="species" data-filter-key="species_ids">
+              <table class="ui definition table">
+                <thead>
+                  <tr>
+                    <td></td>
+                    <th>Filter</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <label for="columns[<%= index %>][group_id]">Group</label>
+                    </td>
+                    <td>
+                      <select id="columns[<%= index %>][group_id]" name="columns[<%= index %>][group_id]" class="selection-filter" data-filter-key="group-id" data-filter-index="<%= index %>">
+                        <option value=""></option>
+                        <% @groups.each do |group| %>
+                          <option value="<%= group.id %>"><%= group.name %></option>
+                        <% end %>
+                      </select>
+                    </td>
+                  </tr>
+                  <% @fields.each do |field| %>
+                    <tr>
+                      <td>
+                        <label for="columns[<%= index %>][choice_ids]"><%= field.name %></label>
+                      </td>
+                      <td>
+                        <select id="columns[<%= index %>][choice_ids][]" name="columns[<%= index %>][choice_ids][]" class="selection-filter" data-filter-key="<%= field.id %>" data-filter-index="<%= index %>" data-is-collection="true">
+                          <option value=""></option>
+                          <% field.choices.each do |choice| %>
+                            <option value="<%= choice.id %>"><%= choice.name %></option>
+                          <% end %>
+                        </select>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </td>
+        <% end %>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td class="selection" style="vertical-align:top" data-vector="row" data-index="0">
+          <input type="checkbox" checked="checked" class="all" />
+          <label>Select All</label>
+          <div class="ids"></div>
+        </td>
+        <% 3.times do |index| %>
+          <td class="selection" style="vertical-align:top" data-vector="column" data-index="<%= index %>">
+            <input type="checkbox" checked="checked" class="all" />
+            <label>Select All</label>
+            <div class="ids"></div>
+          </td>
+        <% end %>
+        <td></td>
+      </tr>
+      <tr class="top aligned">
+        <td class="vector" data-vector="row" data-index="0">
+          <div class="filter" data-source="samples" data-filter-key="sample_ids">
+          <% if @section %>
+            <% @section.samples.each do |sample| %>
+              <div class="field">
+                <label for="samples[]">
+                  <input type="checkbox" id="samples[]" name="samples[]" class="selection-field" data-filter-key="sample_id" value="<%= sample.id %>" checked="checked">
+                  <%= sample.name %>
+                </label>
+              </div>
+            <% end %>
+          <% end %>
+        </td>
+        <% 3.times do |index| %>
+          <td>
+            <% @species.each do |specie| %>
+              <div class="field">
+                <label for="species[<%= index %>][]">
+                  <input type="checkbox" id="species[<%= index %>][]" name="species[<%= index %>][]" class="selection-field" data-filter-index="<%= index %>" data-filter-group-id="<%= specie.group_id %>" <%= specie.choices.map { |c| "data-filter-#{c.field_id}=#{c.id}" }.join(' ') %> data-filter-key="species_id" value="<%= specie.id %>" checked="checked">
+                  <%= specie.name %>
+                </label>
+              </div>
+
+            <% end %>
+          </td>
+        <% end %>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</form>
+
+<script src="/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+  $('.selection-filter').change(function() {
+    filterIndex = $(this).attr('data-filter-index');
+    var columnFields = $('.selection-field[data-filter-index=' + filterIndex + ']');
+    columnFields.attr('checked', false);
+    //columnFields.removeClass('green');
+    var dataFilter = '';
+    $('.selection-filter[data-filter-index=' + filterIndex + ']').each(function(i, elem) {
+      var filterElem = $(elem);
+      filterKey = filterElem.attr('data-filter-key');
+      filterValue = filterElem.val();
+      if(filterValue) {
+        dataFilter = dataFilter + '[data-filter-' + filterKey + '=' + filterValue + ']';
+      }
+    });
+    var filtered = $('.selection-field[data-filter-index=' + filterIndex + ']' + dataFilter)
+    filtered.attr('checked', true);
+    //filtered.addClass('green');
+  });
+});
+</script>

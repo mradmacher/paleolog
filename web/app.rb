@@ -26,7 +26,11 @@ class PaleologWeb < Sinatra::Base
     end
 
     def species_path(species)
-      "/species/#{super_id(species)}"
+      if @project
+        "/projects/#{super_id(@project)}/species/#{super_id(species)}"
+      else
+        "/species/#{super_id(species)}"
+      end
     end
 
     def project_path(project)
@@ -41,6 +45,10 @@ class PaleologWeb < Sinatra::Base
       "/projects/#{super_id(project)}/countings/#{super_id(counting)}"
     end
 
+    def project_species_path(project)
+      "/projects/#{super_id(project)}/species"
+    end
+
     def counting_section_path(project, counting, section)
       "/projects/#{super_id(project)}/countings/#{super_id(counting)}/sections/#{super_id(section)}"
     end
@@ -53,6 +61,13 @@ class PaleologWeb < Sinatra::Base
       "/projects/#{super_id(project)}/occurrences#{details.empty? ? '' : '?' }#{details.join('&')}"
     end
 
+    def reports_path(project, counting: nil, section: nil)
+      details = []
+      details << "counting=#{super_id(counting)}" if counting
+      details << "section=#{super_id(section)}" if section
+      "/projects/#{super_id(project)}/reports#{details.empty? ? '' : '?' }#{details.join('&')}"
+    end
+
     def species_repository
       @species_repository ||= Paleolog::Repository::Species.new(Paleolog::Repository::Config.db)
     end
@@ -63,6 +78,48 @@ class PaleologWeb < Sinatra::Base
 
     def project_repository
       @project_repository ||= Paleolog::Repository::Project.new(Paleolog::Repository::Config.db)
+    end
+
+    def occurrence_repository
+      @occurrence_repository ||= Paleolog::Repository::Occurrence.new(Paleolog::Repository::Config.db)
+    end
+
+    def field_repository
+      @field_repository ||= Paleolog::Repository::Field.new(Paleolog::Repository::Config.db)
+    end
+
+    def display(view)
+      erb view.to_sym
+    end
+
+    def using_project_layout
+      erb 'project_layout.html'.to_sym, layout: 'application.html'.to_sym do
+        yield
+      end
+    end
+
+    def using_occurrences_layout
+      erb 'occurrence_layout.html'.to_sym, layout: nil do
+        yield
+      end
+    end
+
+    def using_reports_layout
+      erb 'report_layout.html'.to_sym, layout: nil do
+        yield
+      end
+    end
+
+    def using_application_layout
+      erb 'application.html'.to_sym, layout: nil do
+        yield
+      end
+    end
+
+    def using_species_layout
+      erb 'species_layout.html'.to_sym, layout: 'application.html'.to_sym do
+        yield
+      end
     end
   end
 
@@ -79,14 +136,12 @@ class PaleologWeb < Sinatra::Base
     @available_filters = {}
     @available_filters[:groups] = group_repository.all
 
-    erb 'catalog.html'.to_sym, layout: 'application.html'.to_sym
+    using_application_layout { display 'catalog.html' }
   end
 
   get '/species/:id' do
     @species = species_repository.find_with_dependencies(params[:id].to_i)
-    erb 'species_layout.html'.to_sym, layout: 'application.html'.to_sym do
-      erb 'species/show.html'.to_sym
-    end
+    using_species_layout { display 'species/show.html' }
     #@commentable = @specimen
     #@comment = Comment.new( :commentable_id => @specimen.id,
     #    :commentable_type => Specimen.to_s,
@@ -97,86 +152,95 @@ class PaleologWeb < Sinatra::Base
   get '/projects' do
     @filters = {}
     @projects = project_repository.all
-    erb 'projects/index.html'.to_sym, layout: 'application.html'.to_sym
+    using_application_layout { display 'projects/index.html' }
   end
 
   get '/projects/:id' do
     @project = project_repository.find_with_dependencies(params[:id].to_i)
-    erb 'project_layout.html'.to_sym, layout: 'application.html'.to_sym do
-      erb 'projects/show.html'.to_sym
-    end
+    using_project_layout { display 'projects/show.html' }
+  end
+
+  get '/projects/:project_id/species' do
+    @project = project_repository.find_with_dependencies(params[:project_id].to_i)
+    @filters = {}
+    @filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
+    @filters[:name] = params[:name] if params[:name] && !params[:name].empty?
+
+    @species = species_repository.search_in_project(@project, @filters)
+    #@species = species_repository.search_verified(@filters)
+    @available_filters = {}
+    @available_filters[:groups] = group_repository.all
+
+    using_project_layout { display 'catalog.html' }
+  end
+
+  get '/projects/:project_id/species/:id' do
+    @project = project_repository.find_with_dependencies(params[:project_id].to_i)
+    @species = species_repository.find_with_dependencies(params[:id].to_i)
+    using_project_layout {
+      #using_species_layout { display 'species/show.html' } }
+      erb 'species_layout.html'.to_sym, layout: nil do
+        display 'species/show.html'
+      end
+    }
   end
 
   get '/projects/:project_id/sections/:id' do
     @project = project_repository.find_with_dependencies(params[:project_id].to_i)
     @section = project_repository.find_section(@project, params[:id].to_i)
-    erb 'project_layout.html'.to_sym, layout: 'application.html'.to_sym do
-      erb 'sections/show.html'.to_sym
-    end
+    using_project_layout { display 'sections/show.html' }
   end
 
   get '/projects/:project_id/countings/:id' do
     @project = project_repository.find_with_dependencies(params[:project_id].to_i)
     @counting = project_repository.find_counting(@project, params[:id].to_i)
-    erb 'project_layout.html'.to_sym, layout: 'application.html'.to_sym do
-      erb 'countings/show.html'.to_sym
-    end
+    using_project_layout { display 'countings/show.html' }
   end
+
+  get '/projects/:project_id/reports' do
+    @project = project_repository.find_with_dependencies(params[:project_id].to_i)
+    @section = project_repository.find_section(@project, params[:section].to_i) if params[:section]
+    @counting = project_repository.find_counting(@project, params[:counting].to_i) if params[:counting]
+    @groups = group_repository.all
+    @fields = field_repository.all
+    @occurrences = @counting && @section ? occurrence_repository.all_for_section(@counting, @section) : []
+    @species = @occurrences.map(&:species).uniq(&:id)
+
+    using_project_layout { using_reports_layout { display 'reports/index.html' } }
+  end
+
+  post '/projects/:project_id/reports' do
+    p params
+    @project = project_repository.find_with_dependencies(params[:project_id].to_i)
+    @section = project_repository.find_section(@project, params[:section].to_i) if params[:section]
+    @counting = project_repository.find_counting(@project, params[:counting].to_i) if params[:counting]
+    @report = Paleolog::Report.build(params, section: @section, counting: @counting)
+		@report.generate
+  end
+
+  #def export
+  #  @report = Report.build(params[:report])
+	#	@report.generate
+  #  respond_to do |format|
+  #    format.csv
+  #    format.pdf
+  #    format.svg
+  #    format.html
+  #  end
+  #end
 
   get '/projects/:project_id/occurrences' do
     @project = project_repository.find_with_dependencies(params[:project_id].to_i)
     @sample = project_repository.find_sample(@project, params[:sample].to_i) if params[:sample]
     @section = project_repository.find_section(@project, params[:section].to_i) if params[:section]
     @counting = project_repository.find_counting(@project, params[:counting].to_i) if params[:counting]
-    erb 'project_layout.html'.to_sym, layout: 'application.html'.to_sym do
-      erb 'occurrences/show.html'.to_sym
-    end
-  end
-
-=begin
-  def new
-    @specimen = Specimen.new
-  end
-
-  def edit
-    @specimen = Specimen.find(params[:id])
-  end
-
-  def create
-    @specimen = Specimen.new(specimen_params)
-
-    if @specimen.save
-      flash[:notice] = 'Specimen was successfully created.'
-      redirect_to(@specimen)
+    if @counting && @sample
+      @occurrences = occurrence_repository.all_for_sample(@counting, @sample)
     else
-      render :action => "new"
+      @occurrences = []
     end
-  end
+    @counting_summary = Paleolog::CountingSummary.new
 
-  def update
-    @specimen = Specimen.find(params[:id])
-    if @specimen.update_attributes(specimen_params)
-      flash[:notice] = 'Specimen was successfully updated.'
-      redirect_to(@specimen)
-    else
-      render :action => "edit"
-    end
+    using_project_layout { using_occurrences_layout { display 'occurrences/show.html' } }
   end
-
-  def destroy
-    @specimen = Specimen.find(params[:id])
-    @specimen.destroy
-    redirect_to specimens_url
-  end
-
-  def specimen_params
-    params.require(:specimen).permit(
-      :name,
-      :verified,
-      :description,
-      :environmental_preferences,
-      :group_id
-    )
-  end
-=end
 end

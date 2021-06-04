@@ -5,23 +5,15 @@ require 'rom-changeset'
 
 module Paleolog
   module Repository
-    class Field < ROM::Repository[:fields]
+    class Sample < ROM::Repository[:samples]
       commands update: :by_pk, delete: :by_pk
 
       def self.new(container = Paleolog::Repository::Config.db)
         super(container)
       end
 
-      def clear
-        fields.delete
-      end
-
-      def all
-        fields.combine(:choices).to_a
-      end
-
-      def add_choice(field, attributes)
-        choices.changeset(:create, attributes).associate(field).commit
+      def for_section(section)
+        samples.where(section_id: section.id).to_a
       end
     end
   end

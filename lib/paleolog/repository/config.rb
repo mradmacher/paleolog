@@ -19,6 +19,8 @@ module Paleolog
                 belongs_to :field
               end
             end
+            #struct_namespace Paleolog::Entities
+            #auto_struct true
           end
 
           conf.relation(:fields) do
@@ -55,6 +57,7 @@ module Paleolog
                 has_many :features
                 has_many :choices, through: :features
                 has_many :images
+                has_many :occurrences
               end
             end
           end
@@ -102,6 +105,7 @@ module Paleolog
               associations do
                 belongs_to :project
                 has_many :samples
+                has_many :occurrences, through: :samples
               end
             end
           end
@@ -112,6 +116,7 @@ module Paleolog
                 belongs_to :project
                 belongs_to :group
                 belongs_to :species, as: :marker
+                has_many :occurrences
               end
             end
           end
@@ -120,6 +125,18 @@ module Paleolog
             schema(infer: true) do
               associations do
                 belongs_to :section
+                has_many :occurrences
+              end
+            end
+          end
+
+          conf.relation(:occurrences) do
+            schema(infer: true) do
+              associations do
+                belongs_to :species
+                belongs_to :sample
+                belongs_to :section, through: :samples
+                belongs_to :counting
               end
             end
           end
