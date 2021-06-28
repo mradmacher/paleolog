@@ -76,7 +76,7 @@ module Paleolog
             occurrence.normal?? occurrence.quantity : occurrence.status_symbol
           else
             occurrence.quantity
-          end.to_s + (occurrence.uncertain?? Occurrence::UNCERTAIN_SYMBOL : '')
+          end.to_s + (occurrence.uncertain ? Paleolog::CountingOccurrence::UNCERTAIN_SYMBOL : '')
         else
           '0'
         end
@@ -133,7 +133,7 @@ module Paleolog
       @splits = []
     end
 
-    def self.build(params, section:, counting:)
+    def self.build(params)
       Report.new.tap do |report|
         report.type = params[:type]
         report.view = params[:view]
@@ -145,8 +145,6 @@ module Paleolog
         report.column_criteria = params[:columns]
         report.row_criteria = params[:rows]
         report.reverse_rows = params[:reverse_rows] == '1'
-        report.section = section
-        report.counting = counting
       end
     end
 
@@ -175,7 +173,7 @@ module Paleolog
       [filtered_samples, filtered_occurrences]
     end
 
-    def filter_column( column_group, filter )
+    def filter_column(column_group, filter)
       if filter['species_ids']
         filtered = []
         column_group.headers.each_with_index do |field, i|
@@ -199,14 +197,14 @@ module Paleolog
       end
     end
 
-    def process_column( column_group, species, occurrences )
+    def process_column(column_group, species, occurrences)
       unless species.empty?
         species_textizer = SpeciesTextizer.new
         species.each do |s|
           column_group.headers << Paleorep::Field.new(s, species_textizer)
         end
         occurrence_textizer = if self.type == DENSITY
-            density_map = CountingSummary.new(counting).occurrence_density_map(section)
+            density_map = CountingSummary.new.occurrence_density_map(counting, section)
             OccurrenceDensityTextizer.new(density_map)
           else
             OccurrenceQuantityTextizer.new(@show_symbols.to_i > 0)
@@ -231,7 +229,7 @@ module Paleolog
                 0
               elsif selected_group_id == 0
                 v.value.to_i
-              elsif selected_group_id == v.object.specimen.group_id
+              elsif selected_group_id == v.object.species.group_id
                 v.value.to_i
               else
                 0
@@ -287,7 +285,7 @@ module Paleolog
     def process_computed_column( report, criteria )
       headers = []
       values = []
-      if criteria['computed'].present?
+      if !criteria['computed'].nil? && !criteria['computed'].empty?
         a_idx = 0
         b_idx = 1
         c_idx = 2
@@ -358,18 +356,18 @@ module Paleolog
     end
 
     def generate
-      samples, species, occurrences = CountingSummary.new(counting).summary(section)
+      samples, species, occurrences = Paleolog::CountingSummary.new.summary(counting, section)
 
-      report = Paleorep::Report.new
+      report = Paleolog::Paleorep::Report.new
       @row_criteria.each_value do |criteria|
-        samples, occurrences = filter_row( criteria, samples, occurrences )
+        samples, occurrences = filter_row(criteria, samples, occurrences)
         if reverse_rows
           samples.reverse!
           occurrences.reverse!
         end
         sample_textizer = SampleTextizer.new
         samples.each do |sample|
-          report.add_row(Paleorep::Field.new(sample, sample_textizer))
+          report.add_row(Paleolog::Paleorep::Field.new(sample, sample_textizer))
         end
       end
 
@@ -382,13 +380,13 @@ module Paleolog
       end
 
       @column_criteria.each_value do |criteria|
-        process_computed_column( report, criteria )
+        process_computed_column(report, criteria)
       end
 
-      concat_column_headers( report )
-      concat_row_headers( report )
-      concat_values( report )
-      concat_splits( report )
+      concat_column_headers(report)
+      concat_row_headers(report)
+      concat_values(report)
+      concat_splits(report)
     end
 
     def self.model_name
@@ -397,25 +395,23 @@ module Paleolog
 
     def to_csv
       CSV.generate( col_sep: "," ) do |csv|
-        csv << [nil].concat( @column_headers )
+        csv << [nil].concat(@column_headers)
         @row_headers.each do |vheader|
           begin
-            csv << [vheader].concat( self.value_row.next.map{ |i| (i.to_s == '0'? nil : i) } )
+            csv << [vheader].concat(self.value_row.next.map { |i| (i.to_s == '0'? nil : i) })
           rescue StopIteration => e
-            csv << [vheader].concat( @row_headers.size.times.map{ |i| nil } )
+            csv << [vheader].concat(@row_headers.size.times.map{ |i| nil })
           end
         end
       end
     end
 
-    #def counting
-    #  @counting = Counting.find(self.counting_id) if @counting.nil? && self.counting_id
-    #  @counting
-    #end
+    def counting
+      @counting ||= Paleolog::Repository::Counting.new.find(self.counting_id) if self.counting_id
+    end
 
-    #def section
-    #  @section = Section.find(self.section_id) if @section.nil? && self.section_id
-    #  @section
-    #end
+    def section
+      @section ||= Paleolog::Repository::Section.new.find(self.section_id) if self.section_id
+    end
   end
 end

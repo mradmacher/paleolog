@@ -11,6 +11,10 @@ module Paleolog
       def self.new(container = Paleolog::Repository::Config.db)
         super(container)
       end
+
+      def find(id)
+        countings.by_pk(id).one!
+      end
     end
   end
 end
