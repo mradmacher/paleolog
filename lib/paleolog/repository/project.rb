@@ -33,7 +33,7 @@ module Paleolog
       end
 
       def find_counting(project, id)
-        countings.combine(:group).combine(marker: [:group]).by_pk(id).one!
+        countings.combine(:group).combine(species: [:group]).by_pk(id).one!
       end
 
       def add_counting(project, attributes)

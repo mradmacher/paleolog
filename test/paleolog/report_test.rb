@@ -230,7 +230,7 @@ describe Paleolog::Report do
 
   describe 'densities' do
     before do
-      @counting_repo.update(
+      @counting = @counting_repo.update(
         @counting.id,
         group_id: @groups[0].id,
         marker_id: @species[1][0].id,
@@ -264,7 +264,7 @@ describe Paleolog::Report do
         @report.column_headers
     end
 
-    it 'generate proper values' do
+    it 'generate proper values dupa' do
       species = [@species[0][2], @species[0][3], @species[0][0], @species[0][1]]
       density_map = Paleolog::CountingSummary.new.occurrence_density_map(@counting, @section)
       @samples_summary.each_with_index do |sample, row|
@@ -274,15 +274,16 @@ describe Paleolog::Report do
         end
         expected = @selected_species_ids.map do |sid|
           if species2occurrences[sid]
-            if density_map[species2occurrences[sid]]
-              density_map[species2occurrences[sid]].round(1).to_s
+            if density_map[species2occurrences[sid].id]
+              density_map[species2occurrences[sid].id].round(1).to_s
             else
               '0'
             end
           else
             '0'
           end
-        end + [Paleolog::CountingSummary.new.group_per_gram(@counting, sample).round(1).to_s]
+        end +
+          [Paleolog::CountingSummary.new.group_per_gram(@counting, sample).round(1).to_s]
         assert_equal expected, @report.values[row]
       end
     end

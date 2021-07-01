@@ -26,7 +26,7 @@ class PaleologWeb < Sinatra::Base
     end
 
     def species_path(species)
-      if @project
+      if defined?(@project) && @project
         "/projects/#{super_id(@project)}/species/#{super_id(species)}"
       else
         "/species/#{super_id(species)}"
@@ -106,6 +106,12 @@ class PaleologWeb < Sinatra::Base
 
     def using_reports_layout
       erb 'report_layout.html'.to_sym, layout: nil do
+        yield
+      end
+    end
+
+    def using_export_layout
+      erb 'export_layout.html'.to_sym, layout: nil do
         yield
       end
     end
@@ -212,10 +218,10 @@ class PaleologWeb < Sinatra::Base
   post '/projects/:project_id/reports' do
     p params
     @project = project_repository.find_with_dependencies(params[:project_id].to_i)
-    @section = project_repository.find_section(@project, params[:section].to_i) if params[:section]
-    @counting = project_repository.find_counting(@project, params[:counting].to_i) if params[:counting]
-    @report = Paleolog::Report.build(params, section: @section, counting: @counting)
+    @report = Paleolog::Report.build(params)
 		@report.generate
+    @chart = Paleolog::Paleorep::ChartView.new(@report)
+    using_export_layout { display 'reports/create.html' }
   end
 
   #def export

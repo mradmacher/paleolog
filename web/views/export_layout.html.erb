@@ -1,0 +1,66 @@
+<form accept-charset="UTF-8" action="/reports/export/report.html" method="post" target="_blank">
+  <input type="hidden" name="report[type]" value="<%= @report.type %>">
+  <input type="hidden" name="report[counting_id]" value="<%= @report.counting_id %>">
+  <input type="hidden" name="report[section_id]" value="<%= @report.section_id %>">
+  <input type="hidden" name="report[view]" value="<%= @report.view %>">
+  <input type="hidden" name="report[show_symbols]" value="<%= @report.show_symbols %>">
+  <input type="hidden" name="report[percentages]" value="<%= @report.percentages %>">
+  <input type="hidden" name="report[reverse_rows]" value="<%= @report.reverse_rows ? '1' : '0' %>">
+  <% @report.column_criteria.each do |i, column| %>
+    <% if column['species_ids'] %>
+      <% column['species_ids'].each do |id| %>
+        <input type="hidden" name="report[columns][<%= i %>][species_ids][]" value="<%= id %>">
+      <% end %>
+    <% elsif column['computed'] %>
+      <input type="hidden" name="report[columns][<%= i %>][computed]" value="<%= column['computed'] %>">
+    <% end %>
+    <input type="hidden" name="report[columns][<%= i %>][merge]" value="<%= column['merge'] %>">
+    <input type="hidden" name="report[columns][<%= i %>][header]" value="<%= column['header'] %>">
+    <input type="hidden" name="report[columns][<%= i %>][percentages]" value="<%= column['percentages'] %>">
+    <input type="hidden" name="report[columns][<%= i %>][group_id]" value="<%= column['group_id'] %>">
+  <% end %>
+  <% @report.samples_ids.each do |id| %>
+    <input type="hidden" name="report[sample_ids][]" value="<%= id %>">
+  <% end %>
+  <select name="report[format]">
+  <% if ['numbers', 'points', 'blocks', 'lines'].include? @report.view %>
+    <option value="svg">SVG</option>
+  <% end %>
+    <option value="csv">CSV</option>
+    <option value="pdf">PDF</option>
+    <option value="html">HTML</option>
+  </select>
+  <fieldset class="pdf-properties format-properties"><legend>Orientation</legend>
+    <label for="orientation_portrait">
+      <input type="radio" name="report[orientation]" checked>
+      Portrait
+    </label>
+    <label for="orientation_landscape">
+      <input type="radio" name="report[orientation]" checked>
+      Landscape
+    </label>
+  </fieldset>
+  <input type="submit" value="Export">
+</form>
+<h1>Section <%= @report.title %></h1>
+
+<%= yield %>
+
+<script src="/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	set_format = function( form_tag, format ) {
+		form_tag.attr( "action", form_tag.attr( "action" ).replace( /\.\w+/, "" ) + "." + format );
+	};
+
+  var	form_tag = $( "form" );
+  var format_tag = form_tag.find( 'select[name="report[format]"]' );
+  format_tag.change( function() {
+    format = $(this).val();
+    set_format( form_tag, format );
+    form_tag.find('.format-properties').hide();
+    form_tag.find('.' + format + '-properties').show();
+  });
+  format_tag.change();
+});
+</script>

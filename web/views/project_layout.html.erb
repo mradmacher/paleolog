@@ -1,12 +1,16 @@
 <div class="ui grid">
-  <div class="two wide column"></div>
-  <div class="fourteen wide column">
+  <div class="sixteen wide column">
     <fieldset>
       <legend>Project</legend>
-      <h1 class="ui header"><a href="<%= project_path(@project) %>"><%= @project.name %></a></h1>
+        <h1 class="ui header"><a href="<%= project_path(@project) %>"><%= @project.name %></a></h1>
+        <div class="ui text menu">
+          <a class="ui item" href="<%= project_species_path(@project) %>">Species</a>
+          <a class="ui item" href="<%= occurrences_path(@project) %>">Count</a>
+          <a class="ui item" href="<%= reports_path(@project) %>">Reports</a>
+        </div>
     </fieldset>
   </div>
-  <div class="two wide column">
+  <div class="three wide column">
     <fieldset>
       <legend>Details</legend>
       <h2 class="ui header">Researchers</h2>
@@ -37,7 +41,7 @@
       </p>
     </fieldset>
   </div>
-  <div class="fourteen wide column">
+  <div class="thirteen wide column">
     <%= yield %>
   </div>
 </div>

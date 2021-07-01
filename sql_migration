@@ -1,0 +1,5 @@
+alter table specimens rename to species;
+alter table features rename column specimen_id to species_id;
+alter table images rename column specimen_id to species_id;
+alter table occurrences rename column specimen_id to species_id;
+alter table countings rename column marker_id to species_id;

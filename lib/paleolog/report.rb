@@ -2,9 +2,9 @@ require 'csv'
 
 module Paleolog
   class Report
-    attr_accessor :type, :counting_id, :section_id, :sample_ids, :species_ids,
+    attr_accessor :type, :counting_id, :section_id, :species_ids, :samples_ids,
       :view, :charts, :orientation, :show_symbols, :percentages, :reverse_rows,
-      :column_criteria, :row_criteria,
+      :column_criteria,
       :section, :counting
     attr_reader :column_headers, :row_headers, :values, :splits, :title
 
@@ -76,7 +76,7 @@ module Paleolog
             occurrence.normal?? occurrence.quantity : occurrence.status_symbol
           else
             occurrence.quantity
-          end.to_s + (occurrence.uncertain ? Paleolog::CountingOccurrence::UNCERTAIN_SYMBOL : '')
+          end.to_s + (occurrence.uncertain ? Paleolog::CountingSummary::UNCERTAIN_SYMBOL : '')
         else
           '0'
         end
@@ -103,7 +103,7 @@ module Paleolog
       end
 
       def valuize(occurrence)
-        density_map[occurrence] ? density_map[occurrence].round(ROUND) : 0
+        occurrence && density_map[occurrence.id] ? density_map[occurrence.id].round(ROUND) : 0
       end
     end
 
@@ -143,7 +143,7 @@ module Paleolog
         report.orientation = params[:orientation]
         report.percentages = params[:percentages]
         report.column_criteria = params[:columns]
-        report.row_criteria = params[:rows]
+        report.samples_ids = params[:samples]
         report.reverse_rows = params[:reverse_rows] == '1'
       end
     end
@@ -161,11 +161,11 @@ module Paleolog
       @value_row
     end
 
-    def filter_row( filter, samples, occurrences )
+    def filter_row(samples_ids, samples, occurrences)
       filtered_samples = []
       filtered_occurrences = []
       samples.each_with_index do |sample, index|
-        if filter['sample_ids'].include?(sample.id.to_s)
+        if samples_ids.include?(sample.id.to_s)
           filtered_samples << sample
           filtered_occurrences << occurrences[index]
         end
@@ -336,7 +336,7 @@ module Paleolog
       @column_headers = []
       report.column_groups.each do |column_group|
         unless column_group.headers.empty?
-          @column_headers.concat( column_group.headers.map(&:text) )
+          @column_headers.concat(column_group.headers.map(&:text))
         end
       end
     end
@@ -356,21 +356,22 @@ module Paleolog
     end
 
     def generate
+      p 'GENERATE'
       samples, species, occurrences = Paleolog::CountingSummary.new.summary(counting, section)
 
       report = Paleolog::Paleorep::Report.new
-      @row_criteria.each_value do |criteria|
-        samples, occurrences = filter_row(criteria, samples, occurrences)
-        if reverse_rows
-          samples.reverse!
-          occurrences.reverse!
-        end
-        sample_textizer = SampleTextizer.new
-        samples.each do |sample|
-          report.add_row(Paleolog::Paleorep::Field.new(sample, sample_textizer))
-        end
+      samples, occurrences = filter_row(samples_ids, samples, occurrences)
+      if reverse_rows
+        samples.reverse!
+        occurrences.reverse!
+      end
+      sample_textizer = SampleTextizer.new
+      samples.each do |sample|
+        report.add_row(Paleolog::Paleorep::Field.new(sample, sample_textizer))
       end
 
+      p 'column criteria'
+      p @column_criteria
       @column_criteria.each_value do |criteria|
         column_group = report.append_column_group
         process_column(column_group, species, occurrences)

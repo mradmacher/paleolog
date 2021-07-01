@@ -11,16 +11,17 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
   </head>
 
-  <body class="ui grid">
-    <div class="one wide column">
-      <div class="ui vertical text menu">
-        <a class="ui item" href="/catalog">Catalog</a>
-        <a class="ui item" href="/projects">Projects</a>
+  <body>
+    <div class="ui grid container">
+      <div class="sixteen wide column">
+        <div class="ui menu">
+          <a class="ui item" href="/catalog">Catalog</a>
+          <a class="ui item" href="/projects">Projects</a>
+        </div>
       </div>
-    </div>
-    <div class="fifteen wide column">
-      <%= yield %>
+      <div class="sixteen wide column">
+        <%= yield %>
+      </div>
     </div>
   </body>
 </html>
-

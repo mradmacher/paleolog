@@ -2,7 +2,7 @@
   <input type="hidden" name="section_id" value="<%= @section&.id %>" />
   <input type="hidden" name="counting_id" value="<%= @counting&.id %>" />
 
-  <button class="ui primary button" type="submit">Generate</button>
+  <button class="ui primary button <%= @section&.id && @counting&.id ? '' : 'disabled' %>" type="submit">Generate</button>
   <table class="ui celled table">
     <thead>
       <tr>
@@ -198,8 +198,8 @@
           <td>
             <% @species.each do |specie| %>
               <div class="field">
-                <label for="species[<%= index %>][]">
-                  <input type="checkbox" id="species[<%= index %>][]" name="species[<%= index %>][]" class="selection-field" data-filter-index="<%= index %>" data-filter-group-id="<%= specie.group_id %>" <%= specie.choices.map { |c| "data-filter-#{c.field_id}=#{c.id}" }.join(' ') %> data-filter-key="species_id" value="<%= specie.id %>" checked="checked">
+                <label for="columns[<%= index %>][species_ids][]">
+                  <input type="checkbox" id="columns[<%= index %>][species_ids][]" name="columns[<%= index %>][species_ids][]" class="selection-field" data-filter-index="<%= index %>" data-filter-group-id="<%= specie.group_id %>" <%= specie.choices.map { |c| "data-filter-#{c.field_id}=#{c.id}" }.join(' ') %> data-filter-key="species_id" value="<%= specie.id %>" checked="checked">
                   <%= specie.name %>
                 </label>
               </div>

@@ -115,7 +115,7 @@ module Paleolog
               associations do
                 belongs_to :project
                 belongs_to :group
-                belongs_to :species, as: :marker
+                belongs_to :species
                 has_many :occurrences
               end
             end
