@@ -216,7 +216,6 @@ class PaleologWeb < Sinatra::Base
   end
 
   post '/projects/:project_id/reports' do
-    p params
     @project = project_repository.find_with_dependencies(params[:project_id].to_i)
     @report = Paleolog::Report.build(params)
 		@report.generate

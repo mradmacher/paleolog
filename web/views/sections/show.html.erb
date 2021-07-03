@@ -1,11 +1,16 @@
 <fieldset>
   <legend>Section</legend>
-  <dl>
-    <dt>Name</dt>
-    <dd><h2><%= @section.name %></h2></dd>
-  </dl>
-  <a class="ui primary button" href="<%= occurrences_path(@project, section: @section) %>">Count</a>
-  <button class="ui primary button" href="/count">Reports</button>
+  <div class="ui grid">
+    <div class="twelve wide column">
+      <dl>
+        <dt>Name</dt>
+        <dd><h2><%= @section.name %></h2></dd>
+      </dl>
+    </div>
+    <div class="four wide column">
+      <a class="ui button" href="">Add sample</a>
+    </div>
+  </div>
   <h3>Samples</h3>
   <table class="ui striped celled table">
     <thead>
