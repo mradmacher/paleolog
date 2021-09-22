@@ -28,7 +28,7 @@
         <tr>
           <td><a href="<%= project_path(project) %>"><%= project.name %></a></td>
           <td><%= project.created_at.to_date %></td>
-          <td><%= project.research_participations.size %></td>
+          <td><%= project.users.size %></td>
         </tr>
       <% end %>
     </tbody>

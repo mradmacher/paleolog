@@ -69,23 +69,27 @@ class PaleologWeb < Sinatra::Base
     end
 
     def species_repository
-      @species_repository ||= Paleolog::Repository::Species.new(Paleolog::Repository::Config.db)
+      @species_repository ||= Paleolog::Repo::Species.new
     end
 
     def group_repository
-      @group_repository ||= Paleolog::Repository::Group.new(Paleolog::Repository::Config.db)
+      @group_repository ||= Paleolog::Repo::Group.new
     end
 
     def project_repository
-      @project_repository ||= Paleolog::Repository::Project.new(Paleolog::Repository::Config.db)
+      @project_repository ||= Paleolog::Repo::Project.new
+    end
+
+    def section_repository
+      @section_repository ||= Paleolog::Repo::Section.new
     end
 
     def occurrence_repository
-      @occurrence_repository ||= Paleolog::Repository::Occurrence.new(Paleolog::Repository::Config.db)
+      @occurrence_repository ||= Paleolog::Repo::Occurrence.new
     end
 
     def field_repository
-      @field_repository ||= Paleolog::Repository::Field.new(Paleolog::Repository::Config.db)
+      @field_repository ||= Paleolog::Repo::Field.new
     end
 
     def display(view)
@@ -146,7 +150,7 @@ class PaleologWeb < Sinatra::Base
   end
 
   get '/species/:id' do
-    @species = species_repository.find_with_dependencies(params[:id].to_i)
+    @species = species_repository.find_by_id(params[:id].to_i)
     using_species_layout { display 'species/show.html' }
     #@commentable = @specimen
     #@comment = Comment.new( :commentable_id => @specimen.id,
@@ -236,8 +240,8 @@ class PaleologWeb < Sinatra::Base
 
   get '/projects/:project_id/occurrences' do
     @project = project_repository.find_with_dependencies(params[:project_id].to_i)
-    @sample = project_repository.find_sample(@project, params[:sample].to_i) if params[:sample]
     @section = project_repository.find_section(@project, params[:section].to_i) if params[:section]
+    @sample = section_repository.find_sample(@section, params[:sample].to_i) if params[:sample]
     @counting = project_repository.find_counting(@project, params[:counting].to_i) if params[:counting]
     if @counting && @sample
       @occurrences = occurrence_repository.all_for_sample(@counting, @sample)

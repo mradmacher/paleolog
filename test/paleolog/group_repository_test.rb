@@ -2,27 +2,22 @@
 
 require 'test_helper'
 
-describe Paleolog::Repository::Group do
+describe Paleolog::Repo::Group do
   before do
-    @repository = Paleolog::Repository::Group.new(Paleolog::Repository::Config.db)
-    @repository.clear
+    @repo = Paleolog::Repo::Group.new
+    @repo.delete_all
   end
 
-  it 'persists group' do
-    group = @repository.create(name: 'Dinoflagellate')
+  it 'persists and finds groups' do
+    group = @repo.create(name: 'Dinoflagellate')
     refute_nil group.id
-    result = @repository.find(group.id)
+    result = @repo.find(group.id)
     assert_equal result, group
-  end
 
-  describe '#all' do
-    it 'returns all groups' do
-      group1 = @repository.create(name: 'Dinoflagellate')
-      group2 = @repository.create(name: 'Other')
+    other_group = @repo.create(name: 'Other')
 
-      result = @repository.all
-      assert_equal 2, result.size
-      # expect(repository.all).to eq([group1, group2])
-    end
+    result = @repo.all
+    assert_equal 2, result.size
+    assert_equal result, [group, other_group]
   end
 end

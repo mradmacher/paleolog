@@ -43,7 +43,7 @@ module Paleolog
 
       occurrences = occurrence_repo.all_for_sample(counting, sample)
 
-      counted_marker_quantity = occurrences.select { |occ| occ.species_id == counting.species_id }.map(&:quantity).sum
+      counted_marker_quantity = occurrences.select { |occ| occ.species_id == counting.marker_id }.map(&:quantity).sum
       return nil if counted_marker_quantity.zero?
 
       counted_group_quantity = occurrences.select { |occ| occ.species.group_id == counting.group_id }.map(&:quantity).sum * 1.0
@@ -65,7 +65,7 @@ module Paleolog
 
         occurrences = occurrence_repo.all_for_sample(counting, sample)
 
-        marker_cnt = occurrences.select { |occ| occ.species_id == counting.species_id }.map(&:quantity).compact.sum
+        marker_cnt = occurrences.select { |occ| occ.species_id == counting.marker_id }.map(&:quantity).compact.sum
         next if marker_cnt == 0
 
         occurrences.select { |occ| occ.species.group_id == counting.group_id }.each do |occ|
@@ -111,19 +111,19 @@ module Paleolog
     private
 
     def occurrence_repo
-      @occurrence_repo ||= Paleolog::Repository::Occurrence.new
+      @occurrence_repo ||= Paleolog::Repo::Occurrence.new
     end
 
     def sample_repo
-      @sample_repo ||= Paleolog::Repository::Sample.new
+      @sample_repo ||= Paleolog::Repo::Sample.new
     end
 
     def species_repo
-      @species_repo ||= Paleolog::Repository::Species.new
+      @species_repo ||= Paleolog::Repo::Species.new
     end
 
     def can_compute_density?(counting, sample)
-      counting.group_id && counting.species_id && counting.marker_count && sample.weight && (sample.weight != 0.0)
+      counting.group_id && counting.marker_id && counting.marker_count && sample.weight && (sample.weight != 0.0)
     end
   end
 end

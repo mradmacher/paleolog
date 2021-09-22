@@ -2,13 +2,10 @@
 
 source 'https://rubygems.org'
 
-gem 'dry-struct'
-gem 'dry-types'
+gem 'sequel'
 gem 'pdfkit'
 gem 'rake'
 gem 'RedCloth'
-gem 'rom'
-gem 'rom-sql'
 gem 'sinatra'
 gem 'sqlite3'
 
@@ -28,6 +25,7 @@ group :test do
   gem 'capybara'
   gem 'minitest'
   gem 'minitest-rg'
+  gem 'minitest-hooks'
   gem 'rack-test'
 end
 

@@ -4,12 +4,12 @@ require 'test_helper'
 
 describe Paleolog::CountingSummary do
   before do
-    @group_repo = Paleolog::Repository::Group.new
-    @project_repo = Paleolog::Repository::Project.new
-    @section_repo = Paleolog::Repository::Section.new
-    @occurrence_repo = Paleolog::Repository::Occurrence.new
-    @counting_repo = Paleolog::Repository::Counting.new
-    @sample_repo = Paleolog::Repository::Sample.new
+    @group_repo = Paleolog::Repo::Group.new
+    @project_repo = Paleolog::Repo::Project.new
+    @section_repo = Paleolog::Repo::Section.new
+    @occurrence_repo = Paleolog::Repo::Occurrence.new
+    @counting_repo = Paleolog::Repo::Counting.new
+    @sample_repo = Paleolog::Repo::Sample.new
 
     @project = @project_repo.create(name: 'Test')
     @counting = @project_repo.add_counting(@project, name: 'Counting1')

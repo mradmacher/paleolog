@@ -3,18 +3,18 @@
 require 'features_helper'
 
 describe 'Catalog' do
-  let(:group_repository) { Paleolog::Repository::Group.new(Paleolog::Repository::Config.db) }
-  let(:species_repository) { Paleolog::Repository::Species.new(Paleolog::Repository::Config.db) }
+  let(:group_repo) { Paleolog::Repo::Group.new }
+  let(:species_repo) { Paleolog::Repo::Species.new }
 
   before do
-    species_repository.clear
-    group_repository.clear
+    species_repo.delete_all
+    group_repo.delete_all
 
-    group1 = group_repository.create(name: 'Dinoflagellate')
-    group2 = group_repository.create(name: 'Other')
-    group_repository.add_species(group1, name: 'Odontochitina costata', verified: true)
-    group_repository.add_species(group1, name: 'Cerodinium costata', verified: false)
-    group_repository.add_species(group2, name: 'Cerodinium diabelli', verified: true)
+    group1 = group_repo.create(name: 'Dinoflagellate')
+    group2 = group_repo.create(name: 'Other')
+    group_repo.add_species(group1, name: 'Odontochitina costata', verified: true)
+    group_repo.add_species(group1, name: 'Cerodinium costata', verified: false)
+    group_repo.add_species(group2, name: 'Cerodinium diabelli', verified: true)
   end
 
   it 'displays species' do

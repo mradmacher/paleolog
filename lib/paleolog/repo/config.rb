@@ -2,13 +2,13 @@
 
 require 'singleton'
 require 'forwardable'
-require 'rom-sql'
+require 'sequel'
 
 module Paleolog
-  module Repository
+  module Repo
     class Config
       include Singleton
-
+=begin
       def configuration
         @configuration = ROM::Configuration.new(:sql,
           "sqlite:#{File.expand_path(File.join(__dir__, '..', '..', '..', 'db', "#{ENV['RACK_ENV']}.sqlite"))}"
@@ -142,9 +142,10 @@ module Paleolog
           end
         end
       end
+=end
 
       def db
-        @db = ROM.container(configuration)
+        @db = Sequel.connect("sqlite:#{File.expand_path(File.join(__dir__, '..', '..', '..', 'db', "#{ENV['RACK_ENV']}.sqlite"))}")
       end
 
       class << self
@@ -152,7 +153,6 @@ module Paleolog
 
         def_delegators(
           :instance,
-          :configuration,
           :db
         )
       end

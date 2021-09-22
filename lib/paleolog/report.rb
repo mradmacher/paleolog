@@ -356,7 +356,6 @@ module Paleolog
     end
 
     def generate
-      p 'GENERATE'
       samples, species, occurrences = Paleolog::CountingSummary.new.summary(counting, section)
 
       report = Paleolog::Paleorep::Report.new
@@ -370,8 +369,6 @@ module Paleolog
         report.add_row(Paleolog::Paleorep::Field.new(sample, sample_textizer))
       end
 
-      p 'column criteria'
-      p @column_criteria
       @column_criteria.each_value do |criteria|
         column_group = report.append_column_group
         process_column(column_group, species, occurrences)
@@ -408,11 +405,11 @@ module Paleolog
     end
 
     def counting
-      @counting ||= Paleolog::Repository::Counting.new.find(self.counting_id) if self.counting_id
+      @counting ||= Paleolog::Repo::Counting.new.find(self.counting_id) if self.counting_id
     end
 
     def section
-      @section ||= Paleolog::Repository::Section.new.find(self.section_id) if self.section_id
+      @section ||= Paleolog::Repo::Section.new.find(self.section_id) if self.section_id
     end
   end
 end

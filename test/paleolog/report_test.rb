@@ -4,12 +4,12 @@ require 'test_helper'
 
 describe Paleolog::Report do
   before do
-    @group_repo = Paleolog::Repository::Group.new
-    @project_repo = Paleolog::Repository::Project.new
-    @section_repo = Paleolog::Repository::Section.new
-    @counting_repo = Paleolog::Repository::Counting.new
-    @occurrence_repo = Paleolog::Repository::Occurrence.new
-    @sample_repo = Paleolog::Repository::Sample.new
+    @group_repo = Paleolog::Repo::Group.new
+    @project_repo = Paleolog::Repo::Project.new
+    @section_repo = Paleolog::Repo::Section.new
+    @counting_repo = Paleolog::Repo::Counting.new
+    @occurrence_repo = Paleolog::Repo::Occurrence.new
+    @sample_repo = Paleolog::Repo::Sample.new
 
     @project = @project_repo.create(name: 'Test')
     @section = @project_repo.add_section(@project, name: 'Section1')
@@ -52,7 +52,7 @@ describe Paleolog::Report do
         type: Paleolog::Report::QUANTITY,
         counting_id: @counting.id,
         section_id: @section.id,
-        rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
+        samples: @samples_summary.map{ |s| s.id.to_s },
         columns: { '0' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s }, 'merge' => 'most_abundant', 'header' => 'Most Abundant' } }
       )
       @report.generate
@@ -76,7 +76,7 @@ describe Paleolog::Report do
         type: Paleolog::Report::QUANTITY,
         counting_id: @counting.id,
         section_id: @section.id,
-        rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
+        samples: @samples_summary.map{ |s| s.id.to_s },
         columns: { '0' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s }, 'merge' => 'second_most_abundant', 'header' => 'Most Abundant' } }
        )
       @report.generate
@@ -102,7 +102,7 @@ describe Paleolog::Report do
         type: Paleolog::Report::QUANTITY,
         counting_id: @counting.id,
         section_id: @section.id,
-        rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
+        samples: @samples_summary.map{ |s| s.id.to_s },
         columns: { '0' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s }, 'merge' => 'count', 'header' => 'Species' } }
       )
       @report.generate
@@ -128,7 +128,7 @@ describe Paleolog::Report do
     before do
       @samples_summary, @species_summary, @occurrences_summary = Paleolog::CountingSummary.new.summary(@counting, @section)
       @report = Paleolog::Report.build type: Paleolog::Report::QUANTITY, counting_id: @counting.id, section_id: @section.id,
-        rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
+        samples: @samples_summary.map{ |s| s.id.to_s },
         columns: {
           '0' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s }, 'merge' => 'count', 'header' => 'Species Count' },
           '1' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s }, 'merge' => 'sum', 'header' => 'Species Sum' },
@@ -160,9 +160,13 @@ describe Paleolog::Report do
   describe 'quantities' do
     before do
       @samples_summary, @species_summary, @occurrences_summary = Paleolog::CountingSummary.new.summary(@counting, @section)
-      @report = Paleolog::Report.build type: Paleolog::Report::QUANTITY, counting_id: @counting.id, section_id: @section.id,
-        rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
+      @report = Paleolog::Report.build(
+        type: Paleolog::Report::QUANTITY,
+        counting_id: @counting.id,
+        section_id: @section.id,
+        samples: @samples_summary.map { |s| s.id.to_s },
         columns: { '0' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s } } }
+      )
       @report.generate
     end
 
@@ -195,7 +199,7 @@ describe Paleolog::Report do
         type: Paleolog::Report::QUANTITY,
         counting_id: @counting.id,
         section_id: @section.id,
-        rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
+        samples: @samples_summary.map{ |s| s.id.to_s },
         columns: {
           '0' => { 'species_ids' => @species_summary.map{ |s| s.id.to_s },
             'percentages' => '1'  } }
@@ -248,7 +252,7 @@ describe Paleolog::Report do
         type: Paleolog::Report::DENSITY,
         counting_id: @counting.id,
         section_id: @section.id,
-        rows: { '0' => { 'sample_ids' => @samples_summary.map{ |s| s.id.to_s } } },
+        samples: @samples_summary.map{ |s| s.id.to_s },
         columns: { '0' => { 'species_ids' => @selected_species_ids },
           '1' => { 'species_ids' => @selected_species_ids, 'merge' => 'sum', 'header' => 'Density' } }
       )
