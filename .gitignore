@@ -11,6 +11,7 @@
 /tmp/
 *.sqlite
 *.swp
+*.swo
 
 /web/public/images/*
 # Used by dotenv library to load environment variables.

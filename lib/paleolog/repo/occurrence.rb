@@ -12,7 +12,7 @@ module Paleolog
       end
 
       def all_for_sample(counting, sample)
-        Entity.where(counting_id: counting.id, sample_id: sample.id).association_join(:species).order { rank.desc }.to_a
+        Entity.where(counting_id: counting.id, sample_id: sample.id).eager(:species).order { rank.desc }.to_a
       end
 
       def all_for_section(counting, section)

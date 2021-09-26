@@ -3,6 +3,11 @@
 require 'test_helper'
 
 describe Paleolog::CountingSummary do
+  #around do |&block|
+  #  p 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+  #  Paleolog::Repo::Config.db.transaction(rollback: :always, auto_savepoint: true) { super(&block) }
+  #end
+
   before do
     @group_repo = Paleolog::Repo::Group.new
     @project_repo = Paleolog::Repo::Project.new
@@ -16,6 +21,15 @@ describe Paleolog::CountingSummary do
     @section = @project_repo.add_section(@project, name: 'Section1')
     @marker_group = @group_repo.create(name: 'Marker Group')
     @marker = @group_repo.add_species(@marker_group, name: 'Marker')
+  end
+
+  after do
+    @occurrence_repo.delete_all
+    @sample_repo.delete_all
+    @section_repo.delete_all
+    @counting_repo.delete_all
+    @project_repo.delete_all
+    @group_repo.delete_all
   end
 
   describe 'group_per_gram' do
@@ -188,7 +202,7 @@ describe Paleolog::CountingSummary do
         assert_equal expected_species.map(&:id), species.map(&:id)
         assert_equal expected_samples.map(&:id), samples.map(&:id)
 
-        assert_equal expected_occurrences.map { |row| row.map { |c| c&.id } }, occurrences.map { |row| row.map { |c| c&.id } }
+        assert_equal expected_occurrences.map { |row| row.map { |col| col&.id } }, occurrences.map { |row| row.map { |col| col&.id } }
       end
 
       it 'returns proper values for first occurrence' do

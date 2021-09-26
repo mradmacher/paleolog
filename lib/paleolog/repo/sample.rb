@@ -3,6 +3,10 @@
 module Paleolog
   module Repo
     class Sample
+      def delete_all
+        Entity.dataset.delete
+      end
+
       def find(id)
         Entity[id]
       end
