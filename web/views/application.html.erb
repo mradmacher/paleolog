@@ -15,8 +15,14 @@
     <div class="ui grid container">
       <div class="sixteen wide column">
         <div class="ui menu">
-          <a class="ui item" href="/catalog">Catalog</a>
-          <a class="ui item" href="/projects">Projects</a>
+          <% if logged_in? %>
+            <a class="ui item" href="/catalog">Catalog</a>
+            <a class="ui item" href="/projects">Projects</a>
+            <a class="ui item floated right" href="/logout">Logout</a>
+          <% else %>
+            <a class="ui item" href="/">Home</a>
+            <a class="ui item floated right" href="/login">Login</a>
+          <% end %>
         </div>
       </div>
       <div class="sixteen wide column">

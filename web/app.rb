@@ -10,12 +10,22 @@ require 'redcloth'
 require 'paleolog'
 
 class PaleologWeb < Sinatra::Base
+  enable :sessions
   set :static, true
+  set :authorizer, Paleolog::Authorizer.new(session)
   configure :development do
     register Sinatra::Reloader
   end
 
   helpers do
+    def logged_in?
+      settings.authorizer.logged_in?
+    end
+
+    def authorize(session)
+      halt 403, '<a href="/login">Login</a>' unless logged_in?
+    end
+
     def parameterize(name)
       name.gsub(/[[:punct:]]/, '-').gsub(/[[:space:]]+/, '-')
       #name.gsub('/', '').gsub(/[[:space:]]+/, '-')
@@ -133,8 +143,31 @@ class PaleologWeb < Sinatra::Base
     end
   end
 
+
+  %w[/projects* /catalog*].each do |pattern|
+    before pattern do
+      authorize(session)
+    end
+  end
+
   get '/' do
     erb 'home.html'.to_sym, layout: 'application.html'.to_sym
+  end
+
+  get '/login' do
+    using_application_layout { display 'login.html' }
+  end
+
+  get '/logout' do
+    settings.authorizer.logout
+    redirect '/'
+  end
+
+  post '/login' do
+    settings.authorizer.login(params[:login], params[:password])
+    redirect '/projects'
+  catch Paleolog::Authorizer::InvalidLogin, Paleolog::Authorizer::InvalidPassword
+    redirect '/login'
   end
 
   get '/catalog' do

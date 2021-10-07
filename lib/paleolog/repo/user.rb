@@ -3,6 +3,10 @@
 module Paleolog
   module Repo
     class User
+      def find_by_login(login)
+        Entity.where(login: login).first
+      end
+
       private
 
       class Entity < Sequel::Model(Config.db[:users])
