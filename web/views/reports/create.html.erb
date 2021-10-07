@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+    width="<%= 2*@chart.row_header_width + @chart.col_widths_sum + 100 %>"
+    height="<%= @chart.column_header_height + @chart.rows_count*@chart.col_height + 100 %>"
+    style="fill:black;stroke-width:<%= @chart.stroke_width %>;font-family:sans-serif;font-size:<%= @chart.font_size %>px">
+
+  <g transform="scale(1.0)">
+    <g transform="translate(10, <%= 50 + @chart.column_header_height %>)">
+
+      <% @chart.columns.each_with_index do |column, i| %>
+        <rect x="<%= column[0] %>" y="<%= column[1] %>" width="<%= column[2] %>" height="<%= column[3] %>" fill="#<%= i.even?? 'eeeeee' : 'ffffff' %>" />
+      <% end %>
+
+      <% @chart.column_headers.each do |header| %>
+        <g transform="translate(<%= header[0][0] %>, <%= header[0][1] %>)">
+          <g transform="rotate(270)">
+            <text x="<%= header[1][0] %>" y="<%= header[1][1] %>" font-style="italic">
+              <%= header[2].gsub(Paleolog::Report::NOLATIN){ |match| "<tspan font-style=\"normal\">#{match}</tspan>" } %>
+            </text>
+          </g>
+        </g>
+      <% end %>
+
+      <g transform="translate(<%= @chart.rows_header[:all][0] %>, <%= @chart.rows_header[:all][1] %>)">
+        <g transform="rotate(270)">
+          <text x="<%= @chart.rows_header[:left][0] %>" y="<%= @chart.rows_header[:left][1] %>">Depth (m)</text>
+          <text x="<%= @chart.rows_header[:right][0] %>" y="<%= @chart.rows_header[:right][1] %>">Depth (m)</text>
+        </g>
+      </g>
+
+    <% @chart.row_headers.each do |header| %>
+      <text x="<%= header[0][0] %>" y="<%= header[0][1] %>" text-anchor="end"><%= header[2] %></text>
+      <text x="<%= header[1][0] %>" y="<%= header[1][1] %>" text-anchor="start"><%= header[2] %></text>
+    <% end %>
+
+      <rect x="<%= @chart.border[0] %>" y="<%= @chart.border[1] %>" width="<%= @chart.border[2] %>" height="<%= @chart.border[3] %>" stroke="black" fill="none" />
+
+    <% @chart.line_positions.each do |line| %>
+      <line x1="<%= line[0] %>" x2="<%= line[0] %>" y1="<%= line[1] %>" y2="<%= line[2] %>" stroke="black" />
+    <% end %>
+
+    <% if @report.view.to_sym == :numbers %>
+      <% @chart.cells.each do |column| %>
+        <% column.each do |cell| %>
+          <% if cell[2].to_s != '0' %>
+            <% x = cell[0] %>
+            <% y = cell[1] %>
+            <text x="<%= x %>" y="<%= y %>"><%= cell[2].to_s %></text>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% elsif @report.view.to_sym == :points %>
+      <% last_rows = [] %>
+      <%  @report.values.each_with_index do |row, i| %>
+        <% row.each_with_index do |col, j| %>
+          <% last_rows[j] = i unless col.to_s.empty? || col.to_i == 0 %>
+        <% end %>
+      <% end %>
+
+      <% @chart.cells.each_with_index do |column, i| %>
+        <% column.each do |cell| %>
+          <% x = cell[0] + @chart.col_widths[i]/2 - 1 %>
+          <% unless last_rows[i].nil? %>
+            <% y1 = -@chart.col_height %>
+            <% y2 = last_rows[i] * @chart.col_height - @chart.col_widths[i]/2 %>
+            <line x1="<%= x %>" x2="<%= x %>" y1="<%= y1 %>" y2="<%= y2 %>" stroke="black" stroke-dasharray="1 1" />
+          <% end %>
+        <% end %>
+      <% end %>
+
+      <% @chart.cells.each_with_index do |column, i| %>
+        <% column.each do |cell| %>
+          <% x = cell[0] + @chart.col_widths[i]/2 - 1 %>
+          <% y = cell[1] - @chart.col_height/2 + 1 %>
+          <% unless cell[2].to_s.empty? %>
+            <% if cell[2].to_i > 150 %>
+              <circle cx="<%= x %>" cy="<%= y %>" r="4" stroke="#000000" fill="#000000" />
+            <% elsif cell[2].to_i > 80 %>
+              <circle cx="<%= x %>" cy="<%= y %>" r="3" stroke="#000000" fill="#444444" />
+            <% elsif cell[2].to_i > 20 %>
+              <circle cx="<%= x %>" cy="<%= y %>" r="3" stroke="#000000" fill="#888888" />
+            <% elsif cell[2].to_i > 4 %>
+              <circle cx="<%= x %>" cy="<%= y %>" r="3" stroke="#000000" fill="#cccccc" />
+            <% elsif cell[2].to_i > 0 %>
+              <circle cx="<%= x %>" cy="<%= y %>" r="2" stroke="#000000" fill="#ffffff" />
+            <% end %>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% elsif @report.view.to_sym == :blocks %>
+      <% @chart.cells.each do |column| %>
+        <% column.each do |cell| %>
+          <% if cell[2].to_i > 0 %>
+            <% width = ((cell[2].to_f.round.to_i + 1)/2) %>
+            <% height = @chart.col_height/2 %>
+            <% x = cell[0] %>
+            <% y = cell[1] - @chart.col_height/2 - 1 %>
+            <rect x="<%= x %>" y="<%= y %>" width="<%= width %>" height="<%= height %>" fill="#555555" />
+          <% end %>
+        <% end %>
+      <% end %>
+    <% elsif @report.view.to_sym == :lines %>
+      <% preds = [] %>
+      <% @chart.cells.each_with_index do |column, i| %>
+        <% preds[i] = [] %>
+        <% column.each_with_index do |cell, j| %>
+          <% if cell[2].to_i > 0 %>
+            <% x = cell[0] + (cell[2].to_f.round.to_i/2) + 1 %>
+            <% y = cell[1] - @chart.col_height/2 + 1 %>
+          <% else %>
+            <% x = cell[0] %>
+            <% y = cell[1] - @chart.col_height/2 + 1 %>
+          <% end %>
+          <% preds[i][j] = [x, y] %>
+          <circle cx="<%= x %>" cy="<%= y %>" r="1" />
+          <% if j > 0 %>
+            <% x1 = preds[i][j-1][0] %>
+            <% x2 = preds[i][j][0] %>
+            <% y1 = preds[i][j-1][1] %>
+            <% y2 = preds[i][j][1] %>
+            <line x1="<%= x1 %>" x2="<%= x2 %>" y1="<%= y1 %>" y2="<%= y2 %>" stroke="black" />
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,14 @@
+<p>
+  <% @species.images.each do |image| %>
+    <% id = image.id.to_s.rjust(9, '0') %>
+    <img src="/<%=File.join('images', id[0..2], id[3..5], id[6..8], 'thumb.jpg') %>" />
+  <% end %>
+</p>
+<% if @species.description && !@species.description.empty? %>
+  <h2>Description</h2>
+  <p><%= RedCloth.new(@species.description).to_html %></p>
+<% end %>
+<% if @species.environmental_preferences && !@species.environmental_preferences.empty? %>
+  <h2>Environmental Preferences</h2>
+  <p><%= RedCloth.new(@species.environmental_preferences).to_html %></p>
+<% end %>

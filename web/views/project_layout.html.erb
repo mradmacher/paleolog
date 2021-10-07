@@ -1,0 +1,47 @@
+<div class="ui grid">
+  <div class="sixteen wide column">
+    <fieldset>
+      <legend>Project</legend>
+        <h1 class="ui header"><a href="<%= project_path(@project) %>"><%= @project.name %></a></h1>
+        <div class="ui text menu">
+          <a class="ui item" href="<%= project_species_path(@project) %>">Species</a>
+          <a class="ui item" href="<%= occurrences_path(@project) %>">Count</a>
+          <a class="ui item" href="<%= reports_path(@project) %>">Reports</a>
+        </div>
+    </fieldset>
+  </div>
+  <div class="three wide column">
+    <fieldset>
+      <legend>Details</legend>
+      <h2 class="ui header">Researchers</h2>
+      <p>
+        <ul>
+        <% @project.users.each do |user| %>
+          <li><%= user.name %>
+        <% end %>
+        </ul>
+      </p>
+
+      <h2 class="ui header">Countings</h2>
+      <p>
+        <ul>
+        <% @project.countings.each do |counting| %>
+          <li><a href="<%= counting_path(@project, counting) %>"><%= counting.name %></a></li>
+        <% end %>
+        </ul>
+      </p>
+
+      <h2 class="ui header">Sections</h2>
+      <p>
+        <ul>
+        <% @project.sections.each do |section| %>
+          <li><a href="<%= section_path(@project, section) %>"><%= section.name %></a></li>
+        <% end %>
+        </ul>
+      </p>
+    </fieldset>
+  </div>
+  <div class="thirteen wide column">
+    <%= yield %>
+  </div>
+</div>

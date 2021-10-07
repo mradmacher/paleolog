@@ -1,0 +1,39 @@
+<fieldset>
+  <legend>Section</legend>
+  <div class="ui grid">
+    <div class="twelve wide column">
+      <dl>
+        <dt>Name</dt>
+        <dd><h2><%= @section.name %></h2></dd>
+      </dl>
+    </div>
+    <div class="four wide column">
+      <a class="ui button" href="">Add sample</a>
+    </div>
+  </div>
+  <h3>Samples</h3>
+  <table class="ui striped celled table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Weight</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @section.samples.sort_by(&:rank).each do |sample| %>
+        <tr>
+          <td>
+            <%= sample.name %>
+          </td>
+          <td>
+            <%= sample.description %>
+          </td>
+          <td>
+            <%= sample.weight %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</fieldset>

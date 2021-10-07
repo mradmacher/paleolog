@@ -1,0 +1,43 @@
+<% unless @occurrences.empty? %>
+  <table class="ui collapsing compact celled table">
+    <thead>
+      <th>Counted</th>
+      <th>Other</th>
+      <th>Total</th>
+      <% if @counting_summary.group_per_gram(@counting, @sample) %>
+        <th><%= @counting.group.name %> per gram</th>
+      <% end %>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span id="sample-countable-sum"><%= @counting_summary.countable_sum(@occurrences) %></span></td>
+        <td><span id="sample-uncountable-sum"><%= @counting_summary.uncountable_sum(@occurrences) %></span></td>
+        <td class="active"><span id="sample-total-sum"><%= @counting_summary.total_sum(@occurrences) %></span></td>
+        <% if @counting_summary.group_per_gram(@counting, @sample) %>
+          <td><%= @counting_summary.group_per_gram(@counting, @sample) %></td>
+        <% end %>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="ui striped celled table">
+    <thead>
+      <tr align="center">
+        <th>Group</th>
+        <th>Species</th>
+        <th>Quantity</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    </tbody>
+      <% @occurrences.each do |occurrence| %>
+        <tr>
+          <td><%= occurrence.species.group.name %></td>
+          <td><%= occurrence.species.name %></td>
+          <td><%= occurrence.quantity %></td>
+          <td><%= @counting_summary.status_symbol(occurrence.status) %><%= if occurrence.uncertain then Paleolog::CountingSummary::UNCERTAIN_SYMBOL end %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
