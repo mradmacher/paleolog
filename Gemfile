@@ -9,6 +9,7 @@ gem 'RedCloth'
 gem 'sinatra'
 gem 'sqlite3'
 gem 'bcrypt'
+gem 'puma'
 
 group :development do
   # gem 'shotgun', platforms: :ruby

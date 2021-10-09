@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'paleolog/authorizer'
 require 'paleolog/repo/config'
 require 'paleolog/repo/choice'
 require 'paleolog/repo/counting'

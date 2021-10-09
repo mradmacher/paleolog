@@ -12,14 +12,17 @@ require 'paleolog'
 class PaleologWeb < Sinatra::Base
   enable :sessions
   set :static, true
-  set :authorizer, Paleolog::Authorizer.new(session)
   configure :development do
     register Sinatra::Reloader
   end
 
   helpers do
+    def authorizer
+      @authorizer ||= Paleolog::Authorizer.new(session)
+    end
+
     def logged_in?
-      settings.authorizer.logged_in?
+      authorizer.logged_in?
     end
 
     def authorize(session)
@@ -159,12 +162,12 @@ class PaleologWeb < Sinatra::Base
   end
 
   get '/logout' do
-    settings.authorizer.logout
+    authorizer.logout
     redirect '/'
   end
 
   post '/login' do
-    settings.authorizer.login(params[:login], params[:password])
+    authorizer.login(params[:login], params[:password])
     redirect '/projects'
   catch Paleolog::Authorizer::InvalidLogin, Paleolog::Authorizer::InvalidPassword
     redirect '/login'
