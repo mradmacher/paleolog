@@ -43,7 +43,7 @@ module Paleolog
 
       occurrences = occurrence_repo.all_for_sample(counting, sample)
 
-      p counted_marker_quantity = occurrences.select { |occ| occ.species_id == counting.marker_id }.map(&:quantity).sum
+      counted_marker_quantity = occurrences.select { |occ| occ.species_id == counting.marker_id }.map(&:quantity).sum
       return nil if counted_marker_quantity.zero?
 
       counted_group_quantity = occurrences.select { |occ| occ.species.group_id == counting.group_id }.map(&:quantity).sum * 1.0
