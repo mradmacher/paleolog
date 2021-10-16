@@ -3,10 +3,10 @@
 require 'test_helper'
 
 describe Paleolog::CountingSummary do
-  #around do |&block|
+  # around do |&block|
   #  p 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
   #  Paleolog::Repo::Config.db.transaction(rollback: :always, auto_savepoint: true) { super(&block) }
-  #end
+  # end
 
   before do
     @group_repo = Paleolog::Repo::Group.new
@@ -96,12 +96,17 @@ describe Paleolog::CountingSummary do
       @species41 = @group_repo.add_species(@group, name: 'Species41')
       @species0 = @group_repo.add_species(@group, name: 'Species0')
 
-      @occurrence15 = @occurrence_repo.create(counting_id: @counting.id, sample_id: @sample.id, species_id: @species15.id, quantity: 15)
-      @occurrence41 = @occurrence_repo.create(counting_id: @counting.id, sample_id: @sample.id, species_id: @species41.id, quantity: 41)
-      @occurrence0 = @occurrence_repo.create(counting_id: @counting.id, sample_id: @sample.id, species_id: @species0.id, quantity: nil)
+      @occurrence15 = @occurrence_repo.create(counting_id: @counting.id, sample_id: @sample.id,
+                                              species_id: @species15.id, quantity: 15)
+      @occurrence41 = @occurrence_repo.create(counting_id: @counting.id, sample_id: @sample.id,
+                                              species_id: @species41.id, quantity: 41)
+      @occurrence0 = @occurrence_repo.create(counting_id: @counting.id, sample_id: @sample.id,
+                                             species_id: @species0.id, quantity: nil)
 
-      @occurrence_repo.create(counting_id: @counting.id, sample_id: @sample.id, species_id: @group_repo.add_species(other_group, name: 'Species111').id)
-      @occurrence_repo.create(counting_id: @counting.id, sample_id: @sample.id, species_id: @group_repo.add_species(other_group, name: 'Species222').id)
+      @occurrence_repo.create(counting_id: @counting.id, sample_id: @sample.id,
+                              species_id: @group_repo.add_species(other_group, name: 'Species111').id)
+      @occurrence_repo.create(counting_id: @counting.id, sample_id: @sample.id,
+                              species_id: @group_repo.add_species(other_group, name: 'Species222').id)
       @summary = Paleolog::CountingSummary.new
     end
 
@@ -150,7 +155,7 @@ describe Paleolog::CountingSummary do
   describe 'for samples/species/occurrences' do
     before do
       @samples = []
-      %w(100 200 300 400 500 600 700).each_with_index do |name, rank|
+      %w[100 200 300 400 500 600 700].each_with_index do |name, rank|
         @samples << @section_repo.add_sample(@section, name: name, rank: rank)
       end
       @group1 = @group_repo.create(name: 'Group1')
@@ -163,7 +168,7 @@ describe Paleolog::CountingSummary do
       end
 
       @occurrences = []
-      #sample, rank, group, species
+      # sample, rank, group, species
       [
         [0, 0, 0, 2], [0, 1, 0, 3], [0, 2, 1, 0],
         [1, 0, 0, 1], [1, 1, 0, 2], [1, 2, 1, 1], [1, 3, 1, 2],
@@ -178,7 +183,7 @@ describe Paleolog::CountingSummary do
           sample_id: @samples[value[0]].id,
           species_id: @species[value[2]][value[3]].id,
           rank: value[1],
-          status: (value[2] == 0 ? Paleolog::CountingSummary::NORMAL : Paleolog::CountingSummary::OUTSIDE_COUNT)
+          status: ((value[2]).zero? ? Paleolog::CountingSummary::NORMAL : Paleolog::CountingSummary::OUTSIDE_COUNT)
         )
       end
       @summary = Paleolog::CountingSummary.new
@@ -187,32 +192,42 @@ describe Paleolog::CountingSummary do
     describe 'summary' do
       it 'returns proper values for last occurrence' do
         expected_species = [@species[0][2], @species[0][0], @species[1][2], @species[1][1],
-          @species[1][0], @species[0][1], @species[0][3]]
+                            @species[1][0], @species[0][1], @species[0][3]]
         expected_samples = [@samples[0], @samples[1], @samples[2], @samples[3], @samples[4], @samples[5], @samples[6]]
         expected_occurrences = [
           [@occurrences[0][0], nil, nil, nil, @occurrences[0][2], nil, @occurrences[0][1]],
           [@occurrences[1][1], nil, @occurrences[1][3], @occurrences[1][2], nil, @occurrences[1][0], nil],
-          [@occurrences[2][3], @occurrences[2][0], nil, nil, @occurrences[2][4], @occurrences[2][1], @occurrences[2][2]],
+          [@occurrences[2][3], @occurrences[2][0], nil, nil, @occurrences[2][4], @occurrences[2][1],
+           @occurrences[2][2]],
           [nil, nil, nil, nil, nil, nil, nil],
           [@occurrences[4][0], @occurrences[4][1], nil, nil, nil, nil, nil],
           [nil, @occurrences[5][0], @occurrences[5][1], @occurrences[5][2], @occurrences[5][3], nil, nil],
-          [@occurrences[6][0], nil, nil, nil, nil, nil, nil],
+          [@occurrences[6][0], nil, nil, nil, nil, nil, nil]
         ]
         samples, species, occurrences = @summary.summary(@counting, @section, occurrence: :last)
         assert_equal expected_species.map(&:id), species.map(&:id)
         assert_equal expected_samples.map(&:id), samples.map(&:id)
 
-        assert_equal expected_occurrences.map { |row| row.map { |col| col&.id } }, occurrences.map { |row| row.map { |col| col&.id } }
+        assert_equal expected_occurrences.map { |row|
+                       row.map do |col|
+                         col&.id
+                       end
+                     }, occurrences.map { |row|
+                          row.map do |col|
+                            col&.id
+                          end
+                        }
       end
 
       it 'returns proper values for first occurrence' do
         expected_species = [@species[0][2], @species[0][3], @species[1][0], @species[0][1],
-          @species[1][1], @species[1][2], @species[0][0]]
+                            @species[1][1], @species[1][2], @species[0][0]]
         expected_samples = [@samples[0], @samples[1], @samples[2], @samples[3], @samples[4], @samples[5], @samples[6]]
         expected_occurrences = [
           [@occurrences[0][0], @occurrences[0][1], @occurrences[0][2], nil, nil, nil, nil],
           [@occurrences[1][1], nil, nil, @occurrences[1][0], @occurrences[1][2], @occurrences[1][3], nil],
-          [@occurrences[2][3], @occurrences[2][2], @occurrences[2][4], @occurrences[2][1], nil, nil, @occurrences[2][0]],
+          [@occurrences[2][3], @occurrences[2][2], @occurrences[2][4], @occurrences[2][1], nil, nil,
+           @occurrences[2][0]],
           [nil, nil, nil, nil, nil, nil, nil],
           [@occurrences[4][0], nil, nil, nil, nil, nil, @occurrences[4][1]],
           [nil, nil, @occurrences[5][3], nil, @occurrences[5][2], @occurrences[5][1], @occurrences[5][0]],
@@ -221,7 +236,11 @@ describe Paleolog::CountingSummary do
         samples, species, occurrences = @summary.summary(@counting, @section, occurrence: :first)
         assert_equal expected_species.map(&:id), species.map(&:id)
         assert_equal expected_samples.map(&:id), samples.map(&:id)
-        assert_equal expected_occurrences.map { |row| row.map { |c| c&.id } }, occurrences.map { |row| row.map { |c| c&.id } }
+        assert_equal expected_occurrences.map { |row| row.map { |c| c&.id } }, occurrences.map { |row|
+                                                                                 row.map do |c|
+                                                                                   c&.id
+                                                                                 end
+                                                                               }
       end
     end
   end
@@ -236,14 +255,15 @@ describe Paleolog::CountingSummary do
       3.times { |i| @groups << @group_repo.create(name: "Group#{i}") }
       80.times { |i| specimens << @group_repo.add_species(@groups.sample(1).first, name: "Species#{i}") }
       (1..10).to_a.each do |depth|
-        species = specimens.sample( Random.new.rand( 1..specimens.size ) )
+        species = specimens.sample(Random.new.rand(1..specimens.size))
         (1..species.size).to_a.each do |rank|
-          unless sample_depth.keys.include?( depth )
+          unless sample_depth.keys.include?(depth)
             sample_depth[depth] = @section_repo.add_sample(@section, name: depth, rank: depth)
             @samples << sample_depth[depth]
           end
-          @occurrence_repo.create(counting_id: @counting.id, sample_id: sample_depth[depth].id, rank: rank, species_id: species[rank-1].id)
-          @testing_examples << { sample: sample_depth[depth], rank: rank, species: species[rank-1] }
+          @occurrence_repo.create(counting_id: @counting.id, sample_id: sample_depth[depth].id, rank: rank,
+                                  species_id: species[rank - 1].id)
+          @testing_examples << { sample: sample_depth[depth], rank: rank, species: species[rank - 1] }
         end
       end
       @summary = Paleolog::CountingSummary.new
@@ -257,19 +277,20 @@ describe Paleolog::CountingSummary do
 
       received_specimens = @summary.specimens_by_occurrence_for_section(@counting, @section)
       assert_equal expected_specimen_ids.size, received_specimens.size
-      assert_equal expected_specimen_ids, received_specimens.map{ |s| s.id }
+      assert_equal expected_specimen_ids, received_specimens.map(&:id)
     end
 
     it 'returns specimens in sample' do
-      selected_samples = @samples.sample( Random.new.rand( 1..@samples.size) )
-      selected_samples = selected_samples.sort{ |a, b| a.rank <=> b.rank }
-      sorted = @testing_examples.reject{ |t| !selected_samples.include?( t[:sample] ) }.sort{ |a, b|
-        a[:sample].rank == b[:sample].rank ? a[:rank] <=> b[:rank] : a[:sample].rank <=> b[:sample].rank }
-      expected_specimen_ids = sorted.map{ |v| v[:species].id }.uniq
+      selected_samples = @samples.sample(Random.new.rand(1..@samples.size))
+      selected_samples = selected_samples.sort { |a, b| a.rank <=> b.rank }
+      sorted = @testing_examples.select { |t| selected_samples.include?(t[:sample]) }.sort do |a, b|
+        a[:sample].rank == b[:sample].rank ? a[:rank] <=> b[:rank] : a[:sample].rank <=> b[:sample].rank
+      end
+      expected_specimen_ids = sorted.map { |v| v[:species].id }.uniq
 
       received_specimens = @summary.specimens_by_occurrence(@counting, selected_samples)
       assert_equal expected_specimen_ids.size, received_specimens.size
-      assert_equal expected_specimen_ids, received_specimens.map{ |s| s.id }
+      assert_equal expected_specimen_ids, received_specimens.map(&:id)
     end
   end
 

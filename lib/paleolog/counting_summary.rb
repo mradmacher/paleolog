@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paleolog
   class CountingSummary
     attr_reader :occurrences
@@ -8,12 +10,12 @@ module Paleolog
     REWORKING = 3
     DEFAULT_STATUS = NORMAL
 
-    STATUSES = { NORMAL => '', OUTSIDE_COUNT => '+', CARVING => 'c', REWORKING => 'r' }
+    STATUSES = { NORMAL => '', OUTSIDE_COUNT => '+', CARVING => 'c', REWORKING => 'r' }.freeze
     UNCERTAIN_SYMBOL = '?'
 
-    #def initialize(occurrences)
+    # def initialize(occurrences)
     #  @occurrences = occurrences
-    #end
+    # end
 
     def set_marker(counted_group:, marker_species:, marker_quantity:, sample_weight:)
       @counted_group = counted_group
@@ -27,7 +29,7 @@ module Paleolog
     end
 
     def uncountable_sum(occurrences)
-      occurrences.select { |occurrence| occurrence.status != NORMAL }.map { |occ| occ.quantity.to_i }.sum
+      occurrences.reject { |occurrence| occurrence.status == NORMAL }.map { |occ| occ.quantity.to_i }.sum
     end
 
     def total_sum(occurrences)
@@ -46,15 +48,17 @@ module Paleolog
       counted_marker_quantity = occurrences.select { |occ| occ.species_id == counting.marker_id }.map(&:quantity).sum
       return nil if counted_marker_quantity.zero?
 
-      counted_group_quantity = occurrences.select { |occ| occ.species.group_id == counting.group_id }.map(&:quantity).sum * 1.0
+      counted_group_quantity = occurrences.select do |occ|
+        occ.species.group_id == counting.group_id
+      end.map(&:quantity).sum * 1.0
 
       (counted_group_quantity / counted_marker_quantity) * (counting.marker_count / sample.weight)
     end
 
     def available_species_ids(counting, sample, group)
       used_ids = occurrence_repo.all_for_sample(counting, sample).map(&:species_id)
-      if used_ids.empty? then used_ids << 0 end
-      species_repo.in_group(group).select { |s| !used_ids.include?(s.id) }.sort_by(&:name).map(&:id)
+      used_ids << 0 if used_ids.empty?
+      species_repo.in_group(group).reject { |s| used_ids.include?(s.id) }.sort_by(&:name).map(&:id)
     end
 
     def occurrence_density_map(counting, section)
@@ -66,10 +70,10 @@ module Paleolog
         occurrences = occurrence_repo.all_for_sample(counting, sample)
 
         marker_cnt = occurrences.select { |occ| occ.species_id == counting.marker_id }.map(&:quantity).compact.sum
-        next if marker_cnt == 0
+        next if marker_cnt.zero?
 
         occurrences.select { |occ| occ.species.group_id == counting.group_id }.each do |occ|
-          density_map[occ.id] = ((((occ.quantity || 0)*1.0)/marker_cnt)*(counting.marker_count/sample.weight))
+          density_map[occ.id] = ((((occ.quantity || 0) * 1.0) / marker_cnt) * (counting.marker_count / sample.weight))
         end
       end
       density_map
@@ -79,7 +83,8 @@ module Paleolog
     def summary(counting, section, occurrence: :first)
       samples_summary = sample_repo.for_section(section).sort_by(&:rank)
 
-      species_summary = specimens_by_occurrence(counting, occurrence == :first ? samples_summary : samples_summary.reverse)
+      species_summary = specimens_by_occurrence(counting,
+                                                occurrence == :first ? samples_summary : samples_summary.reverse)
 
       occurrences_summary = []
       samples_summary.each_with_index do |sample, row|
@@ -102,7 +107,7 @@ module Paleolog
       specimens = []
       samples.each do |sample|
         occurrences = occurrence_repo.all_for_sample(counting, sample)
-        occurrences = occurrences.select { |occ| !specimens.map(&:id).include?(occ.species_id) }.sort_by(&:rank)
+        occurrences = occurrences.reject { |occ| specimens.map(&:id).include?(occ.species_id) }.sort_by(&:rank)
         specimens += occurrences.map(&:species)
       end
       specimens

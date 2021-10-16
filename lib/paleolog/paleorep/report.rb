@@ -1,7 +1,8 @@
+# frozen_string_literal: true
+
 module Paleolog
   module Paleorep
     class Report
-
       def headers
         @headers ||= []
       end
@@ -11,15 +12,15 @@ module Paleolog
       end
 
       def add_row(field)
-        self.headers << field
+        headers << field
       end
 
       def append_column_group
         column_group = ColumnGroup.new
-        self.headers.size.times do
+        headers.size.times do
           column_group.values << []
         end
-        self.column_groups << column_group
+        column_groups << column_group
         column_group
       end
     end

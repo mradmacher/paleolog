@@ -2,14 +2,15 @@
 
 source 'https://rubygems.org'
 
-gem 'sequel'
+gem 'bcrypt'
+gem 'dry-validation'
 gem 'pdfkit'
+gem 'puma'
 gem 'rake'
 gem 'RedCloth'
+gem 'sequel'
 gem 'sinatra'
 gem 'sqlite3'
-gem 'bcrypt'
-gem 'puma'
 
 group :development do
   # gem 'shotgun', platforms: :ruby
@@ -26,8 +27,8 @@ end
 group :test do
   gem 'capybara'
   gem 'minitest'
-  gem 'minitest-rg'
   gem 'minitest-hooks'
+  gem 'minitest-rg'
   gem 'rack-test'
 end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paleolog
   module Paleorep
     class ColumnGroup
@@ -10,10 +12,10 @@ module Paleolog
       end
 
       def reduce(header)
-        self.values.each_with_index do |row, i|
-          self.values[i].replace([yield(row)])
+        values.each_with_index do |row, i|
+          values[i].replace([yield(row)])
         end
-        self.headers.replace([header])
+        headers.replace([header])
       end
     end
   end

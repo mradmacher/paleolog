@@ -23,13 +23,10 @@ module Paleolog
         Choice::Entity.create(attributes.merge(field_id: field.id))
       end
 
-      private
-
       class Entity < Sequel::Model(Config.db[:fields])
         many_to_one :group, class: 'Paleolog::Repo::Group::Entity', key: :group_id
         one_to_many :choices, class: 'Paleolog::Repo::Choice::Entity', key: :field_id
       end
-
     end
   end
 end

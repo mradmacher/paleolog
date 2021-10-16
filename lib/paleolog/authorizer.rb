@@ -5,6 +5,7 @@ require 'bcrypt'
 module Paleolog
   class Authorizer
     class InvalidLogin < StandardError; end
+
     class InvalidPassword < StandardError; end
 
     attr_reader :session

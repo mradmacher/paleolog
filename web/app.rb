@@ -25,13 +25,13 @@ class PaleologWeb < Sinatra::Base
       authorizer.logged_in?
     end
 
-    def authorize(session)
+    def authorize(_session)
       halt 403, '<a href="/login">Login</a>' unless logged_in?
     end
 
     def parameterize(name)
       name.gsub(/[[:punct:]]/, '-').gsub(/[[:space:]]+/, '-')
-      #name.gsub('/', '').gsub(/[[:space:]]+/, '-')
+      # name.gsub('/', '').gsub(/[[:space:]]+/, '-')
     end
 
     def super_id(object)
@@ -71,14 +71,14 @@ class PaleologWeb < Sinatra::Base
       details << "counting=#{super_id(counting)}" if counting
       details << "sample=#{super_id(sample)}" if sample
       details << "section=#{super_id(section)}" if section
-      "/projects/#{super_id(project)}/occurrences#{details.empty? ? '' : '?' }#{details.join('&')}"
+      "/projects/#{super_id(project)}/occurrences#{details.empty? ? '' : '?'}#{details.join('&')}"
     end
 
     def reports_path(project, counting: nil, section: nil)
       details = []
       details << "counting=#{super_id(counting)}" if counting
       details << "section=#{super_id(section)}" if section
-      "/projects/#{super_id(project)}/reports#{details.empty? ? '' : '?' }#{details.join('&')}"
+      "/projects/#{super_id(project)}/reports#{details.empty? ? '' : '?'}#{details.join('&')}"
     end
 
     def species_repository
@@ -109,43 +109,30 @@ class PaleologWeb < Sinatra::Base
       erb view.to_sym
     end
 
-    def using_project_layout
-      erb 'project_layout.html'.to_sym, layout: 'application.html'.to_sym do
-        yield
-      end
+    def using_project_layout(&block)
+      erb 'project_layout.html'.to_sym, layout: 'application.html'.to_sym, &block
     end
 
-    def using_occurrences_layout
-      erb 'occurrence_layout.html'.to_sym, layout: nil do
-        yield
-      end
+    def using_occurrences_layout(&block)
+      erb 'occurrence_layout.html'.to_sym, layout: nil, &block
     end
 
-    def using_reports_layout
-      erb 'report_layout.html'.to_sym, layout: nil do
-        yield
-      end
+    def using_reports_layout(&block)
+      erb 'report_layout.html'.to_sym, layout: nil, &block
     end
 
-    def using_export_layout
-      erb 'export_layout.html'.to_sym, layout: nil do
-        yield
-      end
+    def using_export_layout(&block)
+      erb 'export_layout.html'.to_sym, layout: nil, &block
     end
 
-    def using_application_layout
-      erb 'application.html'.to_sym, layout: nil do
-        yield
-      end
+    def using_application_layout(&block)
+      erb 'application.html'.to_sym, layout: nil, &block
     end
 
-    def using_species_layout
-      erb 'species_layout.html'.to_sym, layout: 'application.html'.to_sym do
-        yield
-      end
+    def using_species_layout(&block)
+      erb 'species_layout.html'.to_sym, layout: 'application.html'.to_sym, &block
     end
   end
-
 
   %w[/projects* /catalog*].each do |pattern|
     before pattern do
@@ -169,7 +156,7 @@ class PaleologWeb < Sinatra::Base
   post '/login' do
     authorizer.login(params[:login], params[:password])
     redirect '/projects'
-  catch Paleolog::Authorizer::InvalidLogin, Paleolog::Authorizer::InvalidPassword
+    catch Paleolog::Authorizer::InvalidLogin, Paleolog::Authorizer::InvalidPassword
     redirect '/login'
   end
 
@@ -188,11 +175,6 @@ class PaleologWeb < Sinatra::Base
   get '/species/:id' do
     @species = species_repository.find_by_id(params[:id].to_i)
     using_species_layout { display 'species/show.html' }
-    #@commentable = @specimen
-    #@comment = Comment.new( :commentable_id => @specimen.id,
-    #    :commentable_type => Specimen.to_s,
-    #    :user_id => session[:user_id] )
-    #@comments = @specimen.comments.all.order('updated_at desc')
   end
 
   get '/projects' do
@@ -213,7 +195,7 @@ class PaleologWeb < Sinatra::Base
     @filters[:name] = params[:name] if params[:name] && !params[:name].empty?
 
     @species = species_repository.search_in_project(@project, @filters)
-    #@species = species_repository.search_verified(@filters)
+    # @species = species_repository.search_verified(@filters)
     @available_filters = {}
     @available_filters[:groups] = group_repository.all
 
@@ -223,12 +205,12 @@ class PaleologWeb < Sinatra::Base
   get '/projects/:project_id/species/:id' do
     @project = project_repository.find_with_dependencies(params[:project_id].to_i)
     @species = species_repository.find_with_dependencies(params[:id].to_i)
-    using_project_layout {
-      #using_species_layout { display 'species/show.html' } }
+    using_project_layout do
+      # using_species_layout { display 'species/show.html' } }
       erb 'species_layout.html'.to_sym, layout: nil do
         display 'species/show.html'
       end
-    }
+    end
   end
 
   get '/projects/:project_id/sections/:id' do
@@ -258,32 +240,32 @@ class PaleologWeb < Sinatra::Base
   post '/projects/:project_id/reports' do
     @project = project_repository.find_with_dependencies(params[:project_id].to_i)
     @report = Paleolog::Report.build(params)
-		@report.generate
+    @report.generate
     @chart = Paleolog::Paleorep::ChartView.new(@report)
     using_export_layout { display 'reports/create.html' }
   end
 
-  #def export
-  #  @report = Report.build(params[:report])
-	#	@report.generate
-  #  respond_to do |format|
-  #    format.csv
-  #    format.pdf
-  #    format.svg
-  #    format.html
-  #  end
-  #end
+  # def export
+  #   @report = Report.build(params[:report])
+  # 	@report.generate
+  #   respond_to do |format|
+  #     format.csv
+  #     format.pdf
+  #     format.svg
+  #     format.html
+  #   end
+  # end
 
   get '/projects/:project_id/occurrences' do
     @project = project_repository.find_with_dependencies(params[:project_id].to_i)
     @section = project_repository.find_section(@project, params[:section].to_i) if params[:section]
     @sample = section_repository.find_sample(@section, params[:sample].to_i) if params[:sample]
     @counting = project_repository.find_counting(@project, params[:counting].to_i) if params[:counting]
-    if @counting && @sample
-      @occurrences = occurrence_repository.all_for_sample(@counting, @sample)
-    else
-      @occurrences = []
-    end
+    @occurrences = if @counting && @sample
+                     occurrence_repository.all_for_sample(@counting, @sample)
+                   else
+                     []
+                   end
     @counting_summary = Paleolog::CountingSummary.new
 
     using_project_layout { using_occurrences_layout { display 'occurrences/show.html' } }

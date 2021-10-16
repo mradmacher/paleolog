@@ -20,8 +20,6 @@ module Paleolog
         find(id)
       end
 
-      private
-
       class Entity < Sequel::Model(Config.db[:samples])
         many_to_one :section, class: 'Paleolog::Repo::Section::Entity', key: :section_id
       end

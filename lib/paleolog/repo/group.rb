@@ -27,7 +27,9 @@ module Paleolog
         Field::Entity.create(attributes.merge(group_id: group.id))
       end
 
-      private
+      def name_exists?(name)
+        !Entity.where(name: name).first.nil?
+      end
 
       class Entity < Sequel::Model(Config.db[:groups])
         one_to_many :species

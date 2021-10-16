@@ -39,13 +39,13 @@ module Paleolog
         Entity.dataset.all
       end
 
-      private
-
       class Entity < Sequel::Model(Config.db[:projects])
-        many_to_many :users, class: 'Paleolog::Repo::User::Entity', left_key: :project_id, right_key: :user_id, join_table: :research_participations
+        many_to_many :users, class: 'Paleolog::Repo::User::Entity', left_key: :project_id, right_key: :user_id,
+                             join_table: :research_participations
         one_to_many :sections, class: 'Paleolog::Repo::Section::Entity', key: :project_id
         one_to_many :countings, class: 'Paleolog::Repo::Counting::Entity', key: :project_id
-        many_to_many :samples, class: 'Paleolog::Repo::Sample::Entity', left_key: :project_id, right_key: :sample_id, join_table: :sections
+        many_to_many :samples, class: 'Paleolog::Repo::Sample::Entity', left_key: :project_id, right_key: :sample_id,
+                               join_table: :sections
       end
     end
   end

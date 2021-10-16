@@ -6,10 +6,10 @@ ENV['RACK_ENV'] = 'test'
 require 'minitest/autorun'
 require 'minitest/spec'
 require 'minitest/rg'
-#require 'minitest/hooks/default'
+# require 'minitest/hooks/default'
 require 'paleolog'
 
-#class Minitest::DbCleanup
+# class Minitest::DbCleanup
 #  def around
 #    Paleolog::Repo::Config.db.transaction(rollback: :always, auto_savepoint: true) { super }
 #  end
@@ -17,9 +17,9 @@ require 'paleolog'
 #  def around_all
 #    Paleolog::Repo::Config.db.transaction(rollback: :always) { super }
 #  end
-#end
-#class Minitest::Spec
+# end
+# class Minitest::Spec
 #  def run(*args, &block)
 #    Paleolog::Repo::Config.db.transaction(:rollback=>:always, :auto_savepoint=>false){super}
 #  end
-#end
+# end

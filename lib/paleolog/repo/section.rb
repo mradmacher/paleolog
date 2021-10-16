@@ -19,8 +19,6 @@ module Paleolog
         Sample::Entity.create(attributes.merge(section_id: section.id))
       end
 
-      private
-
       class Entity < Sequel::Model(Config.db[:sections])
         one_to_many :samples, class: 'Paleolog::Repo::Sample::Entity', key: :section_id
       end

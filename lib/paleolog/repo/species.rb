@@ -39,25 +39,24 @@ module Paleolog
         query.to_a
       end
 
-      def search_in_project(project, filters = {})
+      def search_in_project(_project, filters = {})
         query = search(filters)
 
-        #@project = Project.find(params[:project_id])
-        #@project_id = @project.id
-        #occurrence_specimen_ids = Occurrence.joins(:counting).where('countings.project_id' => @project_id).select(:specimen_id).distinct.map(&:specimen_id)
-        #image_specimen_ids = Image.joins(sample: :section).where('sections.project_id' => @project_id).select(:specimen_id).distinct.map(&:specimen_id)
-        #specimen_ids = occurrence_specimen_ids + image_specimen_ids
-        #@specimens = @specimens.where(id: specimen_ids)
+        # @project = Project.find(params[:project_id])
+        # @project_id = @project.id
+        # occurrence_specimen_ids = Occurrence.joins(:counting).where('countings.project_id' => @project_id).select(:specimen_id).distinct.map(&:specimen_id)
+        # image_specimen_ids = Image.joins(sample: :section).where('sections.project_id' => @project_id).select(:specimen_id).distinct.map(&:specimen_id)
+        # specimen_ids = occurrence_specimen_ids + image_specimen_ids
+        # @specimens = @specimens.where(id: specimen_ids)
         query.to_a
       end
-
-      private
 
       class Entity < Sequel::Model(Config.db[:species])
         many_to_one :group, class: 'Paleolog::Repo::Group::Entity'
         one_to_many :features, class: 'Paleolog::Repo::Feature::Entity', key: :species_id
         one_to_many :images, class: 'Paleolog::Repo::Image::Entity', key: :species_id
-        many_to_many :choices, class: 'Paleolog::Repo::Choice::Entity', left_key: :species_id, right_key: :choice_id, join_table: :features
+        many_to_many :choices, class: 'Paleolog::Repo::Choice::Entity', left_key: :species_id, right_key: :choice_id,
+                               join_table: :features
       end
     end
   end
