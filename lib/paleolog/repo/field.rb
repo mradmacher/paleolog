@@ -3,29 +3,34 @@
 module Paleolog
   module Repo
     class Field
+      include CommonQueries
+
       def all
-        Entity.dataset.all
+        ds.all.map { |result|
+          Paleolog::Field.new(**result) { |field|
+            Paleolog::Repo::Choice.new.all_for_field(field.id).each do |choice|
+              field.choices << choice
+            end
+          }
+        }
       end
 
-      def create(attributes)
-        Entity.create(attributes)
+      def all_for(ids)
+        ds.where(id: ids).map do |result|
+          Paleolog::Field.new(**result)
+        end
       end
 
-      def find_by_id(id)
-        Entity[id]
+      def ds
+        Config.db[:fields]
       end
 
-      def find_all_with_choices
-        Entity.eager(:choices).all
+      def entity_class
+        Paleolog::Field
       end
 
-      def add_choice(field, attributes)
-        Choice::Entity.create(attributes.merge(field_id: field.id))
-      end
-
-      class Entity < Sequel::Model(Config.db[:fields])
-        many_to_one :group, class: 'Paleolog::Repo::Group::Entity', key: :group_id
-        one_to_many :choices, class: 'Paleolog::Repo::Choice::Entity', key: :field_id
+      def use_timestamps?
+        false
       end
     end
   end

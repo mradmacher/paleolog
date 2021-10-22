@@ -26,7 +26,7 @@ class PaleologWeb < Sinatra::Base
     end
 
     def authorize(_session)
-      halt 403, '<a href="/login">Login</a>' unless logged_in?
+      #halt 403, '<a href="/login">Login</a>' unless logged_in?
     end
 
     def parameterize(name)
@@ -95,6 +95,10 @@ class PaleologWeb < Sinatra::Base
 
     def section_repository
       @section_repository ||= Paleolog::Repo::Section.new
+    end
+
+    def counting_repository
+      @counting_repository ||= Paleolog::Repo::Counting.new
     end
 
     def occurrence_repository
@@ -173,7 +177,7 @@ class PaleologWeb < Sinatra::Base
   end
 
   get '/species/:id' do
-    @species = species_repository.find_by_id(params[:id].to_i)
+    @species = species_repository.find(params[:id].to_i)
     using_species_layout { display 'species/show.html' }
   end
 
@@ -184,12 +188,12 @@ class PaleologWeb < Sinatra::Base
   end
 
   get '/projects/:id' do
-    @project = project_repository.find_with_dependencies(params[:id].to_i)
+    @project = project_repository.find(params[:id].to_i)
     using_project_layout { display 'projects/show.html' }
   end
 
   get '/projects/:project_id/species' do
-    @project = project_repository.find_with_dependencies(params[:project_id].to_i)
+    @project = project_repository.find(params[:project_id].to_i)
     @filters = {}
     @filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
     @filters[:name] = params[:name] if params[:name] && !params[:name].empty?
@@ -203,8 +207,8 @@ class PaleologWeb < Sinatra::Base
   end
 
   get '/projects/:project_id/species/:id' do
-    @project = project_repository.find_with_dependencies(params[:project_id].to_i)
-    @species = species_repository.find_with_dependencies(params[:id].to_i)
+    @project = project_repository.find(params[:project_id].to_i)
+    @species = species_repository.find(params[:id].to_i)
     using_project_layout do
       # using_species_layout { display 'species/show.html' } }
       erb 'species_layout.html'.to_sym, layout: nil do
@@ -214,21 +218,21 @@ class PaleologWeb < Sinatra::Base
   end
 
   get '/projects/:project_id/sections/:id' do
-    @project = project_repository.find_with_dependencies(params[:project_id].to_i)
-    @section = project_repository.find_section(@project, params[:id].to_i)
+    @project = project_repository.find(params[:project_id].to_i)
+    @section = Paleolog::Repo::Section.new.find_for_project(params[:id].to_i, @project.id)
     using_project_layout { display 'sections/show.html' }
   end
 
   get '/projects/:project_id/countings/:id' do
-    @project = project_repository.find_with_dependencies(params[:project_id].to_i)
-    @counting = project_repository.find_counting(@project, params[:id].to_i)
+    @project = project_repository.find(params[:project_id].to_i)
+    @counting = Paleolog::Repo::Counting.new.find_for_project(params[:id].to_i, @project.id)
     using_project_layout { display 'countings/show.html' }
   end
 
   get '/projects/:project_id/reports' do
-    @project = project_repository.find_with_dependencies(params[:project_id].to_i)
-    @section = project_repository.find_section(@project, params[:section].to_i) if params[:section]
-    @counting = project_repository.find_counting(@project, params[:counting].to_i) if params[:counting]
+    @project = project_repository.find(params[:project_id].to_i)
+    @section = Paleolog::Repo::Section.new.find_for_project(params[:section].to_i, @project.id) if params[:section]
+    @counting = Paleolog::Repo::Counting.new.find_for_project(params[:counting].to_i, @project.id) if params[:counting]
     @groups = group_repository.all
     @fields = field_repository.all
     @occurrences = @counting && @section ? occurrence_repository.all_for_section(@counting, @section) : []
@@ -238,9 +242,16 @@ class PaleologWeb < Sinatra::Base
   end
 
   post '/projects/:project_id/reports' do
-    @project = project_repository.find_with_dependencies(params[:project_id].to_i)
+    @project = project_repository.find(params[:project_id].to_i)
+    @section = Paleolog::Repo::Section.new.find_for_project(params[:section_id].to_i, @project.id) if params[:section_id]
+    @counting = Paleolog::Repo::Counting.new.find_for_project(params[:counting_id].to_i, @project.id) if params[:counting_id]
+    @occurrences = @counting && @section ? occurrence_repository.all_for_section(@counting, @section) : []
     @report = Paleolog::Report.build(params)
-    @report.generate
+    @report.counted_group = @counting.group
+    @report.marker = @counting.marker
+    @report.marker_quantity = @counting.marker_count
+    #def occurrence_density_map(samples, counted_group:, marker:, marker_quantity:)
+    @report.generate(@occurrences, @section.samples)
     @chart = Paleolog::Paleorep::ChartView.new(@report)
     using_export_layout { display 'reports/create.html' }
   end
@@ -257,16 +268,22 @@ class PaleologWeb < Sinatra::Base
   # end
 
   get '/projects/:project_id/occurrences' do
-    @project = project_repository.find_with_dependencies(params[:project_id].to_i)
-    @section = project_repository.find_section(@project, params[:section].to_i) if params[:section]
-    @sample = section_repository.find_sample(@section, params[:sample].to_i) if params[:sample]
-    @counting = project_repository.find_counting(@project, params[:counting].to_i) if params[:counting]
+    @project = project_repository.find(params[:project_id].to_i)
+    @section = section_repository.find_for_project(params[:section].to_i, @project.id) if params[:section]
+    @sample = Paleolog::Repo::Sample.new.find_for_section(params[:sample].to_i, @section.id) if params[:sample]
+    @counting = Paleolog::Repo::Counting.new.find_for_project(params[:counting].to_i, @project.id) if params[:counting]
     @occurrences = if @counting && @sample
                      occurrence_repository.all_for_sample(@counting, @sample)
                    else
                      []
                    end
-    @counting_summary = Paleolog::CountingSummary.new
+    @counting_summary = Paleolog::CountingSummary.new(@occurrences)
+    @density_info = Paleolog::DensityInfo.new(
+      counted_group: @counting&.group,
+      marker: @counting&.marker,
+      marker_quantity: @counting&.marker_count,
+    )
+    @group_per_gram = @density_info.group_density(@occurrences, @sample)
 
     using_project_layout { using_occurrences_layout { display 'occurrences/show.html' } }
   end

@@ -4,17 +4,17 @@
       <th>Counted</th>
       <th>Other</th>
       <th>Total</th>
-      <% if @counting_summary.group_per_gram(@counting, @sample) %>
+      <% if @group_per_gram %>
         <th><%= @counting.group.name %> per gram</th>
       <% end %>
     </thead>
     <tbody>
       <tr>
-        <td><span id="sample-countable-sum"><%= @counting_summary.countable_sum(@occurrences) %></span></td>
-        <td><span id="sample-uncountable-sum"><%= @counting_summary.uncountable_sum(@occurrences) %></span></td>
-        <td class="active"><span id="sample-total-sum"><%= @counting_summary.total_sum(@occurrences) %></span></td>
-        <% if @counting_summary.group_per_gram(@counting, @sample) %>
-          <td><%= @counting_summary.group_per_gram(@counting, @sample) %></td>
+        <td><span id="sample-countable-sum"><%= @counting_summary.countable_sum %></span></td>
+        <td><span id="sample-uncountable-sum"><%= @counting_summary.uncountable_sum %></span></td>
+        <td class="active"><span id="sample-total-sum"><%= @counting_summary.total_sum %></span></td>
+        <% if @group_per_gram %>
+          <td><%= @group_per_gram %></td>
         <% end %>
       </tr>
     </tbody>

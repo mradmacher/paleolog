@@ -7,9 +7,7 @@ module Paleolog
     class Group < Dry::Validation::Contract
       option :group_repo
 
-      params do
-        required(:name).value(Contract::Types::StrippedString, :filled?, max_size?: 255)
-      end
+      params(Contract::GroupSchema)
 
       rule(:name) do
         key.failure('is already taken') if group_repo.name_exists?(value)

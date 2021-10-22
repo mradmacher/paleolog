@@ -1,39 +1,23 @@
 # frozen_string_literal: true
-
 module Paleolog
   module Repo
     class Group
-      def delete_all
-        Entity.dataset.delete
-      end
-
-      def create(attributes)
-        Entity.create(attributes)
-      end
-
-      def find(id)
-        Entity[id]
-      end
-
-      def all
-        Entity.dataset.all
-      end
-
-      def add_species(group, attributes)
-        Species::Entity.create(attributes.merge(group_id: group.id))
-      end
-
-      def add_field(group, attributes)
-        Field::Entity.create(attributes.merge(group_id: group.id))
-      end
+      include CommonQueries
 
       def name_exists?(name)
-        !Entity.where(name: name).first.nil?
+        ds.where(Sequel.ilike(:name, name.upcase)).limit(1).count > 0
       end
 
-      class Entity < Sequel::Model(Config.db[:groups])
-        one_to_many :species
-        one_to_many :fields
+      def entity_class
+        Paleolog::Group
+      end
+
+      def ds
+        Config.db[:groups]
+      end
+
+      def use_timestamps?
+        false
       end
     end
   end

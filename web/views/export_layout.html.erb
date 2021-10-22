@@ -1,7 +1,7 @@
 <form accept-charset="UTF-8" action="/reports/export/report.html" method="post" target="_blank">
   <input type="hidden" name="report[type]" value="<%= @report.type %>">
-  <input type="hidden" name="report[counting_id]" value="<%= @report.counting_id %>">
-  <input type="hidden" name="report[section_id]" value="<%= @report.section_id %>">
+  <input type="hidden" name="report[counting_id]" value="<%= @counting.id %>">
+  <input type="hidden" name="report[section_id]" value="<%= @section.id %>">
   <input type="hidden" name="report[view]" value="<%= @report.view %>">
   <input type="hidden" name="report[show_symbols]" value="<%= @report.show_symbols %>">
   <input type="hidden" name="report[percentages]" value="<%= @report.percentages %>">

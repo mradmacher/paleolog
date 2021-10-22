@@ -3,8 +3,20 @@
 module Paleolog
   module Repo
     class Image
-      class Entity < Sequel::Model(Config.db[:images])
-        many_to_one :species, class: 'Paleolog::Repo::Species::Entity'
+      include CommonQueries
+
+      def all_for_species(species_id)
+        ds.where(species_id: species_id).all.map { |result|
+          Paleolog::Image.new(**result)
+        }
+      end
+
+      def ds
+        Config.db[:images]
+      end
+
+      def entity_class
+        Paleolog::Image
       end
     end
   end

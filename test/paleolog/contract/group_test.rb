@@ -1,49 +1,33 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require_relative './common_assertions'
 
 describe Paleolog::Contract::Group do
+  include CommonAssertions
+
   before do
-    @group_repo = Paleolog::Repo::Group.new
+    @schema = Paleolog::Contract::GroupSchema
+    @group_repo = MiniTest::Mock.new
     @contract = Paleolog::Contract::Group.new(group_repo: @group_repo)
   end
 
-  it 'requires name' do
-    result = @contract.call(name: nil)
-    assert(result.errors[:name].include?('must be a string'))
-
-    result = @contract.call(name: '')
-    assert(result.errors[:name].include?('must be filled'))
-
-    result = @contract.call(name: '   ')
-    assert(result.errors[:name].include?('must be filled'))
-
-    result = @contract.call(name: 'something')
-    refute(result.error?(:name))
+  it 'validates name' do
+    assert_requires_string(@schema, :name)
+    assert_strips_string(@schema, :name)
+    assert_restricts_string_length(@schema, :name, max: 255)
   end
 
-  it 'strips name' do
-    result = @contract.call(name: '  some thing   ')
-    assert_equal('some thing', result[:name])
+  it 'does not complain when name not taken yet' do
+    @group_repo.expect(:name_exists?, false, ['Group Name'])
+    refute(@contract.call(name: 'Group Name').error?(:name))
+    @group_repo.verify
   end
 
-  it 'requires size to be less than 255 characters' do
-    result = @contract.call(name: 'a' * 255)
-    refute(result.error?(:name))
-
-    result = @contract.call(name: 'a' * 256)
-    assert(result.errors[:name].include?('size cannot be greater than 255'))
-  end
-
-  it 'checks name uniqueness' do
-    attrs = { name: 'Group Name   ' }
-
-    @group_repo.create(name: 'Group Name')
-    result = @contract.call(attrs)
+  it 'complains when name already exists' do
+    @group_repo.expect(:name_exists?, true, ['Group Name'])
+    result = @contract.call(name: 'Group Name')
     assert(result.errors[:name].include?('is already taken'))
-
-    @group_repo.delete_all
-    result = @contract.call(attrs)
-    refute(result.error?(:name))
+    @group_repo.verify
   end
 end

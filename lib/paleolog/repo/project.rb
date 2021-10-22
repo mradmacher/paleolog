@@ -3,49 +3,32 @@
 module Paleolog
   module Repo
     class Project
-      def delete_all
-        Entity.dataset.delete
-      end
+      include CommonQueries
 
       def find(id)
-        Entity[id]
+        Paleolog::Project.new(**ds.where(id: id).first) do |project|
+          Paleolog::Repo::Counting.new.all_for_project(project.id).each do |counting|
+            project.countings << counting
+          end
+          Paleolog::Repo::Section.new.all_for_project(project.id).each do |section|
+            project.sections << section
+          end
+          Paleolog::Repo::ResearchParticipation.new.all_for_project(project.id).each do |participation|
+            project.research_participations << participation
+          end
+        end
       end
 
-      def create(attributes)
-        Entity.create(attributes)
+      def name_exists?(name)
+        ds.where(Sequel.ilike(:name, name.upcase)).limit(1).count > 0
       end
 
-      def find_section(project, id)
-        Section::Entity.where(project_id: project.id, id: id).first
+      def entity_class
+        Paleolog::Project
       end
 
-      def add_section(project, attributes)
-        Section::Entity.create(attributes.merge(project_id: project.id))
-      end
-
-      def find_counting(project, id)
-        Counting::Entity.where(project_id: project.id, id: id).first
-      end
-
-      def add_counting(project, attributes)
-        Counting::Entity.create(attributes.merge(project_id: project.id))
-      end
-
-      def find_with_dependencies(id)
-        find(id)
-      end
-
-      def all
-        Entity.dataset.all
-      end
-
-      class Entity < Sequel::Model(Config.db[:projects])
-        many_to_many :users, class: 'Paleolog::Repo::User::Entity', left_key: :project_id, right_key: :user_id,
-                             join_table: :research_participations
-        one_to_many :sections, class: 'Paleolog::Repo::Section::Entity', key: :project_id
-        one_to_many :countings, class: 'Paleolog::Repo::Counting::Entity', key: :project_id
-        many_to_many :samples, class: 'Paleolog::Repo::Sample::Entity', left_key: :project_id, right_key: :sample_id,
-                               join_table: :sections
+      def ds
+        Config.db[:projects]
       end
     end
   end

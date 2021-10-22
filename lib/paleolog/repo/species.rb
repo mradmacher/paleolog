@@ -3,40 +3,53 @@
 module Paleolog
   module Repo
     class Species
-      def find_by_id(id)
-        Entity[id]
+      include CommonQueries
+
+      def find(id)
+        Paleolog::Species.new(**ds.where(id: id).first) { |species|
+          species.group = Paleolog::Repo::Group.new.find(species.group_id)
+          Paleolog::Repo::Feature.new.all_for_species(species.id).each do |feature|
+            species.features << feature
+          end
+          Paleolog::Repo::Image.new.all_for_species(species.id).each do |image|
+            species.images << image
+          end
+        }
       end
 
-      def update(id, attributes)
-        Entity.where(id: id).update(attributes)
+      def all_with_ids(species_ids)
+        groups = Paleolog::Repo::Group.new.all
+        ds.where(id: species_ids).all.map { |result|
+          Paleolog::Species.new(**result) { |species|
+            species.group = groups.detect { |group| group.id == species.group_id }
+            Paleolog::Repo::Feature.new.all_for_species(species.id).each do |feature|
+              species.features << feature
+            end
+          }
+        }
       end
 
-      def in_group(group)
-        Entity.where(group_id: group.id).to_a
-      end
-
-      def delete_all
-        Entity.dataset.delete
-      end
-
-      def add_feature(species, choice)
-        Feature::Entity.create(choice_id: choice.id, species_id: species.id)
-      end
-
-      def add_image(species, attributes)
-        Image::Entity.create(attributes.merge(species_id: species.id))
+      def all_for_group(group_id)
+        ds.where(group_id: group_id).all.map { |result|
+          Paleolog::Species.new(**result)
+        }
       end
 
       def search(filters = {})
-        query = Species::Entity
+        query = ds
         query = query.where(group_id: filters[:group_id]) if filters[:group_id]
         query = query.where { name.ilike("%#{filters[:name]}%") } if filters[:name]
         query
       end
 
       def search_verified(filters = {})
+        groups = Paleolog::Repo::Group.new.all
         query = search(filters).where(verified: true)
-        query.to_a
+        query.all.map { |result|
+          Paleolog::Species.new(**result) { |species|
+            species.group = groups.detect { |group| group.id == species.group_id }
+          }
+        }
       end
 
       def search_in_project(_project, filters = {})
@@ -48,15 +61,19 @@ module Paleolog
         # image_specimen_ids = Image.joins(sample: :section).where('sections.project_id' => @project_id).select(:specimen_id).distinct.map(&:specimen_id)
         # specimen_ids = occurrence_specimen_ids + image_specimen_ids
         # @specimens = @specimens.where(id: specimen_ids)
-        query.to_a
+        query.all.map { |result| Paleolog::Species.new(**result) }
       end
 
-      class Entity < Sequel::Model(Config.db[:species])
-        many_to_one :group, class: 'Paleolog::Repo::Group::Entity'
-        one_to_many :features, class: 'Paleolog::Repo::Feature::Entity', key: :species_id
-        one_to_many :images, class: 'Paleolog::Repo::Image::Entity', key: :species_id
-        many_to_many :choices, class: 'Paleolog::Repo::Choice::Entity', left_key: :species_id, right_key: :choice_id,
-                               join_table: :features
+      def name_exists_within_group?(name, group_id)
+        ds.where(group_id: group_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count > 0
+      end
+
+      def entity_class
+        Paleolog::Species
+      end
+
+      def ds
+        Config.db[:species]
       end
     end
   end

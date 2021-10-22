@@ -3,24 +3,43 @@
 module Paleolog
   module Repo
     class Section
-      def delete_all
-        Entity.dataset.delete
-      end
+      include CommonQueries
 
       def find(id)
-        Entity[id]
+        Paleolog::Section.new(**ds.where(id: id).first).tap do |section|
+          Paleolog::Repo::Sample.new.all_for_section(section.id).each do |sample|
+            section.samples << sample
+          end
+        end
       end
 
-      def find_sample(section, id)
-        Sample::Entity.where(section_id: section.id, id: id).first
+      def all_for_project(project_id)
+        ds.where(project_id: project_id).all.map { |result|
+          Paleolog::Section.new(**result)
+        }
       end
 
-      def add_sample(section, attributes)
-        Sample::Entity.create(attributes.merge(section_id: section.id))
+      def find_for_project(id, project_id)
+        result = ds.where(project_id: project_id, id: id).first
+        return nil unless result
+
+        Paleolog::Section.new(**result) do |section|
+          Paleolog::Repo::Sample.new.all_for_section(section.id).each do |sample|
+            section.samples << sample
+          end
+        end
       end
 
-      class Entity < Sequel::Model(Config.db[:sections])
-        one_to_many :samples, class: 'Paleolog::Repo::Sample::Entity', key: :section_id
+      def name_exists_within_project?(name, project_id)
+        ds.where(project_id: project_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count > 0
+      end
+
+      def entity_class
+        Paleolog::Section
+      end
+
+      def ds
+        Config.db[:sections]
       end
     end
   end

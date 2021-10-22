@@ -3,11 +3,39 @@
 module Paleolog
   module Repo
     class Choice
-      class Entity < Sequel::Model(Config.db[:choices])
-        many_to_one :field, class: 'Paleolog::Repo::Field::Entity'
-        one_to_many :features
-        many_to_many :species, class: 'Paleolog::Repo::Species::Entity', left_key: :choice_id, right_key: :species_id,
-                               join_table: :features
+      include CommonQueries
+
+      def all_for(ids)
+        result = ds.where(id: ids)
+        field_ids = result.map { |r| r[:field_id] }.uniq
+        fields = Paleolog::Repo::Field.new.all_for(field_ids)
+        result.map { |r|
+          Paleolog::Choice.new(**r) { |choice|
+            choice.field = fields.detect { |f| f.id == choice.field_id }
+          }
+        }
+      end
+
+      def all_for_field(field_id)
+        ds.where(field_id: field_id).all.map { |result|
+          Paleolog::Choice.new(**result)
+        }
+      end
+
+      def name_exists_within_field?(name, field_id)
+        ds.where(field_id: field_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count > 0
+      end
+
+      def entity_class
+        Paleolog::Choice
+      end
+
+      def ds
+        Config.db[:choices]
+      end
+
+      def use_timestamps?
+        false
       end
     end
   end

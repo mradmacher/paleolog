@@ -3,24 +3,34 @@
 module Paleolog
   module Repo
     class Counting
-      def delete_all
-        Entity.dataset.delete
+      include CommonQueries
+
+      def all_for_project(project_id)
+        ds.where(project_id: project_id).all.map { |result|
+          Paleolog::Counting.new(**result)
+        }
       end
 
-      def find(id)
-        Entity[id]
+      def find_for_project(id, project_id)
+        result = ds.where(project_id: project_id, id: id).first
+        return nil unless result
+
+        Paleolog::Counting.new(**result) do |counting|
+          counting.group = Paleolog::Repo::Group.new.find(counting.group_id) unless counting.group_id.nil?
+          counting.marker = Paleolog::Repo::Species.new.find(counting.marker_id) unless counting.marker_id.nil?
+        end
       end
 
-      def update(id, attributes)
-        Entity.where(id: id).update(attributes)
-        find(id)
+      def entity_class
+        Paleolog::Counting
       end
 
-      class Entity < Sequel::Model(Config.db[:countings])
-        many_to_one :project, class: 'Paleolog::Repo::Project::Entity', key: :project_id
-        many_to_one :group, class: 'Paleolog::Repo::Group::Entity', key: :group_id
-        many_to_one :species, class: 'Paleolog::Repo::Species::Entity', key: :marker_id
-        one_to_many :occurrences, class: 'Paleolog::Repo::Occurrence::Entity', key: :counting_id
+      def ds
+        Config.db[:countings]
+      end
+
+      def use_timestamps?
+        false
       end
     end
   end

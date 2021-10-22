@@ -4,10 +4,10 @@ require 'csv'
 
 module Paleolog
   class Report
-    attr_accessor :type, :counting_id, :section_id, :species_ids, :samples_ids,
+    attr_accessor :type, :species_ids, :samples_ids,
                   :view, :charts, :orientation, :show_symbols, :percentages, :reverse_rows,
-                  :column_criteria,
-                  :section, :counting
+                  :column_criteria
+    attr_accessor :counted_group, :marker, :marker_quantity
     attr_reader :column_headers, :row_headers, :values, :splits, :title
 
     QUANTITY = 'quantity'
@@ -92,7 +92,7 @@ module Paleolog
     class OccurrenceDensityTextizer
       include Paleorep::Textizer
 
-      def initialize(density_map = {})
+      def initialize(density_map = [])
         @density_map = density_map
       end
 
@@ -105,7 +105,12 @@ module Paleolog
       end
 
       def valuize(occurrence)
-        occurrence && density_map[occurrence.id] ? density_map[occurrence.id].round(ROUND) : 0
+        return 0 unless occurrence
+
+        value = density_map.assoc(occurrence)
+        return 0 unless value
+
+        value.last.round(ROUND)
       end
     end
 
@@ -138,8 +143,6 @@ module Paleolog
       Report.new.tap do |report|
         report.type = params[:type]
         report.view = params[:view]
-        report.counting_id = params[:counting_id]
-        report.section_id = params[:section_id]
         report.show_symbols = params[:show_symbols]
         report.orientation = params[:orientation]
         report.percentages = params[:percentages]
@@ -183,25 +186,26 @@ module Paleolog
         shift = 0
         filtered.each do |i|
           column_group.headers.delete_at(i - shift)
-          column_group.each_value do |row|
+          column_group.values.each do |row|
             row.delete_at(i - shift)
           end
           shift += 1
         end
       else
         column_group.headers.clear
-        column_group.each_value(&:clear)
+        column_group.values.each(&:clear)
       end
     end
 
-    def process_column(column_group, species, occurrences)
+    def process_column(column_group, species, samples, occurrences)
       unless species.empty?
         species_textizer = SpeciesTextizer.new
         species.each do |s|
           column_group.headers << Paleorep::Field.new(s, species_textizer)
         end
         occurrence_textizer = if type == DENSITY
-                                density_map = CountingSummary.new.occurrence_density_map(counting, section)
+                                density_map = DensityInfo.new(counted_group: counted_group, marker: marker, marker_quantity: marker_quantity)
+                                  .occurrence_density_map(occurrences.flatten.compact, samples)
                                 OccurrenceDensityTextizer.new(density_map)
                               else
                                 OccurrenceQuantityTextizer.new(@show_symbols.to_i.positive?)
@@ -349,23 +353,23 @@ module Paleolog
       end
     end
 
-    def generate
-      samples, species, occurrences = Paleolog::CountingSummary.new.summary(counting, section)
+    def generate(occurrences, samples)
+      samples_summary, species_summary, occurrences_summary = Paleolog::CountingSummary.new(occurrences).summary(samples)
 
       report = Paleolog::Paleorep::Report.new
-      samples, occurrences = filter_row(samples_ids, samples, occurrences)
+      samples_summary, occurrences_summary = filter_row(samples_ids, samples_summary, occurrences_summary)
       if reverse_rows
-        samples.reverse!
-        occurrences.reverse!
+        samples_summary.reverse!
+        occurrences_summary.reverse!
       end
       sample_textizer = SampleTextizer.new
-      samples.each do |sample|
+      samples_summary.each do |sample|
         report.add_row(Paleolog::Paleorep::Field.new(sample, sample_textizer))
       end
 
       @column_criteria.each_value do |criteria|
         column_group = report.append_column_group
-        process_column(column_group, species, occurrences)
+        process_column(column_group, species_summary, samples_summary, occurrences_summary)
         post_process_column(column_group, criteria)
         filter_column(column_group, criteria)
         reduce_column(column_group, criteria)
@@ -398,12 +402,5 @@ module Paleolog
       end
     end
 
-    def counting
-      @counting ||= Paleolog::Repo::Counting.new.find(counting_id) if counting_id
-    end
-
-    def section
-      @section ||= Paleolog::Repo::Section.new.find(section_id) if section_id
-    end
   end
 end

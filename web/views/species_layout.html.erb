@@ -19,9 +19,9 @@
         <h2>Features</h2>
         <p>
           <dl>
-          <% @species.choices.each do |choice| %>
-            <dt><%= choice.field.name %></dt>
-            <dd><%= choice.name %></dd>
+          <% @species.features.each do |feature| %>
+            <dt><%= feature.choice.field.name %></dt>
+            <dd><%= feature.choice.name %></dd>
           <% end %>
          </dl>
        </p>

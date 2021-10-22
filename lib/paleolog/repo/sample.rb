@@ -3,25 +3,33 @@
 module Paleolog
   module Repo
     class Sample
-      def delete_all
-        Entity.dataset.delete
+      include CommonQueries
+
+      def all_for_section(section_id)
+        ds.where(section_id: section_id).all.map { |result|
+          Paleolog::Sample.new(**result)
+        }
       end
 
-      def find(id)
-        Entity[id]
+      def find_for_section(id, section_id)
+        result = ds.where(section_id: section_id, id: id).first
+        result ? Paleolog::Sample.new(**result) : nil
       end
 
-      def for_section(section)
-        Entity.where(section_id: section.id).to_a
+      def name_exists_within_section?(name, section_id)
+        ds.where(section_id: section_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count > 0
       end
 
-      def update(id, attributes)
-        Entity.where(id: id).update(attributes)
-        find(id)
+      def rank_exists_within_section?(rank, section_id)
+        ds.where(rank: rank, section_id: section_id).limit(1).count > 0
       end
 
-      class Entity < Sequel::Model(Config.db[:samples])
-        many_to_one :section, class: 'Paleolog::Repo::Section::Entity', key: :section_id
+      def entity_class
+        Paleolog::Sample
+      end
+
+      def ds
+        Config.db[:samples]
       end
     end
   end

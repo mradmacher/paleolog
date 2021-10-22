@@ -8,21 +8,23 @@ describe 'Catalog' do
   let(:user_repo) { Paleolog::Repo::User.new }
 
   before do
-    species_repo.delete_all
-    group_repo.delete_all
-    user_repo.delete_all
-
-    group1 = group_repo.create(name: 'Dinoflagellate')
-    group2 = group_repo.create(name: 'Other')
-    group_repo.add_species(group1, name: 'Odontochitina costata', verified: true)
-    group_repo.add_species(group1, name: 'Cerodinium costata', verified: false)
-    group_repo.add_species(group2, name: 'Cerodinium diabelli', verified: true)
-    user_repo.create(login: 'test', password: 'test123')
+    group1 = Paleolog::Repo.save(Paleolog::Group.new(name: 'Dinoflagellate'))
+    group2 = Paleolog::Repo.save(Paleolog::Group.new(name: 'Other'))
+    Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Odontochitina costata', verified: true))
+    Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Cerodinium costata', verified: false))
+    Paleolog::Repo.save(Paleolog::Species.new(group: group2, name: 'Cerodinium diabelli', verified: true))
+    Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
 
     visit '/login'
     fill_in('login-field', with: 'test')
     fill_in('password-field', with: 'test123')
     within('.ui.form') { click_on('Login') }
+  end
+
+  after do
+    species_repo.delete_all
+    group_repo.delete_all
+    user_repo.delete_all
   end
 
   it 'displays species' do

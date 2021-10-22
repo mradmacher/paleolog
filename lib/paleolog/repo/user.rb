@@ -3,24 +3,28 @@
 module Paleolog
   module Repo
     class User
-      def delete_all
-        Entity.dataset.delete
-      end
+      include CommonQueries
 
       def find_by_login(login)
-        Entity.where(login: login).first
+        result = ds.where(login: login).first
+        return nil unless result
+
+        Paleolog::User.new(**result)
       end
 
       def create(attributes)
         # TODO: move that code to some operation
         password_salt = BCrypt::Engine.generate_salt
         password = BCrypt::Password.create(password_salt + attributes[:password])
-        Entity.create(attributes.merge(password: password, password_salt: password_salt))
+        find(ds.insert(attributes.merge(password: password, password_salt: password_salt)))
       end
 
-      class Entity < Sequel::Model(Config.db[:users])
-        many_to_many :projects, class: 'Paleolog::Repo::Project::Entity', left_key: :user_id, right_key: :project_id,
-                                join_table: :research_participations
+      def entity_class
+        Paleolog::User
+      end
+
+      def ds
+        Config.db[:users]
       end
     end
   end

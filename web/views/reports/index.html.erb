@@ -199,7 +199,7 @@
             <% @species.each do |specie| %>
               <div class="field">
                 <label for="columns[<%= index %>][species_ids][]">
-                  <input type="checkbox" id="columns[<%= index %>][species_ids][]" name="columns[<%= index %>][species_ids][]" class="selection-field" data-filter-index="<%= index %>" data-filter-group-id="<%= specie.group_id %>" <%= specie.choices.map { |c| "data-filter-#{c.field_id}=#{c.id}" }.join(' ') %> data-filter-key="species_id" value="<%= specie.id %>" checked="checked">
+                  <input type="checkbox" id="columns[<%= index %>][species_ids][]" name="columns[<%= index %>][species_ids][]" class="selection-field" data-filter-index="<%= index %>" data-filter-group-id="<%= specie.group_id %>" <%= specie.features.map { |f| "data-filter-#{f.choice.field_id}=#{f.choice_id}" }.join(' ') %> data-filter-key="species_id" value="<%= specie.id %>" checked="checked">
                   <%= specie.name %>
                 </label>
               </div>

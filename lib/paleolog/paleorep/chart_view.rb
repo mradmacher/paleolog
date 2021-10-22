@@ -50,7 +50,7 @@ module Paleolog
       def col_widths
         if @col_widths.nil?
           @col_widths = []
-          @report.each_value do |row|
+          @report.values.each do |row|
             row.each_with_index do |col, colidx|
               existing = @col_widths[colidx].nil? ? 0 : @col_widths[colidx]
 

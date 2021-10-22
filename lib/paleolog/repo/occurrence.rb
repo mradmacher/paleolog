@@ -3,30 +3,58 @@
 module Paleolog
   module Repo
     class Occurrence
-      def delete_all
-        Entity.dataset.delete
-      end
-
-      def create(attributes)
-        Entity.create(attributes)
-      end
+      include CommonQueries
 
       def all_for_sample(counting, sample)
-        Entity.where(counting_id: counting.id, sample_id: sample.id).eager(:species).order { rank.desc }.to_a
+        #Entity.where(counting_id: counting.id, sample_id: sample.id).eager(:species).order { rank.desc }.to_a
+        result = ds.where(counting_id: counting.id, sample_id: sample.id).all
+        sample = Paleolog::Repo.find(Paleolog::Sample, sample.id)
+        species = Paleolog::Repo::Species.new.all_with_ids(result.map { |r| r[:species_id] })
+        result.map { |r|
+          Paleolog::Occurrence.new(**r) do |occurrence|
+            occurrence.species = species.detect { |s| s.id == occurrence.species_id }
+            occurrence.sample = sample
+          end
+        }.sort_by(&:rank).reverse
       end
 
       def all_for_section(counting, section)
-        Entity.where(counting_id: counting.id, sample_id: section.samples.map(&:id)).association_join(:species).order do
-          rank.desc
-        end.to_a
+        samples = Paleolog::Repo::Sample.new.all_for_section(section.id)
+        sample_ids = samples.map(&:id)
+        result = ds.where(counting_id: counting.id, sample_id: sample_ids).all
+        species = Paleolog::Repo::Species.new.all_with_ids(result.map { |r| r[:species_id] }.uniq)
+        result.map { |r|
+          Paleolog::Occurrence.new(**r) do |occurrence|
+            occurrence.species = species.detect { |s| s.id == occurrence.species_id }
+            occurrence.sample = samples.detect { |s| s.id == occurrence.sample_id }
+          end
+        }.sort_by(&:rank).reverse
       end
 
-      class Entity < Sequel::Model(Config.db[:occurrences])
-        many_to_one :species, class: 'Paleolog::Repo::Species::Entity', key: :species_id
-        many_to_one :sample, class: 'Paleolog::Repo::Sample::Entity', key: :sample_id
-        many_to_one :counting, class: 'Paleolog::Repo::Counting::Entity', key: :counting_id
-        many_to_many :sections, class: 'Paleolog::Repo::Section::Entity', left_key: :sample_id,
-                                right_key: :section_id, join_table: :samples
+      def available_species_ids(counting, sample, group)
+        used_ids = ds.where(counting_id: counting.id, sample_id: sample.id).map { |result| result[:species_id] }
+        all = Paleolog::Repo::Species.new.all_for_group(group.id)
+        (used_ids.empty? ? all : all.reject { |s| used_ids.include?(s.id) }).sort_by(&:name).map(&:id)
+      end
+
+      def rank_exists_within_counting_and_sample?(rank, counting_id, sample_id)
+        ds.where(rank: rank, counting_id: counting_id, sample_id: sample_id).limit(1).count > 0
+      end
+
+      def species_exists_within_counting_and_sample?(species_id, counting_id, sample_id)
+        ds.where(species_id: species_id, counting_id: counting_id, sample_id: sample_id).limit(1).count > 0
+      end
+
+      def entity_class
+        Paleolog::Occurrence
+      end
+
+      def ds
+        Config.db[:occurrences]
+      end
+
+      def use_timestamps?
+        false
       end
     end
   end
