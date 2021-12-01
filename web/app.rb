@@ -9,6 +9,7 @@ require 'sinatra/reloader'
 require 'redcloth'
 require 'paleolog'
 
+# rubocop:disable Metrics/ClassLength
 class PaleologWeb < Sinatra::Base
   enable :sessions
   set :static, true
@@ -16,6 +17,7 @@ class PaleologWeb < Sinatra::Base
     register Sinatra::Reloader
   end
 
+  # rubocop:disable Metrics/BlockLength
   helpers do
     def authorizer
       @authorizer ||= Paleolog::Authorizer.new(session)
@@ -26,7 +28,7 @@ class PaleologWeb < Sinatra::Base
     end
 
     def authorize(_session)
-      #halt 403, '<a href="/login">Login</a>' unless logged_in?
+      # halt 403, '<a href="/login">Login</a>' unless logged_in?
     end
 
     def parameterize(name)
@@ -81,62 +83,35 @@ class PaleologWeb < Sinatra::Base
       "/projects/#{super_id(project)}/reports#{details.empty? ? '' : '?'}#{details.join('&')}"
     end
 
-    def species_repository
-      @species_repository ||= Paleolog::Repo::Species.new
-    end
-
-    def group_repository
-      @group_repository ||= Paleolog::Repo::Group.new
-    end
-
-    def project_repository
-      @project_repository ||= Paleolog::Repo::Project.new
-    end
-
-    def section_repository
-      @section_repository ||= Paleolog::Repo::Section.new
-    end
-
-    def counting_repository
-      @counting_repository ||= Paleolog::Repo::Counting.new
-    end
-
-    def occurrence_repository
-      @occurrence_repository ||= Paleolog::Repo::Occurrence.new
-    end
-
-    def field_repository
-      @field_repository ||= Paleolog::Repo::Field.new
-    end
-
     def display(view)
       erb view.to_sym
     end
 
     def using_project_layout(&block)
-      erb 'project_layout.html'.to_sym, layout: 'application.html'.to_sym, &block
+      erb :"project_layout.html", layout: :"application.html", &block
     end
 
     def using_occurrences_layout(&block)
-      erb 'occurrence_layout.html'.to_sym, layout: nil, &block
+      erb :"occurrence_layout.html", layout: nil, &block
     end
 
     def using_reports_layout(&block)
-      erb 'report_layout.html'.to_sym, layout: nil, &block
+      erb :"report_layout.html", layout: nil, &block
     end
 
     def using_export_layout(&block)
-      erb 'export_layout.html'.to_sym, layout: nil, &block
+      erb :"export_layout.html", layout: nil, &block
     end
 
     def using_application_layout(&block)
-      erb 'application.html'.to_sym, layout: nil, &block
+      erb :"application.html", layout: nil, &block
     end
 
     def using_species_layout(&block)
-      erb 'species_layout.html'.to_sym, layout: 'application.html'.to_sym, &block
+      erb :"species_layout.html", layout: :"application.html", &block
     end
   end
+  # rubocop:enable Metrics/BlockLength
 
   %w[/projects* /catalog*].each do |pattern|
     before pattern do
@@ -145,7 +120,7 @@ class PaleologWeb < Sinatra::Base
   end
 
   get '/' do
-    erb 'home.html'.to_sym, layout: 'application.html'.to_sym
+    erb :"home.html", layout: :"application.html"
   end
 
   get '/login' do
@@ -169,88 +144,94 @@ class PaleologWeb < Sinatra::Base
     @filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
     @filters[:name] = params[:name] if params[:name] && !params[:name].empty?
 
-    @species = species_repository.search_verified(@filters)
+    @species = Paleolog::Repo::Species.new.search_verified(@filters)
     @available_filters = {}
-    @available_filters[:groups] = group_repository.all
+    @available_filters[:groups] = Paleolog::Repo::Group.new.all
 
     using_application_layout { display 'catalog.html' }
   end
 
   get '/species/:id' do
-    @species = species_repository.find(params[:id].to_i)
+    @species = Paleolog::Repo::Species.new.find(params[:id].to_i)
     using_species_layout { display 'species/show.html' }
   end
 
   get '/projects' do
     @filters = {}
-    @projects = project_repository.all
+    @projects = Paleolog::Repo::Project.new.all
     using_application_layout { display 'projects/index.html' }
   end
 
   get '/projects/:id' do
-    @project = project_repository.find(params[:id].to_i)
+    @project = Paleolog::Repo::Project.new.find(params[:id].to_i)
     using_project_layout { display 'projects/show.html' }
   end
 
   get '/projects/:project_id/species' do
-    @project = project_repository.find(params[:project_id].to_i)
+    @project = Paleolog::Repo::Project.new.find(params[:project_id].to_i)
     @filters = {}
     @filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
     @filters[:name] = params[:name] if params[:name] && !params[:name].empty?
 
-    @species = species_repository.search_in_project(@project, @filters)
+    @species = Paleolog::Repo::Species.new.search_in_project(@project, @filters)
     # @species = species_repository.search_verified(@filters)
     @available_filters = {}
-    @available_filters[:groups] = group_repository.all
+    @available_filters[:groups] = Paleolog::Repo::Group.new.all
 
     using_project_layout { display 'catalog.html' }
   end
 
   get '/projects/:project_id/species/:id' do
-    @project = project_repository.find(params[:project_id].to_i)
-    @species = species_repository.find(params[:id].to_i)
+    @project = Paleolog::Repo::Project.new.find(params[:project_id].to_i)
+    @species = Paleolog::Repo::Species.new.find(params[:id].to_i)
     using_project_layout do
       # using_species_layout { display 'species/show.html' } }
-      erb 'species_layout.html'.to_sym, layout: nil do
+      erb :"species_layout.html", layout: nil do
         display 'species/show.html'
       end
     end
   end
 
   get '/projects/:project_id/sections/:id' do
-    @project = project_repository.find(params[:project_id].to_i)
+    @project = Paleolog::Repo::Project.new.find(params[:project_id].to_i)
     @section = Paleolog::Repo::Section.new.find_for_project(params[:id].to_i, @project.id)
     using_project_layout { display 'sections/show.html' }
   end
 
   get '/projects/:project_id/countings/:id' do
-    @project = project_repository.find(params[:project_id].to_i)
+    @project = Paleolog::Repo::Project.new.find(params[:project_id].to_i)
     @counting = Paleolog::Repo::Counting.new.find_for_project(params[:id].to_i, @project.id)
     using_project_layout { display 'countings/show.html' }
   end
 
   get '/projects/:project_id/reports' do
-    @project = project_repository.find(params[:project_id].to_i)
+    @project = Paleolog::Repo::Project.new.find(params[:project_id].to_i)
     @section = Paleolog::Repo::Section.new.find_for_project(params[:section].to_i, @project.id) if params[:section]
     @counting = Paleolog::Repo::Counting.new.find_for_project(params[:counting].to_i, @project.id) if params[:counting]
-    @groups = group_repository.all
-    @fields = field_repository.all
-    @occurrences = @counting && @section ? occurrence_repository.all_for_section(@counting, @section) : []
+    @groups = Paleolog::Repo::Group.new.all
+    @fields = Paleolog::Repo::Field.new.all
+    @occurrences = @counting && @section ? Paleolog::Repo::Occurrence.new.all_for_section(@counting, @section) : []
     @species = @occurrences.map(&:species).uniq(&:id)
 
     using_project_layout { using_reports_layout { display 'reports/index.html' } }
   end
 
   post '/projects/:project_id/reports' do
-    @project = project_repository.find(params[:project_id].to_i)
-    @section = Paleolog::Repo::Section.new.find_for_project(params[:section_id].to_i, @project.id) if params[:section_id]
-    @counting = Paleolog::Repo::Counting.new.find_for_project(params[:counting_id].to_i, @project.id) if params[:counting_id]
-    @occurrences = @counting && @section ? occurrence_repository.all_for_section(@counting, @section) : []
+    @project = Paleolog::Repo::Project.new.find(params[:project_id].to_i)
+    if params[:section_id]
+      @section = Paleolog::Repo::Section.new.find_for_project(params[:section_id].to_i,
+                                                              @project.id,)
+    end
+    if params[:counting_id]
+      @counting = Paleolog::Repo::Counting.new.find_for_project(params[:counting_id].to_i,
+                                                                @project.id,)
+    end
+    @occurrences = @counting && @section ? Paleolog::Repo::Occurrence.new.all_for_section(@counting, @section) : []
     @report = Paleolog::Report.build(params)
     @report.counted_group = @counting.group
     @report.marker = @counting.marker
     @report.marker_quantity = @counting.marker_count
-    #def occurrence_density_map(samples, counted_group:, marker:, marker_quantity:)
+    # def occurrence_density_map(samples, counted_group:, marker:, marker_quantity:)
     @report.generate(@occurrences, @section.samples)
     @chart = Paleolog::Paleorep::ChartView.new(@report)
     using_export_layout { display 'reports/create.html' }
@@ -268,12 +249,12 @@ class PaleologWeb < Sinatra::Base
   # end
 
   get '/projects/:project_id/occurrences' do
-    @project = project_repository.find(params[:project_id].to_i)
-    @section = section_repository.find_for_project(params[:section].to_i, @project.id) if params[:section]
+    @project = Paleolog::Repo::Project.new.find(params[:project_id].to_i)
+    @section = Paleolog::Repo::Section.new.find_for_project(params[:section].to_i, @project.id) if params[:section]
     @sample = Paleolog::Repo::Sample.new.find_for_section(params[:sample].to_i, @section.id) if params[:sample]
     @counting = Paleolog::Repo::Counting.new.find_for_project(params[:counting].to_i, @project.id) if params[:counting]
     @occurrences = if @counting && @sample
-                     occurrence_repository.all_for_sample(@counting, @sample)
+                     Paleolog::Repo::Occurrence.new.all_for_sample(@counting, @sample)
                    else
                      []
                    end
@@ -288,3 +269,4 @@ class PaleologWeb < Sinatra::Base
     using_project_layout { using_occurrences_layout { display 'occurrences/show.html' } }
   end
 end
+# rubocop:enable Metrics/ClassLength

@@ -5,6 +5,7 @@ module Paleolog
     class Project
       include CommonQueries
 
+      # rubocop:disable Metrics/AbcSize
       def find(id)
         Paleolog::Project.new(**ds.where(id: id).first) do |project|
           Paleolog::Repo::Counting.new.all_for_project(project.id).each do |counting|
@@ -18,9 +19,10 @@ module Paleolog
           end
         end
       end
+      # rubocop:enable Metrics/AbcSize
 
       def name_exists?(name)
-        ds.where(Sequel.ilike(:name, name.upcase)).limit(1).count > 0
+        ds.where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
       end
 
       def entity_class

@@ -2,7 +2,6 @@
 
 require 'paleolog/entity'
 require 'paleolog/entities'
-require 'paleolog/entities'
 require 'paleolog/authorizer'
 require 'paleolog/contract'
 require 'paleolog/repo'

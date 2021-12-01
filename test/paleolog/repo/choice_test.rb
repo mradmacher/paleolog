@@ -48,7 +48,7 @@ describe Paleolog::Repo::Choice do
   describe '#name_exists_within_field?' do
     it 'checks name uniqueness within field scope' do
       field = Paleolog::Repo.save(Paleolog::Field.new(name: 'Some field'))
-      choice = Paleolog::Repo.save(Paleolog::Choice.new(field: field, name: 'Some choice'))
+      Paleolog::Repo.save(Paleolog::Choice.new(field: field, name: 'Some choice'))
 
       assert(repo.name_exists_within_field?('Some choice', field.id))
       refute(repo.name_exists_within_field?('Other choice', field.id))
@@ -56,7 +56,7 @@ describe Paleolog::Repo::Choice do
 
     it 'is case insensitive' do
       field = Paleolog::Repo.save(Paleolog::Field.new(name: 'Some field'))
-      choice = Paleolog::Repo.save(Paleolog::Choice.new(field: field, name: 'Some choice'))
+      Paleolog::Repo.save(Paleolog::Choice.new(field: field, name: 'Some choice'))
 
       assert(repo.name_exists_within_field?('soMe ChoIce', field.id))
     end

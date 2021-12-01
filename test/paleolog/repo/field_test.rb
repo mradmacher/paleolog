@@ -29,7 +29,7 @@ describe Paleolog::Repo::Field do
       Paleolog::Repo.save(Paleolog::Choice.new(name: 'C2', field: field))
       result = repo.all
 
-      assert_equal(%w(C1 C2), result.first.choices.map(&:name))
+      assert_equal(%w[C1 C2], result.first.choices.map(&:name))
     end
   end
 
@@ -38,7 +38,7 @@ describe Paleolog::Repo::Field do
 
     it 'returns all fields for given ids' do
       field1 = Paleolog::Repo.save(Paleolog::Field.new(name: 'Field1', group: group))
-      field2 = Paleolog::Repo.save(Paleolog::Field.new(name: 'Field2', group: group))
+      Paleolog::Repo.save(Paleolog::Field.new(name: 'Field2', group: group))
       result = repo.all_for([field1.id])
       assert_equal([field1], result)
     end

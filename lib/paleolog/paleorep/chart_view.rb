@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ClassLength
+# rubocop:disable Metrics/MethodLength
+# rubocop:disable Metrics/CyclomaticComplexity
+# rubocop:disable Metrics/AbcSize
 module Paleolog
   module Paleorep
     class ChartView
@@ -50,7 +54,7 @@ module Paleolog
       def col_widths
         if @col_widths.nil?
           @col_widths = []
-          @report.values.each do |row|
+          @report.each_value do |row|
             row.each_with_index do |col, colidx|
               existing = @col_widths[colidx].nil? ? 0 : @col_widths[colidx]
 
@@ -194,3 +198,7 @@ module Paleolog
     end
   end
 end
+# rubocop:enable Metrics/AbcSize
+# rubocop:enable Metrics/CyclomaticComplexity
+# rubocop:enable Metrics/MethodLength
+# rubocop:enable Metrics/ClassLength

@@ -42,7 +42,7 @@ describe Paleolog::CountingSummary do
           sample: @samples[value[0]],
           species: @species[value[2]][value[3]],
           rank: value[1],
-          status: ((value[2]).zero? ? Paleolog::CountingSummary::NORMAL : Paleolog::CountingSummary::OUTSIDE_COUNT)
+          status: ((value[2]).zero? ? Paleolog::CountingSummary::NORMAL : Paleolog::CountingSummary::OUTSIDE_COUNT),
         )
       end
     end
@@ -62,23 +62,24 @@ describe Paleolog::CountingSummary do
           [nil, @occurrences[5][0], @occurrences[5][1], @occurrences[5][2], @occurrences[5][3], nil, nil],
           [@occurrences[6][0], nil, nil, nil, nil, nil, nil]
         ]
-        samples, species, occurrences = Paleolog::CountingSummary.new(@occurrences.flatten.compact).summary(@samples, occurrence: :last)
+        samples, species, occurrences =
+          Paleolog::CountingSummary.new(@occurrences.flatten.compact).summary(@samples, occurrence: :last)
         assert_equal expected_samples.size, samples.size
         assert_equal expected_samples, samples
         assert_equal expected_species.size, species.size
         assert_equal expected_species, species
 
         assert_equal(
-          expected_occurrences.map { |row|
-            row.map { |col|
+          expected_occurrences.map do |row|
+            row.map do |col|
               col ? "#{col.species.name}-#{col.sample.name}-#{col.counting.name}" : nil
-            }
-          },
-          occurrences.map { |row|
-            row.map { |col|
+            end
+          end,
+          occurrences.map do |row|
+            row.map do |col|
               col ? "#{col.species.name}-#{col.sample.name}-#{col.counting.name}" : nil
-            }
-          }
+            end
+          end,
         )
       end
 
@@ -96,16 +97,16 @@ describe Paleolog::CountingSummary do
           [nil, nil, @occurrences[5][3], nil, @occurrences[5][2], @occurrences[5][1], @occurrences[5][0]],
           [@occurrences[6][0], nil, nil, nil, nil, nil, nil]
         ]
-        samples, species, occurrences = Paleolog::CountingSummary.new(@occurrences.flatten.compact).summary(@samples, occurrence: :first)
+        samples, species, occurrences =
+          Paleolog::CountingSummary.new(@occurrences.flatten.compact).summary(@samples, occurrence: :first)
         assert_equal expected_samples.size, samples.size
         assert_equal expected_samples, samples
         assert_equal expected_species.size, species.size
         assert_equal expected_species, species
-        assert_equal expected_occurrences.map { |row| row.map { |c| c&.id } }, occurrences.map { |row|
-                                                                                 row.map do |c|
-                                                                                   c&.id
-                                                                                 end
-                                                                               }
+        assert_equal(
+          expected_occurrences.map { |row| row.map { |c| c&.id } },
+          occurrences.map { |row| row.map { |c| c&.id } },
+        )
       end
     end
   end
@@ -131,7 +132,7 @@ describe Paleolog::CountingSummary do
             counting: @counting,
             sample: sample_depth[depth],
             rank: rank,
-            species: species[rank - 1]
+            species: species[rank - 1],
           )
           @testing_examples << { sample: sample_depth[depth], rank: rank, species: species[rank - 1] }
         end
@@ -157,7 +158,9 @@ describe Paleolog::CountingSummary do
       end
       expected_specimens = sorted.map { |v| v[:species] }.uniq
 
-      received_specimens = Paleolog::CountingSummary.new(@occurrences.select { |occ| selected_samples.include?(occ.sample) }).specimens_by_occurrence(selected_samples)
+      received_specimens = Paleolog::CountingSummary.new(
+        @occurrences.select { |occ| selected_samples.include?(occ.sample) },
+      ).specimens_by_occurrence(selected_samples)
       assert_equal expected_specimens.size, received_specimens.size
       assert_equal expected_specimens, received_specimens
     end

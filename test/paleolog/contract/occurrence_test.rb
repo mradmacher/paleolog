@@ -64,7 +64,7 @@ describe Paleolog::Contract::Occurrence do
 
   it 'requires status' do
     assert_requires_integer(@schema, :status)
-	end
+  end
 
   it 'refutes invalid statuese' do
     [-100, -1, 4, 5, 100].each do |value|

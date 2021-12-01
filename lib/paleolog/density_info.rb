@@ -3,8 +3,8 @@
 module Paleolog
   class DensityInfo
     attr_reader :counted_group,
-      :marker,
-      :marker_quantity
+                :marker,
+                :marker_quantity
 
     def initialize(counted_group:, marker:, marker_quantity:)
       @counted_group = counted_group
@@ -12,6 +12,8 @@ module Paleolog
       @marker_quantity = marker_quantity
     end
 
+    # rubocop:disable Metrics/AbcSize
+    # rubocop:disable Metrics/CyclomaticComplexity
     def group_density(occurrences, sample)
       sample_occurrences = occurrences.select { |occ| occ.sample == sample }
 
@@ -31,7 +33,13 @@ module Paleolog
 
       (counted_group_quantity / counted_marker_quantity) * (marker_quantity / sample.weight)
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/AbcSize
 
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/AbcSize
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
     def occurrence_density_map(occurrences, samples)
       density_map = []
 
@@ -53,5 +61,9 @@ module Paleolog
       end
       density_map
     end
+    # rubocop:enable Metrics/PerceivedComplexity
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/MethodLength
   end
 end

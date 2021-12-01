@@ -18,15 +18,15 @@ describe Paleolog::Repo::Project do
 
     it 'loads users' do
       user = Paleolog::Repo.save(
-        Paleolog::User.new(login: 'Test User', password: 'Test123')
+        Paleolog::User.new(login: 'Test User', password: 'Test123'),
       )
       Paleolog::Repo.save(
         Paleolog::ResearchParticipation.new(
           user: user,
           project: @project,
           created_at: Time.now,
-          updated_at: Time.now
-        )
+          updated_at: Time.now,
+        ),
       )
 
       result = @repo.find(@project.id)
@@ -37,7 +37,7 @@ describe Paleolog::Repo::Project do
 
     it 'loads countings' do
       Paleolog::Repo.save(
-        Paleolog::Counting.new(name: 'Test Counting', project: @project)
+        Paleolog::Counting.new(name: 'Test Counting', project: @project),
       )
       result = @repo.find(@project.id)
       refute result.countings.empty?, 'countings are empty'
@@ -47,7 +47,7 @@ describe Paleolog::Repo::Project do
 
     it 'loads sections' do
       Paleolog::Repo.save(
-        Paleolog::Section.new(name: 'Test Section', project: @project)
+        Paleolog::Section.new(name: 'Test Section', project: @project),
       )
       result = @repo.find(@project.id)
       refute result.sections.empty?, 'sections are empty'

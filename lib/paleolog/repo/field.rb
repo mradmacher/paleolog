@@ -6,13 +6,13 @@ module Paleolog
       include CommonQueries
 
       def all
-        ds.all.map { |result|
-          Paleolog::Field.new(**result) { |field|
+        ds.all.map do |result|
+          Paleolog::Field.new(**result) do |field|
             Paleolog::Repo::Choice.new.all_for_field(field.id).each do |choice|
               field.choices << choice
             end
-          }
-        }
+          end
+        end
       end
 
       def all_for(ids)

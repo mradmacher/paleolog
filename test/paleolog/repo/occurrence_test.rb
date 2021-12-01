@@ -26,37 +26,37 @@ describe Paleolog::Repo::Occurrence do
         rank: 1,
         species_id: species.id,
         counting_id: counting.id,
-        sample_id: sample.id
+        sample_id: sample.id,
       )
-      occurrence2 = repo.create(
+      repo.create(
         rank: 2,
         species_id: species.id,
         counting_id: counting.id,
-        sample_id: other_sample.id
+        sample_id: other_sample.id,
       )
-      occurrence3 = repo.create(
+      repo.create(
         rank: 3,
         species_id: species.id,
         counting_id: other_counting.id,
-        sample_id: sample.id
+        sample_id: sample.id,
       )
       occurrence4 = repo.create(
         rank: 4,
         species_id: other_species.id,
         counting_id: counting.id,
-        sample_id: sample.id
+        sample_id: sample.id,
       )
-      occurrence5 = repo.create(
+      repo.create(
         rank: 5,
         species_id: other_species.id,
         counting_id: other_counting.id,
-        sample_id: sample.id
+        sample_id: sample.id,
       )
-      occurrence6 = repo.create(
+      repo.create(
         rank: 6,
         species_id: other_species.id,
         counting_id: counting.id,
-        sample_id: other_sample.id
+        sample_id: other_sample.id,
       )
 
       result = repo.all_for_sample(counting, sample)
@@ -68,7 +68,7 @@ describe Paleolog::Repo::Occurrence do
         rank: 1,
         species_id: species.id,
         counting_id: counting.id,
-        sample_id: sample.id
+        sample_id: sample.id,
       )
       result = repo.all_for_sample(counting, sample)
       assert_equal(species.id, result.first.species.id)
@@ -79,7 +79,7 @@ describe Paleolog::Repo::Occurrence do
         rank: 1,
         species_id: species.id,
         counting_id: counting.id,
-        sample_id: sample.id
+        sample_id: sample.id,
       )
       result = repo.all_for_sample(counting, sample)
       assert_equal(sample.id, result.first.sample.id)
@@ -98,31 +98,30 @@ describe Paleolog::Repo::Occurrence do
       other_counting = Paleolog::Repo.save(Paleolog::Counting.new(name: 'Other counting', project: project))
       other_section = Paleolog::Repo.save(Paleolog::Section.new(name: 'Other section', project: project))
       other_sample = Paleolog::Repo.save(Paleolog::Sample.new(name: 'Other sample', section: other_section))
-      other_species = Paleolog::Repo.save(Paleolog::Species.new(name: 'Other species', group: group))
 
       occurrence1 = repo.create(
         rank: 1,
         species_id: species.id,
         counting_id: counting.id,
-        sample_id: sample1.id
+        sample_id: sample1.id,
       )
       occurrence2 = repo.create(
         rank: 2,
         species_id: species.id,
         counting_id: counting.id,
-        sample_id: sample2.id
+        sample_id: sample2.id,
       )
-      occurrence3 = repo.create(
+      repo.create(
         rank: 3,
         species_id: species.id,
         counting_id: counting.id,
-        sample_id: other_sample.id
+        sample_id: other_sample.id,
       )
-      occurrence4 = repo.create(
+      repo.create(
         rank: 4,
         species_id: species.id,
         counting_id: other_counting.id,
-        sample_id: sample1.id
+        sample_id: sample1.id,
       )
 
       result = repo.all_for_section(counting, section)
@@ -134,7 +133,7 @@ describe Paleolog::Repo::Occurrence do
         rank: 1,
         species_id: species.id,
         counting_id: counting.id,
-        sample_id: sample1.id
+        sample_id: sample1.id,
       )
       result = repo.all_for_section(counting, section)
       assert_equal(species.id, result.first.species.id)
@@ -145,7 +144,7 @@ describe Paleolog::Repo::Occurrence do
         rank: 1,
         species_id: species.id,
         counting_id: counting.id,
-        sample_id: sample1.id
+        sample_id: sample1.id,
       )
       result = repo.all_for_section(counting, section)
       assert_equal(sample1.id, result.first.sample.id)
@@ -182,7 +181,7 @@ describe Paleolog::Repo::Occurrence do
           rank: 1,
           species_id: @species.id,
           counting_id: @counting.id,
-          sample_id: @sample.id
+          sample_id: @sample.id,
         )
 
         assert(repo.rank_exists_within_counting_and_sample?(1, @counting.id, @sample.id))
@@ -198,7 +197,7 @@ describe Paleolog::Repo::Occurrence do
         repo.create(
           species_id: @species.id,
           counting_id: @counting.id,
-          sample_id: @sample.id
+          sample_id: @sample.id,
         )
 
         assert(repo.species_exists_within_counting_and_sample?(@species.id, @counting.id, @sample.id))
@@ -215,8 +214,6 @@ describe Paleolog::Repo::Occurrence do
         species1 = Paleolog::Repo.save(Paleolog::Species.new(group: group, name: 'Species1'))
         species2 = Paleolog::Repo.save(Paleolog::Species.new(group: group, name: 'Species2'))
         species3 = Paleolog::Repo.save(Paleolog::Species.new(group: group, name: 'Species3'))
-        other_group = Paleolog::Repo.save(Paleolog::Group.new(name: 'Other TestGroup'))
-        other_species = Paleolog::Repo.save(Paleolog::Species.new(group: other_group, name: 'Other Species'))
         sample = Paleolog::Repo.save(Paleolog::Sample.new(section: @section, name: 'Sample1'))
         Paleolog::Repo.save(Paleolog::Occurrence.new(counting: @counting, sample: sample, species: species1))
         Paleolog::Repo.save(Paleolog::Occurrence.new(counting: @counting, sample: sample, species: species3))
@@ -229,8 +226,6 @@ describe Paleolog::Repo::Occurrence do
         species1 = Paleolog::Repo.save(Paleolog::Species.new(group: group, name: 'Species1'))
         species2 = Paleolog::Repo.save(Paleolog::Species.new(group: group, name: 'Species2'))
         species3 = Paleolog::Repo.save(Paleolog::Species.new(group: group, name: 'Species3'))
-        other_group = Paleolog::Repo.save(Paleolog::Group.new(name: 'Other TestGroup'))
-        other_species = Paleolog::Repo.save(Paleolog::Species.new(group: other_group, name: 'Other Species'))
         sample = Paleolog::Repo.save(Paleolog::Sample.new(section: @section, name: 'Sample1'))
         other_sample = Paleolog::Repo.save(Paleolog::Sample.new(section: @section, name: 'Sample2'))
         Paleolog::Repo.save(Paleolog::Occurrence.new(counting: @counting, sample: sample, species: species1))

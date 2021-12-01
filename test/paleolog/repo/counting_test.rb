@@ -17,7 +17,7 @@ describe Paleolog::Repo::Counting do
     it 'returns counting by id for given project id' do
       c1 = Paleolog::Repo.save(Paleolog::Counting.new(name: 'C1', project: project))
       Paleolog::Repo.save(Paleolog::Counting.new(name: 'C2', project: project))
-      c3 = Paleolog::Repo.save(Paleolog::Counting.new(name: 'C3', project: other_project))
+      Paleolog::Repo.save(Paleolog::Counting.new(name: 'C3', project: other_project))
       Paleolog::Repo.save(Paleolog::Counting.new(name: 'C4', project: other_project))
 
       result = repo.find_for_project(c1.id, project.id)

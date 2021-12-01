@@ -13,7 +13,7 @@ describe Paleolog::Repo::Group do
 
   describe '#name_exists?' do
     it 'checks name uniqueness' do
-      group = Paleolog::Repo.save(Paleolog::Group.new(name: 'Some name'))
+      Paleolog::Repo.save(Paleolog::Group.new(name: 'Some name'))
 
       assert(@repo.name_exists?('Some name'))
       refute(@repo.name_exists?('Other name'))

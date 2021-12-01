@@ -23,7 +23,7 @@ describe Paleolog::Repo::Feature do
     it 'returns all features defined for a species' do
       f1 = Paleolog::Repo.save(Paleolog::Feature.new(species: species, choice: choice11))
       f2 = Paleolog::Repo.save(Paleolog::Feature.new(species: species, choice: choice21))
-      f3 = Paleolog::Repo.save(Paleolog::Feature.new(species: other_species, choice: choice12))
+      Paleolog::Repo.save(Paleolog::Feature.new(species: other_species, choice: choice12))
 
       result = repo.all_for_species(species.id)
       assert_equal([f1.id, f2.id], result.map(&:id))

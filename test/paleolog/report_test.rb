@@ -9,14 +9,20 @@ describe Paleolog::Report do
     @counting = Paleolog::Counting.new(project: project, name: 'Counting1')
     @samples = []
     [100, 200, 300].each_with_index do |depth, index|
-      @samples << Paleolog::Sample.new(id: index, section: @section, name: "Sample#{depth}", bottom_depth: depth, weight: 10.0)
+      @samples << Paleolog::Sample.new(
+        id: index,
+        section: @section,
+        name: "Sample#{depth}",
+        bottom_depth: depth,
+        weight: 10.0,
+      )
     end
     @groups = [Paleolog::Group.new(name: 'Group1'), Paleolog::Group.new(name: 'Group2')]
 
     @species = []
     @groups.each_with_index do |group, i|
       @species[i] = []
-      4.times { |j| @species[i] << Paleolog::Species.new(id: i*10 + j, group: group, name: "Species#{i}#{j}") }
+      4.times { |j| @species[i] << Paleolog::Species.new(id: i * 10 + j, group: group, name: "Species#{i}#{j}") }
     end
 
     @occurrences = []
@@ -32,24 +38,25 @@ describe Paleolog::Report do
         species: @species[value[2]][value[3]],
         rank: value[1],
         quantity: (1..100).to_a.sample,
-        status: (value[2]).zero? ? Paleolog::CountingSummary::NORMAL : Paleolog::CountingSummary::OUTSIDE_COUNT
+        status: (value[2]).zero? ? Paleolog::CountingSummary::NORMAL : Paleolog::CountingSummary::OUTSIDE_COUNT,
       )
     end
   end
 
   describe 'most abundant species' do
     before do
-      @samples_summary, @species_summary, @occurrences_summary = Paleolog::CountingSummary.new(@occurrences).summary(@samples)
+      @samples_summary, @species_summary, @occurrences_summary =
+        Paleolog::CountingSummary.new(@occurrences).summary(@samples)
       @report = Paleolog::Report.build(
         type: Paleolog::Report::QUANTITY,
         samples: @samples_summary.map { |s| s.id.to_s },
         columns: {
           '0' => {
             'species_ids' => @species_summary.map { |s| s.id.to_s },
-             'merge' => 'most_abundant',
-             'header' => 'Most Abundant'
-           }
-        }
+            'merge' => 'most_abundant',
+            'header' => 'Most Abundant',
+          },
+        },
       )
       @report.generate(@occurrences, @samples)
     end
@@ -67,7 +74,8 @@ describe Paleolog::Report do
 
   describe 'second most abundant species' do
     before do
-      @samples_summary, @species_summary, @occurrences_summary = Paleolog::CountingSummary.new(@occurrences).summary(@samples)
+      @samples_summary, @species_summary, @occurrences_summary =
+        Paleolog::CountingSummary.new(@occurrences).summary(@samples)
       @report = Paleolog::Report.build(
         type: Paleolog::Report::QUANTITY,
         samples: @samples_summary.map { |s| s.id.to_s },
@@ -75,9 +83,9 @@ describe Paleolog::Report do
           '0' => {
             'species_ids' => @species_summary.map { |s| s.id.to_s },
             'merge' => 'second_most_abundant',
-            'header' => 'Most Abundant'
-          }
-        }
+            'header' => 'Most Abundant',
+          },
+        },
       )
       @report.generate(@occurrences, @samples)
     end
@@ -97,7 +105,8 @@ describe Paleolog::Report do
 
   describe 'count' do
     before do
-      @samples_summary, @species_summary, @occurrences_summary = Paleolog::CountingSummary.new(@occurrences).summary(@samples)
+      @samples_summary, @species_summary, @occurrences_summary =
+        Paleolog::CountingSummary.new(@occurrences).summary(@samples)
       @report = Paleolog::Report.build(
         type: Paleolog::Report::QUANTITY,
         samples: @samples_summary.map { |s| s.id.to_s },
@@ -105,9 +114,9 @@ describe Paleolog::Report do
           '0' => {
             'species_ids' => @species_summary.map { |s| s.id.to_s },
             'merge' => 'count',
-            'header' => 'Species'
-          }
-        }
+            'header' => 'Species',
+          },
+        },
       )
       @report.generate(@occurrences, @samples)
     end
@@ -130,34 +139,35 @@ describe Paleolog::Report do
 
   describe 'computed' do
     before do
-      @samples_summary, @species_summary, @occurrences_summary = Paleolog::CountingSummary.new(@occurrences).summary(@samples)
+      @samples_summary, @species_summary, @occurrences_summary =
+        Paleolog::CountingSummary.new(@occurrences).summary(@samples)
       @report = Paleolog::Report.build(
         type: Paleolog::Report::QUANTITY,
         samples: @samples_summary.map { |s| s.id.to_s },
         columns: {
           '0' => {
-            'species_ids' => @species_summary.map{ |s| s.id.to_s },
+            'species_ids' => @species_summary.map { |s| s.id.to_s },
             'merge' => 'count',
-            'header' => 'Species Count'
+            'header' => 'Species Count',
           },
           '1' => {
             'species_ids' => @species_summary.map { |s| s.id.to_s },
             'merge' => 'sum',
-            'header' => 'Species Sum'
+            'header' => 'Species Sum',
           },
           '2' => {
             'computed' => 'A/B',
-            'header' => 'Count/Sum'
+            'header' => 'Count/Sum',
           },
           '3' => {
             'computed' => 'B/A',
-            'header' => 'Sum/Count'
+            'header' => 'Sum/Count',
           },
           '4' => {
             'computed' => '(A - B) / (A + B)',
-            'header' => 'Ratio'
-          }
-        }
+            'header' => 'Ratio',
+          },
+        },
       )
       @report.generate(@occurrences, @samples)
     end
@@ -169,8 +179,8 @@ describe Paleolog::Report do
 
     it 'generate proper values' do
       @occurrences_summary.each_with_index do |row, i|
-        sum = row.inject(0) { |sum, v| sum + (v&.quantity || 0) }
-        count = row.inject(0) { |sum, v| sum + (v.nil? ? 0 : 1) }
+        sum = row.inject(0) { |result, v| result + (v&.quantity || 0) }
+        count = row.inject(0) { |result, v| result + (v.nil? ? 0 : 1) }
         count_sum = (sum.zero? ? 0 : (count.to_f / sum).round(1))
         sum_count = (count.zero? ? 0 : (sum.to_f / count).round(1))
         ratio = ((sum + count).zero? ? 0 : ((count - sum).to_f / (count + sum)).round(1))
@@ -182,11 +192,12 @@ describe Paleolog::Report do
 
   describe 'quantities' do
     before do
-      @samples_summary, @species_summary, @occurrences_summary = Paleolog::CountingSummary.new(@occurrences).summary(@samples)
+      @samples_summary, @species_summary, @occurrences_summary =
+        Paleolog::CountingSummary.new(@occurrences).summary(@samples)
       @report = Paleolog::Report.build(
         type: Paleolog::Report::QUANTITY,
         samples: @samples_summary.map { |s| s.id.to_s },
-        columns: { '0' => { 'species_ids' => @species_summary.map { |s| s.id.to_s } } }
+        columns: { '0' => { 'species_ids' => @species_summary.map { |s| s.id.to_s } } },
       )
       @report.generate(@occurrences, @samples)
     end
@@ -215,16 +226,17 @@ describe Paleolog::Report do
 
   describe 'percentages' do
     before do
-      @samples_summary, @species_summary, @occurrences_summary = Paleolog::CountingSummary.new(@occurrences).summary(@samples)
+      @samples_summary, @species_summary, @occurrences_summary =
+        Paleolog::CountingSummary.new(@occurrences).summary(@samples)
       @report = Paleolog::Report.build(
         type: Paleolog::Report::QUANTITY,
         samples: @samples_summary.map { |s| s.id.to_s },
         columns: {
           '0' => {
             'species_ids' => @species_summary.map { |s| s.id.to_s },
-            'percentages' => '1'
-          }
-        }
+            'percentages' => '1',
+          },
+        },
       )
       @report.generate(@occurrences, @samples)
     end
@@ -257,7 +269,8 @@ describe Paleolog::Report do
       @counted_group = @groups[0]
       @marker = @species[1][0]
       @marker_quantity = 30
-      @samples_summary, @species_summary, @occurrences_summary = Paleolog::CountingSummary.new(@occurrences).summary(@samples)
+      @samples_summary, @species_summary, @occurrences_summary =
+        Paleolog::CountingSummary.new(@occurrences).summary(@samples)
       @selected_species_ids = @species_summary.select { |s| s.group == @counted_group }.map { |s| s.id.to_s }
       @report = Paleolog::Report.build(
         type: Paleolog::Report::DENSITY,
@@ -267,7 +280,7 @@ describe Paleolog::Report do
           '1' => {
             'species_ids' => @selected_species_ids,
             'merge' => 'sum',
-            'header' => 'Density'
+            'header' => 'Density',
           },
         },
       )
@@ -275,7 +288,8 @@ describe Paleolog::Report do
       @report.marker = @marker
       @report.marker_quantity = @marker_quantity
       @report.generate(@occurrences, @samples)
-      @density_info = Paleolog::DensityInfo.new(counted_group: @counted_group, marker: @marker, marker_quantity: @marker_quantity)
+      @density_info = Paleolog::DensityInfo.new(counted_group: @counted_group, marker: @marker,
+                                                marker_quantity: @marker_quantity,)
     end
 
     it 'generate proper row headers' do
@@ -295,11 +309,8 @@ describe Paleolog::Report do
         expected = @selected_species_ids.map do |sid|
           occurrence = @occurrences_summary[row].detect { |occ| occ && (occ.species_id.to_s == sid) }
           if occurrence
-            if found = density_map.assoc(occurrence)
-              found.last.round(1).to_s
-            else
-              '0'
-            end
+            found = density_map.assoc(occurrence)
+            found ? found.last.round(1).to_s : '0'
           else
             '0'
           end

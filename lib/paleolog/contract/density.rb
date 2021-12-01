@@ -14,9 +14,9 @@ module Paleolog
       end
 
       rule(:occurrences) do
-        key.failure('must include marker') unless value.any? { |occurrence|
-          occurrence.species == values[:marker] && occurrence.quantity && occurrence.quantity > 0
-        }
+        key.failure('must include marker') unless value.any? do |occurrence|
+          occurrence.species == values[:marker] && occurrence.quantity && occurrence.quantity.positive?
+        end
       end
     end
   end

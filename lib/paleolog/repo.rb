@@ -56,6 +56,22 @@ require 'paleolog/repo/user'
 
 module Paleolog
   module Repo
+    REPOS = {
+      Paleolog::Group => Paleolog::Repo::Group,
+      Paleolog::Species => Paleolog::Repo::Species,
+      Paleolog::Field => Paleolog::Repo::Field,
+      Paleolog::Choice => Paleolog::Repo::Choice,
+      Paleolog::Feature => Paleolog::Repo::Feature,
+      Paleolog::Image => Paleolog::Repo::Image,
+      Paleolog::Project => Paleolog::Repo::Project,
+      Paleolog::Counting => Paleolog::Repo::Counting,
+      Paleolog::Section => Paleolog::Repo::Section,
+      Paleolog::Sample => Paleolog::Repo::Sample,
+      Paleolog::Occurrence => Paleolog::Repo::Occurrence,
+      Paleolog::User => Paleolog::Repo::User,
+      Paleolog::ResearchParticipation => Paleolog::Repo::ResearchParticipation,
+    }.freeze
+
     def self.save(obj)
       if obj.id.nil? || obj.id == None
         self.for(obj.class).create(obj.defined_attributes)
@@ -69,35 +85,7 @@ module Paleolog
     end
 
     def self.for(type)
-      if type == Paleolog::Group
-        @group_repo ||= Paleolog::Repo::Group.new
-      elsif type == Paleolog::Species
-        @species_repo ||= Paleolog::Repo::Species.new
-      elsif type == Paleolog::Field
-        @field_repo ||= Paleolog::Repo::Field.new
-      elsif type == Paleolog::Choice
-        @choice_repo ||= Paleolog::Repo::Choice.new
-      elsif type == Paleolog::Feature
-        @feature_repo ||= Paleolog::Repo::Feature.new
-      elsif type == Paleolog::Image
-        @image_repo ||= Paleolog::Repo::Image.new
-      elsif type == Paleolog::Project
-        @project_repo ||= Paleolog::Repo::Project.new
-      elsif type == Paleolog::Counting
-        @counting_repo ||= Paleolog::Repo::Counting.new
-      elsif type == Paleolog::Section
-        @section_repo ||= Paleolog::Repo::Section.new
-      elsif type == Paleolog::Sample
-        @sample_repo ||= Paleolog::Repo::Sample.new
-      elsif type == Paleolog::Occurrence
-        @occurrence_repo ||= Paleolog::Repo::Occurrence.new
-      elsif type == Paleolog::User
-        @user_repo ||= Paleolog::Repo::User.new
-      elsif type == Paleolog::ResearchParticipation
-        @research_participation_repo ||= Paleolog::Repo::ResearchParticipation.new
-      else
-        raise 'dupa'
-      end
+      REPOS[type].new
     end
   end
 end

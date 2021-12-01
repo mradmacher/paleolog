@@ -6,9 +6,9 @@ module Paleolog
       include CommonQueries
 
       def all_for_section(section_id)
-        ds.where(section_id: section_id).all.map { |result|
+        ds.where(section_id: section_id).all.map do |result|
           Paleolog::Sample.new(**result)
-        }
+        end
       end
 
       def find_for_section(id, section_id)
@@ -17,11 +17,11 @@ module Paleolog
       end
 
       def name_exists_within_section?(name, section_id)
-        ds.where(section_id: section_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count > 0
+        ds.where(section_id: section_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
       end
 
       def rank_exists_within_section?(rank, section_id)
-        ds.where(rank: rank, section_id: section_id).limit(1).count > 0
+        ds.where(rank: rank, section_id: section_id).limit(1).count.positive?
       end
 
       def entity_class

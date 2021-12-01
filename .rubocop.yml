@@ -1,0 +1,18 @@
+AllCops:
+  NewCops: enable
+
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: consistent_comma
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
+Metrics/BlockLength:
+  Exclude:
+    - 'test/**/*_test.rb'
+
+Metrics/MethodLength:
+  Max: 15
+
+Style/Documentation:
+  Enabled: false

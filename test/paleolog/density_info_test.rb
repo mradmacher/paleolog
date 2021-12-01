@@ -11,8 +11,10 @@ describe Paleolog::DensityInfo do
     @counted_group = Paleolog::Group.new(name: 'Group1')
     @other_group = Paleolog::Group.new(name: 'Group2')
     @marker_quantity = 37
-    @counting = Paleolog::Counting.new(name: 'Counting1', project: @project, group: @counted_group, marker: @marker, marker_count: @marker_quantity)
-    @subject = Paleolog::DensityInfo.new(counted_group: @counted_group, marker: @marker, marker_quantity: @marker_quantity)
+    @counting = Paleolog::Counting.new(name: 'Counting1', project: @project, group: @counted_group, marker: @marker,
+                                       marker_count: @marker_quantity,)
+    @subject = Paleolog::DensityInfo.new(counted_group: @counted_group, marker: @marker,
+                                         marker_quantity: @marker_quantity,)
   end
 
   describe 'group_density' do
@@ -52,19 +54,19 @@ describe Paleolog::DensityInfo do
         counting: @counting,
         sample: @sample,
         species: @species15,
-        quantity: 15
+        quantity: 15,
       )
       @occurrences << @occurrence41 = Paleolog::Occurrence.new(
         counting: @counting,
         sample: @sample,
         species: @species41,
-        quantity: 41
+        quantity: 41,
       )
       @occurrences << @occurrence0 = Paleolog::Occurrence.new(
         counting: @counting,
         sample: @sample,
         species: @species0,
-        quantity: nil
+        quantity: nil,
       )
 
       @occurrences << Paleolog::Occurrence.new(

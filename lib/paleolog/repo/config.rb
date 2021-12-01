@@ -11,7 +11,10 @@ module Paleolog
       include Singleton
 
       def db
-        @db ||= Sequel.connect("sqlite:#{File.expand_path(File.join(__dir__, '..', '..', '..', 'db', "#{ENV['RACK_ENV']}.sqlite"))}", loggers: [Logger.new($stdout)])
+        @db ||= Sequel.connect(
+          "sqlite:#{File.expand_path(File.join(__dir__, '..', '..', '..', 'db',
+                                               "#{ENV['RACK_ENV']}.sqlite",))}", loggers: [Logger.new($stdout)],
+        )
       end
 
       class << self
@@ -19,7 +22,7 @@ module Paleolog
 
         def_delegators(
           :instance,
-          :db
+          :db,
         )
       end
     end

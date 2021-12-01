@@ -15,9 +15,12 @@ describe Paleolog::Contract::Density do
     @species = Paleolog::Species.new(name: 'Species', group: @group)
 
     @occurrence = Paleolog::Occurrence.new(counting: @counting, sample: @sample, species: @species, quantity: 20)
-    @marker_occurrence = Paleolog::Occurrence.new(counting: @counting, sample: @sample, species: @marker_species, quantity: 20)
-    @marker_0_occurrence = Paleolog::Occurrence.new(counting: @counting, sample: @sample, species: @marker_species, quantity: 0)
-    @marker_nil_occurrence = Paleolog::Occurrence.new(counting: @counting, sample: @sample, species: @marker_species, quantity: nil)
+    @marker_occurrence = Paleolog::Occurrence.new(counting: @counting, sample: @sample, species: @marker_species,
+                                                  quantity: 20,)
+    @marker_0_occurrence = Paleolog::Occurrence.new(counting: @counting, sample: @sample, species: @marker_species,
+                                                    quantity: 0,)
+    @marker_nil_occurrence = Paleolog::Occurrence.new(counting: @counting, sample: @sample, species: @marker_species,
+                                                      quantity: nil,)
 
     @counted_group = @group
     @marker = @marker_species
@@ -35,7 +38,7 @@ describe Paleolog::Contract::Density do
       marker: @marker,
       marker_quantity: @marker_quantity,
       sample_weight: @sample_weight,
-      occurrences: @occurrences
+      occurrences: @occurrences,
     )
     assert result.error?(:sample_weight)
     assert result.errors[:sample_weight].include?('must be filled')
@@ -48,7 +51,7 @@ describe Paleolog::Contract::Density do
       marker: @marker,
       marker_quantity: @marker_quantity,
       sample_weight: @sample_weight,
-      occurrences: @occurrences
+      occurrences: @occurrences,
     )
     assert result.error?(:sample_weight)
     assert result.errors[:sample_weight].include?('must be greater than 0')
@@ -61,7 +64,7 @@ describe Paleolog::Contract::Density do
       marker: @marker,
       marker_quantity: @marker_quantity,
       sample_weight: @sample_weight,
-      occurrences: @occurrences
+      occurrences: @occurrences,
     )
     assert result.error?(:sample_weight)
     assert result.errors[:sample_weight].include?('must be greater than 0')
@@ -74,7 +77,7 @@ describe Paleolog::Contract::Density do
       marker: @marker,
       marker_quantity: @marker_quantity,
       sample_weight: @sample_weight,
-      occurrences: @occurrences
+      occurrences: @occurrences,
     )
     assert result.error?(:counted_group)
     assert result.errors[:counted_group].include?('must be filled')
@@ -87,7 +90,7 @@ describe Paleolog::Contract::Density do
       marker: @marker,
       marker_quantity: @marker_quantity,
       sample_weight: @sample_weight,
-      occurrences: @occurrences
+      occurrences: @occurrences,
     )
     assert result.error?(:marker)
     assert result.errors[:marker].include?('must be filled')
@@ -100,7 +103,7 @@ describe Paleolog::Contract::Density do
       marker: @marker,
       marker_quantity: @marker_quantity,
       sample_weight: @sample_weight,
-      occurrences: @occurrences
+      occurrences: @occurrences,
     )
     assert result.error?(:marker_quantity)
     assert result.errors[:marker_quantity].include?('must be filled')
@@ -113,7 +116,7 @@ describe Paleolog::Contract::Density do
       marker: @marker,
       marker_quantity: @marker_quantity,
       sample_weight: @sample_weight,
-      occurrences: @occurrences
+      occurrences: @occurrences,
     )
     assert result.error?(:marker_quantity)
     assert result.errors[:marker_quantity].include?('must be greater than 0')
@@ -126,7 +129,7 @@ describe Paleolog::Contract::Density do
       marker: @marker,
       marker_quantity: @marker_quantity,
       sample_weight: @sample_weight,
-      occurrences: @occurrences
+      occurrences: @occurrences,
     )
     assert result.error?(:occurrences)
     assert result.errors[:occurrences].include?('must be filled')
@@ -137,7 +140,7 @@ describe Paleolog::Contract::Density do
       marker: @marker,
       marker_quantity: @marker_quantity,
       sample_weight: @sample_weight,
-      occurrences: @occurrences
+      occurrences: @occurrences,
     )
     assert result.error?(:occurrences)
     assert result.errors[:occurrences].include?('must be filled')
@@ -150,7 +153,7 @@ describe Paleolog::Contract::Density do
       marker: @marker,
       marker_quantity: @marker_quantity,
       sample_weight: @sample_weight,
-      occurrences: @occurrences
+      occurrences: @occurrences,
     )
     assert result.error?(:occurrences)
     assert result.errors[:occurrences].include?('must include marker')
@@ -163,7 +166,7 @@ describe Paleolog::Contract::Density do
       marker: @marker,
       marker_quantity: @marker_quantity,
       sample_weight: @sample_weight,
-      occurrences: @occurrences
+      occurrences: @occurrences,
     )
     assert result.error?(:occurrences)
     assert result.errors[:occurrences].include?('must include marker')
@@ -176,7 +179,7 @@ describe Paleolog::Contract::Density do
       marker: @marker,
       marker_quantity: @marker_quantity,
       sample_weight: @sample_weight,
-      occurrences: @occurrences
+      occurrences: @occurrences,
     )
     assert result.error?(:occurrences)
     assert result.errors[:occurrences].include?('must include marker')

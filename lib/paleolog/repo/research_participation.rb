@@ -6,11 +6,11 @@ module Paleolog
       include CommonQueries
 
       def all_for_project(project_id)
-        ds.where(project_id: project_id).all.map { |result|
+        ds.where(project_id: project_id).all.map do |result|
           Paleolog::ResearchParticipation.new(**result) do |participation|
             participation.user = Paleolog::Repo::User.new.find(participation.user_id)
           end
-        }
+        end
       end
 
       def entity_class
@@ -23,4 +23,3 @@ module Paleolog
     end
   end
 end
-

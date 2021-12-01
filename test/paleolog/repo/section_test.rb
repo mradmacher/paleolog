@@ -66,7 +66,7 @@ describe Paleolog::Repo::Section do
 
       result = Paleolog::Repo.find(Paleolog::Section, @section.id)
       assert_equal 2, result.samples.size
-      assert_equal %w(Sample1 Sample2), result.samples.map(&:name)
+      assert_equal %w[Sample1 Sample2], result.samples.map(&:name)
     end
   end
 

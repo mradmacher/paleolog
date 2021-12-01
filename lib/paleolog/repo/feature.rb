@@ -9,11 +9,11 @@ module Paleolog
         result = ds.where(species_id: species_id).all
         choice_ids = result.map { |f| f[:choice_id] }.uniq
         choices = Paleolog::Repo::Choice.new.all_for(choice_ids)
-        result.map { |r|
-          Paleolog::Feature.new(**r) { |feature|
+        result.map do |r|
+          Paleolog::Feature.new(**r) do |feature|
             feature.choice = choices.detect { |c| c.id == feature.choice_id }
-          }
-        }
+          end
+        end
       end
 
       def entity_class

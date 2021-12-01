@@ -17,7 +17,7 @@ describe Paleolog::Repo::Image do
     it 'returns all features defined for a species' do
       image1 = Paleolog::Repo.save(Paleolog::Image.new(image_file_name: 'img1.png', species: species))
       image2 = Paleolog::Repo.save(Paleolog::Image.new(image_file_name: 'img2.png', species: species))
-      image3 = Paleolog::Repo.save(Paleolog::Image.new(image_file_name: 'img3.png', species: other_species))
+      Paleolog::Repo.save(Paleolog::Image.new(image_file_name: 'img3.png', species: other_species))
 
       result = repo.all_for_species(species.id)
       assert_equal([image1.id, image2.id], result.map(&:id))

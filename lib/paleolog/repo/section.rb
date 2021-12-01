@@ -14,9 +14,9 @@ module Paleolog
       end
 
       def all_for_project(project_id)
-        ds.where(project_id: project_id).all.map { |result|
+        ds.where(project_id: project_id).all.map do |result|
           Paleolog::Section.new(**result)
-        }
+        end
       end
 
       def find_for_project(id, project_id)
@@ -31,7 +31,7 @@ module Paleolog
       end
 
       def name_exists_within_project?(name, project_id)
-        ds.where(project_id: project_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count > 0
+        ds.where(project_id: project_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
       end
 
       def entity_class

@@ -18,7 +18,7 @@ describe Paleolog::Repo::ResearchParticipation do
     it 'returns all participations for a project' do
       participation1 = Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project))
       participation2 = Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: other_user, project: project))
-      participation3 = Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: other_project))
+      Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: other_project))
 
       result = repo.all_for_project(project.id)
       assert_equal([participation1.id, participation2.id], result.map(&:id))

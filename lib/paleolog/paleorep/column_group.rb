@@ -11,7 +11,11 @@ module Paleolog
         @values ||= []
       end
 
-      def reduce(header)
+      def each_value(&block)
+        values.each(&block)
+      end
+
+      def combine(header)
         values.each_with_index do |row, i|
           values[i].replace([yield(row)])
         end

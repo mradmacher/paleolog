@@ -9,21 +9,21 @@ module Paleolog
         result = ds.where(id: ids)
         field_ids = result.map { |r| r[:field_id] }.uniq
         fields = Paleolog::Repo::Field.new.all_for(field_ids)
-        result.map { |r|
-          Paleolog::Choice.new(**r) { |choice|
+        result.map do |r|
+          Paleolog::Choice.new(**r) do |choice|
             choice.field = fields.detect { |f| f.id == choice.field_id }
-          }
-        }
+          end
+        end
       end
 
       def all_for_field(field_id)
-        ds.where(field_id: field_id).all.map { |result|
+        ds.where(field_id: field_id).all.map do |result|
           Paleolog::Choice.new(**result)
-        }
+        end
       end
 
       def name_exists_within_field?(name, field_id)
-        ds.where(field_id: field_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count > 0
+        ds.where(field_id: field_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
       end
 
       def entity_class

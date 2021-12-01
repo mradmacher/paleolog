@@ -10,11 +10,15 @@ module Paleolog
       params(Contract::OccurrenceSchema)
 
       rule(:rank) do
-        key.failure('is already taken') if occurrence_repo.rank_exists_within_counting_and_sample?(value, values[:counting_id], values[:sample_id])
+        if occurrence_repo.rank_exists_within_counting_and_sample?(value, values[:counting_id], values[:sample_id])
+          key.failure('is already taken')
+        end
       end
 
       rule(:species_id) do
-        key.failure('is already taken') if occurrence_repo.species_exists_within_counting_and_sample?(value, values[:counting_id], values[:sample_id])
+        if occurrence_repo.species_exists_within_counting_and_sample?(value, values[:counting_id], values[:sample_id])
+          key.failure('is already taken')
+        end
       end
     end
   end

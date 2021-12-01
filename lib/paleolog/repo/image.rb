@@ -6,9 +6,9 @@ module Paleolog
       include CommonQueries
 
       def all_for_species(species_id)
-        ds.where(species_id: species_id).all.map { |result|
+        ds.where(species_id: species_id).all.map do |result|
           Paleolog::Image.new(**result)
-        }
+        end
       end
 
       def ds

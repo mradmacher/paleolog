@@ -6,9 +6,9 @@ module Paleolog
       include CommonQueries
 
       def all_for_project(project_id)
-        ds.where(project_id: project_id).all.map { |result|
+        ds.where(project_id: project_id).all.map do |result|
           Paleolog::Counting.new(**result)
-        }
+        end
       end
 
       def find_for_project(id, project_id)

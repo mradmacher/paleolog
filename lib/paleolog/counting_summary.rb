@@ -33,23 +33,25 @@ module Paleolog
       STATUSES[status]
     end
 
+    # rubocop:disable Metrics/AbcSize
     # occurrence: in: [:first, :last]
     def summary(samples, occurrence: :first)
       samples_summary = samples.sort_by(&:rank)
 
       species_summary = specimens_by_occurrence(
-        occurrence == :first ? samples_summary : samples_summary.reverse
+        occurrence == :first ? samples_summary : samples_summary.reverse,
       )
 
       occurrences_summary = Array.new(samples_summary.size) { Array.new(species_summary.size) }
-      occurrences.each do |occurrence|
-        row = samples_summary.index(occurrence.sample)
-        column = species_summary.index(occurrence.species)
-        occurrences_summary[row][column] = occurrence
+      occurrences.each do |occr|
+        row = samples_summary.index(occr.sample)
+        column = species_summary.index(occr.species)
+        occurrences_summary[row][column] = occr
       end
 
       [samples_summary, species_summary, occurrences_summary]
     end
+    # rubocop:enable Metrics/AbcSize
 
     def specimens_by_occurrence_for_section(counting, section)
       specimens_by_occurrence(counting, section.samples.sort_by(&:rank))
@@ -58,7 +60,12 @@ module Paleolog
     def specimens_by_occurrence(samples)
       specimens = []
       samples.each do |sample|
-        specimens += occurrences.select { |occ| occ.sample == sample }.reject { |occ| specimens.include?(occ.species) }.sort_by(&:rank).map(&:species)
+        specimens +=
+          occurrences
+          .select { |occ| occ.sample == sample }
+          .reject { |occ| specimens.include?(occ.species) }
+          .sort_by(&:rank)
+          .map(&:species)
       end
       specimens
     end
@@ -70,7 +77,7 @@ module Paleolog
     end
 
     def can_compute_density?(counting, sample)
-      counting.group_id && counting.marker_id && counting.marker_count && sample.weight && (sample.weight != 0.0)
+      counting.group_id && counting.marker_id && counting.marker_count && sample.weight && !sample.weight.zero?
     end
   end
 end

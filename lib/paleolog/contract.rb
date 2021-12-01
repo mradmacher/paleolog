@@ -27,7 +27,8 @@ module Paleolog
     end
 
     ImageSchema = Dry::Schema.Params do
-      #"id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "created_at" datetime, "updated_at" datetime, "species_id" integer, "image_file_name" varchar(255
+      # "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      # "created_at" datetime, "updated_at" datetime, "species_id" integer, "image_file_name" varchar(255
       # ), "image_content_type" varchar(255), "image_file_size" integer, "sample_id" integer, "ef" varchar(255)
     end
 
@@ -64,8 +65,8 @@ module Paleolog
           Paleolog::CountingSummary::NORMAL,
           Paleolog::CountingSummary::OUTSIDE_COUNT,
           Paleolog::CountingSummary::CARVING,
-          Paleolog::CountingSummary::REWORKING,
-        ]
+          Paleolog::CountingSummary::REWORKING
+        ],
       )
     end
   end

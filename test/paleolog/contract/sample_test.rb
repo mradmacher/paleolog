@@ -100,5 +100,5 @@ describe Paleolog::Contract::Sample do
   it 'requires a rank' do
     assert_requires_integer(@schema, :rank)
     assert_performs_integer_coertion(@schema, :rank)
-	end
+  end
 end

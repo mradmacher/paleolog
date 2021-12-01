@@ -15,4 +15,3 @@ module Paleolog
     end
   end
 end
-

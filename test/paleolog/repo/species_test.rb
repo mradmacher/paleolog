@@ -45,7 +45,7 @@ describe Paleolog::Repo::Species do
     it 'returns species for given ids' do
       group = Paleolog::Repo.save(Paleolog::Group.new(name: 'Group'))
       species1 = Paleolog::Repo.save(Paleolog::Species.new(name: 'S1', group: group))
-      species2 = Paleolog::Repo.save(Paleolog::Species.new(name: 'S2', group: group))
+      Paleolog::Repo.save(Paleolog::Species.new(name: 'S2', group: group))
       species3 = Paleolog::Repo.save(Paleolog::Species.new(name: 'S3', group: group))
 
       result = repo.all_with_ids([species1.id, species3.id])
@@ -59,7 +59,7 @@ describe Paleolog::Repo::Species do
       species2 = Paleolog::Repo.save(Paleolog::Species.new(name: 'S2', group: group2))
 
       result = repo.all_with_ids([species1.id, species2.id])
-      assert_equal(%w(G1 G2), result.map { |s| s.group.name })
+      assert_equal(%w[G1 G2], result.map { |s| s.group.name })
     end
 
     it 'loads features' do
@@ -86,7 +86,7 @@ describe Paleolog::Repo::Species do
     it 'returns all species in a given group' do
       species1 = Paleolog::Repo.save(Paleolog::Species.new(name: 'S1', group: group))
       species2 = Paleolog::Repo.save(Paleolog::Species.new(name: 'S2', group: group))
-      species3 = Paleolog::Repo.save(Paleolog::Species.new(name: 'S3', group: other_group))
+      Paleolog::Repo.save(Paleolog::Species.new(name: 'S3', group: other_group))
 
       result = repo.all_for_group(group.id)
       assert_equal([species1.id, species2.id].sort, result.map(&:id))
