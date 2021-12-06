@@ -140,6 +140,10 @@ module Paleolog
       @splits = []
     end
 
+    def each_value(&block)
+      values.each(&block)
+    end
+
     # rubocop:disable Metrics/AbcSize
     def self.build(params)
       Report.new.tap do |report|

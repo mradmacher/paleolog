@@ -1,10 +1,9 @@
 <div class="ui grid">
-  <div class="two wide column">
-  </div>
-  <div class="fourteen wide column">
+  <div class="sixteen wide column">
     <h1 class="ui header">Species list (<%= @species.size %>)</h1>
   </div>
-  <div class="two wide column">
+
+  <div class="three wide column">
     <form id="species-search" class="ui form">
       <fieldset>
         <legend>Find species</legend>
@@ -26,7 +25,7 @@
     </form>
   </div>
 
-  <div class="fourteen wide column">
+  <div class="thirteen wide column">
     <% if @species.any? %>
       <table id="species-list" class="ui celled table">
         <thead>

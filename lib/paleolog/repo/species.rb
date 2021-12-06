@@ -68,7 +68,12 @@ module Paleolog
         #   .select(:specimen_id).distinct.map(&:specimen_id)
         # specimen_ids = occurrence_specimen_ids + image_specimen_ids
         # @specimens = @specimens.where(id: specimen_ids)
-        query.all.map { |result| Paleolog::Species.new(**result) }
+        groups = Paleolog::Repo::Group.new.all
+        query.all.map do |result|
+          Paleolog::Species.new(**result) do |species|
+            species.group = groups.detect { |group| group.id == species.group_id }
+          end
+        end
       end
 
       def name_exists_within_group?(name, group_id)

@@ -16,4 +16,5 @@
       <dd><%= @counting.marker_count %></dd>
     <% end %>
   </dl>
+  <a class="ui primary button" href="<%= occurrences_path(@project, counting: @counting) %>">Count</a>
 </fieldset>

@@ -28,7 +28,7 @@ class PaleologWeb < Sinatra::Base
     end
 
     def authorize(_session)
-      # halt 403, '<a href="/login">Login</a>' unless logged_in?
+      halt 403, '<a href="/login">Login</a>' unless logged_in?
     end
 
     def parameterize(name)

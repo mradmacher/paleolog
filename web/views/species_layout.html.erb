@@ -1,14 +1,12 @@
 <div class="ui grid">
-  <div class="two wide column">
-  </div>
-  <div class="fourteen wide column">
+  <div class="sixteen wide column">
     <fieldset>
       <legend>Species</legend>
       <h1><%= @species.name %></h1>
     </fieldset>
   </div>
 
-  <div class="two wide column">
+  <div class="three wide column">
     <fieldset>
       <legend>Details</legend>
         <% unless @species.verified %>
@@ -28,7 +26,7 @@
     </fieldset>
   </div>
 
-  <div class="fourteen wide column">
+  <div class="thirteen wide column">
     <%= yield %>
   </div>
 </div>
