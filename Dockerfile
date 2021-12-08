@@ -1,7 +1,10 @@
 FROM ruby:3.0
+RUN apt-get update && apt-get upgrade
+RUN apt-get install sqlite3
 WORKDIR /app
-COPY . .
+COPY Gemfile ./
+COPY Gemfile.lock ./
+RUN bundle config --local deployment true
+RUN bundle config --local without "development test"
 RUN bundle install
-ENV RACK_ENV=production
-ENTRYPOINT ["bundle", "exec", "rackup", "-p 9292", "-o 0.0.0.0"]
-#ENTRYPOINT ["tail", "-f", "/dev/null"]
+COPY . .

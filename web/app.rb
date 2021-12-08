@@ -5,7 +5,7 @@ $LOAD_PATH << File.join(__dir__, '..', 'lib')
 require 'rubygems'
 require 'bundler/setup'
 require 'sinatra/base'
-require 'sinatra/reloader'
+require 'sinatra/reloader' if ENV['RACK_ENV'] == 'development'
 require 'redcloth'
 require 'paleolog'
 

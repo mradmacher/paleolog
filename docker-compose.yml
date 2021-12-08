@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  web:
+    image: paleolog:latest
+    environment:
+      RACK_ENV: production
+    working_dir: /app
+    command: bash -c "bundle exec rackup -p 9292 -o 0.0.0.0"
+    ports:
+      - "80:9292"
+    volumes:
+      - sqlite:/app/db
+      - uploads:/app/web/public/images
+
+volumes:
+  sqlite:
+  uploads:
