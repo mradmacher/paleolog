@@ -1,15 +1,7 @@
 version: "3.8"
 
 services:
-  shell:
-    image: ruby:3.0
-    command: bash -c "bundle install && tail -f /dev/null"
-    working_dir: /app
-    volumes:
-      - ./:/app
-    environment:
-      RACK_ENV: development
-  app:
+  web:
     image: ruby:3.0
     command: bash -c "bundle install && bundle exec rackup -p 9292 -o 0.0.0.0"
     ports:

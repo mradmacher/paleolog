@@ -19,6 +19,13 @@ class PaleologWeb < Sinatra::Base
 
   # rubocop:disable Metrics/BlockLength
   helpers do
+    def https_required!
+      return unless request.scheme == 'http'
+
+      headers['Location'] = request.url.sub('http', 'https')
+      halt 301
+    end
+
     def authorizer
       @authorizer ||= Paleolog::Authorizer.new(session)
     end
@@ -112,6 +119,10 @@ class PaleologWeb < Sinatra::Base
     end
   end
   # rubocop:enable Metrics/BlockLength
+
+  before '*' do
+    https_required! if settings.production?
+  end
 
   %w[/projects* /catalog*].each do |pattern|
     before pattern do
@@ -267,6 +278,10 @@ class PaleologWeb < Sinatra::Base
     @group_per_gram = @density_info.group_density(@occurrences, @sample)
 
     using_project_layout { using_occurrences_layout { display 'occurrences/show.html' } }
+  end
+
+  get '*' do
+    redirect '/'
   end
 end
 # rubocop:enable Metrics/ClassLength
