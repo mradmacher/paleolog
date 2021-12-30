@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   web:
-    image: paleolog:latest
+    image: mradmacher/paleolog:latest
     environment:
       RACK_ENV: production
     working_dir: /app

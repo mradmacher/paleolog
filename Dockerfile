@@ -1,6 +1,4 @@
-FROM ruby:3.0
-RUN apt-get update && apt-get upgrade
-RUN apt-get install sqlite3
+FROM mradmacher/paleolog_env:latest
 WORKDIR /app
 COPY Gemfile ./
 COPY Gemfile.lock ./

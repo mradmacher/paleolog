@@ -1,2 +1,6 @@
 db
 web/public/images
+.git
+.gitignore
+.deploy
+*.swp
