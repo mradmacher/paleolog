@@ -3,15 +3,11 @@ version: "3.8"
 services:
   web:
     image: mradmacher/paleolog:latest
-    environment:
-      RACK_ENV: production
-    working_dir: /app
-    command: bash -c "bundle exec puma"
     ports:
       - "80:9292"
     volumes:
-      - sqlite:/app/db
-      - uploads:/app/web/public/images
+      - sqlite:/home/paleolog/db
+      - uploads:/home/paleolog/web/public/images
 
 volumes:
   sqlite:

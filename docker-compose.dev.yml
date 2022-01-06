@@ -4,17 +4,11 @@ services:
   web:
     build:
       context: .
-      dockerfile: Dockerfile.env
-    command: >
-      bash -c "
-                bundle config set --local path .bundle &&
-                bundle install &&
-                bundle exec rackup -p 9292 -o 0.0.0.0
-              "
+      target: development
+      args:
+        USER_UID: "${USER_UID:-1001}"
+    command: bundle exec rackup -o 0.0.0.0
     ports:
       - 9292:9292
-    working_dir: /app
     volumes:
-      - ./:/app
-    environment:
-      RACK_ENV: development
+      - ./:/home/paleolog

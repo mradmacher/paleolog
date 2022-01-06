@@ -1,6 +1,11 @@
 db
 web/public/images
+test
+.bundle
+.bash_history
+.cache
+.deploy
 .git
 .gitignore
-.deploy
+.rubocop.yml
 *.swp

@@ -16,6 +16,9 @@ class PaleologWeb < Sinatra::Base
   configure :development do
     register Sinatra::Reloader
   end
+  configure :production, :development do
+    enable :logging
+  end
 
   # rubocop:disable Metrics/BlockLength
   helpers do

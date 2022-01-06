@@ -12,6 +12,8 @@
 *.sqlite
 *.swp
 *.swo
+.cache
+.bash_history
 
 /web/public/images/*
 # Used by dotenv library to load environment variables.

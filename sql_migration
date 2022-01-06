@@ -1,5 +1,0 @@
-alter table specimens rename to species;
-alter table features rename column specimen_id to species_id;
-alter table images rename column specimen_id to species_id;
-alter table occurrences rename column specimen_id to species_id;
-alter table users add column password_salt varchar(255);
