@@ -1,43 +1,177 @@
-<% unless @occurrences.empty? %>
-  <table class="ui collapsing compact celled table">
-    <thead>
+<table class="ui collapsing compact celled table occurrences-summary">
+  <thead>
+    <tr>
       <th>Counted</th>
       <th>Other</th>
       <th>Total</th>
-      <% if @group_per_gram %>
-        <th><%= @counting.group.name %> per gram</th>
-      <% end %>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span id="sample-countable-sum"><%= @counting_summary.countable_sum %></span></td>
-        <td><span id="sample-uncountable-sum"><%= @counting_summary.uncountable_sum %></span></td>
-        <td class="active"><span id="sample-total-sum"><%= @counting_summary.total_sum %></span></td>
-        <% if @group_per_gram %>
-          <td><%= @group_per_gram %></td>
-        <% end %>
-      </tr>
-    </tbody>
-  </table>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span id="occurrences-countable-sum"><%= @summary.countable %></span></td>
+      <td><span id="occurrences-uncountable-sum"><%= @summary.uncountable %></span></td>
+      <td class="active"><span id="occurrences-total-sum"><%= @summary.total %></span></td>
+    </tr>
+  </tbody>
+</table>
 
-  <table class="ui striped celled table">
-    <thead>
-      <tr align="center">
-        <th>Group</th>
-        <th>Species</th>
-        <th>Quantity</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    </tbody>
-      <% @occurrences.each do |occurrence| %>
-        <tr>
-          <td><%= occurrence.species.group.name %></td>
-          <td><%= occurrence.species.name %></td>
-          <td><%= occurrence.quantity %></td>
-          <td><%= @counting_summary.status_symbol(occurrence.status) %><%= if occurrence.uncertain then Paleolog::CountingSummary::UNCERTAIN_SYMBOL end %></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-<% end %>
+<table class="ui striped celled table occurrences-collection">
+  <thead>
+    <tr align="center">
+      <th>Group</th>
+      <th>Species</th>
+      <th colspan="2">Quantity</th>
+      <th>Status</th>
+      <th>Uncertain</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  <% @occurrences.each do |occurrence| %>
+    <tr id="occurrence-<%= occurrence.id %>">
+      <td><%= occurrence.group_name %></td>
+      <td><%= occurrence.species_name %></td>
+      <td id="occurrence-<%= occurrence.id %>-quantity"><%= occurrence.quantity %></td>
+      <td>
+        <div class="ui vertical mini icon buttons">
+          <button class="ui button increase-quantity" data-shift="1" data-occurrence-id="<%= occurrence.id %>"><i class="plus icon"></i></button>
+          <button class="ui button decrease-quantity" data-shift="-1" data-occurrence-id="<%= occurrence.id %>"><i class="minus icon"></i></button>
+        </div>
+      </td>
+      <td class="ui form field">
+        <label for="occurrence-<%= occurrence.id %>-status" hidden>Status</label>
+        <select id="occurrence-<%= occurrence.id %>-status" class="update-status" data-occurrence-id="<%= occurrence.id %>">
+          <% Paleolog::CountingSummary::STATUSES.each do |value, symbol| %>
+            <option value="<%= value %>" <%= (occurrence.status == value) ? 'selected' : '' %>><%= symbol %></option>
+          <% end %>
+        </select>
+      </td>
+      <td class="ui form field">
+        <label for="occurrence-<%= occurrence.id %>-uncertain" hidden>Uncertain</label>
+        <input id="occurrence-<%= occurrence.id %>-uncertain" class="update-uncertain" data-occurrence-id="<%= occurrence.id %>" type="checkbox" <%= occurrence.uncertain ? 'checked' : '' %>/>
+      </td>
+      <td><button class="ui negative mini icon button delete-occurrence" data-occurrence-id="<%= occurrence.id %>"><i class="trash icon"></i></button>
+    </tr>
+  <% end %>
+    <tr>
+      <td colspan="7">
+          <button class="ui fluid mini icon primary button add-occurrence"><i class="plus icon"></i></button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="ui modal add-occurrence">
+  <div class="header">Add Species</div>
+  <div class="content">
+    <%= erb :'species/_search.html', layout: false %>
+  </div>
+  <div class="actions">
+    <div class="ui cancel button">Cancel</div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(function() {
+  var projectId = <%= @project.id %>;
+  onSpeciesSelected = function(speciesId) {
+    addOccurrence(speciesId, <%= @counting.id %>, <%= @sample.id %>)
+  }
+
+  removeOccurrence = function(occurrenceId) {
+    var actionUrl = "/api/projects/" + projectId + "/occurrences/" + occurrenceId;
+    $.ajax({
+      url: actionUrl,
+      type: "DELETE",
+      dataType: "json",
+    })
+    .done(function(json) {
+      $("#occurrence-" + json.occurrence.id).remove();
+      updateSummary(json.summary);
+    }).fail(function(xhr, status, error) {
+      alert('Please refresh the page and try again.')
+    })
+  }
+
+  addOccurrence = function(speciesId, countingId, sampleId) {
+    var actionUrl = "/api/projects/" + projectId + "/occurrences";
+    attrs = {
+      species_id: speciesId,
+      counting_id: countingId,
+      sample_id: sampleId,
+    };
+    $.ajax({
+      url: actionUrl,
+      data: attrs,
+      type: "POST",
+      dataType: "json",
+    })
+    .done(function(json) {
+      $('.modal.add-occurrence').modal('hide');
+      // TODO: add it to the displayed collection instead of reloading
+      window.location.reload();
+    }).fail(function(xhr, status, error) {
+      alert('Please refresh the page and try again.')
+    })
+  }
+
+  updateOccurrence = function(occurrence_id, attrs) {
+    var actionUrl = "/api/projects/" + projectId + "/occurrences/" + occurrence_id;
+    $.ajax({
+      url: actionUrl,
+      data: attrs,
+      type: "PATCH",
+      dataType: "json",
+    })
+    .done(function(json) {
+      $("#occurrence-" + json.occurrence.id + "-quantity").text(json.occurrence.quantity);
+      updateSummary(json.summary);
+    }).fail(function(xhr, status, error) {
+      alert('Please refresh the page and try again.')
+    })
+  }
+
+  updateSummary = function(summary) {
+    $("#occurrences-uncountable-sum").text(summary.uncountable);
+    $("#occurrences-countable-sum").text(summary.countable);
+    $("#occurrences-total-sum").text(summary.total);
+  }
+
+  $('.button.increase-quantity').click(function() {
+    var occurrenceId = $(this).attr("data-occurrence-id");
+    updateOccurrence(occurrenceId, { shift: 1 });
+  });
+
+  $('.button.decrease-quantity').click(function() {
+    var occurrenceId = $(this).attr("data-occurrence-id");
+    updateOccurrence(occurrenceId, { shift: -1 });
+  });
+
+  $('.update-status').change(function() {
+    var occurrenceId = $(this).attr("data-occurrence-id");
+    var status = $(this).val();
+    updateOccurrence(occurrenceId, { status: status });
+  });
+
+  $(".update-uncertain").change(function() {
+    var occurrenceId = $(this).attr("data-occurrence-id");
+    var uncertain;
+    if($(this).prop("checked")) {
+      uncertain = true
+    } else {
+      uncertain = false
+    };
+    updateOccurrence(occurrenceId, { uncertain: uncertain });
+  });
+
+  $('.button.add-occurrence').click(function() {
+    $('.modal.add-occurrence').modal('show');
+    // TODO: exclude already present in counting
+    initializeSpeciesSearch(onSpeciesSelected);
+  });
+
+  $('.button.delete-occurrence').click(function() {
+    var occurrenceId = $(this).attr("data-occurrence-id");
+    removeOccurrence(occurrenceId);
+  });
+})
+</script>

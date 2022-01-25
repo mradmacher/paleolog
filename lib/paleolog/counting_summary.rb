@@ -29,7 +29,7 @@ module Paleolog
       occurrences.map { |occ| occ.quantity.to_i }.sum
     end
 
-    def status_symbol(status)
+    def self.status_symbol(status)
       STATUSES[status]
     end
 

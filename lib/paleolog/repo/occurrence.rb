@@ -5,6 +5,18 @@ module Paleolog
     class Occurrence
       include CommonQueries
 
+      def find_in_project(id, project_id)
+        result = ds.where(Sequel[:occurrences][:id] => id, Sequel[:projects][:id] => project_id)
+          .join(:samples, Sequel[:samples][:id] => :sample_id)
+          .join(:sections, Sequel[:sections][:id] => :section_id)
+          .join(:projects, Sequel[:projects][:id] => :project_id)
+          .select_all(:occurrences)
+          .first
+        return nil unless result
+
+        entity_class.new(**result)
+      end
+
       # rubocop:disable Metrics/AbcSize
       def all_for_sample(counting, sample)
         # Entity.where(counting_id: counting.id, sample_id: sample.id).eager(:species).order { rank.desc }.to_a
@@ -16,7 +28,7 @@ module Paleolog
             occurrence.species = species.detect { |s| s.id == occurrence.species_id }
             occurrence.sample = sample
           end
-        end.sort_by(&:rank).reverse
+        end.sort_by(&:rank)
       end
       # rubocop:enable Metrics/AbcSize
 
@@ -31,7 +43,7 @@ module Paleolog
             occurrence.species = species.detect { |s| s.id == occurrence.species_id }
             occurrence.sample = samples.detect { |s| s.id == occurrence.sample_id }
           end
-        end.sort_by(&:rank).reverse
+        end.sort_by(&:rank)
       end
       # rubocop:enable Metrics/AbcSize
 

@@ -13,6 +13,10 @@ module Minitest
     include Capybara::DSL
     include Capybara::Minitest::Assertions
 
+    def use_javascript_driver
+      Capybara.current_driver = :selenium_headless
+    end
+
     def after_teardown
       Capybara.reset_sessions!
       Capybara.use_default_driver

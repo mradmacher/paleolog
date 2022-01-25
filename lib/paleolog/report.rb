@@ -26,7 +26,7 @@ module Paleolog
       points: 'Points',
     }.freeze
     # rubocop:disable Layout/LineLength
-    NOLATIN = /group|bisaccate|algae|pollens?|spores?|foraminiferal|test|linnings|other|and|acritarchs?|spp\.|sp\.|cf\.|[?()]|\d/i.freeze
+    NOLATIN = /group|bisaccate|algae|pollens?|spores?|foraminiferal|test|linnings|other|and|acritarchs?|spp\.|sp\.|cf\.|[?()]|\d/i
     # rubocop:enable Layout/LineLength
 
     ROUND = 1
@@ -439,11 +439,9 @@ module Paleolog
       CSV.generate(col_sep: ',') do |csv|
         csv << [nil].concat(@column_headers)
         @row_headers.each do |vheader|
-          begin
-            csv << [vheader].concat(value_row.next.map { |i| (i.to_s == '0' ? nil : i) })
-          rescue StopIteration
-            csv << [vheader].concat(@row_headers.size.times.map { |_i| nil })
-          end
+          csv << [vheader].concat(value_row.next.map { |i| (i.to_s == '0' ? nil : i) })
+        rescue StopIteration
+          csv << [vheader].concat(@row_headers.size.times.map { |_i| nil })
         end
       end
     end

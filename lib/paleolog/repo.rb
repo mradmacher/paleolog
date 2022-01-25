@@ -4,7 +4,14 @@ module Paleolog
   module Repo
     module CommonQueries
       def find(id)
-        entity_class.new(**ds.where(id: id).first)
+        result = ds.where(id: id).first
+        return nil unless result
+
+        entity_class.new(**result)
+      end
+
+      def delete(id)
+        ds.where(id: id).delete
       end
 
       def create(attributes)
@@ -82,6 +89,14 @@ module Paleolog
 
     def self.find(type, id)
       self.for(type).find(id)
+    end
+
+    def self.delete(type, id)
+      self.for(type).delete(id)
+    end
+
+    def self.delete_all(type)
+      self.for(type).delete_all
     end
 
     def self.for(type)

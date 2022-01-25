@@ -38,6 +38,7 @@ module Paleolog
       attributes :id,
                  :project_id,
                  :user_id,
+                 :manager,
                  :created_at,
                  :updated_at
 

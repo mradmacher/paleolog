@@ -40,15 +40,17 @@ module Paleolog
       end
 
       def search(filters = {})
-        query = ds
-        query = query.where(group_id: filters[:group_id]) if filters[:group_id]
-        query = query.where { name.ilike("%#{filters[:name]}%") } if filters[:name]
-        query
+        groups = Paleolog::Repo::Group.new.all
+        search_query(filters).all.map do |result|
+          Paleolog::Species.new(**result) do |species|
+            species.group = groups.detect { |group| group.id == species.group_id }
+          end
+        end
       end
 
       def search_verified(filters = {})
         groups = Paleolog::Repo::Group.new.all
-        query = search(filters).where(verified: true)
+        query = search_query(filters).where(verified: true)
         query.all.map do |result|
           Paleolog::Species.new(**result) do |species|
             species.group = groups.detect { |group| group.id == species.group_id }
@@ -86,6 +88,15 @@ module Paleolog
 
       def ds
         Config.db[:species]
+      end
+
+      private
+
+      def search_query(filters = {})
+        query = ds
+        query = query.where(group_id: filters[:group_id]) if filters[:group_id]
+        query = query.where { name.ilike("%#{filters[:name]}%") } if filters[:name]
+        query
       end
     end
   end

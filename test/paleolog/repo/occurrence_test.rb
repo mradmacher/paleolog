@@ -10,6 +10,35 @@ describe Paleolog::Repo::Occurrence do
     repo.delete_all
   end
 
+  describe '#find_in_project' do
+    let(:group) { Paleolog::Repo::Group.new.create(name: 'Some group') }
+    let(:species) { Paleolog::Repo.save(Paleolog::Species.new(name: 'Some species', group: group)) }
+    let(:section) { Paleolog::Repo::Section.new.create(name: 'Some section', project_id: project.id) }
+    let(:counting) { Paleolog::Repo.save(Paleolog::Counting.new(name: 'Some counting', project: project)) }
+    let(:sample) { Paleolog::Repo.save(Paleolog::Sample.new(name: 'Some sample', section: section)) }
+    let(:occurrence) {
+      repo.create(
+        rank: 1,
+        species_id: species.id,
+        counting_id: counting.id,
+        sample_id: sample.id,
+      )
+    }
+
+    it 'returns occurrence if it is within the project' do
+      result = repo.find_in_project(occurrence.id, project.id)
+      assert result
+      assert_equal occurrence.id, result.id
+    end
+
+    it 'returns nil if it is not within the project' do
+      other_project = Paleolog::Repo.save(Paleolog::Project.new(name: 'Other project'))
+
+      result = repo.find_in_project(occurrence.id, other_project.id)
+      assert_nil result
+    end
+  end
+
   describe '#all_for_sample' do
     let(:group) { Paleolog::Repo::Group.new.create(name: 'Some group') }
     let(:section) { Paleolog::Repo::Section.new.create(name: 'Some section', project_id: project.id) }
