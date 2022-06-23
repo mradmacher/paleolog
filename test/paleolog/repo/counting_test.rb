@@ -3,11 +3,11 @@
 require 'test_helper'
 
 describe Paleolog::Repo::Counting do
-  let(:repo) { Paleolog::Repo::Counting.new }
+  let(:repo) { Paleolog::Repo::Counting }
 
   after do
     repo.delete_all
-    Paleolog::Repo::Project.new.delete_all
+    Paleolog::Repo::Project.delete_all
   end
 
   describe '#find_for_project' do

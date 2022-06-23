@@ -11,15 +11,7 @@ describe 'Occurrences' do
   let(:sample) { Paleolog::Repo.save(Paleolog::Sample.new(name: 'some sample', section: section)) }
 
   let(:group1) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Dinoflagellate')) }
-  #let(:group2) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Other')) }
   let(:species11) { Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Odontochitina costata')) }
-  #let(:species21) { Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Cerodinium costata')) }
-  #let(:species12) { Paleolog::Repo.save(Paleolog::Species.new(group: group2, name: 'Cerodinium diabelli')) }
-
-  #Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species11))
-  #Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species21))
-  #Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species12))
-  #Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
   let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
   let(:session) { {} }
 
@@ -39,7 +31,7 @@ describe 'Occurrences' do
     action.call
     assert_equal 403, last_response.status
 
-    Paleolog::Repo::ResearchParticipation.new.update(participation.id, manager: true)
+    Paleolog::Repo::ResearchParticipation.update(participation.id, manager: true)
     action.call
     assert last_response.ok?
   end
@@ -60,14 +52,14 @@ describe 'Occurrences' do
     action.call
     assert last_response.ok?
 
-    Paleolog::Repo::ResearchParticipation.new.update(participation.id, manager: true)
+    Paleolog::Repo::ResearchParticipation.update(participation.id, manager: true)
     action.call
     assert last_response.ok?
   end
 
   after do
-    Paleolog::Repo::User.new.delete_all
-    Paleolog::Repo::Occurrence.new.delete_all
+    Paleolog::Repo::User.delete_all
+    Paleolog::Repo::Occurrence.delete_all
   end
 
   describe 'GET /projects/project_id/occurrences' do
@@ -112,7 +104,7 @@ describe 'Occurrences' do
         post "/api/projects/#{project.id}/occurrences", params
         assert last_response.ok?, "Expected 200, but got #{last_response.status}"
         response_body = JSON.parse(last_response.body)
-        refute_nil Paleolog::Repo::Occurrence.new.find(response_body['occurrence']['id'])
+        refute_nil Paleolog::Repo::Occurrence.find(response_body['occurrence']['id'])
       end
 
       it 'ensures sample is from project' do
@@ -162,10 +154,10 @@ describe 'Occurrences' do
       end
 
       it 'removes occurrence' do
-        refute_nil Paleolog::Repo::Occurrence.new.find(occurrence.id)
+        refute_nil Paleolog::Repo::Occurrence.find(occurrence.id)
         delete "/api/projects/#{project.id}/occurrences/#{occurrence.id}"
         assert last_response.ok?, "Expected 200 but got #{last_response.status}"
-        assert_nil Paleolog::Repo::Occurrence.new.find(occurrence.id)
+        assert_nil Paleolog::Repo::Occurrence.find(occurrence.id)
       end
 
       it 'is 404 when occurrence does not exist' do

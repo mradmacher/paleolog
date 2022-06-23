@@ -3,10 +3,6 @@
 require 'features_helper'
 
 describe 'Catalog' do
-  let(:group_repo) { Paleolog::Repo::Group.new }
-  let(:species_repo) { Paleolog::Repo::Species.new }
-  let(:user_repo) { Paleolog::Repo::User.new }
-
   before do
     group1 = Paleolog::Repo.save(Paleolog::Group.new(name: 'Dinoflagellate'))
     group2 = Paleolog::Repo.save(Paleolog::Group.new(name: 'Other'))
@@ -22,9 +18,9 @@ describe 'Catalog' do
   end
 
   after do
-    species_repo.delete_all
-    group_repo.delete_all
-    user_repo.delete_all
+    Paleolog::Repo::Species.delete_all
+    Paleolog::Repo::Group.delete_all
+    Paleolog::Repo::User.delete_all
   end
 
   it 'displays species' do

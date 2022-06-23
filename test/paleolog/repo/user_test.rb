@@ -3,7 +3,7 @@
 require 'test_helper'
 
 describe Paleolog::Repo::User do
-  let(:repo) { Paleolog::Repo::User.new }
+  let(:repo) { Paleolog::Repo::User }
 
   after do
     repo.delete_all

@@ -3,43 +3,45 @@
 module Paleolog
   module Repo
     class Section
-      include CommonQueries
+      class << self
+        include CommonQueries
 
-      def find(id)
-        Paleolog::Section.new(**ds.where(id: id).first).tap do |section|
-          Paleolog::Repo::Sample.new.all_for_section(section.id).each do |sample|
-            section.samples << sample
+        def find(id)
+          Paleolog::Section.new(**ds.where(id: id).first).tap do |section|
+            Paleolog::Repo::Sample.all_for_section(section.id).each do |sample|
+              section.samples << sample
+            end
           end
         end
-      end
 
-      def all_for_project(project_id)
-        ds.where(project_id: project_id).all.map do |result|
-          Paleolog::Section.new(**result)
-        end
-      end
-
-      def find_for_project(id, project_id)
-        result = ds.where(project_id: project_id, id: id).first
-        return nil unless result
-
-        Paleolog::Section.new(**result) do |section|
-          Paleolog::Repo::Sample.new.all_for_section(section.id).each do |sample|
-            section.samples << sample
+        def all_for_project(project_id)
+          ds.where(project_id: project_id).all.map do |result|
+            Paleolog::Section.new(**result)
           end
         end
-      end
 
-      def name_exists_within_project?(name, project_id)
-        ds.where(project_id: project_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
-      end
+        def find_for_project(id, project_id)
+          result = ds.where(project_id: project_id, id: id).first
+          return nil unless result
 
-      def entity_class
-        Paleolog::Section
-      end
+          Paleolog::Section.new(**result) do |section|
+            Paleolog::Repo::Sample.all_for_section(section.id).each do |sample|
+              section.samples << sample
+            end
+          end
+        end
 
-      def ds
-        Config.db[:sections]
+        def name_exists_within_project?(name, project_id)
+          ds.where(project_id: project_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
+        end
+
+        def entity_class
+          Paleolog::Section
+        end
+
+        def ds
+          Config.db[:sections]
+        end
       end
     end
   end

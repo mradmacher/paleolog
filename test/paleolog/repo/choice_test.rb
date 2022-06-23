@@ -3,10 +3,10 @@
 require 'test_helper'
 
 describe Paleolog::Repo::Choice do
-  let(:repo) { Paleolog::Repo::Choice.new }
+  let(:repo) { Paleolog::Repo::Choice }
 
   after do
-    Paleolog::Repo::Field.new.delete_all
+    Paleolog::Repo::Field.delete_all
     repo.delete_all
   end
 

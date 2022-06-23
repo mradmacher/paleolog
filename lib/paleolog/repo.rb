@@ -100,7 +100,7 @@ module Paleolog
     end
 
     def self.for(type)
-      REPOS[type].new
+      REPOS[type]
     end
   end
 end

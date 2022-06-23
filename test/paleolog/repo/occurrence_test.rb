@@ -3,7 +3,7 @@
 require 'test_helper'
 
 describe Paleolog::Repo::Occurrence do
-  let(:repo) { Paleolog::Repo::Occurrence.new }
+  let(:repo) { Paleolog::Repo::Occurrence }
   let(:project) { Paleolog::Repo.save(Paleolog::Project.new(name: 'Some project')) }
 
   after do
@@ -11,9 +11,9 @@ describe Paleolog::Repo::Occurrence do
   end
 
   describe '#find_in_project' do
-    let(:group) { Paleolog::Repo::Group.new.create(name: 'Some group') }
+    let(:group) { Paleolog::Repo::Group.create(name: 'Some group') }
     let(:species) { Paleolog::Repo.save(Paleolog::Species.new(name: 'Some species', group: group)) }
-    let(:section) { Paleolog::Repo::Section.new.create(name: 'Some section', project_id: project.id) }
+    let(:section) { Paleolog::Repo::Section.create(name: 'Some section', project_id: project.id) }
     let(:counting) { Paleolog::Repo.save(Paleolog::Counting.new(name: 'Some counting', project: project)) }
     let(:sample) { Paleolog::Repo.save(Paleolog::Sample.new(name: 'Some sample', section: section)) }
     let(:occurrence) {
@@ -40,8 +40,8 @@ describe Paleolog::Repo::Occurrence do
   end
 
   describe '#all_for_sample' do
-    let(:group) { Paleolog::Repo::Group.new.create(name: 'Some group') }
-    let(:section) { Paleolog::Repo::Section.new.create(name: 'Some section', project_id: project.id) }
+    let(:group) { Paleolog::Repo::Group.create(name: 'Some group') }
+    let(:section) { Paleolog::Repo::Section.create(name: 'Some section', project_id: project.id) }
     let(:counting) { Paleolog::Repo.save(Paleolog::Counting.new(name: 'Some counting', project: project)) }
     let(:sample) { Paleolog::Repo.save(Paleolog::Sample.new(name: 'Some sample', section: section)) }
     let(:species) { Paleolog::Repo.save(Paleolog::Species.new(name: 'Some species', group: group)) }
@@ -116,8 +116,8 @@ describe Paleolog::Repo::Occurrence do
   end
 
   describe '#all_for_section' do
-    let(:group) { Paleolog::Repo::Group.new.create(name: 'Some group') }
-    let(:section) { Paleolog::Repo::Section.new.create(name: 'Some section', project_id: project.id) }
+    let(:group) { Paleolog::Repo::Group.create(name: 'Some group') }
+    let(:section) { Paleolog::Repo::Section.create(name: 'Some section', project_id: project.id) }
     let(:counting) { Paleolog::Repo.save(Paleolog::Counting.new(name: 'Some counting', project: project)) }
     let(:sample1) { Paleolog::Repo.save(Paleolog::Sample.new(name: 'Sample1', section: section)) }
     let(:sample2) { Paleolog::Repo.save(Paleolog::Sample.new(name: 'Sample2', section: section)) }
@@ -182,26 +182,21 @@ describe Paleolog::Repo::Occurrence do
 
   describe 'validations' do
     before do
-      @group_repo = Paleolog::Repo::Group.new
-      @section_repo = Paleolog::Repo::Section.new
-      @sample_repo = Paleolog::Repo::Sample.new
-      @counting_repo = Paleolog::Repo::Counting.new
-      @species_repo = Paleolog::Repo::Species.new
-      section = @section_repo.create(name: 'Some section', project_id: project.id)
-      @sample = @sample_repo.create(name: 'Some sample', section_id: section.id)
-      @counting = @counting_repo.create(name: 'Some counting', project_id: project.id)
-      group = @group_repo.create(name: 'Some group')
-      @species = @species_repo.create(name: 'Some species', group_id: group.id)
-      @other_counting = @counting_repo.create(name: 'Other counting', project_id: project.id)
-      @other_sample = @sample_repo.create(name: 'Other sample', section_id: section.id)
+      section = Paleolog::Repo::Section.create(name: 'Some section', project_id: project.id)
+      @sample = Paleolog::Repo::Sample.create(name: 'Some sample', section_id: section.id)
+      @counting = Paleolog::Repo::Counting.create(name: 'Some counting', project_id: project.id)
+      group = Paleolog::Repo::Group.create(name: 'Some group')
+      @species = Paleolog::Repo::Species.create(name: 'Some species', group_id: group.id)
+      @other_counting = Paleolog::Repo::Counting.create(name: 'Other counting', project_id: project.id)
+      @other_sample = Paleolog::Repo::Sample.create(name: 'Other sample', section_id: section.id)
     end
 
     after do
-      @group_repo.delete_all
-      @section_repo.delete_all
-      @sample_repo.delete_all
-      @counting_repo.delete_all
-      @species_repo.delete_all
+      Paleolog::Repo::Group.delete_all
+      Paleolog::Repo::Section.delete_all
+      Paleolog::Repo::Sample.delete_all
+      Paleolog::Repo::Counting.delete_all
+      Paleolog::Repo::Species.delete_all
     end
 
     describe '#rank_exists_within_counting_and_sample?' do

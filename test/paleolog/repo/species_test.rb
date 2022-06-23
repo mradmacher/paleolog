@@ -3,11 +3,11 @@
 require 'test_helper'
 
 describe Paleolog::Repo::Species do
-  let(:repo) { Paleolog::Repo::Species.new }
+  let(:repo) { Paleolog::Repo::Species }
 
   after do
     repo.delete_all
-    Paleolog::Repo::Group.new.delete_all
+    Paleolog::Repo::Group.delete_all
   end
 
   describe '#find' do

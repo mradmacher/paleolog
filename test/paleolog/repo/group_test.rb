@@ -3,26 +3,24 @@
 require 'test_helper'
 
 describe Paleolog::Repo::Group do
-  before do
-    @repo = Paleolog::Repo::Group.new
-  end
+  let(:repo) { Paleolog::Repo::Group }
 
   after do
-    @repo.delete_all
+    repo.delete_all
   end
 
   describe '#name_exists?' do
     it 'checks name uniqueness' do
       Paleolog::Repo.save(Paleolog::Group.new(name: 'Some name'))
 
-      assert(@repo.name_exists?('Some name'))
-      refute(@repo.name_exists?('Other name'))
+      assert(repo.name_exists?('Some name'))
+      refute(repo.name_exists?('Other name'))
     end
 
     it 'is case insensitive' do
       Paleolog::Repo.save(Paleolog::Group.new(name: 'Some name'))
 
-      assert(@repo.name_exists?('sOme NamE'))
+      assert(repo.name_exists?('sOme NamE'))
     end
   end
 

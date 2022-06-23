@@ -13,7 +13,7 @@ module Web
 
     get '/species/search-filters' do
       {
-        groups: Paleolog::Repo::Group.new.all.map { |group| { id: group.id, name: group.name } },
+        groups: Paleolog::Repo::Group.all.map { |group| { id: group.id, name: group.name } },
       }.to_json
     end
 
@@ -22,7 +22,7 @@ module Web
       filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
       filters[:name] = params[:name] if params[:name] && !params[:name].empty?
 
-      result = filters.empty? ? [] : Paleolog::Repo::Species.new.search(filters)
+      result = filters.empty? ? [] : Paleolog::Repo::Species.search(filters)
 
       {
         filters: filters,
@@ -35,35 +35,35 @@ module Web
       @filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
       @filters[:name] = params[:name] if params[:name] && !params[:name].empty?
 
-      @species = Paleolog::Repo::Species.new.search_verified(@filters)
+      @species = Paleolog::Repo::Species.search_verified(@filters)
       @available_filters = {}
-      @available_filters[:groups] = Paleolog::Repo::Group.new.all
+      @available_filters[:groups] = Paleolog::Repo::Group.all
 
       using_application_layout { display 'catalog.html' }
     end
 
     get '/species/:id' do
-      @species = Paleolog::Repo::Species.new.find(params[:id].to_i)
+      @species = Paleolog::Repo::Species.find(params[:id].to_i)
       using_species_layout { display 'species/show.html' }
     end
 
     get '/projects/:project_id/species' do
-      @project = Paleolog::Repo::Project.new.find(params[:project_id].to_i)
+      @project = Paleolog::Repo::Project.find(params[:project_id].to_i)
       @filters = {}
       @filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
       @filters[:name] = params[:name] if params[:name] && !params[:name].empty?
 
-      @species = Paleolog::Repo::Species.new.search_in_project(@project, @filters)
+      @species = Paleolog::Repo::Species.search_in_project(@project, @filters)
       # @species = species_repository.search_verified(@filters)
       @available_filters = {}
-      @available_filters[:groups] = Paleolog::Repo::Group.new.all
+      @available_filters[:groups] = Paleolog::Repo::Group.all
 
       using_project_layout { display 'catalog.html' }
     end
 
     get '/projects/:project_id/species/:id' do
-      @project = Paleolog::Repo::Project.new.find(params[:project_id].to_i)
-      @species = Paleolog::Repo::Species.new.find(params[:id].to_i)
+      @project = Paleolog::Repo::Project.find(params[:project_id].to_i)
+      @species = Paleolog::Repo::Species.find(params[:id].to_i)
       using_project_layout do
         # using_species_layout { display 'species/show.html' } }
         erb :"species_layout.html", layout: nil do

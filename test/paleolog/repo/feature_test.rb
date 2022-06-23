@@ -3,7 +3,7 @@
 require 'test_helper'
 
 describe Paleolog::Repo::Feature do
-  let(:repo) { Paleolog::Repo::Feature.new }
+  let(:repo) { Paleolog::Repo::Feature }
 
   after do
     repo.delete_all

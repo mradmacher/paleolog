@@ -13,12 +13,12 @@ module Web
 
     get '/projects' do
       @filters = {}
-      @projects = Paleolog::Repo::Project.new.all
+      @projects = Paleolog::Repo::Project.all
       using_application_layout { display 'projects/index.html' }
     end
 
     get '/projects/:id' do
-      @project = Paleolog::Repo::Project.new.find(params[:id].to_i)
+      @project = Paleolog::Repo::Project.find(params[:id].to_i)
       using_project_layout { display 'projects/show.html' }
     end
   end

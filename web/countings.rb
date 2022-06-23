@@ -12,8 +12,8 @@ module Web
     helpers Web::ViewHelpers
 
     get '/projects/:project_id/countings/:id' do
-      @project = Paleolog::Repo::Project.new.find(params[:project_id].to_i)
-      @counting = Paleolog::Repo::Counting.new.find_for_project(params[:id].to_i, @project.id)
+      @project = Paleolog::Repo::Project.find(params[:project_id].to_i)
+      @counting = Paleolog::Repo::Counting.find_for_project(params[:id].to_i, @project.id)
       using_project_layout { display 'countings/show.html' }
     end
   end

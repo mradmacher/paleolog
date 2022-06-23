@@ -3,7 +3,7 @@
 require 'test_helper'
 
 describe Paleolog::Repo::ResearchParticipation do
-  let(:repo) { Paleolog::Repo::ResearchParticipation.new }
+  let(:repo) { Paleolog::Repo::ResearchParticipation }
   let(:project) { Paleolog::Repo.save(Paleolog::Project.new(name: 'Project')) }
   let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'User', password: 'passwd123')) }
 

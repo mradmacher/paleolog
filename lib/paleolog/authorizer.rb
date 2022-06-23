@@ -15,7 +15,7 @@ module Paleolog
     end
 
     def login(login, password)
-      user = Paleolog::Repo::User.new.find_by_login(login)
+      user = Paleolog::Repo::User.find_by_login(login)
       raise InvalidLogin unless user
       raise InvalidPassword unless BCrypt::Password.new(user.password) == "#{user.password_salt}#{password}"
 

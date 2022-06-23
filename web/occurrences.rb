@@ -21,14 +21,14 @@ module Web
     end
 
     post '/api/projects/:project_id/occurrences' do
-      halt 403 unless Paleolog::Repo::ResearchParticipation.new.can_manage_project?(session[:user_id], params[:project_id])
+      halt 403 unless Paleolog::Repo::ResearchParticipation.can_manage_project?(session[:user_id], params[:project_id])
 
-      sample = Paleolog::Repo::Sample.new.find_for_project(params[:sample_id].to_i, params[:project_id]) if params[:sample_id]
-      counting = Paleolog::Repo::Counting.new.find_for_project(params[:counting_id].to_i, params[:project_id])
+      sample = Paleolog::Repo::Sample.find_for_project(params[:sample_id].to_i, params[:project_id]) if params[:sample_id]
+      counting = Paleolog::Repo::Counting.find_for_project(params[:counting_id].to_i, params[:project_id])
 
       max_rank =
         if counting && sample
-          Paleolog::Repo::Occurrence.new
+          Paleolog::Repo::Occurrence
           .all_for_sample(counting, sample)
           .max_by { |occ| occ.rank }&.rank || 0
         else
@@ -41,7 +41,7 @@ module Web
         status: params[:status] || Paleolog::CountingSummary::NORMAL,
         rank: max_rank + 1,
       )
-      contract = Paleolog::Contract::Occurrence.new(occurrence_repo: Paleolog::Repo::Occurrence.new)
+      contract = Paleolog::Contract::Occurrence.new(occurrence_repo: Paleolog::Repo::Occurrence)
       validations = contract.call(occurrence.defined_attributes)
       halt 400, validations.errors.to_h.to_json if validations.errors.any?
 
@@ -59,15 +59,14 @@ module Web
     end
 
     delete '/api/projects/:project_id/occurrences/:id' do
-      halt 403 unless Paleolog::Repo::ResearchParticipation.new.can_manage_project?(session[:user_id], params[:project_id])
+      halt 403 unless Paleolog::Repo::ResearchParticipation.can_manage_project?(session[:user_id], params[:project_id])
 
-      repo = Paleolog::Repo::Occurrence.new
-      occurrence = repo.find_in_project(params[:id], params[:project_id])
+      occurrence = Paleolog::Repo::Occurrence.find_in_project(params[:id], params[:project_id])
       halt 404 if occurrence.nil?
 
-      repo.delete(occurrence.id)
+      Paleolog::Repo::Occurrence.delete(occurrence.id)
       counting_summary = Paleolog::CountingSummary.new(
-        Paleolog::Repo::Occurrence.new.all_for_sample(
+        Paleolog::Repo::Occurrence.all_for_sample(
           OpenStruct.new(id: occurrence.counting_id),
           OpenStruct.new(id: occurrence.sample_id)
         )
@@ -85,9 +84,9 @@ module Web
     end
 
     patch '/api/projects/:project_id/occurrences/:id' do
-      halt 403 unless Paleolog::Repo::ResearchParticipation.new.can_manage_project?(session[:user_id], params[:project_id])
+      halt 403 unless Paleolog::Repo::ResearchParticipation.can_manage_project?(session[:user_id], params[:project_id])
 
-      occurrence = Paleolog::Repo::Occurrence.new.find_in_project(params[:id], params[:project_id])
+      occurrence = Paleolog::Repo::Occurrence.find_in_project(params[:id], params[:project_id])
       halt 404 if occurrence.nil?
 
       attributes = {}
@@ -97,9 +96,9 @@ module Web
       end
       attributes[:status] = params[:status] if params.key?(:status)
       attributes[:uncertain] = params[:uncertain] if params.key?(:uncertain)
-      occurrence = Paleolog::Repo::Occurrence.new.update(occurrence.id, attributes) unless attributes.empty?
+      occurrence = Paleolog::Repo::Occurrence.update(occurrence.id, attributes) unless attributes.empty?
       counting_summary = Paleolog::CountingSummary.new(
-        Paleolog::Repo::Occurrence.new.all_for_sample(
+        Paleolog::Repo::Occurrence.all_for_sample(
           OpenStruct.new(id: occurrence.counting_id),
           OpenStruct.new(id: occurrence.sample_id)
         )
@@ -123,13 +122,13 @@ module Web
 
     # rubocop:disable Metrics/BlockLength
     get '/projects/:project_id/occurrences' do
-      halt 403 unless Paleolog::Repo::ResearchParticipation.new.can_view_project?(session[:user_id], params[:project_id].to_i)
+      halt 403 unless Paleolog::Repo::ResearchParticipation.can_view_project?(session[:user_id], params[:project_id].to_i)
 
-      @project = Paleolog::Repo::Project.new.find(params[:project_id].to_i)
-      @section = Paleolog::Repo::Section.new.find_for_project(params[:section].to_i, @project.id) if params[:section]
-      @sample = Paleolog::Repo::Sample.new.find_for_section(params[:sample].to_i, @section.id) if params[:sample]
+      @project = Paleolog::Repo::Project.find(params[:project_id].to_i)
+      @section = Paleolog::Repo::Section.find_for_project(params[:section].to_i, @project.id) if params[:section]
+      @sample = Paleolog::Repo::Sample.find_for_section(params[:sample].to_i, @section.id) if params[:sample]
       if params[:counting]
-        @counting = Paleolog::Repo::Counting.new.find_for_project(params[:counting].to_i,
+        @counting = Paleolog::Repo::Counting.find_for_project(params[:counting].to_i,
                                                                   @project.id,)
       end
       if @section.nil? || @counting.nil? || @sample.nil?
@@ -141,7 +140,7 @@ module Web
 
       occurrences =
         if @counting && @sample
-          Paleolog::Repo::Occurrence.new.all_for_sample(@counting, @sample)
+          Paleolog::Repo::Occurrence.all_for_sample(@counting, @sample)
         else
           []
         end

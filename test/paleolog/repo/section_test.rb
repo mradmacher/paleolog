@@ -3,13 +3,10 @@
 require 'test_helper'
 
 describe Paleolog::Repo::Section do
-  let(:repo) { Paleolog::Repo::Section.new }
-  before do
-    @project_repo = Paleolog::Repo::Project.new
-  end
+  let(:repo) { Paleolog::Repo::Section }
 
   after do
-    @project_repo.delete_all
+    Paleolog::Repo::Project.delete_all
     repo.delete_all
   end
 

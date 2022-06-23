@@ -3,7 +3,7 @@
 require 'test_helper'
 
 describe Paleolog::Repo::Image do
-  let(:repo) { Paleolog::Repo::Image.new }
+  let(:repo) { Paleolog::Repo::Image }
 
   after do
     repo.delete_all
