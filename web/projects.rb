@@ -11,6 +11,10 @@ module Web
     helpers Web::PathHelpers
     helpers Web::ViewHelpers
 
+    before '/projects*' do
+      authorize!
+    end
+
     get '/projects' do
       @filters = {}
       @projects = Paleolog::Repo::Project.all

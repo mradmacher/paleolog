@@ -11,6 +11,10 @@ module Web
     helpers Web::PathHelpers
     helpers Web::ViewHelpers
 
+    before '/projects/:project_id/countings/:id' do
+      authorize!
+    end
+
     get '/projects/:project_id/countings/:id' do
       @project = Paleolog::Repo::Project.find(params[:project_id].to_i)
       @counting = Paleolog::Repo::Counting.find_for_project(params[:id].to_i, @project.id)

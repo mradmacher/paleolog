@@ -11,6 +11,12 @@ module Web
     helpers Web::PathHelpers
     helpers Web::ViewHelpers
 
+    %w(/species* /projects/:project_id/species* /catalog).each do |pattern|
+      before pattern do
+        authorize!
+      end
+    end
+
     get '/species/search-filters' do
       {
         groups: Paleolog::Repo::Group.all.map { |group| { id: group.id, name: group.name } },
