@@ -20,7 +20,6 @@ module Paleolog
         end
         # rubocop:enable Metrics/AbcSize
 
-        # rubocop:disable Metrics/AbcSize
         def all_with_ids(species_ids)
           groups = Paleolog::Repo::Group.all
           ds.where(id: species_ids).all.map do |result|
@@ -32,7 +31,6 @@ module Paleolog
             end
           end
         end
-        # rubocop:enable Metrics/AbcSize
 
         def all_for_group(group_id)
           ds.where(group_id: group_id).all.map do |result|

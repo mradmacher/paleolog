@@ -7,6 +7,7 @@ require_relative 'path_helpers'
 require_relative 'view_helpers'
 
 module Web
+  # rubocop:disable Metrics/ClassLength
   class Occurrences < Sinatra::Base
     helpers Web::AuthHelpers
     helpers Web::PathHelpers
@@ -20,17 +21,21 @@ module Web
       authorize!
     end
 
+    # rubocop:disable Metrics/BlockLength
     post '/api/projects/:project_id/occurrences' do
       halt 403 unless Paleolog::Repo::ResearchParticipation.can_manage_project?(session[:user_id], params[:project_id])
 
-      sample = Paleolog::Repo::Sample.find_for_project(params[:sample_id].to_i, params[:project_id]) if params[:sample_id]
+      if params[:sample_id]
+        sample = Paleolog::Repo::Sample.find_for_project(params[:sample_id].to_i,
+                                                         params[:project_id],)
+      end
       counting = Paleolog::Repo::Counting.find_for_project(params[:counting_id].to_i, params[:project_id])
 
       max_rank =
         if counting && sample
           Paleolog::Repo::Occurrence
-          .all_for_sample(counting, sample)
-          .max_by { |occ| occ.rank }&.rank || 0
+            .all_for_sample(counting, sample)
+            .max_by(&:rank)&.rank || 0
         else
           0
         end
@@ -54,9 +59,10 @@ module Web
           status_symbol: Paleolog::CountingSummary.status_symbol(occurrence.status) +
             (occurrence.uncertain ? Paleolog::CountingSummary::UNCERTAIN_SYMBOL : ''),
           uncertain: occurrence.uncertain,
-        }
+        },
       }.to_json
     end
+    # rubocop:enable Metrics/BlockLength
 
     delete '/api/projects/:project_id/occurrences/:id' do
       halt 403 unless Paleolog::Repo::ResearchParticipation.can_manage_project?(session[:user_id], params[:project_id])
@@ -68,8 +74,8 @@ module Web
       counting_summary = Paleolog::CountingSummary.new(
         Paleolog::Repo::Occurrence.all_for_sample(
           OpenStruct.new(id: occurrence.counting_id),
-          OpenStruct.new(id: occurrence.sample_id)
-        )
+          OpenStruct.new(id: occurrence.sample_id),
+        ),
       )
       {
         summary: {
@@ -79,10 +85,11 @@ module Web
         },
         occurrence: {
           id: occurrence.id,
-        }
+        },
       }.to_json
     end
 
+    # rubocop:disable Metrics/BlockLength
     patch '/api/projects/:project_id/occurrences/:id' do
       halt 403 unless Paleolog::Repo::ResearchParticipation.can_manage_project?(session[:user_id], params[:project_id])
 
@@ -92,7 +99,7 @@ module Web
       attributes = {}
       if params.key?(:shift)
         attributes[:quantity] = (occurrence.quantity || 0) + params[:shift].to_i
-        attributes[:quantity] = nil if attributes[:quantity] < 0
+        attributes[:quantity] = nil if attributes[:quantity].negative?
       end
       attributes[:status] = params[:status] if params.key?(:status)
       attributes[:uncertain] = params[:uncertain] if params.key?(:uncertain)
@@ -100,8 +107,8 @@ module Web
       counting_summary = Paleolog::CountingSummary.new(
         Paleolog::Repo::Occurrence.all_for_sample(
           OpenStruct.new(id: occurrence.counting_id),
-          OpenStruct.new(id: occurrence.sample_id)
-        )
+          OpenStruct.new(id: occurrence.sample_id),
+        ),
       )
       {
         summary: {
@@ -116,20 +123,22 @@ module Web
           status_symbol: Paleolog::CountingSummary.status_symbol(occurrence.status) +
             (occurrence.uncertain ? Paleolog::CountingSummary::UNCERTAIN_SYMBOL : ''),
           uncertain: occurrence.uncertain,
-        }
+        },
       }.to_json
     end
+    # rubocop:enable Metrics/BlockLength
 
     # rubocop:disable Metrics/BlockLength
     get '/projects/:project_id/occurrences' do
-      halt 403 unless Paleolog::Repo::ResearchParticipation.can_view_project?(session[:user_id], params[:project_id].to_i)
+      halt 403 unless Paleolog::Repo::ResearchParticipation.can_view_project?(session[:user_id],
+                                                                              params[:project_id].to_i,)
 
       @project = Paleolog::Repo::Project.find(params[:project_id].to_i)
       @section = Paleolog::Repo::Section.find_for_project(params[:section].to_i, @project.id) if params[:section]
       @sample = Paleolog::Repo::Sample.find_for_section(params[:sample].to_i, @section.id) if params[:sample]
       if params[:counting]
         @counting = Paleolog::Repo::Counting.find_for_project(params[:counting].to_i,
-                                                                  @project.id,)
+                                                              @project.id,)
       end
       if @section.nil? || @counting.nil? || @sample.nil?
         redirect occurrences_path(@project,
@@ -168,4 +177,5 @@ module Web
     end
     # rubocop:enable Metrics/BlockLength
   end
+  # rubocop:enable Metrics/ClassLength
 end

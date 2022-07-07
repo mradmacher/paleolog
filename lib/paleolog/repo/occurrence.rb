@@ -6,17 +6,19 @@ module Paleolog
       class << self
         include CommonQueries
 
+        # rubocop:disable Metrics/AbcSize
         def find_in_project(id, project_id)
           result = ds.where(Sequel[:occurrences][:id] => id, Sequel[:projects][:id] => project_id)
-            .join(:samples, Sequel[:samples][:id] => :sample_id)
-            .join(:sections, Sequel[:sections][:id] => :section_id)
-            .join(:projects, Sequel[:projects][:id] => :project_id)
-            .select_all(:occurrences)
-            .first
+                     .join(:samples, Sequel[:samples][:id] => :sample_id)
+                     .join(:sections, Sequel[:sections][:id] => :section_id)
+                     .join(:projects, Sequel[:projects][:id] => :project_id)
+                     .select_all(:occurrences)
+                     .first
           return nil unless result
 
           entity_class.new(**result)
         end
+        # rubocop:enable Metrics/AbcSize
 
         # rubocop:disable Metrics/AbcSize
         def all_for_sample(counting, sample)

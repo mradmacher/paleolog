@@ -1,4 +1,4 @@
-<form class="ui form" id="new_report" method="post">
+<form class="ui form" id="new_report" method="post" target="_blank">
   <input type="hidden" name="section_id" value="<%= @section&.id %>" />
   <input type="hidden" name="counting_id" value="<%= @counting&.id %>" />
 
@@ -48,6 +48,7 @@
             <input type="text" name="columns[0][header]" placeholder="Header">
           </div>
         </th>
+        <!--
         <th>
           <div class="inline fields">
             <label for="columns[1][header]" class="ui hidden">B</label>
@@ -65,12 +66,14 @@
             <label for="columns[3][header]" class="ui hidden">Computed</label>
             <input type="text" name="columns[3][header]" placeholder="Header">
           </div>
+        </th>
+        -->
       </tr>
     </thead>
     <tbody>
       <tr>
         <td></td>
-        <% 3.times do |index| %>
+        <% 1.times do |index| %>
           <td>
             <div class="field">
             </div>
@@ -108,17 +111,19 @@
             </table>
           </td>
         <% end %>
+        <!--
         <td class="vector" data-vector="column" data-index="3">
           <div class="field">
             <label for=columns[3][computed]>Formula</label>
             <input type="text" name="columns[3][computed]" placeholder="A * (B + C)">
           </div>
         </td>
+        -->
       </tr>
 
       <tr>
         <td></td>
-        <% 3.times do |index| %>
+        <% 1.times do |index| %>
           <td class="vector" data-vector="column" data-index="<%= index %>">
             <div class="filter" data-source="species" data-filter-key="species_ids">
               <table class="ui definition table">
@@ -162,16 +167,19 @@
             </div>
           </td>
         <% end %>
+        <!--
         <td></td>
+        -->
       </tr>
 
+      <!--
       <tr>
         <td class="selection" style="vertical-align:top" data-vector="row" data-index="0">
           <input type="checkbox" checked="checked" class="all" />
           <label>Select All</label>
           <div class="ids"></div>
         </td>
-        <% 3.times do |index| %>
+        <% 1.times do |index| %>
           <td class="selection" style="vertical-align:top" data-vector="column" data-index="<%= index %>">
             <input type="checkbox" checked="checked" class="all" />
             <label>Select All</label>
@@ -180,6 +188,7 @@
         <% end %>
         <td></td>
       </tr>
+      -->
       <tr class="top aligned">
         <td class="vector" data-vector="row" data-index="0">
           <div class="filter" data-source="samples" data-filter-key="sample_ids">
@@ -194,7 +203,7 @@
             <% end %>
           <% end %>
         </td>
-        <% 3.times do |index| %>
+        <% 1.times do |index| %>
           <td>
             <% @species.each do |specie| %>
               <div class="field">
@@ -207,7 +216,9 @@
             <% end %>
           </td>
         <% end %>
+        <!--
         <td></td>
+        -->
       </tr>
     </tbody>
   </table>

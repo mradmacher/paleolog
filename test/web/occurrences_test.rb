@@ -15,6 +15,7 @@ describe 'Occurrences' do
   let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
   let(:session) { {} }
 
+  # rubocop:disable Metrics/AbcSize
   def assert_requires_manager(action, project)
     user = Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
 
@@ -35,7 +36,9 @@ describe 'Occurrences' do
     action.call
     assert last_response.ok?
   end
+  # rubocop:enable Metrics/AbcSize
 
+  # rubocop:disable Metrics/AbcSize
   def assert_requires_observer(action, project)
     user = Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
 
@@ -56,6 +59,7 @@ describe 'Occurrences' do
     action.call
     assert last_response.ok?
   end
+  # rubocop:enable Metrics/AbcSize
 
   after do
     Paleolog::Repo::User.delete_all
@@ -64,7 +68,12 @@ describe 'Occurrences' do
 
   describe 'GET /projects/project_id/occurrences' do
     it 'requires user participating in the project as observer' do
-      assert_requires_observer(-> { get "/projects/#{project.id}/occurrences?counting=#{counting.id}&section=#{section.id}&sample=#{sample.id}" }, project)
+      assert_requires_observer(
+        lambda {
+          get "/projects/#{project.id}/occurrences?counting=#{counting.id}&section=#{section.id}&sample=#{sample.id}"
+        },
+        project,
+      )
     end
 
     describe 'with user' do
@@ -120,7 +129,8 @@ describe 'Occurrences' do
 
       it 'ensures counting is from project' do
         other_project = Paleolog::Repo.save(Paleolog::Project.new(name: 'some other project'))
-        other_counting = Paleolog::Repo.save(Paleolog::Counting.new(name: 'some other counting', project: other_project))
+        other_counting = Paleolog::Repo.save(Paleolog::Counting.new(name: 'some other counting',
+                                                                    project: other_project,))
         params = { sample_id: sample.id, species_id: species11.id, counting_id: other_counting.id }
         post "/api/projects/#{project.id}/occurrences", params
         assert_equal 400, last_response.status
@@ -133,14 +143,16 @@ describe 'Occurrences' do
         post "/api/projects/#{project.id}/occurrences", params
         assert_equal 400, last_response.status
         response_body = JSON.parse(last_response.body)
-        assert_equal %w(counting_id sample_id species_id), response_body.keys
+        assert_equal %w[counting_id sample_id species_id], response_body.keys
         assert_equal [['must be filled'], ['must be filled'], ['must be filled']], response_body.values
       end
     end
   end
 
   describe 'DELETE /api/projects/:project_id/occurrences/:id' do
-    let(:occurrence) { Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species11)) }
+    let(:occurrence) do
+      Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species11))
+    end
 
     it 'requires user participating in the project as manager' do
       assert_requires_manager(-> { delete "/api/projects/#{project.id}/occurrences/#{occurrence.id}" }, project)
@@ -180,18 +192,19 @@ describe 'Occurrences' do
       end
 
       it 'works' do
-        occurrence = Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species11))
+        occurrence = Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting,
+                                                                  species: species11,))
         patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}"
         assert last_response.ok?
       end
 
       it 'does not allow changing sample, species nor counting' do
-        occurrence = Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species11))
+        occurrence = Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting,
+                                                                  species: species11,))
         other_counting = Paleolog::Repo.save(Paleolog::Counting.new(name: 'some other counting', project: project))
         other_sample = Paleolog::Repo.save(Paleolog::Sample.new(name: 'some other sample', section: section))
         other_species = Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Other costata'))
-        params = { sample_id: other_sample.id, species_id: other_species.id, counting_id: other_counting.id }
-        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { shift: "1" }
+        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { shift: '1' }
         assert last_response.ok?
         updated_occurrence = Paleolog::Repo.find(Paleolog::Occurrence, occurrence.id)
         assert occurrence.sample_id == updated_occurrence.sample_id
@@ -208,8 +221,9 @@ describe 'Occurrences' do
       end
 
       it 'shifts quantity up' do
-        occurrence = Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species11))
-        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { shift: "1" }
+        occurrence = Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting,
+                                                                  species: species11,))
+        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { shift: '1' }
         assert last_response.ok?
         result = JSON.parse(last_response.body)
         assert_equal 1, result['summary']['countable']
@@ -220,8 +234,9 @@ describe 'Occurrences' do
       end
 
       it 'shifts quantity down' do
-        occurrence = Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species11, quantity: 2))
-        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { shift: "-1" }
+        occurrence = Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting,
+                                                                  species: species11, quantity: 2,))
+        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { shift: '-1' }
         assert last_response.ok?
         result = JSON.parse(last_response.body)
         assert_equal 1, result['summary']['countable']
@@ -232,20 +247,22 @@ describe 'Occurrences' do
       end
 
       it 'does not shift quantity lower than 0' do
-        occurrence = Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species11, quantity: 1))
-        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { shift: "-1" }
+        occurrence = Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting,
+                                                                  species: species11, quantity: 1,))
+        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { shift: '-1' }
         assert last_response.ok?
         result = JSON.parse(last_response.body)
         assert_equal 0, result['occurrence']['quantity']
 
-        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { shift: "-1" }
+        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { shift: '-1' }
         assert last_response.ok?, "Expected 200, but got #{last_response.status}"
         result = JSON.parse(last_response.body)
         assert_nil result['occurrence']['quantity']
       end
 
       it 'sets status' do
-        occurrence = Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species11, quantity: 1))
+        occurrence = Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting,
+                                                                  species: species11, quantity: 1,))
         patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { status: Paleolog::CountingSummary::CARVING }
         assert last_response.ok?
         result = JSON.parse(last_response.body)
@@ -270,7 +287,8 @@ describe 'Occurrences' do
       end
 
       it 'sets uncertain' do
-        occurrence = Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species11, quantity: 1))
+        occurrence = Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting,
+                                                                  species: species11, quantity: 1,))
         patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { uncertain: 'true' }
         assert last_response.ok?
         result = JSON.parse(last_response.body)

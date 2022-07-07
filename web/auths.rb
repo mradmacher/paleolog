@@ -23,7 +23,7 @@ module Web
     post '/login' do
       authorizer.login(params[:login], params[:password])
       redirect '/projects'
-    catch Paleolog::Authorizer::InvalidLogin, Paleolog::Authorizer::InvalidPassword
+      catch Paleolog::Authorizer::InvalidLogin, Paleolog::Authorizer::InvalidPassword
       redirect '/login'
     end
   end

@@ -20,7 +20,7 @@ module Web
       @section = Paleolog::Repo::Section.find_for_project(params[:section].to_i, @project.id) if params[:section]
       if params[:counting]
         @counting = Paleolog::Repo::Counting.find_for_project(params[:counting].to_i,
-                                                                  @project.id,)
+                                                              @project.id,)
       end
       @groups = Paleolog::Repo::Group.all
       @fields = Paleolog::Repo::Field.all
@@ -31,14 +31,15 @@ module Web
     end
 
     post '/projects/:project_id/reports' do
+      p params
       @project = Paleolog::Repo::Project.find(params[:project_id].to_i)
       if params[:section_id]
         @section = Paleolog::Repo::Section.find_for_project(params[:section_id].to_i,
-                                                                @project.id,)
+                                                            @project.id,)
       end
       if params[:counting_id]
         @counting = Paleolog::Repo::Counting.find_for_project(params[:counting_id].to_i,
-                                                                  @project.id,)
+                                                              @project.id,)
       end
       @occurrences = @counting && @section ? Paleolog::Repo::Occurrence.all_for_section(@counting, @section) : []
       @report = Paleolog::Report.build(params)
@@ -51,15 +52,19 @@ module Web
       using_export_layout { display 'reports/create.html' }
     end
 
-    # def export
-    #   @report = Report.build(params[:report])
-    # 	@report.generate
-    #   respond_to do |format|
-    #     format.csv
-    #     format.pdf
-    #     format.svg
-    #     format.html
-    #   end
-    # end
+    post '/projects/:project_id/reports/export.csv' do
+      @project = Paleolog::Repo::Project.find(params[:project_id].to_i)
+      @section = Paleolog::Repo::Section.find_for_project(params['report']['section_id'].to_i, @project.id)
+      @counting = Paleolog::Repo::Counting.find_for_project(params['report']['counting_id'].to_i, @project.id)
+
+      @occurrences = @counting && @section ? Paleolog::Repo::Occurrence.all_for_section(@counting, @section) : []
+      @report = Paleolog::Report.build(params['report'])
+      @report.counted_group = @counting.group
+      @report.marker = @counting.marker
+      @report.marker_quantity = @counting.marker_count
+      @report.generate(@occurrences, @section.samples)
+      content_type 'text/csv'
+      @report.to_csv
+    end
   end
 end

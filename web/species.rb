@@ -11,7 +11,7 @@ module Web
     helpers Web::PathHelpers
     helpers Web::ViewHelpers
 
-    %w(/species* /projects/:project_id/species* /catalog).each do |pattern|
+    %w[/species* /projects/:project_id/species* /catalog].each do |pattern|
       before pattern do
         authorize!
       end
@@ -32,7 +32,7 @@ module Web
 
       {
         filters: filters,
-        result: result.map { |r| { id: r.id, name: r.name, group_name: r.group.name } }
+        result: result.map { |r| { id: r.id, name: r.name, group_name: r.group.name } },
       }.to_json
     end
 

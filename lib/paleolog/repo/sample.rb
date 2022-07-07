@@ -14,10 +14,10 @@ module Paleolog
 
         def find_for_project(id, project_id)
           result = ds.where(Sequel[:samples][:id] => id, Sequel[:projects][:id] => project_id)
-            .join(:sections, Sequel[:sections][:id] => :section_id)
-            .join(:projects, Sequel[:projects][:id] => :project_id)
-            .select_all(:samples)
-            .first
+                     .join(:sections, Sequel[:sections][:id] => :section_id)
+                     .join(:projects, Sequel[:projects][:id] => :project_id)
+                     .select_all(:samples)
+                     .first
           result ? Paleolog::Sample.new(**result) : nil
         end
 

@@ -16,14 +16,14 @@ describe Paleolog::Repo::Occurrence do
     let(:section) { Paleolog::Repo::Section.create(name: 'Some section', project_id: project.id) }
     let(:counting) { Paleolog::Repo.save(Paleolog::Counting.new(name: 'Some counting', project: project)) }
     let(:sample) { Paleolog::Repo.save(Paleolog::Sample.new(name: 'Some sample', section: section)) }
-    let(:occurrence) {
+    let(:occurrence) do
       repo.create(
         rank: 1,
         species_id: species.id,
         counting_id: counting.id,
         sample_id: sample.id,
       )
-    }
+    end
 
     it 'returns occurrence if it is within the project' do
       result = repo.find_in_project(occurrence.id, project.id)

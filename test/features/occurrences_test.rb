@@ -12,7 +12,7 @@ describe 'Occurrences' do
     species11 = Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Odontochitina costata'))
     species21 = Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Cerodinium costata'))
     species12 = Paleolog::Repo.save(Paleolog::Species.new(group: group2, name: 'Cerodinium diabelli'))
-    species22 = Paleolog::Repo.save(Paleolog::Species.new(group: group2, name: 'Diabella diabelli'))
+    Paleolog::Repo.save(Paleolog::Species.new(group: group2, name: 'Diabella diabelli'))
     counting = Paleolog::Repo.save(Paleolog::Counting.new(name: 'some counting', project: project))
     section = Paleolog::Repo.save(Paleolog::Section.new(name: 'some section', project: project))
     sample = Paleolog::Repo.save(Paleolog::Sample.new(name: 'some sample', section: section))
