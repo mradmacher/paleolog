@@ -3,9 +3,11 @@
 require 'features_helper'
 
 describe 'Catalog' do
+  let(:group1) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Dinoflagellate')) }
+  let(:group2) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Other')) }
+
   before do
-    group1 = Paleolog::Repo.save(Paleolog::Group.new(name: 'Dinoflagellate'))
-    group2 = Paleolog::Repo.save(Paleolog::Group.new(name: 'Other'))
+    use_javascript_driver
     Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Odontochitina costata', verified: true))
     Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Cerodinium costata', verified: false))
     Paleolog::Repo.save(Paleolog::Species.new(group: group2, name: 'Cerodinium diabelli', verified: true))
@@ -23,12 +25,12 @@ describe 'Catalog' do
     Paleolog::Repo::User.delete_all
   end
 
-  it 'displays species' do
+  it 'at the beginning displays no species' do
     visit '/catalog'
 
-    page.must_have_content('Species list (2)')
+    page.must_have_content('Species list (0)')
     within('#species-list') do
-      page.must_have_css('.species', count: 2)
+      page.must_have_css('.species', count: 0)
     end
   end
 
@@ -56,5 +58,28 @@ describe 'Catalog' do
       page.must_have_css('.species', count: 1)
     end
     page.must_have_content('Odontochitina costata')
+  end
+
+  it 'updates path after searching' do
+    visit '/catalog'
+
+    within('#species-search') do
+      fill_in('Name', with: 'costa')
+      select('Dinoflagellate', from: 'Group')
+      click_on('Search')
+    end
+    assert_current_path(/group_id=#{group1.id}/)
+    assert_current_path(/name=costa/)
+  end
+
+  it 'updates path to only include provided attributes' do
+    visit '/catalog'
+
+    within('#species-search') do
+      fill_in('Name', with: 'costa')
+      click_on('Search')
+    end
+    assert_no_current_path(/group_id=/)
+    assert_current_path(/name=costa/)
   end
 end

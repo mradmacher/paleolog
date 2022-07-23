@@ -166,7 +166,10 @@ $(function() {
   $('.button.add-occurrence').click(function() {
     $('.modal.add-occurrence').modal('show');
     // TODO: exclude already present in counting
-    initializeSpeciesSearch(onSpeciesSelected);
+    initializeSpeciesSearch({
+      onSpeciesSelected: onSpeciesSelected,
+      updatePath: false,
+    });
   });
 
   $('.button.delete-occurrence').click(function() {

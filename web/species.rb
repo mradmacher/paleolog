@@ -41,10 +41,6 @@ module Web
       @filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
       @filters[:name] = params[:name] if params[:name] && !params[:name].empty?
 
-      @species = Paleolog::Repo::Species.search_verified(@filters)
-      @available_filters = {}
-      @available_filters[:groups] = Paleolog::Repo::Group.all
-
       using_application_layout { display 'catalog.html' }
     end
 

@@ -66,8 +66,10 @@ describe 'Occurrences' do
     end
 
     click_button(class: 'add-occurrence')
+    url_before = current_url
     select('Other', from: 'Group')
     click_on('Search')
+    assert_current_path(url_before) # searching should not update query string
     click_on('Diabella diabelli')
 
     table_rows = page.all('.occurrences-collection tr')

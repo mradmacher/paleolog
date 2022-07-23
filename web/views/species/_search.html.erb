@@ -49,13 +49,39 @@
 
 <script type="text/javascript">
 $(function() {
-  var speciesSearchInitialized = false;
-  var onSpeciesSelectedEvent = null;
-  initializeSpeciesSearch = function(onSpeciesSelected) {
-    if(speciesSearchInitialized) {
+  var speciesSearch = {
+    speciesSearchInitialized: false,
+    updatePath: false,
+    onSpeciesSelectedEvent: function(speciesId) {
+      // do nothing
+    },
+  }
+  var onSpeciesSearchedEvent = function(attrs) {
+    if ('URLSearchParams' in window) {
+      var searchParams = new URLSearchParams();
+      var searchParamsProvided = false;
+      for(attr in attrs) {
+        if(attrs[attr]) {
+          searchParams.set(attr, attrs[attr]);
+          searchParamsProvided = true;
+        }
+      }
+      var newRelativePathQuery = window.location.pathname;
+      if(searchParamsProvided) {
+        newRelativePathQuery = newRelativePathQuery + '?' + searchParams.toString();
+      }
+      history.pushState(null, '', newRelativePathQuery);
+    }
+  };
+
+  initializeSpeciesSearch = function({ onSpeciesSelected = null, updatePath = false }) {
+    if(speciesSearch['speciesSearchInitialized']) {
       return
     };
-    onSpeciesSelectedEvent = onSpeciesSelected;
+    if(onSpeciesSelected) {
+      speciesSearch['onSpeciesSelectedEvent'] = onSpeciesSelected;
+    }
+    speciesSearch['updatePath'] = updatePath;
     speciesSearchInitialized = true
     var actionUrl = '/species/search-filters';
     $.ajax({
@@ -88,6 +114,9 @@ $(function() {
       group_id: $('#search-group-id').val(),
       name: $('#search-name').val(),
     };
+    if(speciesSearch['updatePath']) {
+      onSpeciesSearchedEvent(attrs);
+    }
     $.ajax({
       url: actionUrl,
       data: attrs,
@@ -103,7 +132,7 @@ $(function() {
         element.find('.species-group-name').text(species.group_name);
         element.find('.species-link').click(function(event) {
           event.preventDefault();
-          onSpeciesSelectedEvent(species.id);
+          speciesSearch['onSpeciesSelectedEvent'](species.id);
         });
 
         $('#species-list tbody').append(element);

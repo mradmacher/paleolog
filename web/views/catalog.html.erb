@@ -1,57 +1,14 @@
-<div class="ui grid">
-  <div class="sixteen wide column">
-    <h1 class="ui header">Species list (<%= @species.size %>)</h1>
-  </div>
-
-  <div class="three wide column">
-    <form id="species-search" class="ui form">
-      <fieldset>
-        <legend>Find species</legend>
-        <div class="field">
-          <label for="search_group_id">Group</label>
-          <select id="search_group_id" name="group_id">
-            <option value=""></option>
-            <% @available_filters[:groups].each do |group| %>
-              <option value="<%= group.id %>" <%= @filters[:group_id] == group.id.to_s ? 'selected' : '' %>><%= group.name %></option>
-            <% end %>
-          </select>
-        </div>
-        <div class="field">
-          <label for="search_name">Name</label>
-          <input id="search_name" type="text" name="name" value="<%= @filters[:name] %>"/>
-        </div>
-        <button class="ui button" type="submit">Search</button>
-      </fieldset>
-    </form>
-  </div>
-
-  <div class="thirteen wide column">
-    <% if @species.any? %>
-      <table id="species-list" class="ui celled table">
-        <thead>
-          <tr>
-            <th>Species</th>
-            <th>Group</th>
-            <th>Images</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @species.each do |one_species| %>
-            <tr class="species">
-              <td>
-                <a href="<%= species_path(one_species) %>"><%= one_species.name %></a>
-              </td>
-              <td>
-                <%= one_species.group.name %>
-              </td>
-              <td>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    <% else %>
-      <p>No species found.</p>
-    <% end %>
-  </div>
-</div>
+<%= erb :'species/_search.html', layout: false %>
+<script type="text/javascript">
+$(function() {
+  onSpeciesSelected = function(speciesId) {
+    window.location.href = '/species/' + speciesId;
+  }
+  initializeSpeciesSearch({
+    onSpeciesSelected: function(speciesId) {
+      window.location.href = '/species/' + speciesId;
+    },
+    updatePath: true,
+  });
+})
+</script>
