@@ -37,6 +37,12 @@ module Web
     end
 
     get '/catalog' do
+      {
+        groups: Paleolog::Repo::Group.all.map { |group| { id: group.id, name: group.name } },
+        initial: {
+          group_id: 1,
+        },
+      }.to_json
       @filters = {}
       @filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
       @filters[:name] = params[:name] if params[:name] && !params[:name].empty?
@@ -54,11 +60,6 @@ module Web
       @filters = {}
       @filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
       @filters[:name] = params[:name] if params[:name] && !params[:name].empty?
-
-      @species = Paleolog::Repo::Species.search_in_project(@project, @filters)
-      # @species = species_repository.search_verified(@filters)
-      @available_filters = {}
-      @available_filters[:groups] = Paleolog::Repo::Group.all
 
       using_project_layout { display 'catalog.html' }
     end

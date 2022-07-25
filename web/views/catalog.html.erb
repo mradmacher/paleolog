@@ -1,14 +1,12 @@
 <%= erb :'species/_search.html', layout: false %>
 <script type="text/javascript">
 $(function() {
-  onSpeciesSelected = function(speciesId) {
-    window.location.href = '/species/' + speciesId;
-  }
-  initializeSpeciesSearch({
+  new SpeciesSearch({
     onSpeciesSelected: function(speciesId) {
       window.location.href = '/species/' + speciesId;
     },
     updatePath: true,
+    initialFilter: <%= @filters.to_json %>,
   });
 })
 </script>

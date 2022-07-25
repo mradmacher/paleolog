@@ -72,6 +72,16 @@ describe 'Catalog' do
     assert_current_path(/name=costa/)
   end
 
+  it 'allows passing search params in url' do
+    visit "/catalog?group_id=#{group1.id}&name=odonto"
+
+    page.must_have_content('Species list (1)')
+    within('#species-list') do
+      page.must_have_css('.species', count: 1)
+    end
+    page.must_have_content('Odontochitina costata')
+  end
+
   it 'updates path to only include provided attributes' do
     visit '/catalog'
 

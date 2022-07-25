@@ -17,7 +17,7 @@
         </div>
         <div class="field">
           <label for="search-name">Name</label>
-          <input id="search-name" type="text" name="name" value="<%= @filters && @filters[:name] %>"/>
+          <input id="search-name" type="text" name="name" />
         </div>
         <button class="ui button" type="submit">Search</button>
       </fieldset>
@@ -48,98 +48,130 @@
 </div>
 
 <script type="text/javascript">
-$(function() {
-  var speciesSearch = {
-    speciesSearchInitialized: false,
-    updatePath: false,
-    onSpeciesSelectedEvent: function(speciesId) {
-      // do nothing
-    },
-  }
-  var onSpeciesSearchedEvent = function(attrs) {
-    if ('URLSearchParams' in window) {
-      var searchParams = new URLSearchParams();
-      var searchParamsProvided = false;
-      for(attr in attrs) {
-        if(attrs[attr]) {
-          searchParams.set(attr, attrs[attr]);
-          searchParamsProvided = true;
-        }
-      }
-      var newRelativePathQuery = window.location.pathname;
-      if(searchParamsProvided) {
-        newRelativePathQuery = newRelativePathQuery + '?' + searchParams.toString();
-      }
-      history.pushState(null, '', newRelativePathQuery);
-    }
-  };
+  class SpeciesSearch {
+    constructor({
+      onSpeciesSelected = null,
+      updatePath = false,
+      initialFilter = {},
+    }) {
+      if(onSpeciesSelected) {
+        this.onSpeciesSelectedEvent = onSpeciesSelected;
+      } else {
+        this.onSpeciesSelectedEvent = function(speciesId) {
+          // do nothing
+        };
+      };
 
-  initializeSpeciesSearch = function({ onSpeciesSelected = null, updatePath = false }) {
-    if(speciesSearch['speciesSearchInitialized']) {
-      return
-    };
-    if(onSpeciesSelected) {
-      speciesSearch['onSpeciesSelectedEvent'] = onSpeciesSelected;
-    }
-    speciesSearch['updatePath'] = updatePath;
-    speciesSearchInitialized = true
-    var actionUrl = '/species/search-filters';
-    $.ajax({
-      url: actionUrl,
-      type: "GET",
-      dataType: "json",
-    })
-    .done(function(json) {
-      $('#search-species-size').text(0);
-      option = $($('#search-group-option-template').html());
-      option.val('');
-      option.text('');
-      $('#search-group-id').append(option);
-      json.groups.forEach(function(group) {
-        option = $($('#search-group-option-template').html());
-        option.val(group.id);
-        option.text(group.name);
-        $('#search-group-id').append(option);
-
+      this.updatePath = updatePath;
+      this.fetchAvailableSearchFilters().then(filters => {
+        this.showAvailableSearchFilters(filters);
+        if(Object.keys(initialFilter).length > 0) {
+          this.fetchSearchResult(initialFilter).then(result => {
+            this.showSearchResult(result);
+            this.showFilters(initialFilter);
+          })
+        };
       });
-    }).fail(function(xhr, status, error) {
-      alert('Please refresh the page and try again.')
-    })
-  }
 
-  $('#species-search .button').click(function(event) {
-    var actionUrl = '/species';
-    event.preventDefault();
-    attrs = {
-      group_id: $('#search-group-id').val(),
-      name: $('#search-name').val(),
-    };
-    if(speciesSearch['updatePath']) {
-      onSpeciesSearchedEvent(attrs);
+      $('#species-search .button').click(event => {
+        event.preventDefault();
+        const attrs = {
+          group_id: $('#search-group-id').val(),
+          name: $('#search-name').val(),
+        };
+        if(this.updatePath) {
+          this.updateSearchParams(attrs);
+        }
+        this.fetchSearchResult(attrs).then(result => this.showSearchResult(result));
+      });
     }
-    $.ajax({
-      url: actionUrl,
-      data: attrs,
-      type: "GET",
-      dataType: "json",
-    })
-    .done(function(json) {
+
+    updateSearchParams(attrs) {
+      if ('URLSearchParams' in window) {
+        var searchParams = new URLSearchParams();
+        var searchParamsProvided = false;
+        for(var attr in attrs) {
+          if(attrs[attr]) {
+            searchParams.set(attr, attrs[attr]);
+            searchParamsProvided = true;
+          }
+        }
+        var newRelativePathQuery = window.location.pathname;
+        if(searchParamsProvided) {
+          newRelativePathQuery = newRelativePathQuery + '?' + searchParams.toString();
+        }
+        history.pushState(null, '', newRelativePathQuery);
+      }
+    }
+
+    fetchAvailableSearchFilters() {
+      return new Promise((resolve, reject) => {
+        $.ajax({
+          url: '/species/search-filters',
+          type: "GET",
+          dataType: "json",
+        })
+        .done(function(json) {
+          resolve(json);
+        }).fail(function(xhr, status, error) {
+          reject(error)
+        })
+      })
+    }
+
+    showAvailableSearchFilters(filters) {
+      return new Promise((resolve, reject) => {
+        $('#search-species-size').text(0);
+        var option = $($('#search-group-option-template').html());
+        option.val('');
+        option.text('');
+        $('#search-group-id').append(option);
+        var that = this;
+        filters.groups.forEach(function(group) {
+          var option = $($('#search-group-option-template').html());
+          option.val(group.id);
+          option.text(group.name);
+          $('#search-group-id').append(option);
+        });
+      });
+    }
+
+    showFilters(attrs) {
+      for(var attr in attrs) {
+        $('#species-search').find('[name=' + attr + ']').val(attrs[attr]);
+      }
+    }
+
+    fetchSearchResult(attrs) {
+      return new Promise((resolve, reject) => {
+        $.ajax({
+          url: '/species',
+          data: attrs,
+          type: "GET",
+          dataType: "json",
+        })
+        .done(function(json) {
+          resolve(json);
+        }).fail(function(xhr, status, error) {
+          reject(error);
+        })
+      });
+    }
+
+    showSearchResult(result) {
       $('#species-list tbody').empty();
-      $('#search-species-size').text(json.result.length);
-      json.result.forEach(function(species) {
-        element = $($('#search-species-template').html());
+      $('#search-species-size').text(result.result.length);
+      var that = this;
+      result.result.forEach(species => {
+        var element = $($('#search-species-template').html());
         element.find('.species-name').text(species.name);
         element.find('.species-group-name').text(species.group_name);
         element.find('.species-link').click(function(event) {
           event.preventDefault();
-          speciesSearch['onSpeciesSelectedEvent'](species.id);
+          that.onSpeciesSelectedEvent(species.id);
         });
-
         $('#species-list tbody').append(element);
       });
-    }).fail(function(xhr, status, error) {
-      alert('Please refresh the page and try again.')
-    })
-  });
-})
+    }
+  }
 </script>
