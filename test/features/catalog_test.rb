@@ -40,10 +40,12 @@ describe 'Catalog' do
     visit '/catalog'
 
     within('#species-search') do
+      uncheck('Verified')
       click_on('Search')
     end
-    page.must_have_content('Species list (2)')
+    page.must_have_content('Species list (3)')
     page.must_have_content('Odontochitina costata')
+    page.must_have_content('Cerodinium costata')
     page.must_have_content('Cerodinium diabelli')
   end
 
@@ -53,6 +55,7 @@ describe 'Catalog' do
     within('#species-search') do
       fill_in('Name', with: 'costa')
       select('Dinoflagellate', from: 'Group')
+      check('Verified')
       click_on('Search')
     end
     page.must_have_content('Species list (1)')
@@ -68,14 +71,16 @@ describe 'Catalog' do
     within('#species-search') do
       fill_in('Name', with: 'costa')
       select('Dinoflagellate', from: 'Group')
+      check('Verified')
       click_on('Search')
     end
     assert_current_path(/group_id=#{group1.id}/)
     assert_current_path(/name=costa/)
+    assert_current_path(/verified=true/)
   end
 
   it 'allows passing search params in url' do
-    visit "/catalog?group_id=#{group1.id}&name=odonto"
+    visit "/catalog?group_id=#{group1.id}&name=odonto&verified=true"
 
     page.must_have_content('Species list (1)')
     within('#species-list') do

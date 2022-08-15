@@ -19,6 +19,10 @@
           <label for="search-name">Name</label>
           <input id="search-name" type="text" name="name" />
         </div>
+        <div class="field">
+          <label for="search-verified">Verified</label>
+          <input id="search-verified" type="checkbox" name="verified" />
+        </div>
         <button class="ui button" type="submit">Search</button>
       </fieldset>
     </form>
@@ -80,6 +84,7 @@
         const attrs = {
           group_id: $('#search-group-id').val(),
           name: $('#search-name').val(),
+          verified: $('#search-verified').is(':checked'),
         };
         if(this.updatePath) {
           this.updateSearchParams(attrs);
@@ -140,7 +145,11 @@
 
     showFilters(attrs) {
       for(var attr in attrs) {
-        $('#species-search').find('[name=' + attr + ']').val(attrs[attr]);
+        if(attr == 'verified') {
+          $('#species-search').find('[name=' + attr + ']').attr("checked", true);
+        } else {
+          $('#species-search').find('[name=' + attr + ']').val(attrs[attr]);
+        }
       }
     }
 

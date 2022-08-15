@@ -62,7 +62,6 @@ describe Paleolog::Repo::Species do
       end
 
       it 'is case insensitive' do
-        repo.update(species1.id, verified: true)
         refute repo.search(name: 'odonto').empty?
       end
     end

@@ -6,8 +6,7 @@ $(function() {
       window.location.href = '/species/' + speciesId;
     },
     updatePath: true,
-    initialFilter: <%= @filters.to_json %>,
-    defaultFilter: { verified: true },
+    initialFilter: <%= (@filters.empty? ? { verified: true } : @filters).to_json %>,
   });
 })
 </script>
