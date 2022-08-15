@@ -26,6 +26,7 @@ module Web
     get '/species' do
       filters = {}
       filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
+      filters[:project_id] = params[:project_id] if params[:project_id] && !params[:project_id].empty?
       filters[:name] = params[:name] if params[:name] && !params[:name].empty?
       filters[:verified] = true if params[:verified] == 'true'
 
@@ -63,8 +64,9 @@ module Web
       @filters = {}
       @filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
       @filters[:name] = params[:name] if params[:name] && !params[:name].empty?
+      @filters[:verified] = true if params[:verified] == 'true'
 
-      using_project_layout { display 'catalog.html' }
+      using_project_layout { display 'projects/catalog.html' }
     end
 
     get '/projects/:project_id/species/:id' do
