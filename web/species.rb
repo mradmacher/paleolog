@@ -27,6 +27,8 @@ module Web
       filters = {}
       filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
       filters[:name] = params[:name] if params[:name] && !params[:name].empty?
+      filters[:verified] = true if params[:verified] == 'true'
+
 
       result = filters.empty? ? [] : Paleolog::Repo::Species.search(filters)
 

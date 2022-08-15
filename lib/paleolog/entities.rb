@@ -144,7 +144,7 @@ module Paleolog
                  :created_at,
                  :updated_at
 
-      belongs_to :species
+      belongs_to :species, :sample
     end
   end
 

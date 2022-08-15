@@ -53,6 +53,7 @@
       onSpeciesSelected = null,
       updatePath = false,
       initialFilter = {},
+      defaultFilter = {},
     }) {
       if(onSpeciesSelected) {
         this.onSpeciesSelectedEvent = onSpeciesSelected;
@@ -63,10 +64,11 @@
       };
 
       this.updatePath = updatePath;
+      this.defaultFilter = defaultFilter;
       this.fetchAvailableSearchFilters().then(filters => {
         this.showAvailableSearchFilters(filters);
-        if(Object.keys(initialFilter).length > 0) {
-          this.fetchSearchResult(initialFilter).then(result => {
+        if(Object.keys(initialFilter).length > 0 || Object.keys(defaultFilter).length > 0) {
+          this.fetchSearchResult({ ...initialFilter, ...defaultFilter }).then(result => {
             this.showSearchResult(result);
             this.showFilters(initialFilter);
           })
@@ -82,7 +84,7 @@
         if(this.updatePath) {
           this.updateSearchParams(attrs);
         }
-        this.fetchSearchResult(attrs).then(result => this.showSearchResult(result));
+        this.fetchSearchResult({ ...attrs, ...this.defaultFilter }).then(result => this.showSearchResult(result));
       });
     }
 

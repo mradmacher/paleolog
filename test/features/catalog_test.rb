@@ -25,12 +25,14 @@ describe 'Catalog' do
     Paleolog::Repo::User.delete_all
   end
 
-  it 'at the beginning displays no species' do
+  it 'at the beginning displays all verified species' do
     visit '/catalog'
 
-    page.must_have_content('Species list (0)')
+    page.must_have_content('Species list (2)')
     within('#species-list') do
-      page.must_have_css('.species', count: 0)
+      page.must_have_css('.species', count: 2)
+      page.must_have_content('Odontochitina costata')
+      page.must_have_content('Cerodinium diabelli')
     end
   end
 
