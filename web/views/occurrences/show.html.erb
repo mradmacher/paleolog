@@ -170,6 +170,7 @@ $(function() {
           addOccurrence(speciesId, <%= @counting.id %>, <%= @sample.id %>)
         },
         updatePath: false,
+        initialFilter: <%= (@counting.group_id ? { group_id: @counting.group_id } : {}).to_json %>,
       });
     }
   });

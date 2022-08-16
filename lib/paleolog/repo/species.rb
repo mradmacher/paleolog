@@ -81,26 +81,28 @@ module Paleolog
 
         private
 
+        def project_filter(query, project_id)
+          query
+            .where(Sequel[:sections][:project_id] => project_id)
+            .join(:occurrences, Sequel[:occurrences][:species_id] => :id)
+            .join(:samples, Sequel[:samples][:id] => :sample_id)
+            .join(:sections, Sequel[:sections][:id] => :section_id)
+            .select_all(:species)
+            .union(
+              ds.where(Sequel[:sections][:project_id] => project_id)
+                .join(:images, Sequel[:images][:species_id] => :id)
+                .join(:samples, Sequel[:samples][:id] => :sample_id)
+                .join(:sections, Sequel[:sections][:id] => :section_id)
+                .select_all(:species),
+            )
+        end
+
         def search_query(filters = {})
           query = ds
           query = query.where(group_id: filters[:group_id]) if filters[:group_id]
           query = query.where(Sequel.ilike(Sequel[:species][:name], "%#{filters[:name]}%")) if filters[:name]
           query = query.where(verified: true) if filters[:verified]
-          if filters[:project_id]
-            query = query
-              .where(Sequel[:sections][:project_id] => filters[:project_id])
-              .join(:occurrences, Sequel[:occurrences][:species_id] => :id)
-              .join(:samples, Sequel[:samples][:id] => :sample_id)
-              .join(:sections, Sequel[:sections][:id] => :section_id)
-              .select_all(:species)
-              .union(
-                ds.where(Sequel[:sections][:project_id] => filters[:project_id])
-                  .join(:images, Sequel[:images][:species_id] => :id)
-                  .join(:samples, Sequel[:samples][:id] => :sample_id)
-                  .join(:sections, Sequel[:sections][:id] => :section_id)
-                  .select_all(:species)
-              )
-          end
+          query = project_filter(query, filters[:project_id]) if filters[:project_id]
           query
         end
       end

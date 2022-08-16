@@ -75,13 +75,13 @@ describe Paleolog::Repo::Species do
         section = Paleolog::Repo::Section.create(name: 'Some section', project_id: project.id)
         counting = Paleolog::Repo.save(Paleolog::Counting.new(name: 'Some counting', project: project))
         sample = Paleolog::Repo.save(Paleolog::Sample.new(name: 'Some sample', section: section))
-        occurrence = Paleolog::Repo.save(
+        Paleolog::Repo.save(
           Paleolog::Occurrence.new(
             rank: 1,
             species_id: species1.id,
             counting_id: counting.id,
             sample_id: sample.id,
-          )
+          ),
         )
 
         result = repo.search({ project_id: project.id, name: 'costa' })

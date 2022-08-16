@@ -30,7 +30,6 @@ module Web
       filters[:name] = params[:name] if params[:name] && !params[:name].empty?
       filters[:verified] = true if params[:verified] == 'true'
 
-      result = filters.empty? ? [] : Paleolog::Repo::Species.search(filters)
       result = Paleolog::Repo::Species.search(filters)
 
       {

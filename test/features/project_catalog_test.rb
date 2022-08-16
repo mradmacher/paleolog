@@ -11,7 +11,7 @@ describe 'Project Catalog' do
     use_javascript_driver
     species1 = Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Odontochitina costata', verified: false))
     species2 = Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Cerodinium costata', verified: true))
-    other_species = Paleolog::Repo.save(Paleolog::Species.new(group: group2, name: 'Cerodinium diabelli', verified: true))
+    Paleolog::Repo.save(Paleolog::Species.new(group: group2, name: 'Cerodinium diabelli', verified: true))
     Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
     section = Paleolog::Repo::Section.create(name: 'Some section', project_id: project.id)
     counting = Paleolog::Repo.save(Paleolog::Counting.new(name: 'Some counting', project: project))
@@ -22,7 +22,7 @@ describe 'Project Catalog' do
         species_id: species1.id,
         counting_id: counting.id,
         sample_id: sample.id,
-      )
+      ),
     )
     Paleolog::Repo.save(
       Paleolog::Occurrence.new(
@@ -30,7 +30,7 @@ describe 'Project Catalog' do
         species_id: species2.id,
         counting_id: counting.id,
         sample_id: sample.id,
-      )
+      ),
     )
 
     visit '/login'
@@ -67,9 +67,9 @@ describe 'Project Catalog' do
     within('#species-search') do
       click_on('Search')
     end
-      page.must_have_css('.species', count: 2)
-      page.must_have_content('Odontochitina costata')
-      page.must_have_content('Cerodinium costata')
+    page.must_have_css('.species', count: 2)
+    page.must_have_content('Odontochitina costata')
+    page.must_have_content('Cerodinium costata')
   end
 
   it 'allows searching species' do
@@ -123,4 +123,3 @@ describe 'Project Catalog' do
     assert_current_path(/name=costa/)
   end
 end
-
