@@ -4,6 +4,7 @@ require 'features_helper'
 
 describe 'Occurrences' do
   let(:project) { Paleolog::Repo.save(Paleolog::Project.new(name: 'some project')) }
+  let(:counting) { Paleolog::Repo.save(Paleolog::Counting.new(name: 'some counting', project: project)) }
 
   before do
     use_javascript_driver
@@ -13,7 +14,6 @@ describe 'Occurrences' do
     species21 = Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Cerodinium costata'))
     species12 = Paleolog::Repo.save(Paleolog::Species.new(group: group2, name: 'Cerodinium diabelli'))
     Paleolog::Repo.save(Paleolog::Species.new(group: group2, name: 'Diabella diabelli'))
-    counting = Paleolog::Repo.save(Paleolog::Counting.new(name: 'some counting', project: project))
     section = Paleolog::Repo.save(Paleolog::Section.new(name: 'some section', project: project))
     sample = Paleolog::Repo.save(Paleolog::Sample.new(name: 'some sample', section: section))
     Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species11, rank: 1))
@@ -38,6 +38,21 @@ describe 'Occurrences' do
     Paleolog::Repo.delete_all(Paleolog::Group)
     Paleolog::Repo.delete_all(Paleolog::Project)
     Paleolog::Repo.delete_all(Paleolog::User)
+  end
+
+  it 'suggests counted group when adding occurrences' do
+    counted_group = Paleolog::Repo.save(Paleolog::Group.new(name: 'Counted'))
+    Paleolog::Repo.save(Paleolog::Species.new(group: counted_group, name: 'Counted Group Species'))
+    Paleolog::Repo::Counting.update(counting.id, group_id: counted_group.id)
+    visit "/projects/#{project.id}/occurrences"
+    click_button(class: 'add-occurrence')
+    within page.find('#species-list') do
+      assert_text('Counted Group Species')
+    end
+    click_on('Counted Group Species')
+    within page.find('.occurrences-collection') do
+      assert_text('Counted Group Species')
+    end
   end
 
   it 'adds occurrence' do
@@ -66,8 +81,10 @@ describe 'Occurrences' do
     end
 
     click_button(class: 'add-occurrence')
+    url_before = current_url
     select('Other', from: 'Group')
     click_on('Search')
+    assert_current_path(url_before) # searching should not update query string
     click_on('Diabella diabelli')
 
     table_rows = page.all('.occurrences-collection tr')

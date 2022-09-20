@@ -73,9 +73,7 @@
 <script type="text/javascript">
 $(function() {
   var projectId = <%= @project.id %>;
-  onSpeciesSelected = function(speciesId) {
-    addOccurrence(speciesId, <%= @counting.id %>, <%= @sample.id %>)
-  }
+  var speciesSearch = null;
 
   removeOccurrence = function(occurrenceId) {
     var actionUrl = "/api/projects/" + projectId + "/occurrences/" + occurrenceId;
@@ -166,7 +164,15 @@ $(function() {
   $('.button.add-occurrence').click(function() {
     $('.modal.add-occurrence').modal('show');
     // TODO: exclude already present in counting
-    initializeSpeciesSearch(onSpeciesSelected);
+    if(!speciesSearch) {
+      speciesSearch = new SpeciesSearch({
+        onSpeciesSelected: function(speciesId) {
+          addOccurrence(speciesId, <%= @counting.id %>, <%= @sample.id %>)
+        },
+        updatePath: false,
+        initialFilter: <%= (@counting.group_id ? { group_id: @counting.group_id } : {}).to_json %>,
+      });
+    }
   });
 
   $('.button.delete-occurrence').click(function() {

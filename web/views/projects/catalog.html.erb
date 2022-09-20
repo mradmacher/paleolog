@@ -3,10 +3,12 @@
 $(function() {
   new SpeciesSearch({
     onSpeciesSelected: function(speciesId) {
-      window.location.href = '/species/' + speciesId;
+      window.location.href = '/projects/' + <%= @project.id %> + '/species/' + speciesId;
     },
     updatePath: true,
-    initialFilter: <%= (@filters.empty? ? { verified: true } : @filters).to_json %>,
+    initialFilter: <%= @filters.to_json %>,
+    defaultFilter: { project_id: <%= @project.id %> },
   });
 })
 </script>
+

@@ -26,9 +26,11 @@ module Web
     get '/species' do
       filters = {}
       filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
+      filters[:project_id] = params[:project_id] if params[:project_id] && !params[:project_id].empty?
       filters[:name] = params[:name] if params[:name] && !params[:name].empty?
+      filters[:verified] = true if params[:verified] == 'true'
 
-      result = filters.empty? ? [] : Paleolog::Repo::Species.search(filters)
+      result = Paleolog::Repo::Species.search(filters)
 
       {
         filters: filters,
@@ -37,13 +39,16 @@ module Web
     end
 
     get '/catalog' do
+      {
+        groups: Paleolog::Repo::Group.all.map { |group| { id: group.id, name: group.name } },
+        initial: {
+          group_id: 1,
+        },
+      }.to_json
       @filters = {}
       @filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
       @filters[:name] = params[:name] if params[:name] && !params[:name].empty?
-
-      @species = Paleolog::Repo::Species.search_verified(@filters)
-      @available_filters = {}
-      @available_filters[:groups] = Paleolog::Repo::Group.all
+      @filters[:verified] = true if params[:verified] == 'true'
 
       using_application_layout { display 'catalog.html' }
     end
@@ -58,13 +63,9 @@ module Web
       @filters = {}
       @filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
       @filters[:name] = params[:name] if params[:name] && !params[:name].empty?
+      @filters[:verified] = true if params[:verified] == 'true'
 
-      @species = Paleolog::Repo::Species.search_in_project(@project, @filters)
-      # @species = species_repository.search_verified(@filters)
-      @available_filters = {}
-      @available_filters[:groups] = Paleolog::Repo::Group.all
-
-      using_project_layout { display 'catalog.html' }
+      using_project_layout { display 'projects/catalog.html' }
     end
 
     get '/projects/:project_id/species/:id' do

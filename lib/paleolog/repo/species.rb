@@ -47,16 +47,6 @@ module Paleolog
           end
         end
 
-        def search_verified(filters = {})
-          groups = Paleolog::Repo::Group.all
-          query = search_query(filters).where(verified: true)
-          query.all.map do |result|
-            Paleolog::Species.new(**result) do |species|
-              species.group = groups.detect { |group| group.id == species.group_id }
-            end
-          end
-        end
-
         def search_in_project(_project, filters = {})
           query = search_query(filters)
 
@@ -91,10 +81,28 @@ module Paleolog
 
         private
 
+        def project_filter(query, project_id)
+          query
+            .where(Sequel[:sections][:project_id] => project_id)
+            .join(:occurrences, Sequel[:occurrences][:species_id] => :id)
+            .join(:samples, Sequel[:samples][:id] => :sample_id)
+            .join(:sections, Sequel[:sections][:id] => :section_id)
+            .select_all(:species)
+            .union(
+              ds.where(Sequel[:sections][:project_id] => project_id)
+                .join(:images, Sequel[:images][:species_id] => :id)
+                .join(:samples, Sequel[:samples][:id] => :sample_id)
+                .join(:sections, Sequel[:sections][:id] => :section_id)
+                .select_all(:species),
+            )
+        end
+
         def search_query(filters = {})
           query = ds
           query = query.where(group_id: filters[:group_id]) if filters[:group_id]
-          query = query.where { name.ilike("%#{filters[:name]}%") } if filters[:name]
+          query = query.where(Sequel.ilike(Sequel[:species][:name], "%#{filters[:name]}%")) if filters[:name]
+          query = query.where(verified: true) if filters[:verified]
+          query = project_filter(query, filters[:project_id]) if filters[:project_id]
           query
         end
       end

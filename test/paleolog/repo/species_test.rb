@@ -8,6 +8,8 @@ describe Paleolog::Repo::Species do
   after do
     repo.delete_all
     Paleolog::Repo::Group.delete_all
+
+    Paleolog::Repo::Project.delete_all
   end
 
   describe '#find' do
@@ -109,82 +111,6 @@ describe Paleolog::Repo::Species do
       Paleolog::Repo.save(Paleolog::Species.new(name: 'Some species', group: @group))
 
       assert(repo.name_exists_within_group?('soMe sPeCies', @group.id))
-    end
-  end
-
-  describe '#search_verified' do
-    let(:group1) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Dinoflagellate')) }
-    let(:group2) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Other')) }
-    let(:species1) { Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Odontochitina costata')) }
-    let(:species2) { Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Cerodinium diebelii')) }
-    let(:species3) { Paleolog::Repo.save(Paleolog::Species.new(group: group2, name: 'Acritarchs')) }
-
-    describe 'when no filters provided' do
-      let(:filters) { {} }
-
-      it 'returns only verified' do
-        assert repo.search_verified(filters).empty?
-
-        repo.update(species2.id, verified: true)
-        result = repo.search_verified(filters)
-        assert_equal 1, result.size
-        assert_equal result.first.id, species2.id
-        refute_nil result.first.group
-      end
-    end
-
-    describe 'when group filter provided' do
-      let(:filters) { { group_id: group1.id } }
-
-      it 'returns only verified that match filter' do
-        assert repo.search_verified(filters).empty?
-
-        repo.update(species1.id, verified: true)
-        repo.update(species2.id, verified: false)
-        repo.update(species3.id, verified: true)
-        result = repo.search_verified(filters)
-        assert_equal 1, result.size
-
-        assert_equal result.first.id, species1.id
-        refute_nil result.first.group
-      end
-    end
-
-    describe 'when name filter provided' do
-      let(:filters) { { name: 'costa' } }
-
-      it 'returns only verified that match filter' do
-        assert repo.search_verified(filters).empty?
-
-        repo.update(species1.id, verified: true)
-        repo.update(species2.id, verified: true)
-        repo.update(species3.id, verified: true)
-        result = repo.search_verified(filters)
-        assert_equal 1, result.size
-        assert_equal result.first.id, species1.id
-        refute_nil result.first.group
-      end
-
-      it 'is case insensitive' do
-        repo.update(species1.id, verified: true)
-        refute repo.search_verified(name: 'odonto').empty?
-      end
-    end
-
-    describe 'when name and group filters provided' do
-      let(:filters) { { group_id: group1.id, name: 'costa' } }
-
-      it 'returns only verified that match filter' do
-        assert repo.search_verified(filters).empty?
-
-        repo.update(species1.id, verified: true)
-        repo.update(species2.id, verified: true)
-        repo.update(species3.id, verified: true)
-        result = repo.search_verified(filters)
-        assert_equal 1, result.size
-        assert_equal result.first.id, species1.id
-        refute_nil result.first.group
-      end
     end
   end
 end
