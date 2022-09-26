@@ -1,6 +1,14 @@
 version: "3.8"
 
 services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: paleolog
+      POSTGRES_USER: paleolog
+      POSTGRES_DB: paleolog
+    volumes:
+      - ./db/postgres:/var/lib/postgresql/data
   web:
     build:
       context: .
@@ -8,6 +16,8 @@ services:
       args:
         USER_UID: "${USER_UID:-1001}"
     command: bundle exec rackup -o 0.0.0.0
+    environment:
+      PALEOLOG_DB_URI: "postgres://paleolog:paleolog@db/paleolog"
     ports:
       - 9292:9292
     volumes:

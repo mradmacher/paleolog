@@ -12,8 +12,7 @@ module Paleolog
 
       def db
         @db ||= Sequel.connect(
-          "sqlite:#{File.expand_path(File.join(__dir__, '..', '..', '..', 'db',
-                                               "#{ENV['RACK_ENV']}.sqlite",))}",
+          ENV['PALEOLOG_DB_URI'],
           # loggers: [Logger.new($stdout)],
         )
       end
