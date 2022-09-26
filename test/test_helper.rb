@@ -2,6 +2,7 @@
 
 $LOAD_PATH << File.join(__dir__, '..', 'lib')
 ENV['RACK_ENV'] = 'test'
+ENV['PALEOLOG_DB_URI'] = 'postgres://paleolog:paleolog@localhost:5433/paleolog'
 
 require 'minitest/autorun'
 require 'minitest/spec'

@@ -17,10 +17,8 @@ services:
     environment:
       PALEOLOG_DB_URI: "postgres://paleolog:${PALEOLOG_DB_PASSWORD}@db/paleolog"
     volumes:
-      - sqlite:/home/paleolog/db
       - uploads:/home/paleolog/web/public/images
 
 volumes:
   postgres:
-  sqlite:
   uploads:

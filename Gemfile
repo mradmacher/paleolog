@@ -11,7 +11,6 @@ gem 'rake'
 gem 'RedCloth'
 gem 'sequel'
 gem 'sinatra'
-gem 'sqlite3'
 
 group :development do
   gem 'sinatra-contrib'
