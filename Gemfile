@@ -4,6 +4,7 @@ source 'https://rubygems.org'
 
 gem 'bcrypt'
 gem 'dry-validation'
+gem 'pg'
 gem 'pdfkit'
 gem 'puma'
 gem 'rake'
