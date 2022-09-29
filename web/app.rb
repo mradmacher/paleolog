@@ -9,6 +9,7 @@ require 'sinatra/reloader' if ENV['RACK_ENV'] == 'development'
 require 'redcloth'
 require 'paleolog'
 require_relative './auth_helpers'
+require_relative './api/occurrences'
 require_relative './projects'
 require_relative './sections'
 require_relative './countings'
@@ -36,6 +37,7 @@ class PaleologWeb < Sinatra::Base
   use Web::Sections
   use Web::Countings
   use Web::Occurrences
+  use Web::Api::Occurrences
   use Web::Species
   use Web::Reports
 
