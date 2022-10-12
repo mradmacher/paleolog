@@ -66,6 +66,12 @@ describe 'Occurrences' do
     Paleolog::Repo::Occurrence.delete_all
   end
 
+  describe 'GET /api/projects/:project_id/occurrences' do
+    it 'needs to be written' do
+      fail 'write me'
+    end
+  end
+
   describe 'POST /api/projects/:project_id/occurrences' do
     it 'requires user participating in the project as manager' do
       params = {  sample_id: sample.id, species_id: species11.id, counting_id: counting.id }

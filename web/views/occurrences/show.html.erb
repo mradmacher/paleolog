@@ -8,14 +8,39 @@
   </thead>
   <tbody>
     <tr>
-      <td><span id="occurrences-countable-sum"><%= @summary.countable %></span></td>
-      <td><span id="occurrences-uncountable-sum"><%= @summary.uncountable %></span></td>
-      <td class="active"><span id="occurrences-total-sum"><%= @summary.total %></span></td>
+      <td><span id="occurrences-countable-sum"></span></td>
+      <td><span id="occurrences-uncountable-sum"></span></td>
+      <td class="active"><span id="occurrences-total-sum"></span></td>
     </tr>
   </tbody>
 </table>
 
-<table class="ui striped celled table occurrences-collection">
+<template id="occurrence-template">
+  <tr class="occurrence" data-occurrence-id="">
+    <td class="occurrence-group-name"></td>
+    <td class="occurrence-species-name"></td>
+    <td class="occurrence-quantity"></td>
+    <td>
+      <div class="ui vertical mini icon buttons">
+        <button class="ui button increase-quantity" data-shift="1"><i class="plus icon"></i></button>
+        <button class="ui button decrease-quantity" data-shift="-1"><i class="minus icon"></i></button>
+      </div>
+    </td>
+    <td class="ui form field">
+      <select class="occurrence-status update-status" name="occurrence-status">
+        <% Paleolog::CountingSummary::STATUSES.each do |value, symbol| %>
+          <option value="<%= value %>"><%= symbol %></option>
+        <% end %>
+      </select>
+    </td>
+    <td class="ui form field">
+      <input class="occurrence-uncertain update-uncertain" name="occurrence-uncertain" type="checkbox" />
+    </td>
+    <td><button class="ui negative mini icon button delete-occurrence"><i class="trash icon"></i></button>
+  </tr>
+</template>
+
+<table class="ui striped celled table">
   <thead>
     <tr align="center">
       <th>Group</th>
@@ -26,36 +51,10 @@
       <th></th>
     </tr>
   </thead>
-  <tbody>
-  <% @occurrences.each do |occurrence| %>
-    <tr id="occurrence-<%= occurrence.id %>">
-      <td><%= occurrence.group_name %></td>
-      <td><%= occurrence.species_name %></td>
-      <td id="occurrence-<%= occurrence.id %>-quantity"><%= occurrence.quantity %></td>
-      <td>
-        <div class="ui vertical mini icon buttons">
-          <button class="ui button increase-quantity" data-shift="1" data-occurrence-id="<%= occurrence.id %>"><i class="plus icon"></i></button>
-          <button class="ui button decrease-quantity" data-shift="-1" data-occurrence-id="<%= occurrence.id %>"><i class="minus icon"></i></button>
-        </div>
-      </td>
-      <td class="ui form field">
-        <label for="occurrence-<%= occurrence.id %>-status" hidden>Status</label>
-        <select id="occurrence-<%= occurrence.id %>-status" class="update-status" data-occurrence-id="<%= occurrence.id %>">
-          <% Paleolog::CountingSummary::STATUSES.each do |value, symbol| %>
-            <option value="<%= value %>" <%= (occurrence.status == value) ? 'selected' : '' %>><%= symbol %></option>
-          <% end %>
-        </select>
-      </td>
-      <td class="ui form field">
-        <label for="occurrence-<%= occurrence.id %>-uncertain" hidden>Uncertain</label>
-        <input id="occurrence-<%= occurrence.id %>-uncertain" class="update-uncertain" data-occurrence-id="<%= occurrence.id %>" type="checkbox" <%= occurrence.uncertain ? 'checked' : '' %>/>
-      </td>
-      <td><button class="ui negative mini icon button delete-occurrence" data-occurrence-id="<%= occurrence.id %>"><i class="trash icon"></i></button>
-    </tr>
-  <% end %>
+  <tbody id="occurrences-collection">
     <tr>
       <td colspan="7">
-          <button class="ui fluid mini icon primary button add-occurrence"><i class="plus icon"></i></button>
+        <button class="ui fluid mini icon primary button add-occurrence"><i class="plus icon"></i></button>
       </td>
     </tr>
   </tbody>
@@ -72,8 +71,68 @@
 
 <script type="text/javascript">
 $(function() {
-  var projectId = <%= @project.id %>;
+  const projectId = <%= @project.id %>;
+  const sectionId = <%= @section.id %>;
+  const countingId = <%= @counting.id %>;
+  const sampleId = <%= @sample.id %>;
+  const countingGroupId = <%= @counting.group_id.to_json %>;
   var speciesSearch = null;
+
+  loadOccurrences = function() {
+    var actionUrl = "/api/projects/" + projectId + "/occurrences";
+    attrs = {
+      counting_id: countingId,
+      section_id: sectionId,
+      sample_id: sampleId,
+    };
+    $.ajax({
+      url: actionUrl,
+      data: attrs,
+      type: "GET",
+      dataType: "json",
+    })
+    .done(function(json) {
+      json.occurrences.reverse().forEach(occurrence => {
+        var element = $($("#occurrence-template").html());
+        element.attr("data-occurrence-id", occurrence.id);
+
+        element.find(".occurrence-group-name").text(occurrence.group_name);
+        element.find(".occurrence-species-name").text(occurrence.species_name);
+        element.find(".occurrence-quantity").text(occurrence.quantity);
+        element.find(".occurrence-status").val(occurrence.status);
+        element.find(".occurrence-uncertain").prop('checked', occurrence.uncertain);
+
+        element.find(".increase-quantity").click(function() {
+          updateOccurrence(occurrenceIdFor($(this)), { shift: 1 });
+        });
+        element.find(".decrease-quantity").click(function() {
+          updateOccurrence(occurrenceIdFor($(this)), { shift: -1 });
+        });
+        element.find(".update-status").change(function() {
+          var status = $(this).val();
+          updateOccurrence(occurrenceIdFor($(this)), { status: status });
+        });
+        element.find(".update-uncertain").change(function() {
+          var uncertain;
+          if($(this).prop("checked")) {
+            uncertain = true
+          } else {
+            uncertain = false
+          };
+          updateOccurrence(occurrenceIdFor($(this)), { uncertain: uncertain });
+        });
+        element.find('.delete-occurrence').click(function() {
+          removeOccurrence(occurrenceIdFor($(this)));
+        });
+
+        $('#occurrences-collection').prepend(element);
+      });
+      updateSummary(json.summary);
+    }).fail(function(xhr, status, error) {
+      alert('Please refresh the page and try again.')
+    })
+
+  }
 
   removeOccurrence = function(occurrenceId) {
     var actionUrl = "/api/projects/" + projectId + "/occurrences/" + occurrenceId;
@@ -83,7 +142,7 @@ $(function() {
       dataType: "json",
     })
     .done(function(json) {
-      $("#occurrence-" + json.occurrence.id).remove();
+      occurrenceElementFor(json.occurrence.id).remove();
       updateSummary(json.summary);
     }).fail(function(xhr, status, error) {
       alert('Please refresh the page and try again.')
@@ -121,7 +180,7 @@ $(function() {
       dataType: "json",
     })
     .done(function(json) {
-      $("#occurrence-" + json.occurrence.id + "-quantity").text(json.occurrence.quantity);
+      occurrenceElementFor(json.occurrence.id).find(".occurrence-quantity").text(json.occurrence.quantity);
       updateSummary(json.summary);
     }).fail(function(xhr, status, error) {
       alert('Please refresh the page and try again.')
@@ -134,32 +193,13 @@ $(function() {
     $("#occurrences-total-sum").text(summary.total);
   }
 
-  $('.button.increase-quantity').click(function() {
-    var occurrenceId = $(this).attr("data-occurrence-id");
-    updateOccurrence(occurrenceId, { shift: 1 });
-  });
+  occurrenceIdFor = function(element) {
+    return element.parents(".occurrence").attr("data-occurrence-id");
+  }
 
-  $('.button.decrease-quantity').click(function() {
-    var occurrenceId = $(this).attr("data-occurrence-id");
-    updateOccurrence(occurrenceId, { shift: -1 });
-  });
-
-  $('.update-status').change(function() {
-    var occurrenceId = $(this).attr("data-occurrence-id");
-    var status = $(this).val();
-    updateOccurrence(occurrenceId, { status: status });
-  });
-
-  $(".update-uncertain").change(function() {
-    var occurrenceId = $(this).attr("data-occurrence-id");
-    var uncertain;
-    if($(this).prop("checked")) {
-      uncertain = true
-    } else {
-      uncertain = false
-    };
-    updateOccurrence(occurrenceId, { uncertain: uncertain });
-  });
+  occurrenceElementFor = function(id) {
+    return $(".occurrence[data-occurrence-id='" + id + "']");
+  }
 
   $('.button.add-occurrence').click(function() {
     $('.modal.add-occurrence').modal('show');
@@ -167,17 +207,14 @@ $(function() {
     if(!speciesSearch) {
       speciesSearch = new SpeciesSearch({
         onSpeciesSelected: function(speciesId) {
-          addOccurrence(speciesId, <%= @counting.id %>, <%= @sample.id %>)
+          addOccurrence(speciesId, countingId, sampleId)
         },
         updatePath: false,
-        initialFilter: <%= (@counting.group_id ? { group_id: @counting.group_id } : {}).to_json %>,
+        initialFilter: countingGroupId ? { group_id: countingGroupId } : {},
       });
     }
   });
 
-  $('.button.delete-occurrence').click(function() {
-    var occurrenceId = $(this).attr("data-occurrence-id");
-    removeOccurrence(occurrenceId);
-  });
+  loadOccurrences();
 })
 </script>

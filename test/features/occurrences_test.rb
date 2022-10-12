@@ -50,7 +50,7 @@ describe 'Occurrences' do
       assert_text('Counted Group Species')
     end
     click_on('Counted Group Species')
-    within page.find('.occurrences-collection') do
+    within page.find('#occurrences-collection') do
       assert_text('Counted Group Species')
     end
   end
@@ -58,14 +58,15 @@ describe 'Occurrences' do
   it 'adds occurrence' do
     visit "/projects/#{project.id}/occurrences"
 
-    table_rows = page.all('.occurrences-collection tr')
-    assert_match /Odontochitina costata/, table_rows[1].text
-    assert_match /Cerodinium costata/, table_rows[2].text
-    assert_match /Cerodinium diabelli/, table_rows[3].text
+    table_rows = page.all('#occurrences-collection .occurrence')
+    assert_equal 3, table_rows.size
+    assert_match /Odontochitina costata/, table_rows[0].text
+    assert_match /Cerodinium costata/, table_rows[1].text
+    assert_match /Cerodinium diabelli/, table_rows[2].text
 
     within page.find(:table_row, ['Odontochitina costata']) do
       click_button(class: 'increase-quantity')
-      select('r', from: 'Status')
+      select('r', from: 'occurrence-status')
     end
     within page.find(:table_row, ['Cerodinium diabelli']) do
       click_button(class: 'increase-quantity')
@@ -87,11 +88,11 @@ describe 'Occurrences' do
     assert_current_path(url_before) # searching should not update query string
     click_on('Diabella diabelli')
 
-    table_rows = page.all('.occurrences-collection tr')
-    assert_match /Odontochitina costata/, table_rows[1].text
-    assert_match /Cerodinium costata/, table_rows[2].text
-    assert_match /Cerodinium diabelli/, table_rows[3].text
-    assert_match /Diabella diabelli/, table_rows[4].text
+    table_rows = page.all('#occurrences-collection .occurrence')
+    assert_match /Odontochitina costata/, table_rows[0].text
+    assert_match /Cerodinium costata/, table_rows[1].text
+    assert_match /Cerodinium diabelli/, table_rows[2].text
+    assert_match /Diabella diabelli/, table_rows[3].text
     within('#occurrences-countable-sum') do
       page.must_have_content('1')
     end
@@ -103,11 +104,11 @@ describe 'Occurrences' do
     end
 
     visit "/projects/#{project.id}/occurrences"
-    table_rows = page.all('.occurrences-collection tr')
-    assert_match /Odontochitina costata/, table_rows[1].text
-    assert_match /Cerodinium costata/, table_rows[2].text
-    assert_match /Cerodinium diabelli/, table_rows[3].text
-    assert_match /Diabella diabelli/, table_rows[4].text
+    table_rows = page.all('#occurrences-collection .occurrence')
+    assert_match /Odontochitina costata/, table_rows[0].text
+    assert_match /Cerodinium costata/, table_rows[1].text
+    assert_match /Cerodinium diabelli/, table_rows[2].text
+    assert_match /Diabella diabelli/, table_rows[3].text
   end
 
   it 'counts countable' do
@@ -175,7 +176,7 @@ describe 'Occurrences' do
     within page.find(:table_row, ['Odontochitina costata']) do
       click_button(class: 'increase-quantity')
       click_button(class: 'increase-quantity')
-      select('r', from: 'Status')
+      select('r', from: 'occurrence-status')
     end
 
     assert page.find(:table_row, ['Odontochitina costata']).has_content?('2')
@@ -235,11 +236,11 @@ describe 'Occurrences' do
     within page.find(:table_row, ['Odontochitina costata']) do
       click_button(class: 'increase-quantity')
       click_button(class: 'increase-quantity')
-      check('Uncertain')
+      check('occurrence-uncertain')
     end
 
     assert page.find(:table_row, ['Odontochitina costata']).has_content?('2')
-    assert page.find(:table_row, ['Odontochitina costata']).has_checked_field?('Uncertain')
+    assert page.find(:table_row, ['Odontochitina costata']).has_checked_field?('occurrence-uncertain')
     within('#occurrences-countable-sum') do
       page.must_have_content('2')
     end
@@ -252,7 +253,7 @@ describe 'Occurrences' do
 
     visit "/projects/#{project.id}/occurrences"
     assert page.find(:table_row, ['Odontochitina costata']).has_content?('2')
-    assert page.find(:table_row, ['Odontochitina costata']).has_checked_field?('Uncertain')
+    assert page.find(:table_row, ['Odontochitina costata']).has_checked_field?('occurrence-uncertain')
     within('#occurrences-countable-sum') do
       page.must_have_content('2')
     end
@@ -270,7 +271,7 @@ describe 'Occurrences' do
     within page.find(:table_row, ['Odontochitina costata']) do
       click_button(class: 'increase-quantity')
       click_button(class: 'increase-quantity')
-      select('r', from: 'Status')
+      select('r', from: 'occurrence-status')
     end
 
     within page.find(:table_row, ['Cerodinium diabelli']) do

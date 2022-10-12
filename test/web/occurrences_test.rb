@@ -62,7 +62,7 @@ describe 'Occurrences' do
         assert last_response.redirect?, "Expected 302 but got #{last_response.status}"
       end
 
-      it 'works' do
+      it 'returns 200 if counting, sectiona and sample provided' do
         get "/projects/#{project.id}/occurrences?counting=#{counting.id}&section=#{section.id}&sample=#{sample.id}"
         assert last_response.ok?, "Expected 200, but got #{last_response.status}"
       end

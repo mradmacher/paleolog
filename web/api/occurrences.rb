@@ -13,6 +13,43 @@ module Web
         authorize_api!
       end
 
+      get '/api/projects/:project_id/occurrences' do
+        halt 422 unless params[:section_id] && params[:sample_id] && params[:counting_id]
+
+        project = Paleolog::Repo::Project.find(params[:project_id].to_i)
+        section = Paleolog::Repo::Section.find_for_project(params[:section_id].to_i, project.id)
+        sample = Paleolog::Repo::Sample.find_for_section(params[:sample_id].to_i, section.id)
+        counting = Paleolog::Repo::Counting.find_for_project(params[:counting_id].to_i, project.id)
+
+        occurrences =
+          if counting && sample
+            Paleolog::Repo::Occurrence.all_for_sample(counting, sample)
+          else
+            []
+          end
+        counting_summary = Paleolog::CountingSummary.new(occurrences)
+
+        {
+          occurrences: occurrences.map { |occurrence|
+            {
+              id: occurrence.id,
+              group_name: occurrence.species.group.name,
+              species_name: occurrence.species.name,
+              quantity: occurrence.quantity,
+              status: occurrence.status,
+              status_symbol: Paleolog::CountingSummary.status_symbol(occurrence.status) +
+                (occurrence.uncertain ? Paleolog::CountingSummary::UNCERTAIN_SYMBOL : ''),
+              uncertain: occurrence.uncertain,
+            }
+          },
+          summary: {
+            countable: counting_summary.countable_sum,
+            uncountable: counting_summary.uncountable_sum,
+            total: counting_summary.total_sum,
+          },
+        }.to_json
+      end
+
       # rubocop:disable Metrics/BlockLength
       post '/api/projects/:project_id/occurrences' do
         halt 403 unless Paleolog::Repo::ResearchParticipation.can_manage_project?(session[:user_id], params[:project_id])
