@@ -289,7 +289,9 @@ describe 'Occurrences' do
     end
 
     within page.find(:table_row, ['Cerodinium diabelli']) do
-      click_button(class: 'delete-occurrence')
+      accept_confirm do
+        click_button(class: 'delete-occurrence')
+      end
     end
     assert_no_text('Cerodinium diabelli')
 
@@ -304,7 +306,25 @@ describe 'Occurrences' do
     end
 
     within page.find(:table_row, ['Odontochitina costata']) do
-      click_button(class: 'delete-occurrence')
+      dismiss_confirm do
+        click_button(class: 'delete-occurrence')
+      end
+    end
+    assert_text('Odontochitina costata')
+    within('#occurrences-countable-sum') do
+      page.must_have_content('0')
+    end
+    within('#occurrences-uncountable-sum') do
+      page.must_have_content('2')
+    end
+    within('#occurrences-total-sum') do
+      page.must_have_content('2')
+    end
+
+    within page.find(:table_row, ['Odontochitina costata']) do
+      accept_confirm do
+        click_button(class: 'delete-occurrence')
+      end
     end
     assert_no_text('Odontochitina costata')
 

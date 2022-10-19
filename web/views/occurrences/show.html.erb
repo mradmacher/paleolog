@@ -122,7 +122,10 @@ $(function() {
           updateOccurrence(occurrenceIdFor($(this)), { uncertain: uncertain });
         });
         element.find('.delete-occurrence').click(function() {
-          removeOccurrence(occurrenceIdFor($(this)));
+          text = 'Do you confirm removing this occurrence?'
+          if (confirm(text) == true) {
+            removeOccurrence(occurrenceIdFor($(this)));
+          }
         });
 
         $('#occurrences-collection').prepend(element);

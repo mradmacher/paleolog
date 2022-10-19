@@ -11,6 +11,7 @@ describe 'Occurrences' do
   let(:sample) { Paleolog::Repo.save(Paleolog::Sample.new(name: 'some sample', section: section)) }
 
   let(:group1) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Dinoflagellate')) }
+  let(:group2) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Other')) }
   let(:species11) { Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Odontochitina costata')) }
   let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
   let(:session) { {} }
@@ -67,14 +68,86 @@ describe 'Occurrences' do
   end
 
   describe 'GET /api/projects/:project_id/occurrences' do
-    it 'needs to be written' do
-      fail 'write me'
+    it 'requires user participating in the project' do
+      params = { sample_id: sample.id, counting_id: counting.id }
+      assert_requires_observer(-> { get "/api/projects/#{project.id}/occurrences", params }, project)
+    end
+
+    describe 'with user' do
+      before do
+        Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project))
+        Paleolog::Authorizer.new(session).login('test', 'test123')
+        env 'rack.session', session
+      end
+
+      it 'returns empty collection when there are no occurrences' do
+        params = { sample_id: sample.id, counting_id: counting.id }
+        get "/api/projects/#{project.id}/occurrences", params
+        assert last_response.ok?, "Expected 200, but got #{last_response.status}"
+        response_body = JSON.parse(last_response.body)
+        assert response_body['occurrences'].empty?
+
+        assert_equal 0, response_body['summary']['countable']
+        assert_equal 0, response_body['summary']['uncountable']
+        assert_equal 0, response_body['summary']['total']
+      end
+
+      it 'returns all necessary attributes' do
+        occurrence = Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species11, quantity: 1))
+        params = { sample_id: sample.id, counting_id: counting.id }
+        get "/api/projects/#{project.id}/occurrences", params
+        result = JSON.parse(last_response.body)['occurrences']
+        assert 1, result.size
+        result = result.first
+        assert_equal occurrence.id, result['id']
+        assert_equal species11.name, result['species_name']
+        assert_equal species11.group.name, result['group_name']
+        assert_equal occurrence.quantity, result['quantity']
+        assert_equal occurrence.status, result['status']
+        assert_equal occurrence.uncertain, result['uncertain']
+      end
+
+      it 'does not return occurrences for other sample' do
+        other_sample = Paleolog::Repo.save(Paleolog::Sample.new(name: 'other sample', section: section))
+        Paleolog::Repo.save(Paleolog::Occurrence.new(sample: other_sample, counting: counting, species: species11))
+        params = { sample_id: sample.id, counting_id: counting.id }
+        get "/api/projects/#{project.id}/occurrences", params
+        result = JSON.parse(last_response.body)['occurrences']
+        assert 0, result.size
+      end
+
+      it 'does not return occurrences for other counting' do
+        other_counting = Paleolog::Repo.save(Paleolog::Counting.new(name: 'other counting', project: project))
+        Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: other_counting, species: species11))
+        params = { sample_id: sample.id, counting_id: counting.id }
+        get "/api/projects/#{project.id}/occurrences", params
+        result = JSON.parse(last_response.body)['occurrences']
+        assert 0, result.size
+      end
+
+      it 'returns all occurrences for given sample and counting in right order' do
+        species1 = Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Species 1'))
+        species2 = Paleolog::Repo.save(Paleolog::Species.new(group: group2, name: 'Species 2'))
+        species3 = Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Species 3'))
+        Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species1, rank: 3))
+        Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species2, rank: 1))
+        Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species3, rank: 2))
+
+
+        params = { sample_id: sample.id, counting_id: counting.id }
+        get "/api/projects/#{project.id}/occurrences", params
+        result = JSON.parse(last_response.body)['occurrences']
+        assert 3, result.size
+        assert_equal 'Species 2', result[0]['species_name']
+        assert_equal 'Species 3', result[1]['species_name']
+        assert_equal 'Species 1', result[2]['species_name']
+      end
     end
   end
 
   describe 'POST /api/projects/:project_id/occurrences' do
     it 'requires user participating in the project as manager' do
-      params = {  sample_id: sample.id, species_id: species11.id, counting_id: counting.id }
+      params = { sample_id: sample.id, species_id: species11.id, counting_id: counting.id }
       assert_requires_manager(-> { post "/api/projects/#{project.id}/occurrences", params }, project)
     end
 

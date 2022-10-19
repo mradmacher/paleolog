@@ -20,12 +20,12 @@ module Web
                                                                                             params[:project_id].to_i,)
 
       @project = Paleolog::Repo::Project.find(params[:project_id].to_i)
-      @section = Paleolog::Repo::Section.find_for_project(params[:section].to_i, @project.id) if params[:section]
-      @sample = Paleolog::Repo::Sample.find_for_section(params[:sample].to_i, @section.id) if params[:sample]
       if params[:counting]
         @counting = Paleolog::Repo::Counting.find_for_project(params[:counting].to_i,
                                                               @project.id,)
       end
+      @section = Paleolog::Repo::Section.find_for_project(params[:section].to_i, @project.id) if params[:section]
+      @sample = Paleolog::Repo::Sample.find_for_section(params[:sample].to_i, @section.id) if @section && params[:sample]
       if @section.nil? || @counting.nil? || @sample.nil?
         redirect occurrences_path(@project,
                                   counting: @counting || @project.countings.first,

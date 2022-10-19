@@ -14,11 +14,11 @@ module Web
       end
 
       get '/api/projects/:project_id/occurrences' do
-        halt 422 unless params[:section_id] && params[:sample_id] && params[:counting_id]
+        halt 403 unless Paleolog::Repo::ResearchParticipation.can_view_project?(session[:user_id], params[:project_id])
+        halt 422 unless params[:sample_id] && params[:counting_id]
 
         project = Paleolog::Repo::Project.find(params[:project_id].to_i)
-        section = Paleolog::Repo::Section.find_for_project(params[:section_id].to_i, project.id)
-        sample = Paleolog::Repo::Sample.find_for_section(params[:sample_id].to_i, section.id)
+        sample = Paleolog::Repo::Sample.find_for_project(params[:sample_id].to_i, project.id)
         counting = Paleolog::Repo::Counting.find_for_project(params[:counting_id].to_i, project.id)
 
         occurrences =
