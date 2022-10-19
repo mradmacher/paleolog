@@ -22,8 +22,12 @@ module Web
       authorizer.logged_in?
     end
 
-    def authorize!
+    def authorize_api!
       halt UNAUTHORIZED unless logged_in?
+    end
+
+    def authorize!
+      redirect '/' unless logged_in?
     end
   end
 end
