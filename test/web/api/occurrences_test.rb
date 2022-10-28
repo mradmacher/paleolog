@@ -254,15 +254,17 @@ describe 'Occurrences' do
         other_counting = Paleolog::Repo.save(Paleolog::Counting.new(name: 'some other counting', project: project))
         other_sample = Paleolog::Repo.save(Paleolog::Sample.new(name: 'some other sample', section: section))
         other_species = Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Other costata'))
-        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { shift: '1' }
+        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", {
+          counting_id: other_counting.id,
+          sample_id: other_sample.id,
+          species_id: other_species.id,
+          shift: '1',
+        }
         assert last_response.ok?
         updated_occurrence = Paleolog::Repo.find(Paleolog::Occurrence, occurrence.id)
         assert occurrence.sample_id == updated_occurrence.sample_id
-        assert occurrence.sample_id != other_sample.id
         assert occurrence.counting_id == updated_occurrence.counting_id
-        assert occurrence.counting_id != other_counting.id
         assert occurrence.species_id == updated_occurrence.species_id
-        assert occurrence.species_id != other_species.id
       end
 
       it 'is 404 when occurrence does not exist' do

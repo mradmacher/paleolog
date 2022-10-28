@@ -53,22 +53,6 @@ module Paleolog
       required(:name).value(Contract::Types::StrippedString, :filled?, max_size?: 255)
       optional(:weight).maybe(:decimal, gt?: 0)
     end
-
-    OccurrenceSchema = Dry::Schema.Params do
-      required(:counting_id).filled(:integer)
-      required(:sample_id).filled(:integer)
-      required(:species_id).filled(:integer)
-      required(:rank).filled(:integer)
-      required(:status).filled(
-        :integer,
-        included_in?: [
-          Paleolog::CountingSummary::NORMAL,
-          Paleolog::CountingSummary::OUTSIDE_COUNT,
-          Paleolog::CountingSummary::CARVING,
-          Paleolog::CountingSummary::REWORKING
-        ],
-      )
-    end
   end
 end
 
@@ -78,5 +62,4 @@ require 'paleolog/contract/species'
 require 'paleolog/contract/choice'
 require 'paleolog/contract/section'
 require 'paleolog/contract/sample'
-require 'paleolog/contract/occurrence'
 require 'paleolog/contract/density'

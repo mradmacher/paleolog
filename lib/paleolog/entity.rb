@@ -1,15 +1,3 @@
-# frozen_string_literal: true
-
-class None
-  def self.defined?
-    false
-  end
-
-  def self.nil?
-    true
-  end
-end
-
 module Paleolog
   module Entity
     def self.included(base)
@@ -87,7 +75,7 @@ module Paleolog
     end
 
     def defined_attributes
-      @defined_attributes ||= {}.tap do |h|
+      {}.tap do |h|
         self.class.available_attributes.each do |attr|
           value = instance_variable_get("@#{attr}")
           h[attr.to_sym] = value unless value == None
