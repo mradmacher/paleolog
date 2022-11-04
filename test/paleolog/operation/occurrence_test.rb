@@ -40,15 +40,15 @@ describe Paleolog::Operation::Occurrence do
     it 'assigns normal status' do
       result = operation.create(sample_id: sample.id, species_id: species.id, counting_id: counting.id)
       assert result.success?
-      assert_equal Paleolog::CountingSummary::NORMAL, result.value.status
+      assert_equal Paleolog::Occurrence::NORMAL, result.value.status
     end
 
     it 'requires counting, sample and species id' do
       result = operation.create(counting_id: nil, species_id: nil, sample_id: nil)
       assert result.failure?
-      assert(result.error[:counting_id].include?('must be filled'))
-      assert(result.error[:sample_id].include?('must be filled'))
-      assert(result.error[:species_id].include?('must be filled'))
+      assert_equal :blank, result.error[:counting_id]
+      assert_equal :blank, result.error[:sample_id]
+      assert_equal :blank, result.error[:species_id]
     end
 
     it 'ensures counting and sample are from same project' do
@@ -74,12 +74,7 @@ describe Paleolog::Operation::Occurrence do
     let(:occurrence) { operation.create(sample_id: sample.id, species_id: species.id, counting_id: counting.id).value }
 
     it 'accepts valid statuses' do
-      [
-        Paleolog::CountingSummary::NORMAL,
-        Paleolog::CountingSummary::OUTSIDE_COUNT,
-        Paleolog::CountingSummary::CARVING,
-        Paleolog::CountingSummary::REWORKING
-      ].each do |value|
+      Paleolog::Occurrence::STATUSES.each do |value|
         result = operation.update(occurrence.id, status: value)
         assert result.success?
         assert_equal value, result.value.status
@@ -90,7 +85,7 @@ describe Paleolog::Operation::Occurrence do
       [-100, -1, 4, 5, 100].each do |value|
         result = operation.update(occurrence.id, status: value)
         assert result.failure?
-        assert result.error[:status].include?('must be one of: 0, 1, 2, 3')
+        assert :not_included, result.error[:status]
       end
     end
 
@@ -133,7 +128,7 @@ describe Paleolog::Operation::Occurrence do
     it 'rejects negative quantity' do
       result = operation.update(occurrence.id, quantity: -1)
       assert result.failure?
-      assert result.error[:quantity].include?('must be greater than or equal to 0')
+      assert_equal :gte, result.error[:quantity]
     end
 
     it 'accepts integer quantity passed as string' do
@@ -145,13 +140,13 @@ describe Paleolog::Operation::Occurrence do
     it 'rejects string quantity' do
       result = operation.update(occurrence.id, quantity: 'five')
       assert result.failure?
-      assert result.error[:quantity].include?('must be an integer')
+      assert_equal :noninteger, result.error[:quantity]
     end
 
     it 'rejects double quantity' do
       result = operation.update(occurrence.id, quantity: '1.1')
       assert result.failure?
-      assert result.error[:quantity].include?('must be an integer')
+      assert_equal :noninteger, result.error[:quantity]
     end
   end
 

@@ -1,40 +1,35 @@
 # frozen_string_literal: true
 
+require 'paleolog/utils'
+
 module Paleolog
   module Operation
     class Occurrence
-      CreateParams = Dry::Schema.Params do
-        required(:counting_id).filled(:integer)
-        required(:sample_id).filled(:integer)
-        required(:species_id).filled(:integer)
-      end
-
-      UpdateParams = Dry::Schema.Params do
-        optional(:quantity).maybe(:integer, gteq?: 0)
-        optional(:status).filled(
-          :integer,
-          included_in?: [
-            Paleolog::CountingSummary::NORMAL,
-            Paleolog::CountingSummary::OUTSIDE_COUNT,
-            Paleolog::CountingSummary::CARVING,
-            Paleolog::CountingSummary::REWORKING
-          ],
-        )
-        optional(:uncertain).filled(:bool)
-      end
-
       class << self
+        include Validations
+
+        CreateRules = Validate.(
+          counting_id: Required.(AnyOf.([NotBlank, IsInteger.(Gt.(0))])),
+          sample_id: Required.(AnyOf.([NotBlank, IsInteger.(Gt.(0))])),
+          species_id: Required.(AnyOf.([NotBlank, IsInteger.(Gt.(0))])),
+        )
+
+        UpdateRules = Validate.(
+          quantity: Optional.(NilOr.(IsInteger.(Gte.(0)))),
+          status: Optional.((IsInteger.(IncludedIn.(Paleolog::Occurrence::STATUSES)))),
+          uncertain: Optional.(IsBool),
+        )
+
         def create(counting_id:, sample_id:, species_id:)
-          params = {
+          result = CreateRules.(
             species_id: species_id,
             counting_id: counting_id,
             sample_id: sample_id,
-          }
+          )
+          return result if result.failure?
 
-          errors = CreateParams.call(params).errors
-          return Failure.new(errors.to_h) if errors.any?
-
-          params[:rank] =
+          attrs = result.value
+          attrs[:rank] =
             if counting_id && sample_id
               Paleolog::Repo::Occurrence
                 .all_for_sample(counting_id, sample_id)
@@ -42,26 +37,24 @@ module Paleolog
             else
               0
             end + 1
-          params[:status] = Paleolog::CountingSummary::NORMAL
+          attrs[:status] = Paleolog::Occurrence::NORMAL
 
           if Paleolog::Repo::Occurrence.species_exists_within_counting_and_sample?(species_id, counting_id, sample_id)
             return Failure.new({ species_id: ['is already taken'] })
           end
 
-          Success.new(Paleolog::Repo::Occurrence.create(params))
+          Success.new(Paleolog::Repo::Occurrence.create(attrs))
         end
 
-        def update(occurrence_id, status: None, uncertain: None, quantity: None)
-          params = {}
+        def update(occurrence_id, status: Option.None, uncertain: Option.None, quantity: Option.None)
+          result = UpdateRules.(
+            status: status,
+            uncertain: uncertain,
+            quantity: quantity,
+          )
+          return result if result.failure?
 
-          params[:status] = status unless status == None
-          params[:uncertain] = uncertain unless uncertain == None
-          params[:quantity] = quantity unless quantity == None
-
-          errors = UpdateParams.call(params).errors
-          return Failure.new(errors.to_h) if errors.any?
-
-          Success.new(Paleolog::Repo::Occurrence.update(occurrence_id, params))
+          Success.new(Paleolog::Repo::Occurrence.update(occurrence_id, result.value))
         end
       end
     end
