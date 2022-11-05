@@ -55,6 +55,14 @@ class Failure < Result
   def failure?
     true
   end
+
+  def error
+    @value
+  end
+
+  def value
+    raise 'value does not exist for failure'
+  end
 end
 
 module Validations
@@ -140,6 +148,15 @@ module Validations
     fn.(Option.Some(result))
   }.curry
 
+  IsDecimal = -> fn, v {
+    result = begin
+      Float(v.value)
+    rescue
+      return Failure.new(:nondecimal)
+    end
+    fn.(Option.Some(result))
+  }.curry
+
   IsBool = -> v {
     case v
     in Option::Some
@@ -152,4 +169,16 @@ module Validations
       end
     end
   }
+
+  MaxSize = -> limit, v {
+    v.value.size <= limit ? Success.new(v) : Failure.new(:too_long)
+  }.curry
+
+  Stripped = -> v {
+    Success.new(Option.Some(v.value.strip))
+  }
+
+  IsString = -> f, v {
+    f.(Option.Some(v.value.to_s))
+  }.curry
 end

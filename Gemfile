@@ -3,7 +3,6 @@
 source 'https://rubygems.org'
 
 gem 'bcrypt'
-gem 'dry-validation'
 gem 'pg'
 gem 'pdfkit'
 gem 'puma'
@@ -30,8 +29,4 @@ group :test do
   gem 'minitest-rg'
   gem 'rack-test'
   gem 'selenium-webdriver'
-end
-
-group :production do
-  # gem 'puma'
 end

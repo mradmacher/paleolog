@@ -3,7 +3,6 @@
 require 'paleolog/entity'
 require 'paleolog/entities'
 require 'paleolog/authorizer'
-require 'paleolog/contract'
 require 'paleolog/repo'
 require 'paleolog/counting_summary'
 require 'paleolog/density_info'
