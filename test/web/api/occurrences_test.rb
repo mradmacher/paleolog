@@ -174,7 +174,7 @@ describe 'Occurrences' do
         post "/api/projects/#{project.id}/occurrences", params
         assert_equal 400, last_response.status
         response_body = JSON.parse(last_response.body)
-        assert_equal ['must be filled'], response_body['sample_id']
+        assert_equal 'blank', response_body['sample_id']
       end
 
       it 'ensures counting is from project' do
@@ -185,7 +185,7 @@ describe 'Occurrences' do
         post "/api/projects/#{project.id}/occurrences", params
         assert_equal 400, last_response.status
         response_body = JSON.parse(last_response.body)
-        assert_equal ['must be filled'], response_body['counting_id']
+        assert_equal 'blank', response_body['counting_id']
       end
 
       it 'validates created occurrence' do
@@ -194,7 +194,7 @@ describe 'Occurrences' do
         assert_equal 400, last_response.status
         response_body = JSON.parse(last_response.body)
         assert_equal %w[counting_id sample_id species_id], response_body.keys
-        assert_equal [['must be filled'], ['must be filled'], ['must be filled']], response_body.values
+        assert_equal ['blank', 'blank', 'blank'], response_body.values
       end
     end
   end
@@ -315,7 +315,7 @@ describe 'Occurrences' do
       it 'sets status' do
         occurrence = Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting,
                                                                   species: species11, quantity: 1,))
-        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { status: Paleolog::CountingSummary::CARVING }
+        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { status: Paleolog::Occurrence::CARVING }
         assert last_response.ok?
         result = JSON.parse(last_response.body)
         assert_equal 0, result['summary']['countable']
@@ -323,10 +323,10 @@ describe 'Occurrences' do
         assert_equal 1, result['summary']['total']
         assert_equal occurrence.id, result['occurrence']['id']
         assert_equal 1, result['occurrence']['quantity']
-        assert_equal Paleolog::CountingSummary::CARVING, result['occurrence']['status']
+        assert_equal Paleolog::Occurrence::CARVING, result['occurrence']['status']
         assert_equal 'c', result['occurrence']['status_symbol']
 
-        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { status: Paleolog::CountingSummary::NORMAL }
+        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { status: Paleolog::Occurrence::NORMAL }
         assert last_response.ok?
         result = JSON.parse(last_response.body)
         assert_equal 1, result['summary']['countable']
@@ -334,7 +334,7 @@ describe 'Occurrences' do
         assert_equal 1, result['summary']['total']
         assert_equal occurrence.id, result['occurrence']['id']
         assert_equal 1, result['occurrence']['quantity']
-        assert_equal Paleolog::CountingSummary::NORMAL, result['occurrence']['status']
+        assert_equal Paleolog::Occurrence::NORMAL, result['occurrence']['status']
         assert_equal '', result['occurrence']['status_symbol']
       end
 

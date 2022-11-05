@@ -2,16 +2,6 @@
 
 require 'singleton'
 
-class None
-  def self.defined?
-    false
-  end
-
-  def self.nil?
-    true
-  end
-end
-
 module Option
   class Some
     attr_reader :value
@@ -22,6 +12,10 @@ module Option
 
   class None
     include Singleton
+
+    def nil?
+      true
+    end
   end
 
   def self.Some(value)

@@ -78,7 +78,7 @@ module Paleolog
       {}.tap do |h|
         self.class.available_attributes.each do |attr|
           value = instance_variable_get("@#{attr}")
-          h[attr.to_sym] = value unless value == None
+          h[attr.to_sym] = value unless value.is_a?(Option::None)
         end
       end
     end
@@ -87,7 +87,7 @@ module Paleolog
 
     def assign_values(args)
       self.class.available_attributes.each do |attr|
-        instance_variable_set("@#{attr}", args.key?(attr) ? args[attr] : None)
+        instance_variable_set("@#{attr}", args.key?(attr) ? args[attr] : Option.None)
       end
     end
 
@@ -96,7 +96,7 @@ module Paleolog
         if args.key?(attr)
           send("#{attr}=", args[attr])
         else
-          instance_variable_set("@#{attr}", None)
+          instance_variable_set("@#{attr}", Option.None)
         end
       end
     end

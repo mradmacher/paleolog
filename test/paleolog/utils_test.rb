@@ -2,17 +2,12 @@
 
 require 'test_helper'
 
-class ValidationTest
-  extend Validations
-end
-
 describe Validations do
-  include Validations
-  rules = Validations.validate.(
-    counting_id: Validations.required.([Validations.integer)]),
-    species_id: Validations.optional.([Validations.integer([Validations.gt(0)])]),
-    quantity: Validations.optional.([Validations.nil_or_integer([Validations.gte(0)])]),
-    admin: Validations.required.([Validations.bool]),
+  rules = Validations::Validate.(
+    counting_id: Validations::Required.(Validations::IsInteger.(Validations::Any)),
+    species_id: Validations::Optional.(Validations::IsInteger.(Validations::Gt.(0))),
+    quantity: Validations::Optional.(Validations::NilOr.(Validations::IsInteger.(Validations::Gte.(0)))),
+    admin: Validations::Required.(Validations::IsBool),
   )
   result = rules.(counting_id: '10', species_id: '1', quantity: nil, admin: 't')
   p result
