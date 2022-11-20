@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
-require 'paleolog/utils'
+require 'param_param'
 
 module Paleolog
   module Operation
     class Sample
       class << self
-        include Validations
+        include ParamParam
 
-        CreateParams = Validate.(
-          name: Required.(IsString.(AnyOf.([Stripped, NotBlank, MaxSize.(255)]))),
+        CreateParams = Rules.(
+          name: Required.(IsString.(AllOf.([Stripped, NotBlank, MaxSize.(255)]))),
           section_id: Required.(IsInteger.(Gt.(0))),
           weight: Optional.(IsDecimal.(Gt.(0.0))),
         )
 
-        UpdateParams = Validate.(
+        UpdateParams = Rules.(
           rank: Optional.(IsInteger.(Any)),
         )
 

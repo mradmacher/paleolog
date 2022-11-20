@@ -46,9 +46,9 @@ describe Paleolog::Operation::Occurrence do
     it 'requires counting, sample and species id' do
       result = operation.create(counting_id: nil, species_id: nil, sample_id: nil)
       assert result.failure?
-      assert_equal :blank, result.error[:counting_id]
-      assert_equal :blank, result.error[:sample_id]
-      assert_equal :blank, result.error[:species_id]
+      assert_equal ParamParam::NON_INTEGER, result.error[:counting_id]
+      assert_equal ParamParam::NON_INTEGER, result.error[:sample_id]
+      assert_equal ParamParam::NON_INTEGER, result.error[:species_id]
     end
 
     it 'ensures counting and sample are from same project' do
@@ -58,7 +58,7 @@ describe Paleolog::Operation::Occurrence do
       )
       result = operation.create(sample_id: sample.id, species_id: species.id, counting_id: other_counting.id)
       assert result.failure?
-      assert(result.error[:counting_id].include?('must be filled'))
+      fail 'decide on result.error value'
     end
 
     it 'does not allow same species within a counting and sample' do
@@ -66,7 +66,7 @@ describe Paleolog::Operation::Occurrence do
       assert result.success?
       result = operation.create(sample_id: sample.id, species_id: species.id, counting_id: counting.id)
       assert result.failure?
-      assert(result.error[:species_id].include?('is already taken'))
+      assert_equal :taken, result.error[:species_id]
     end
   end
 
@@ -85,7 +85,7 @@ describe Paleolog::Operation::Occurrence do
       [-100, -1, 4, 5, 100].each do |value|
         result = operation.update(occurrence.id, status: value)
         assert result.failure?
-        assert :not_included, result.error[:status]
+        assert ParamParam::NOT_INCLUDED, result.error[:status]
       end
     end
 
@@ -128,7 +128,7 @@ describe Paleolog::Operation::Occurrence do
     it 'rejects negative quantity' do
       result = operation.update(occurrence.id, quantity: -1)
       assert result.failure?
-      assert_equal :gte, result.error[:quantity]
+      assert_equal ParamParam::NOT_GTE, result.error[:quantity]
     end
 
     it 'accepts integer quantity passed as string' do
@@ -140,13 +140,13 @@ describe Paleolog::Operation::Occurrence do
     it 'rejects string quantity' do
       result = operation.update(occurrence.id, quantity: 'five')
       assert result.failure?
-      assert_equal :noninteger, result.error[:quantity]
+      assert_equal ParamParam::NON_INTEGER, result.error[:quantity]
     end
 
     it 'rejects double quantity' do
       result = operation.update(occurrence.id, quantity: '1.1')
       assert result.failure?
-      assert_equal :noninteger, result.error[:quantity]
+      assert_equal ParamParam::NON_INTEGER, result.error[:quantity]
     end
   end
 

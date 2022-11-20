@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
-require 'paleolog/utils'
+require 'param_param'
 
 module Paleolog
   module Operation
     class Project
       class << self
-        include Validations
+        include ParamParam
 
-        ProjectParams = Validate.(
-          name: Required.(IsString.(AnyOf.([Stripped, NotBlank, MaxSize.(255)])))
+        ProjectRules = Rules.(
+          name: Required.(IsString.(AllOf.([Stripped, NotBlank, MaxSize.(255)])))
         )
 
         def create(name:)
-          result = ProjectParams.(name: name)
+          result = ProjectRules.(name: name)
           return result if result.failure?
 
           if Paleolog::Repo::Project.name_exists?(result.value[:name])

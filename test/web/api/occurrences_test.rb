@@ -174,7 +174,7 @@ describe 'Occurrences' do
         post "/api/projects/#{project.id}/occurrences", params
         assert_equal 400, last_response.status
         response_body = JSON.parse(last_response.body)
-        assert_equal 'blank', response_body['sample_id']
+        assert_equal 'non_integer', response_body['sample_id']
       end
 
       it 'ensures counting is from project' do
@@ -185,7 +185,7 @@ describe 'Occurrences' do
         post "/api/projects/#{project.id}/occurrences", params
         assert_equal 400, last_response.status
         response_body = JSON.parse(last_response.body)
-        assert_equal 'blank', response_body['counting_id']
+        assert_equal 'non_integer', response_body['counting_id']
       end
 
       it 'validates created occurrence' do
@@ -194,7 +194,7 @@ describe 'Occurrences' do
         assert_equal 400, last_response.status
         response_body = JSON.parse(last_response.body)
         assert_equal %w[counting_id sample_id species_id], response_body.keys
-        assert_equal ['blank', 'blank', 'blank'], response_body.values
+        assert_equal ['non_integer', 'non_integer', 'non_integer'], response_body.values
       end
     end
   end

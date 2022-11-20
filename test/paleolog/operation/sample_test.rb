@@ -25,11 +25,11 @@ describe Paleolog::Operation::Sample do
     it 'complains when section_id blank' do
       result = operation.create(name: 'Name', section_id: nil)
       assert result.failure?
-      assert_equal :noninteger, result.error[:section_id]
+      assert_equal ParamParam::NON_INTEGER, result.error[:section_id]
 
-      result = operation.create(name: 'Name', section_id: Option.None)
+      result = operation.create(name: 'Name', section_id: ParamParam::Option.None)
       assert result.failure?
-      assert_equal :missing, result.error[:section_id]
+      assert_equal ParamParam::MISSING, result.error[:section_id]
     end
 
     it 'complains when name is blank' do
@@ -55,7 +55,7 @@ describe Paleolog::Operation::Sample do
       max = 255
       result = operation.create(name: 'a' * (max + 1), section_id: section.id)
       assert result.failure?
-      assert_equal :too_long, result.error[:name]
+      assert_equal ParamParam::TOO_LONG, result.error[:name]
 
       result = operation.create(name: 'a' * max, section_id: section.id)
       assert result.success?
@@ -74,40 +74,40 @@ describe Paleolog::Operation::Sample do
       ['  ', 'a', '#', '34a', 'a34'].each do |value|
         result = operation.create(name: 'Name', section_id: section.id, weight: value)
         assert result.failure?
-        assert :nondecimal, result.error[:weight]
+        assert_equal ParamParam::NON_DECIMAL, result.error[:weight]
       end
     end
 
     it 'accepts weight passed as string' do
       result = operation.create(name: 'Name', section_id: section.id, weight: '1.3')
       assert result.success?
-      assert 1.3, result.value.weight
+      assert_equal 1.3, result.value.weight
     end
 
     it 'accepts weight passed as decimal' do
       result = operation.create(name: 'Name', section_id: section.id, weight: 1.3)
       assert result.success?
-      assert 1.3, result.value.weight
+      assert_equal 1.3, result.value.weight
     end
 
     it 'accepts weight passed as integer' do
       result = operation.create(name: 'Name', section_id: section.id, weight: 13)
       assert result.success?
-      assert 13.0, result.value.weight
+      assert_equal 13.0, result.value.weight
     end
 
     it 'requires weight greater than 0 when present' do
       result = operation.create(name: 'Name', section_id: section.id, weight: 0)
       assert result.failure?
-      assert :gt, result.error[:weight]
+      assert ParamParam::NOT_GT, result.error[:weight]
 
       result = operation.create(name: 'Name', section_id: section.id, weight: 0.0)
       assert result.failure?
-      assert :gt, result.error[:weight]
+      assert ParamParam::NOT_GT, result.error[:weight]
 
       result = operation.create(name: 'Name', section_id: section.id, weight: -0.1)
       assert result.failure?
-      assert :gt, result.error[:weight]
+      assert ParamParam::NOT_GT, result.error[:weight]
 
       result = operation.create(name: 'Name', section_id: section.id, weight: 0.0001)
       assert result.success?

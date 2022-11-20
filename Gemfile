@@ -10,6 +10,7 @@ gem 'rake'
 gem 'RedCloth'
 gem 'sequel'
 gem 'sinatra'
+gem 'param-param', git: 'git@github.com:mradmacher/param-param.git' # tag: 'v0.1.0'
 
 group :development do
   gem 'sinatra-contrib'

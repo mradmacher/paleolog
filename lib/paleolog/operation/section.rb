@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require 'paleolog/utils'
+require 'param_param'
 
 module Paleolog
   module Operation
     class Section
       class << self
-        include Validations
+        include ParamParam
 
-        SectionParams = Validate.(
-          name: Required.(IsString.(AnyOf.([Stripped, NotBlank, MaxSize.(255)]))),
+        SectionParams = Rules.(
+          name: Required.(IsString.(AllOf.([Stripped, NotBlank, MaxSize.(255)]))),
           project_id: Required.(IsInteger.(Gt.(0)))
         )
 

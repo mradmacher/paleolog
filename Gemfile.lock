@@ -1,3 +1,9 @@
+GIT
+  remote: git@github.com:mradmacher/param-param.git
+  revision: be30d1cc2f07ed3296320d9ed35d6fe749e3d204
+  specs:
+    param-param (0.0.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -107,6 +113,7 @@ DEPENDENCIES
   minitest
   minitest-hooks
   minitest-rg
+  param-param!
   pdfkit
   pg
   puma

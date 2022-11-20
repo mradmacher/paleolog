@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require 'paleolog/utils'
+require 'param_param'
 
 module Paleolog
   class DensityInfo
-    include Validations
+    include ParamParam
 
-    Params = Validate.(
+    Params = Rules.(
       sample_weight: Required.(IsDecimal.(Gt.(0))),
       counted_group: Required.(Any),
       marker: Required.(Any),

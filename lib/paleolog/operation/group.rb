@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
-require 'paleolog/utils'
+require 'param_param'
 
 module Paleolog
   module Operation
     class Group
       class << self
-        include Validations
+        include ParamParam
 
-        GroupParams = Validate.(
-          name: Required.(IsString.(AnyOf.([Stripped, NotBlank, MaxSize.(255)])))
+        GroupRules = Rules.(
+          name: Required.(IsString.(AllOf.([Stripped, NotBlank, MaxSize.(255)])))
         )
 
         def create(name:)
-          result = GroupParams.(name: name)
+          result = GroupRules.(name: name)
           return result if result.failure?
 
           if Paleolog::Repo::Group.name_exists?(result.value[:name])

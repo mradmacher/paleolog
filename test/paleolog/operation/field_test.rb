@@ -23,11 +23,11 @@ describe Paleolog::Operation::Field do
     it 'complains when group_id blank' do
       result = operation.create(name: 'Name', group_id: nil)
       assert result.failure?
-      assert_equal :noninteger, result.error[:group_id]
+      assert_equal ParamParam::NON_INTEGER, result.error[:group_id]
 
-      result = operation.create(name: 'Name', group_id: Option.None)
+      result = operation.create(name: 'Name', group_id: ParamParam::Option.None)
       assert result.failure?
-      assert_equal :missing, result.error[:group_id]
+      assert_equal ParamParam::MISSING, result.error[:group_id]
     end
 
     it 'complains when name is blank' do
@@ -53,7 +53,7 @@ describe Paleolog::Operation::Field do
       max = 255
       result = operation.create(name: 'a' * (max + 1), group_id: group.id)
       assert result.failure?
-      assert_equal :too_long, result.error[:name]
+      assert_equal ParamParam::TOO_LONG, result.error[:name]
 
       result = operation.create(name: 'a' * max, group_id: group.id)
       assert result.success?

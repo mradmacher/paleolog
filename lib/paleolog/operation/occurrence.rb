@@ -1,23 +1,23 @@
 # frozen_string_literal: true
 
-require 'paleolog/utils'
+require 'param_param'
 
 module Paleolog
   module Operation
     class Occurrence
       class << self
-        include Validations
+        include ParamParam
 
-        CreateRules = Validate.(
-          counting_id: Required.(AnyOf.([NotBlank, IsInteger.(Gt.(0))])),
-          sample_id: Required.(AnyOf.([NotBlank, IsInteger.(Gt.(0))])),
-          species_id: Required.(AnyOf.([NotBlank, IsInteger.(Gt.(0))])),
+        CreateRules = Rules.(
+          counting_id: Required.(IsInteger.(Gt.(0))),
+          sample_id: Required.(IsInteger.(Gt.(0))),
+          species_id: Required.(IsInteger.(Gt.(0))),
         )
 
-        UpdateRules = Validate.(
-          quantity: Optional.(NilOr.(IsInteger.(Gte.(0)))),
+        UpdateRules = Rules.(
+          quantity: Optional.(BlankToNilOr.(IsInteger.(Gte.(0)))),
           status: Optional.((IsInteger.(IncludedIn.(Paleolog::Occurrence::STATUSES)))),
-          uncertain: Optional.(IsBool),
+          uncertain: Optional.(IsBool.(Any)),
         )
 
         def create(counting_id:, sample_id:, species_id:)
@@ -40,7 +40,7 @@ module Paleolog
           attrs[:status] = Paleolog::Occurrence::NORMAL
 
           if Paleolog::Repo::Occurrence.species_exists_within_counting_and_sample?(species_id, counting_id, sample_id)
-            return Failure.new({ species_id: ['is already taken'] })
+            return Failure.new({ species_id: :taken })
           end
 
           Success.new(Paleolog::Repo::Occurrence.create(attrs))
