@@ -1,27 +1,23 @@
 # frozen_string_literal: true
 
-require 'param_param'
-
 module Paleolog
   module Operation
     class Section
       class << self
-        include ParamParam
-
-        SectionParams = Rules.(
-          name: Required.(IsString.(AllOf.([Stripped, NotBlank, MaxSize.(255)]))),
-          project_id: Required.(IsInteger.(Gt.(0)))
+        SectionParams = Pp.define.(
+          name: Pp.required.(Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)]))),
+          project_id: Pp.required.(Pp.integer.(Pp.gt.(0)))
         )
 
         def create(name:, project_id:)
-          result = SectionParams.(name: name, project_id: project_id)
-          return result if result.failure?
+          params, errors = SectionParams.(name: name, project_id: project_id)
+          return Failure.new(errors) unless errors.empty?
 
-          if Paleolog::Repo::Section.name_exists_within_project?(result.value[:name], result.value[:project_id])
+          if Paleolog::Repo::Section.name_exists_within_project?(params[:name], params[:project_id])
             return Failure.new({ name: :taken })
           end
 
-          Success.new(Paleolog::Repo::Section.create(result.value))
+          Success.new(Paleolog::Repo::Section.create(params))
         end
       end
     end

@@ -1,17 +1,13 @@
 # frozen_string_literal: true
 
-require 'param_param'
-
 module Paleolog
   class DensityInfo
-    include ParamParam
-
-    Params = Rules.(
-      sample_weight: Required.(IsDecimal.(Gt.(0))),
-      counted_group: Required.(Any),
-      marker: Required.(Any),
-      marker_quantity: Required.(IsInteger.(Gt.(0))),
-      occurrences: Required.(Any),
+    Params = ParamParam.define.(
+      sample_weight: ParamParam.required.(ParamParam.decimal.(ParamParam.gt.(0))),
+      counted_group: ParamParam.required.(ParamParam.any),
+      marker: ParamParam.required.(ParamParam.any),
+      marker_quantity: ParamParam.required.(ParamParam.integer.(ParamParam.gt.(0))),
+      occurrences: ParamParam.required.(ParamParam.any),
     )
 
     attr_reader :counted_group,
@@ -81,13 +77,13 @@ module Paleolog
     private
 
     def can_compute_density?(params)
-      result = Params.(params)
+      params, errors = Params.(params)
 
-      return false if result.failure?
+      return false unless errors.empty?
 
       # must include marker
-      unless result.value[:occurrences].any? { |occurrence|
-        occurrence.species == result.value[:marker] && occurrence.quantity && occurrence.quantity.positive?
+      unless params[:occurrences].any? { |occurrence|
+        occurrence.species == params[:marker] && occurrence.quantity && occurrence.quantity.positive?
       }
         return false
       end

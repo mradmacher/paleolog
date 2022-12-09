@@ -1,27 +1,25 @@
 # frozen_string_literal: true
 
-require 'param_param'
-
 module Paleolog
   module Operation
     class Field
       class << self
-        include ParamParam
-
-        FieldRules = Rules.(
-          name: Required.(IsString.(AllOf.([Stripped, NotBlank, MaxSize.(255)]))),
-          group_id: Required.(IsInteger.(Gt.(0)))
+        FieldRules = Pp.define.(
+          name: Pp.required.(
+            Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)]))
+          ),
+          group_id: Pp.required.(Pp.integer.(Pp.gt.(0)))
         )
 
         def create(name:, group_id:)
-          result = FieldRules.(name: name, group_id: group_id)
-          return result if result.failure?
+          params, errors = FieldRules.(name: name, group_id: group_id)
+          return Failure.new(errors) unless errors.empty?
 
-          if Paleolog::Repo::Field.name_exists?(result.value[:name])
+          if Paleolog::Repo::Field.name_exists?(params[:name])
             return Failure.new({ name: :taken })
           end
 
-          Success.new(Paleolog::Repo::Field.create(result.value))
+          Success.new(Paleolog::Repo::Field.create(params))
         end
       end
     end
