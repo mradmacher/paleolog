@@ -18,21 +18,21 @@ describe 'Occurrences' do
     user = Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
 
     action.call
-    assert last_response.redirect?, 'Expected redirect when no user'
+    assert_predicate last_response, :redirect?, 'Expected redirect when no user'
 
     session = {}
     Paleolog::Authorizer.new(session).login('test', 'test123')
     env 'rack.session', session
     action.call
-    assert last_response.redirect?, 'Expected redirect when user not in project'
+    assert_predicate last_response, :redirect?, 'Expected redirect when user not in project'
 
     participation = Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project))
     action.call
-    assert last_response.ok?
+    assert_predicate last_response, :ok?
 
     Paleolog::Repo::ResearchParticipation.update(participation.id, manager: true)
     action.call
-    assert last_response.ok?
+    assert_predicate last_response, :ok?
   end
   # rubocop:enable Metrics/AbcSize
 
@@ -59,12 +59,12 @@ describe 'Occurrences' do
 
       it 'redirects if sections, sample and counting are missing' do
         get "/projects/#{project.id}/occurrences"
-        assert last_response.redirect?, "Expected 302 but got #{last_response.status}"
+        assert_predicate last_response, :redirect?, "Expected 302 but got #{last_response.status}"
       end
 
       it 'returns 200 if counting, section and sample provided' do
         get "/projects/#{project.id}/occurrences?counting=#{counting.id}&section=#{section.id}&sample=#{sample.id}"
-        assert last_response.ok?, "Expected 200, but got #{last_response.status}"
+        assert_predicate last_response, :ok?, "Expected 200, but got #{last_response.status}"
       end
     end
   end

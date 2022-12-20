@@ -33,12 +33,12 @@ describe Paleolog::Repo::Species do
 
       result = Paleolog::Repo.find(Paleolog::Species, species.id)
       refute_nil result.group
-      refute result.features.empty?
+      refute_empty result.features
 
       assert_equal 1, result.features.size
       refute_nil result.features.first.choice.field
       assert_equal field.name, result.features.first.choice.field.name
-      refute result.images.empty?
+      refute_empty result.images
       assert_equal 1, result.images.size
     end
   end
@@ -73,7 +73,7 @@ describe Paleolog::Repo::Species do
       Paleolog::Repo.save(Paleolog::Feature.new(species: species, choice: choice))
 
       result = repo.all_with_ids([species.id]).first
-      refute result.features.empty?
+      refute_empty result.features
 
       assert_equal 1, result.features.size
       refute_nil result.features.first.choice.field

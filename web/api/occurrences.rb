@@ -13,6 +13,7 @@ module Web
         authorize_api!
       end
 
+      # rubocop:disable Metrics/BlockLength
       get '/api/projects/:project_id/occurrences' do
         halt 403 unless Paleolog::Repo::ResearchParticipation.can_view_project?(session[:user_id], params[:project_id])
         halt 422 unless params[:sample_id] && params[:counting_id]
@@ -30,7 +31,7 @@ module Web
         counting_summary = Paleolog::CountingSummary.new(occurrences)
 
         {
-          occurrences: occurrences.map { |occurrence|
+          occurrences: occurrences.map do |occurrence|
             {
               id: occurrence.id,
               group_name: occurrence.species.group.name,
@@ -41,7 +42,7 @@ module Web
                 (occurrence.uncertain ? Paleolog::CountingSummary::UNCERTAIN_SYMBOL : ''),
               uncertain: occurrence.uncertain,
             }
-          },
+          end,
           summary: {
             countable: counting_summary.countable_sum,
             uncountable: counting_summary.uncountable_sum,
@@ -49,13 +50,15 @@ module Web
           },
         }.to_json
       end
+      # rubocop:enable Metrics/BlockLength
 
-      # rubocop:disable Metrics/BlockLength
       post '/api/projects/:project_id/occurrences' do
-        halt 403 unless Paleolog::Repo::ResearchParticipation.can_manage_project?(session[:user_id], params[:project_id])
+        halt 403 unless Paleolog::Repo::ResearchParticipation.can_manage_project?(session[:user_id],
+                                                                                  params[:project_id],)
 
         if params[:sample_id]
-          sample = Paleolog::Repo::Sample.find_for_project(params[:sample_id].to_i, params[:project_id])
+          sample = Paleolog::Repo::Sample.find_for_project(params[:sample_id].to_i,
+                                                           params[:project_id],)
         end
         counting = Paleolog::Repo::Counting.find_for_project(params[:counting_id].to_i, params[:project_id])
 
@@ -78,17 +81,16 @@ module Web
           },
         }.to_json
       end
-      # rubocop:enable Metrics/BlockLength
-
       delete '/api/projects/:project_id/occurrences/:id' do
-        halt 403 unless Paleolog::Repo::ResearchParticipation.can_manage_project?(session[:user_id], params[:project_id])
+        halt 403 unless Paleolog::Repo::ResearchParticipation.can_manage_project?(session[:user_id],
+                                                                                  params[:project_id],)
 
         occurrence = Paleolog::Repo::Occurrence.find_in_project(params[:id], params[:project_id])
         halt 404 if occurrence.nil?
 
         Paleolog::Repo::Occurrence.delete(occurrence.id)
         counting_summary = Paleolog::CountingSummary.new(
-          Paleolog::Repo::Occurrence.all_for_sample(occurrence.counting_id, occurrence.sample_id)
+          Paleolog::Repo::Occurrence.all_for_sample(occurrence.counting_id, occurrence.sample_id),
         )
         {
           summary: {
@@ -104,7 +106,8 @@ module Web
 
       # rubocop:disable Metrics/BlockLength
       patch '/api/projects/:project_id/occurrences/:id' do
-        halt 403 unless Paleolog::Repo::ResearchParticipation.can_manage_project?(session[:user_id], params[:project_id])
+        halt 403 unless Paleolog::Repo::ResearchParticipation.can_manage_project?(session[:user_id],
+                                                                                  params[:project_id],)
 
         occurrence = Paleolog::Repo::Occurrence.find_in_project(params[:id], params[:project_id])
         halt 404 if occurrence.nil?
@@ -121,7 +124,7 @@ module Web
 
         occurrence = result.value
         counting_summary = Paleolog::CountingSummary.new(
-          Paleolog::Repo::Occurrence.all_for_sample(occurrence.counting_id, occurrence.sample_id)
+          Paleolog::Repo::Occurrence.all_for_sample(occurrence.counting_id, occurrence.sample_id),
         )
         {
           summary: {

@@ -6,17 +6,15 @@ module Paleolog
       class << self
         ProjectRules = Pp.define.(
           name: Pp.required.(Pp.string.(
-            Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)])
-          )),
+                               Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)]),
+                             )),
         )
 
         def create(name:)
           params, errors = ProjectRules.(name: name)
           return Failure.new(errors) unless errors.empty?
 
-          if Paleolog::Repo::Project.name_exists?(params[:name])
-            return Failure.new({ name: :taken })
-          end
+          return Failure.new({ name: :taken }) if Paleolog::Repo::Project.name_exists?(params[:name])
 
           Success.new(Paleolog::Repo::Project.create(params))
         end

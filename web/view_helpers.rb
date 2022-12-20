@@ -7,27 +7,27 @@ module Web
     end
 
     def using_application_layout(&block)
-      erb :"application.html", layout: nil, &block
+      erb :'application.html', layout: nil, &block
     end
 
     def using_species_layout(&block)
-      erb :"species_layout.html", layout: :"application.html", &block
+      erb :'species_layout.html', layout: :'application.html', &block
     end
 
     def using_project_layout(&block)
-      erb :"project_layout.html", layout: :"application.html", &block
+      erb :'project_layout.html', layout: :'application.html', &block
     end
 
     def using_occurrences_layout(&block)
-      erb :"occurrence_layout.html", layout: nil, &block
+      erb :'occurrence_layout.html', layout: nil, &block
     end
 
     def using_reports_layout(&block)
-      erb :"report_layout.html", layout: nil, &block
+      erb :'report_layout.html', layout: nil, &block
     end
 
     def using_export_layout(&block)
-      erb :"export_layout.html", layout: nil, &block
+      erb :'export_layout.html', layout: nil, &block
     end
   end
 end

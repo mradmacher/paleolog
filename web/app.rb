@@ -46,7 +46,7 @@ class PaleologWeb < Sinatra::Base
   end
 
   get '/' do
-    erb :"home.html", layout: :"application.html"
+    erb :'home.html', layout: :'application.html'
   end
 
   get '*' do

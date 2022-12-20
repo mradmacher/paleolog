@@ -388,7 +388,7 @@ module Paleolog
     def concat_splits(report)
       @splits = []
       report.column_groups.each do |column_group|
-        @splits << (@splits.last || -1) + column_group.headers.size unless column_group.headers.empty?
+        @splits << ((@splits.last || -1) + column_group.headers.size) unless column_group.headers.empty?
       end
     end
 

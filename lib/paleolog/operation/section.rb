@@ -6,7 +6,7 @@ module Paleolog
       class << self
         SectionParams = Pp.define.(
           name: Pp.required.(Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)]))),
-          project_id: Pp.required.(Pp.integer.(Pp.gt.(0)))
+          project_id: Pp.required.(Pp.integer.(Pp.gt.(0))),
         )
 
         def create(name:, project_id:)
@@ -23,4 +23,3 @@ module Paleolog
     end
   end
 end
-

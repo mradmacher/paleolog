@@ -56,7 +56,7 @@ describe Paleolog::Repo::Section do
     end
 
     it 'loads samples' do
-      assert Paleolog::Repo.find(Paleolog::Section, @section.id).samples.empty?
+      assert_empty Paleolog::Repo.find(Paleolog::Section, @section.id).samples
 
       Paleolog::Repo.save(Paleolog::Sample.new(name: 'Sample1', section: @section))
       Paleolog::Repo.save(Paleolog::Sample.new(name: 'Sample2', section: @section))

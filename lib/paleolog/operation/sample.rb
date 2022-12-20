@@ -23,8 +23,8 @@ module Paleolog
           end
 
           max_rank = Paleolog::Repo::Sample
-            .all_for_section(section_id)
-            .max_by(&:rank)&.rank || 0
+                     .all_for_section(section_id)
+                     .max_by(&:rank)&.rank || 0
           params[:rank] = max_rank + 1
 
           Success.new(Paleolog::Repo::Sample.create(params))

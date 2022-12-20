@@ -22,7 +22,7 @@ describe Paleolog::Report do
     @species = []
     @groups.each_with_index do |group, i|
       @species[i] = []
-      4.times { |j| @species[i] << Paleolog::Species.new(id: i * 10 + j, group: group, name: "Species#{i}#{j}") }
+      4.times { |j| @species[i] << Paleolog::Species.new(id: (i * 10) + j, group: group, name: "Species#{i}#{j}") }
     end
 
     @occurrences = []
@@ -259,7 +259,7 @@ describe Paleolog::Report do
           perc_sum += @report.values[row][column].to_f
           assert_equal expected, @report.values[row][column]
         end
-        assert_equal 100.0, perc_sum.round(1)
+        assert_in_delta(100.0, perc_sum.round(1))
       end
     end
   end

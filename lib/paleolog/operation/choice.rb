@@ -6,7 +6,7 @@ module Paleolog
       class << self
         ChoiceRules = Pp.define.(
           name: Pp.required.(
-            Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)]))
+            Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)])),
           ),
           field_id: Pp.required.(Pp.integer.(Pp.gt.(0))),
         )

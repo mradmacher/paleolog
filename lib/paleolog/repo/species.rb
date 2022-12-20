@@ -81,6 +81,7 @@ module Paleolog
 
         private
 
+        # rubocop:disable Metrics/AbcSize
         def project_filter(query, project_id)
           query
             .where(Sequel[:sections][:project_id] => project_id)
@@ -96,6 +97,7 @@ module Paleolog
                 .select_all(:species),
             )
         end
+        # rubocop:enable Metrics/AbcSize
 
         def search_query(filters = {})
           query = ds
