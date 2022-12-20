@@ -21,10 +21,9 @@ module Paleolog
         # rubocop:enable Metrics/AbcSize
 
         # rubocop:disable Metrics/AbcSize
-        def all_for_sample(counting, sample)
-          # Entity.where(counting_id: counting.id, sample_id: sample.id).eager(:species).order { rank.desc }.to_a
-          result = ds.where(counting_id: counting.id, sample_id: sample.id).all
-          sample = Paleolog::Repo::Sample.find(sample.id)
+        def all_for_sample(counting_id, sample_id)
+          result = ds.where(counting_id: counting_id, sample_id: sample_id).all
+          sample = Paleolog::Repo::Sample.find(sample_id)
           species = Paleolog::Repo::Species.all_with_ids(result.map { |r| r[:species_id] })
           result.map do |r|
             Paleolog::Occurrence.new(**r) do |occurrence|

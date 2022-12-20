@@ -3,7 +3,6 @@
 source 'https://rubygems.org'
 
 gem 'bcrypt'
-gem 'dry-validation'
 gem 'pg'
 gem 'pdfkit'
 gem 'puma'
@@ -11,6 +10,7 @@ gem 'rake'
 gem 'RedCloth'
 gem 'sequel'
 gem 'sinatra'
+gem 'param-param', git: 'git@github.com:mradmacher/param-param.git', tag: 'v0.0.1'
 
 group :development do
   gem 'sinatra-contrib'
@@ -30,8 +30,4 @@ group :test do
   gem 'minitest-rg'
   gem 'rack-test'
   gem 'selenium-webdriver'
-end
-
-group :production do
-  # gem 'puma'
 end

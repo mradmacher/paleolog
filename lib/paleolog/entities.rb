@@ -169,6 +169,12 @@ module Paleolog
   class Occurrence
     include Entity
 
+    NORMAL = 0
+    OUTSIDE_COUNT = 1
+    CARVING = 2
+    REWORKING = 3
+    STATUSES = [NORMAL, OUTSIDE_COUNT, CARVING, REWORKING].freeze
+
     schema do
       attributes :id,
                  :species_id,

@@ -19,7 +19,7 @@ module Paleolog
       end
 
       def update(id, attributes)
-        ds.where(id: id).update(update_timestamps.merge(attributes))
+        ds.where(id: id).update(update_timestamps.merge(attributes)) unless attributes.empty?
         find(id)
       end
 
@@ -80,7 +80,7 @@ module Paleolog
     }.freeze
 
     def self.save(obj)
-      if obj.id.nil? || obj.id == None
+      if obj.id.nil? || obj.id.is_a?(Option::None)
         self.for(obj.class).create(obj.defined_attributes)
       else
         self.for(obj.class).update(obj.id, obj.defined_attributes)

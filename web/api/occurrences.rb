@@ -23,7 +23,7 @@ module Web
 
         occurrences =
           if counting && sample
-            Paleolog::Repo::Occurrence.all_for_sample(counting, sample)
+            Paleolog::Repo::Occurrence.all_for_sample(counting.id, sample.id)
           else
             []
           end
@@ -59,26 +59,14 @@ module Web
         end
         counting = Paleolog::Repo::Counting.find_for_project(params[:counting_id].to_i, params[:project_id])
 
-        max_rank =
-          if counting && sample
-            Paleolog::Repo::Occurrence
-              .all_for_sample(counting, sample)
-              .max_by(&:rank)&.rank || 0
-          else
-            0
-          end
-        occurrence = Paleolog::Occurrence.new(
-          species_id: params[:species_id],
+        result = Paleolog::Operation::Occurrence.create(
           counting_id: counting&.id,
           sample_id: sample&.id,
-          status: params[:status] || Paleolog::CountingSummary::NORMAL,
-          rank: max_rank + 1,
+          species_id: params[:species_id],
         )
-        contract = Paleolog::Contract::Occurrence.new(occurrence_repo: Paleolog::Repo::Occurrence)
-        validations = contract.call(occurrence.defined_attributes)
-        halt 400, validations.errors.to_h.to_json if validations.errors.any?
+        halt 400, result.error.to_json if result.failure?
 
-        occurrence = Paleolog::Repo.save(occurrence)
+        occurrence = result.value
         {
           occurrence: {
             id: occurrence.id,
@@ -100,10 +88,7 @@ module Web
 
         Paleolog::Repo::Occurrence.delete(occurrence.id)
         counting_summary = Paleolog::CountingSummary.new(
-          Paleolog::Repo::Occurrence.all_for_sample(
-            OpenStruct.new(id: occurrence.counting_id),
-            OpenStruct.new(id: occurrence.sample_id),
-          ),
+          Paleolog::Repo::Occurrence.all_for_sample(occurrence.counting_id, occurrence.sample_id)
         )
         {
           summary: {
@@ -131,12 +116,12 @@ module Web
         end
         attributes[:status] = params[:status] if params.key?(:status)
         attributes[:uncertain] = params[:uncertain] if params.key?(:uncertain)
-        occurrence = Paleolog::Repo::Occurrence.update(occurrence.id, attributes) unless attributes.empty?
+        result = Paleolog::Operation::Occurrence.update(occurrence.id, **attributes)
+        halt 400, result.error.to_json if result.failure?
+
+        occurrence = result.value
         counting_summary = Paleolog::CountingSummary.new(
-          Paleolog::Repo::Occurrence.all_for_sample(
-            OpenStruct.new(id: occurrence.counting_id),
-            OpenStruct.new(id: occurrence.sample_id),
-          ),
+          Paleolog::Repo::Occurrence.all_for_sample(occurrence.counting_id, occurrence.sample_id)
         )
         {
           summary: {

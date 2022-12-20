@@ -88,7 +88,7 @@ describe Paleolog::Repo::Occurrence do
         sample_id: other_sample.id,
       )
 
-      result = repo.all_for_sample(counting, sample)
+      result = repo.all_for_sample(counting.id, sample.id)
       assert_equal([occurrence1.id, occurrence4.id].sort, result.map(&:id).sort)
     end
 
@@ -99,7 +99,7 @@ describe Paleolog::Repo::Occurrence do
         counting_id: counting.id,
         sample_id: sample.id,
       )
-      result = repo.all_for_sample(counting, sample)
+      result = repo.all_for_sample(counting.id, sample.id)
       assert_equal(species.id, result.first.species.id)
     end
 
@@ -110,7 +110,7 @@ describe Paleolog::Repo::Occurrence do
         counting_id: counting.id,
         sample_id: sample.id,
       )
-      result = repo.all_for_sample(counting, sample)
+      result = repo.all_for_sample(counting.id, sample.id)
       assert_equal(sample.id, result.first.sample.id)
     end
   end

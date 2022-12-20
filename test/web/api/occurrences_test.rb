@@ -174,7 +174,7 @@ describe 'Occurrences' do
         post "/api/projects/#{project.id}/occurrences", params
         assert_equal 400, last_response.status
         response_body = JSON.parse(last_response.body)
-        assert_equal ['must be filled'], response_body['sample_id']
+        assert_equal 'non_integer', response_body['sample_id']
       end
 
       it 'ensures counting is from project' do
@@ -185,7 +185,7 @@ describe 'Occurrences' do
         post "/api/projects/#{project.id}/occurrences", params
         assert_equal 400, last_response.status
         response_body = JSON.parse(last_response.body)
-        assert_equal ['must be filled'], response_body['counting_id']
+        assert_equal 'non_integer', response_body['counting_id']
       end
 
       it 'validates created occurrence' do
@@ -194,7 +194,7 @@ describe 'Occurrences' do
         assert_equal 400, last_response.status
         response_body = JSON.parse(last_response.body)
         assert_equal %w[counting_id sample_id species_id], response_body.keys
-        assert_equal [['must be filled'], ['must be filled'], ['must be filled']], response_body.values
+        assert_equal ['non_integer', 'non_integer', 'non_integer'], response_body.values
       end
     end
   end
@@ -254,15 +254,17 @@ describe 'Occurrences' do
         other_counting = Paleolog::Repo.save(Paleolog::Counting.new(name: 'some other counting', project: project))
         other_sample = Paleolog::Repo.save(Paleolog::Sample.new(name: 'some other sample', section: section))
         other_species = Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Other costata'))
-        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { shift: '1' }
+        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", {
+          counting_id: other_counting.id,
+          sample_id: other_sample.id,
+          species_id: other_species.id,
+          shift: '1',
+        }
         assert last_response.ok?
         updated_occurrence = Paleolog::Repo.find(Paleolog::Occurrence, occurrence.id)
         assert occurrence.sample_id == updated_occurrence.sample_id
-        assert occurrence.sample_id != other_sample.id
         assert occurrence.counting_id == updated_occurrence.counting_id
-        assert occurrence.counting_id != other_counting.id
         assert occurrence.species_id == updated_occurrence.species_id
-        assert occurrence.species_id != other_species.id
       end
 
       it 'is 404 when occurrence does not exist' do
@@ -313,7 +315,7 @@ describe 'Occurrences' do
       it 'sets status' do
         occurrence = Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting,
                                                                   species: species11, quantity: 1,))
-        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { status: Paleolog::CountingSummary::CARVING }
+        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { status: Paleolog::Occurrence::CARVING }
         assert last_response.ok?
         result = JSON.parse(last_response.body)
         assert_equal 0, result['summary']['countable']
@@ -321,10 +323,10 @@ describe 'Occurrences' do
         assert_equal 1, result['summary']['total']
         assert_equal occurrence.id, result['occurrence']['id']
         assert_equal 1, result['occurrence']['quantity']
-        assert_equal Paleolog::CountingSummary::CARVING, result['occurrence']['status']
+        assert_equal Paleolog::Occurrence::CARVING, result['occurrence']['status']
         assert_equal 'c', result['occurrence']['status_symbol']
 
-        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { status: Paleolog::CountingSummary::NORMAL }
+        patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { status: Paleolog::Occurrence::NORMAL }
         assert last_response.ok?
         result = JSON.parse(last_response.body)
         assert_equal 1, result['summary']['countable']
@@ -332,7 +334,7 @@ describe 'Occurrences' do
         assert_equal 1, result['summary']['total']
         assert_equal occurrence.id, result['occurrence']['id']
         assert_equal 1, result['occurrence']['quantity']
-        assert_equal Paleolog::CountingSummary::NORMAL, result['occurrence']['status']
+        assert_equal Paleolog::Occurrence::NORMAL, result['occurrence']['status']
         assert_equal '', result['occurrence']['status_symbol']
       end
 

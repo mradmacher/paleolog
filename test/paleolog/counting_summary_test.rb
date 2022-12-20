@@ -42,7 +42,7 @@ describe Paleolog::CountingSummary do
           sample: @samples[value[0]],
           species: @species[value[2]][value[3]],
           rank: value[1],
-          status: ((value[2]).zero? ? Paleolog::CountingSummary::NORMAL : Paleolog::CountingSummary::OUTSIDE_COUNT),
+          status: ((value[2]).zero? ? Paleolog::Occurrence::NORMAL : Paleolog::Occurrence::OUTSIDE_COUNT),
         )
       end
     end

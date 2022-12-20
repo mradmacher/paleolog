@@ -2,6 +2,14 @@
 
 module Paleolog
   class DensityInfo
+    Params = ParamParam.define.(
+      sample_weight: ParamParam.required.(ParamParam.decimal.(ParamParam.gt.(0))),
+      counted_group: ParamParam.required.(ParamParam.any),
+      marker: ParamParam.required.(ParamParam.any),
+      marker_quantity: ParamParam.required.(ParamParam.integer.(ParamParam.gt.(0))),
+      occurrences: ParamParam.required.(ParamParam.any),
+    )
+
     attr_reader :counted_group,
                 :marker,
                 :marker_quantity
@@ -17,13 +25,13 @@ module Paleolog
     def group_density(occurrences, sample)
       sample_occurrences = occurrences.select { |occ| occ.sample == sample }
 
-      return nil unless Paleolog::Contract::Density.new.call(
+      return nil unless can_compute_density?(
         sample_weight: sample&.weight,
         marker_quantity: marker_quantity,
         marker: marker,
         counted_group: counted_group,
         occurrences: sample_occurrences,
-      ).errors.empty?
+      )
 
       counted_marker_quantity = sample_occurrences.select { |occ| occ.species == marker }.map(&:quantity).sum
 
@@ -45,13 +53,13 @@ module Paleolog
 
       samples.each do |sample|
         sample_occurrences = occurrences.select { |occ| occ.sample == sample }
-        next unless Paleolog::Contract::Density.new.call(
-          sample_weight: sample.weight,
+        next unless can_compute_density?(
+          sample_weight: sample&.weight,
           marker_quantity: marker_quantity,
           marker: marker,
           counted_group: counted_group,
           occurrences: sample_occurrences,
-        ).errors.empty?
+        )
 
         marker_cnt = sample_occurrences.select { |occ| occ.species == marker }.map(&:quantity).compact.sum
 
@@ -65,5 +73,22 @@ module Paleolog
     # rubocop:enable Metrics/CyclomaticComplexity
     # rubocop:enable Metrics/AbcSize
     # rubocop:enable Metrics/MethodLength
+
+    private
+
+    def can_compute_density?(params)
+      params, errors = Params.(params)
+
+      return false unless errors.empty?
+
+      # must include marker
+      unless params[:occurrences].any? { |occurrence|
+        occurrence.species == params[:marker] && occurrence.quantity && occurrence.quantity.positive?
+      }
+        return false
+      end
+      true
+    end
+
   end
 end
