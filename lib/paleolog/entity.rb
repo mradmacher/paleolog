@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paleolog
   module Entity
     def self.included(base)
@@ -109,7 +111,7 @@ module Paleolog
 
     def cmp_with(other)
       instance_of?(other.class) && (
-        !id.nil? && !other.id.nil? && id == other.id ||
+        (!id.nil? && !other.id.nil? && id == other.id) ||
         defined_attributes == other.defined_attributes
       )
     end

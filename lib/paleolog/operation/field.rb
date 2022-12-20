@@ -6,18 +6,16 @@ module Paleolog
       class << self
         FieldRules = Pp.define.(
           name: Pp.required.(
-            Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)]))
+            Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)])),
           ),
-          group_id: Pp.required.(Pp.integer.(Pp.gt.(0)))
+          group_id: Pp.required.(Pp.integer.(Pp.gt.(0))),
         )
 
         def create(name:, group_id:)
           params, errors = FieldRules.(name: name, group_id: group_id)
           return Failure.new(errors) unless errors.empty?
 
-          if Paleolog::Repo::Field.name_exists?(params[:name])
-            return Failure.new({ name: :taken })
-          end
+          return Failure.new({ name: :taken }) if Paleolog::Repo::Field.name_exists?(params[:name])
 
           Success.new(Paleolog::Repo::Field.create(params))
         end

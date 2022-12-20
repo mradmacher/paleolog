@@ -257,9 +257,9 @@ describe Paleolog::Repo::Occurrence do
 
         tested = repo.available_species_ids(@counting, other_sample, group)
         assert_equal 3, tested.size
-        assert tested.include? species1.id
-        assert tested.include? species2.id
-        assert tested.include? species3.id
+        assert_includes tested, species1.id
+        assert_includes tested, species2.id
+        assert_includes tested, species3.id
       end
     end
   end

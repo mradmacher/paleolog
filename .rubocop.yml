@@ -1,3 +1,8 @@
+require:
+  - rubocop-minitest
+  - rubocop-rake
+  - rubocop-sequel
+
 AllCops:
   NewCops: enable
 
@@ -15,4 +20,7 @@ Metrics/MethodLength:
   Max: 15
 
 Style/Documentation:
+  Enabled: false
+
+Style/LambdaCall:
   Enabled: false

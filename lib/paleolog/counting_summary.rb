@@ -8,7 +8,7 @@ module Paleolog
       Paleolog::Occurrence::NORMAL => '',
       Paleolog::Occurrence::OUTSIDE_COUNT => '+',
       Paleolog::Occurrence::CARVING => 'c',
-      Paleolog::Occurrence::REWORKING => 'r'
+      Paleolog::Occurrence::REWORKING => 'r',
     }.freeze
     UNCERTAIN_SYMBOL = '?'
 
@@ -17,11 +17,15 @@ module Paleolog
     end
 
     def countable_sum
-      occurrences.select { |occurrence| occurrence.status == Paleolog::Occurrence::NORMAL }.map { |occ| occ.quantity.to_i }.sum
+      occurrences
+        .select { |occ| occ.status == Paleolog::Occurrence::NORMAL }
+        .map { |occ| occ.quantity.to_i }.sum
     end
 
     def uncountable_sum
-      occurrences.reject { |occurrence| occurrence.status == Paleolog::Occurrence::NORMAL }.map { |occ| occ.quantity.to_i }.sum
+      occurrences
+        .reject { |occ| occ.status == Paleolog::Occurrence::NORMAL }
+        .map { |occ| occ.quantity.to_i }.sum
     end
 
     def total_sum

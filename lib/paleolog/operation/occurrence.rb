@@ -24,14 +24,7 @@ module Paleolog
           )
           return Failure.new(errors) unless errors.empty?
 
-          params[:rank] =
-            if counting_id && sample_id
-              Paleolog::Repo::Occurrence
-                .all_for_sample(counting_id, sample_id)
-                .max_by(&:rank)&.rank || 0
-            else
-              0
-            end + 1
+          params[:rank] = (counting_id && sample_id ? max_rank(counting_id, sample_id) : 0) + 1
           params[:status] = Paleolog::Occurrence::NORMAL
 
           if Paleolog::Repo::Occurrence.species_exists_within_counting_and_sample?(species_id, counting_id, sample_id)
@@ -50,6 +43,14 @@ module Paleolog
           return Failure.new(errors) unless errors.empty?
 
           Success.new(Paleolog::Repo::Occurrence.update(occurrence_id, params))
+        end
+
+        private
+
+        def max_rank(counting_id, sample_id)
+          Paleolog::Repo::Occurrence
+            .all_for_sample(counting_id, sample_id)
+            .max_by(&:rank)&.rank || 0
         end
       end
     end

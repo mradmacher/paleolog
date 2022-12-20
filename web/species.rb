@@ -73,7 +73,7 @@ module Web
       @species = Paleolog::Repo::Species.find(params[:id].to_i)
       using_project_layout do
         # using_species_layout { display 'species/show.html' } }
-        erb :"species_layout.html", layout: nil do
+        erb :'species_layout.html', layout: nil do
           display 'species/show.html'
         end
       end

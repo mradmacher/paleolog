@@ -12,7 +12,7 @@ module Paleolog
 
       def db
         @db ||= Sequel.connect(
-          ENV['PALEOLOG_DB_URI'],
+          ENV.fetch('PALEOLOG_DB_URI', nil),
           # loggers: [Logger.new($stdout)],
         )
       end

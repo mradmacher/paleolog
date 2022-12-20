@@ -6,7 +6,7 @@ module Paleolog
       class << self
         GroupRules = Pp.define.(
           name: Pp.required.(
-            Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)]))
+            Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)])),
           ),
         )
 
@@ -14,9 +14,7 @@ module Paleolog
           params, errors = GroupRules.(name: name)
           return Failure.new(errors) unless errors.empty?
 
-          if Paleolog::Repo::Group.name_exists?(params[:name])
-            return Failure.new({ name: :taken })
-          end
+          return Failure.new({ name: :taken }) if Paleolog::Repo::Group.name_exists?(params[:name])
 
           Success.new(Paleolog::Repo::Group.create(params))
         end

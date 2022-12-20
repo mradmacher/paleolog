@@ -60,9 +60,9 @@ describe 'Occurrences' do
 
     table_rows = page.all('#occurrences-collection .occurrence')
     assert_equal 3, table_rows.size
-    assert_match /Odontochitina costata/, table_rows[0].text
-    assert_match /Cerodinium costata/, table_rows[1].text
-    assert_match /Cerodinium diabelli/, table_rows[2].text
+    assert_match(/Odontochitina costata/, table_rows[0].text)
+    assert_match(/Cerodinium costata/, table_rows[1].text)
+    assert_match(/Cerodinium diabelli/, table_rows[2].text)
 
     within page.find(:table_row, ['Odontochitina costata']) do
       click_button(class: 'increase-quantity')
@@ -89,10 +89,10 @@ describe 'Occurrences' do
     click_on('Diabella diabelli')
 
     table_rows = page.all('#occurrences-collection .occurrence')
-    assert_match /Odontochitina costata/, table_rows[0].text
-    assert_match /Cerodinium costata/, table_rows[1].text
-    assert_match /Cerodinium diabelli/, table_rows[2].text
-    assert_match /Diabella diabelli/, table_rows[3].text
+    assert_match(/Odontochitina costata/, table_rows[0].text)
+    assert_match(/Cerodinium costata/, table_rows[1].text)
+    assert_match(/Cerodinium diabelli/, table_rows[2].text)
+    assert_match(/Diabella diabelli/, table_rows[3].text)
     within('#occurrences-countable-sum') do
       page.must_have_content('1')
     end
@@ -105,10 +105,10 @@ describe 'Occurrences' do
 
     visit "/projects/#{project.id}/occurrences"
     table_rows = page.all('#occurrences-collection .occurrence')
-    assert_match /Odontochitina costata/, table_rows[0].text
-    assert_match /Cerodinium costata/, table_rows[1].text
-    assert_match /Cerodinium diabelli/, table_rows[2].text
-    assert_match /Diabella diabelli/, table_rows[3].text
+    assert_match(/Odontochitina costata/, table_rows[0].text)
+    assert_match(/Cerodinium costata/, table_rows[1].text)
+    assert_match(/Cerodinium diabelli/, table_rows[2].text)
+    assert_match(/Diabella diabelli/, table_rows[3].text)
   end
 
   it 'counts countable' do

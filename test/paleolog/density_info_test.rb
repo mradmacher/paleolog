@@ -37,7 +37,7 @@ describe Paleolog::DensityInfo do
 
       result = @subject.group_density(occurrences, sample)
       refute_nil result
-      assert_equal 25.57, result.round(2)
+      assert_in_delta(25.57, result.round(2))
     end
   end
 
@@ -85,7 +85,7 @@ describe Paleolog::DensityInfo do
       @occurrences << Paleolog::Occurrence.new(counting: @counting, sample: @sample, species: @marker, quantity: 20)
 
       result = @subject.occurrence_density_map(@occurrences, @samples)
-      refute result.empty?
+      refute_empty result
       assert_equal 3, result.size
       assert_equal 7, result.assoc(@occurrence15).last.round
       assert_equal 18, result.assoc(@occurrence41).last.round

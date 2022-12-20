@@ -82,13 +82,13 @@ module Paleolog
       return false unless errors.empty?
 
       # must include marker
-      unless params[:occurrences].any? { |occurrence|
+      unless params[:occurrences].any? do |occurrence|
         occurrence.species == params[:marker] && occurrence.quantity && occurrence.quantity.positive?
-      }
+      end
         return false
       end
+
       true
     end
-
   end
 end

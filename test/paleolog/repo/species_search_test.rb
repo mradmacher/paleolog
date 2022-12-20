@@ -29,7 +29,7 @@ describe Paleolog::Repo::Species do
       let(:filters) { { verified: true } }
 
       it 'returns only verified' do
-        assert repo.search(filters).empty?
+        assert_empty repo.search(filters)
 
         repo.update(species2.id, verified: true)
         result = repo.search(filters)
@@ -62,7 +62,7 @@ describe Paleolog::Repo::Species do
       end
 
       it 'is case insensitive' do
-        refute repo.search(name: 'odonto').empty?
+        refute_empty repo.search(name: 'odonto')
       end
     end
 
@@ -106,7 +106,7 @@ describe Paleolog::Repo::Species do
       let(:filters) { { group_id: group1.id, name: 'costa', verified: true } }
 
       it 'returns only verified that match filter' do
-        assert repo.search(filters).empty?
+        assert_empty repo.search(filters)
 
         repo.update(species1.id, verified: true)
         repo.update(species2.id, verified: true)
