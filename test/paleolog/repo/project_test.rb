@@ -25,7 +25,7 @@ describe Paleolog::Repo::Project do
         ),
       )
 
-      result = repo.find(project.id)
+      result = repo.find(project.id, repo.with_participations)
       refute_empty(result.research_participations, 'research participations are empty')
       assert_equal(1, result.research_participations.size)
       result.research_participations
@@ -36,7 +36,7 @@ describe Paleolog::Repo::Project do
       Paleolog::Repo.save(
         Paleolog::Counting.new(name: 'Test Counting', project: project),
       )
-      result = repo.find(project.id)
+      result = repo.find(project.id, repo.with_countings)
       refute_empty(result.countings, 'countings are empty')
       assert_equal(1, result.countings.size)
       assert_equal('Test Counting', result.countings.first.name)
@@ -46,7 +46,7 @@ describe Paleolog::Repo::Project do
       Paleolog::Repo.save(
         Paleolog::Section.new(name: 'Test Section', project: project),
       )
-      result = repo.find(project.id)
+      result = repo.find(project.id, repo.with_sections)
       refute_empty(result.sections, 'sections are empty')
       assert_equal(1, result.sections.size)
       assert_equal('Test Section', result.sections.first.name)

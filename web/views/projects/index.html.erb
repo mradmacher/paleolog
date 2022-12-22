@@ -1,6 +1,27 @@
 <div class="ui grid">
   <div class="sixteen wide column">
-    <h1 class="ui header">Projects (<%= @projects.size %>)</h1>
+    <fieldset class="ui grid">
+      <div class="fourteen wide column">
+        <h1 class="ui header">Projects (<%= @projects.size %>)</h1>
+      </div>
+      <div class="two wide column">
+        <button class="ui button add-project">Add</button>
+      </div>
+    </fieldset>
+    <div class="ui modal project-adding">
+      <div class="header">Add Project</div>
+      <div class="content">
+        <form class="ui form">
+          <div class="field">
+            <label for="project_name">Name</label>
+            <input id="project_name" type="text" name="name" />
+          </div>
+        </form>
+      </div>
+      <div class="actions">
+        <div class="ui cancel button">Cancel</div>
+      </div>
+    </div>
   </div>
   <div class="three wide column">
     <form id="species-search" class="ui form">
@@ -33,3 +54,10 @@
     </table>
   </div>
 </div>
+<script type="text/javascript">
+$(function() {
+  $(".add-project").click(function() {
+    $('.modal.project-adding').modal('show');
+  });
+});
+</script>

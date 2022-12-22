@@ -22,7 +22,12 @@ module Web
     end
 
     get '/projects/:id' do
-      @project = Paleolog::Repo::Project.find(params[:id].to_i)
+      @project = Paleolog::Repo::Project.find(
+          params[:id].to_i,
+          Paleolog::Repo::Project.with_countings,
+          Paleolog::Repo::Project.with_sections,
+          Paleolog::Repo::Project.with_participations,
+        )
       using_project_layout { display 'projects/show.html' }
     end
   end

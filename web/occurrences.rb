@@ -19,7 +19,12 @@ module Web
       redirect projects_path unless Paleolog::Repo::ResearchParticipation.can_view_project?(session[:user_id],
                                                                                             params[:project_id].to_i,)
 
-      @project = Paleolog::Repo::Project.find(params[:project_id].to_i)
+      @project = Paleolog::Repo::Project.find(
+          params[:project_id].to_i,
+          Paleolog::Repo::Project.with_countings,
+          Paleolog::Repo::Project.with_sections,
+          Paleolog::Repo::Project.with_participations,
+        )
       if params[:counting]
         @counting = Paleolog::Repo::Counting.find_for_project(params[:counting].to_i,
                                                               @project.id,)

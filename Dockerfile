@@ -7,6 +7,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 FROM base as dependencies
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     gcc \
+    git \
     make
 COPY Gemfile Gemfile.lock ./
 RUN bundle config set --local without "development test" && \
