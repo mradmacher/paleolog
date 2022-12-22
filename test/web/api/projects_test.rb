@@ -75,7 +75,7 @@ describe 'Projects' do
 
     it 'accepts logged in user' do
       params = { name: 'some name' }
-      operation.expect :create, Success.new(project), [{ 'name' => 'some name', 'user_id' => user.id }]
+      operation.expect :create, [project, {}], [{ 'name' => 'some name', 'user_id' => user.id }]
       assert_user_access(-> { post '/api/projects', params }, user)
     end
 
@@ -86,7 +86,7 @@ describe 'Projects' do
 
       it 'creates project and returns its attributes' do
         params = { name: 'some name' }
-        operation.expect :create, Success.new(project), [{ 'name' => 'some name', 'user_id' => user.id }]
+        operation.expect :create, [project, {}], [{ 'name' => 'some name', 'user_id' => user.id }]
         post '/api/projects', params
 
         result = JSON.parse(last_response.body)['project']
@@ -98,7 +98,7 @@ describe 'Projects' do
 
       it 'returns errors in case of failure' do
         params = {}
-        operation.expect :create, Failure.new({ name: 'missing' }), [{ 'user_id' => user.id }]
+        operation.expect :create, [nil, { name: 'missing' }], [{ 'user_id' => user.id }]
         post '/api/projects', params
 
         result = JSON.parse(last_response.body)

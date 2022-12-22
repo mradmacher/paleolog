@@ -19,35 +19,30 @@ module Web
       get '/api/projects' do
         projects = settings.operation.find_all_for_user(authorizer.user_id)
         {
-          projects: projects.map { |project|
-                      {
-                        id: project.id,
-                        name: project.name,
-                        created_at: project.created_at,
-                      }
-                    }
+          projects: projects.map { |project| serialize(project) }
         }.to_json
       end
 
       post '/api/projects' do
-        result = settings.operation.create(params.merge(user_id: authorizer.user_id))
-        if result.success?
-          {
-            project: {
-              id: result.value.id,
-              name: result.value.name,
-              created_at: result.value.created_at,
-            }
-          }.to_json
+        project, errors = settings.operation.create(params.merge(user_id: authorizer.user_id))
+        if errors.empty?
+          { project: serialize(project) }.to_json
         else
-          { errors: result.error }.to_json
+          { errors: errors }.to_json
         end
       end
 
-      delete '/api/projects/:id' do
+      patch '/api/projects/:id' do
       end
 
-      patch '/api/projects/:id' do
+      private
+
+      def serialize(project)
+        {
+          id: project.id,
+          name: project.name,
+          created_at: project.created_at,
+        }
       end
     end
   end

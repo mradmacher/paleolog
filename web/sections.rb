@@ -17,11 +17,11 @@ module Web
 
     get '/projects/:project_id/sections/:id' do
       @project = Paleolog::Repo::Project.find(
-          params[:project_id].to_i,
-          Paleolog::Repo::Project.with_countings,
-          Paleolog::Repo::Project.with_sections,
-          Paleolog::Repo::Project.with_participations,
-        )
+        params[:project_id].to_i,
+        Paleolog::Repo::Project.with_countings,
+        Paleolog::Repo::Project.with_sections,
+        Paleolog::Repo::Project.with_participations,
+      )
       @section = Paleolog::Repo::Section.find_for_project(params[:id].to_i, @project.id)
       using_project_layout { display 'sections/show.html' }
     end

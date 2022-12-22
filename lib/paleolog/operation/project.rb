@@ -18,17 +18,18 @@ module Paleolog
 
         def create(name:, user_id:)
           params, errors = ProjectRules.(name: name)
-          return Failure.new(errors) unless errors.empty?
+          return [nil, errors] unless errors.empty?
 
-          return Failure.new({ name: :taken }) if Paleolog::Repo::Project.name_exists?(params[:name])
+          return [nil, { name: :taken }] if Paleolog::Repo::Project.name_exists?(params[:name])
 
-          Success.new(Paleolog::Repo::Project.create(params)).tap do |result|
-            Paleolog::Repo::ResearchParticipation.create(
-              user_id: user_id,
-              project_id: result.value.id,
-              manager: true,
-            )
-          end
+          # FIXME: add transaction
+          project = Paleolog::Repo::Project.create(params)
+          Paleolog::Repo::ResearchParticipation.create(
+            user_id: user_id,
+            project_id: project.id,
+            manager: true,
+          )
+          [project, {}]
         end
       end
     end
