@@ -24,13 +24,14 @@ describe 'Occurrences' do
   describe 'GET /api/projects/:project_id/occurrences' do
     it 'rejects guest access' do
       params = { sample_id: sample.id, counting_id: counting.id }
-      refute_guest_access(-> { get "/api/projects/#{project.id}/occurrences", params })
+      assert_unauthorized(-> { get "/api/projects/#{project.id}/occurrences", params })
     end
 
     it 'accepts user participating in the project' do
       Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project))
       params = { sample_id: sample.id, counting_id: counting.id }
-      assert_user_access(-> { get "/api/projects/#{project.id}/occurrences", params }, user)
+      login(user)
+      assert_permitted(-> { get "/api/projects/#{project.id}/occurrences", params })
     end
 
     describe 'with user' do
@@ -107,19 +108,21 @@ describe 'Occurrences' do
   describe 'POST /api/projects/:project_id/occurrences' do
     it 'rejects guest access' do
       params = { sample_id: sample.id, species_id: species11.id, counting_id: counting.id }
-      refute_guest_access(-> { post "/api/projects/#{project.id}/occurrences", params })
+      assert_unauthorized(-> { post "/api/projects/#{project.id}/occurrences", params })
     end
 
     it 'rejects user observing the project' do
       Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: false))
       params = { sample_id: sample.id, species_id: species11.id, counting_id: counting.id }
-      refute_user_access(-> { post "/api/projects/#{project.id}/occurrences", params }, user)
+      login(user)
+      assert_forbidden(-> { post "/api/projects/#{project.id}/occurrences", params })
     end
 
     it 'accepts user managing the project' do
       Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: true))
       params = { sample_id: sample.id, species_id: species11.id, counting_id: counting.id }
-      assert_user_access(-> { post "/api/projects/#{project.id}/occurrences", params }, user)
+      login(user)
+      assert_permitted(-> { post "/api/projects/#{project.id}/occurrences", params })
     end
 
     describe 'with user' do
@@ -175,17 +178,19 @@ describe 'Occurrences' do
     end
 
     it 'rejects guest access' do
-      refute_guest_access(-> { delete "/api/projects/#{project.id}/occurrences/#{occurrence.id}", {} })
+      assert_unauthorized(-> { delete "/api/projects/#{project.id}/occurrences/#{occurrence.id}", {} })
     end
 
     it 'rejects user observing the project' do
       Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: false))
-      refute_user_access(-> { delete "/api/projects/#{project.id}/occurrences/#{occurrence.id}", {} }, user)
+      login(user)
+      assert_forbidden(-> { delete "/api/projects/#{project.id}/occurrences/#{occurrence.id}", {} })
     end
 
     it 'accepts user managing the project' do
       Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: true))
-      assert_user_access(-> { delete "/api/projects/#{project.id}/occurrences/#{occurrence.id}", {} }, user)
+      login(user)
+      assert_permitted(-> { delete "/api/projects/#{project.id}/occurrences/#{occurrence.id}", {} })
     end
 
     describe 'with user' do
@@ -215,19 +220,21 @@ describe 'Occurrences' do
 
     it 'rejects guest access' do
       params = { shift: '1' }
-      refute_guest_access(-> { patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", params })
+      assert_unauthorized(-> { patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", params })
     end
 
     it 'rejects user observing the project' do
       Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: false))
       params = { shift: '1' }
-      refute_user_access(-> { patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", params }, user)
+      login(user)
+      assert_forbidden(-> { patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", params })
     end
 
     it 'accepts user managing the project' do
       Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: true))
       params = { shift: '1' }
-      assert_user_access(-> { patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", params }, user)
+      login(user)
+      assert_permitted(-> { patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", params })
     end
 
     describe 'with user' do

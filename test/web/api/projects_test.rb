@@ -21,12 +21,13 @@ describe 'Projects' do
 
   describe 'GET /api/projects' do
     it 'rejects guest access' do
-      refute_guest_access(-> { get '/api/projects', {} })
+      assert_unauthorized(-> { get '/api/projects', {} })
     end
 
     it 'accepts logged in user' do
       operation.expect :find_all_for_user, [], [user.id]
-      assert_user_access(-> { get '/api/projects', {} }, user)
+      login(user)
+      assert_permitted(-> { get '/api/projects', {} })
     end
 
     describe 'with user' do
@@ -50,7 +51,7 @@ describe 'Projects' do
         get '/api/projects'
         result = JSON.parse(last_response.body)['projects']
         assert_equal 2, result.size
-        assert_equal [project.id, other_project.id], result.map { |r| r['id'] }
+        assert_equal([project.id, other_project.id], result.map { |r| r['id'] })
       end
 
       it 'returns all necessary attributes' do
@@ -69,14 +70,14 @@ describe 'Projects' do
 
   describe 'POST /api/projects' do
     it 'rejects guest access' do
-      params = { name: 'some name' }
-      refute_guest_access(-> { post '/api/projects', {} })
+      assert_unauthorized(-> { post '/api/projects', {} })
     end
 
     it 'accepts logged in user' do
       params = { name: 'some name' }
       operation.expect :create, [project, {}], [{ 'name' => 'some name', 'user_id' => user.id }]
-      assert_user_access(-> { post '/api/projects', params }, user)
+      login(user)
+      assert_permitted(-> { post '/api/projects', params })
     end
 
     describe 'with user' do

@@ -14,12 +14,16 @@ module Paleolog
       @session = session
     end
 
-    def login(login, password)
+    def login(user)
+      session[:user_id] = user.id
+    end
+
+    def authorize(login, password)
       user = Paleolog::Repo::User.find_by_login(login)
       raise InvalidLogin unless user
       raise InvalidPassword unless BCrypt::Password.new(user.password) == "#{user.password_salt}#{password}"
 
-      session[:user_id] = user.id
+      login(user)
       user
     end
 

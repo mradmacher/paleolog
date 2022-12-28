@@ -11,7 +11,6 @@ describe 'Occurrences' do
   let(:sample) { Paleolog::Repo.save(Paleolog::Sample.new(name: 'some sample', section: section)) }
 
   let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
-  let(:session) { {} }
 
   # rubocop:disable Metrics/AbcSize
   def assert_requires_observer(action, project)
@@ -20,9 +19,7 @@ describe 'Occurrences' do
     action.call
     assert_predicate last_response, :redirect?, 'Expected redirect when no user'
 
-    session = {}
-    Paleolog::Authorizer.new(session).login('test', 'test123')
-    env 'rack.session', session
+    login(user)
     action.call
     assert_predicate last_response, :redirect?, 'Expected redirect when user not in project'
 
@@ -52,9 +49,8 @@ describe 'Occurrences' do
 
     describe 'with user' do
       before do
-        Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: false))
-        Paleolog::Authorizer.new(session).login('test', 'test123')
-        env 'rack.session', session
+        user = Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: false))
+        login(user)
       end
 
       it 'redirects if sections, sample and counting are missing' do

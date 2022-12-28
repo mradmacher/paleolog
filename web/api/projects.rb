@@ -19,7 +19,7 @@ module Web
       get '/api/projects' do
         projects = settings.operation.find_all_for_user(authorizer.user_id)
         {
-          projects: projects.map { |project| serialize(project) }
+          projects: projects.map { |project| serialize(project) },
         }.to_json
       end
 

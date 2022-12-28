@@ -4,7 +4,8 @@ require 'test_helper'
 
 describe Paleolog::Operation::Section do
   let(:operation) { Paleolog::Operation::Section }
-  let(:project) { Paleolog::Operation::Project.create(name: 'Project for Section').value }
+  let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
+  let(:project) { Paleolog::Operation::Project.create(name: 'Project for Section', user_id: user.id).first }
 
   after do
     Paleolog::Repo::Section.delete_all

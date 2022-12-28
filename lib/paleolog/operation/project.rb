@@ -8,7 +8,7 @@ module Paleolog
           name: Pp.required.(
             Pp.string.(
               Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)]),
-            )
+            ),
           ),
         )
 
