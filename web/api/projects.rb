@@ -24,18 +24,24 @@ module Web
       end
 
       post '/api/projects' do
-        project, errors = settings.operation.create(params.merge(user_id: authorizer.user_id))
-        if errors.empty?
-          { project: serialize(project) }.to_json
-        else
-          { errors: errors }.to_json
-        end
+        project_or_errors(*settings.operation.create(name: params[:name], user_id: authorizer.user_id))
       end
 
       patch '/api/projects/:id' do
+        halt 403 unless Paleolog::Repo::ResearchParticipation.can_manage_project?(session[:user_id], params[:id])
+
+        project_or_errors(*settings.operation.rename(params[:id], name: params[:name]))
       end
 
       private
+
+      def project_or_errors(project, errors)
+        if errors.empty?
+          [200, { project: serialize(project) }.to_json]
+        else
+          [422, { errors: errors }.to_json]
+        end
+      end
 
       def serialize(project)
         {
