@@ -7,7 +7,6 @@ describe 'Projects' do
 
   let(:project) { Paleolog::Project.new(id: 1, name: 'some project', created_at: Time.now) }
   let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
-  let(:session) { {} }
   let(:app) { Web::Api::Projects.new }
   let(:operation) { Minitest::Mock.new }
 
@@ -16,6 +15,7 @@ describe 'Projects' do
   end
 
   after do
+    Web::Api::Projects.set :operation, Paleolog::Operation::Project
     Paleolog::Repo::User.delete_all
   end
 
@@ -75,7 +75,7 @@ describe 'Projects' do
 
     it 'accepts logged in user' do
       params = { name: 'some name' }
-      operation.expect :create, [project, {}], [{ 'name' => 'some name', 'user_id' => user.id }]
+      operation.expect :create, [project, {}], **{ name: 'some name', user_id: user.id }
       login(user)
       assert_permitted(-> { post '/api/projects', params })
     end
@@ -87,7 +87,7 @@ describe 'Projects' do
 
       it 'creates project and returns its attributes' do
         params = { name: 'some name' }
-        operation.expect :create, [project, {}], [{ 'name' => 'some name', 'user_id' => user.id }]
+        operation.expect :create, [project, {}], **{ name: 'some name', user_id: user.id }
         post '/api/projects', params
 
         result = JSON.parse(last_response.body)['project']
@@ -99,7 +99,7 @@ describe 'Projects' do
 
       it 'returns errors in case of failure' do
         params = {}
-        operation.expect :create, [nil, { name: 'missing' }], [{ 'user_id' => user.id }]
+        operation.expect :create, [nil, { name: 'missing' }], **{ name: nil, user_id: user.id }
         post '/api/projects', params
 
         result = JSON.parse(last_response.body)

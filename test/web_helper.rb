@@ -11,6 +11,7 @@ def app
 end
 
 def login(user)
+  session = {}
   Paleolog::Authorizer.new(session).login(user)
   env 'rack.session', session
 end

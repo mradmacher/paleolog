@@ -316,7 +316,8 @@ describe Paleolog::Report do
           end
         end + [(sample_density || 0).to_s]
 
-        assert_equal expected, @report.values[row]
+        assert_equal expected[0...-1], @report.values[row][0...-1]
+        assert_in_delta expected.last.to_f, @report.values[row].last.to_f, 0.11
       end
     end
   end

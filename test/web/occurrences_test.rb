@@ -34,7 +34,9 @@ describe 'Occurrences' do
   # rubocop:enable Metrics/AbcSize
 
   after do
+    Paleolog::Repo::ResearchParticipation.delete_all
     Paleolog::Repo::User.delete_all
+    Paleolog::Repo::Project.delete_all
   end
 
   describe 'GET /projects/project_id/occurrences' do
@@ -49,7 +51,7 @@ describe 'Occurrences' do
 
     describe 'with user' do
       before do
-        user = Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: false))
+        Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: false))
         login(user)
       end
 
