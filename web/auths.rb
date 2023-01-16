@@ -21,7 +21,7 @@ module Web
     end
 
     post '/login' do
-      authorizer.login(params[:login], params[:password])
+      authorizer.authorize(params[:login], params[:password])
       redirect '/projects'
       catch Paleolog::Authorizer::InvalidLogin, Paleolog::Authorizer::InvalidPassword
       redirect '/login'

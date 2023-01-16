@@ -16,18 +16,23 @@ module Web
     end
 
     get '/projects/:project_id/occurrences' do
-      redirect projects_path unless Paleolog::Repo::ResearchParticipation.can_view_project?(session[:user_id],
-                                                                                            params[:project_id].to_i,)
+      unless Paleolog::Repo::ResearchParticipation.can_view_project?(session[:user_id], params[:project_id].to_i)
+        redirect projects_path
+      end
 
-      @project = Paleolog::Repo::Project.find(params[:project_id].to_i)
+      @project = Paleolog::Repo::Project.find(
+        params[:project_id].to_i,
+        Paleolog::Repo::Project.with_countings,
+        Paleolog::Repo::Project.with_sections,
+        Paleolog::Repo::Project.with_participations,
+      )
       if params[:counting]
         @counting = Paleolog::Repo::Counting.find_for_project(params[:counting].to_i,
                                                               @project.id,)
       end
       @section = Paleolog::Repo::Section.find_for_project(params[:section].to_i, @project.id) if params[:section]
       if @section && params[:sample]
-        @sample = Paleolog::Repo::Sample.find_for_section(params[:sample].to_i,
-                                                          @section.id,)
+        @sample = Paleolog::Repo::Sample.find_for_section(params[:sample].to_i, @section.id)
       end
       if @section.nil? || @counting.nil? || @sample.nil?
         redirect occurrences_path(@project,

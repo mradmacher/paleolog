@@ -22,16 +22,16 @@ module Paleolog
             counting_id: counting_id,
             sample_id: sample_id,
           )
-          return Failure.new(errors) unless errors.empty?
+          return [nil, errors] unless errors.empty?
+
+          if Paleolog::Repo::Occurrence.species_exists_within_counting_and_sample?(species_id, counting_id, sample_id)
+            return [nil, { species_id: :taken }]
+          end
 
           params[:rank] = (counting_id && sample_id ? max_rank(counting_id, sample_id) : 0) + 1
           params[:status] = Paleolog::Occurrence::NORMAL
 
-          if Paleolog::Repo::Occurrence.species_exists_within_counting_and_sample?(species_id, counting_id, sample_id)
-            return Failure.new({ species_id: :taken })
-          end
-
-          Success.new(Paleolog::Repo::Occurrence.create(params))
+          [Paleolog::Repo::Occurrence.create(params), {}]
         end
 
         def update(occurrence_id, status: Option.None, uncertain: Option.None, quantity: Option.None)
@@ -40,9 +40,9 @@ module Paleolog
             uncertain: uncertain,
             quantity: quantity,
           )
-          return Failure.new(errors) unless errors.empty?
+          return [nil, errors] unless errors.empty?
 
-          Success.new(Paleolog::Repo::Occurrence.update(occurrence_id, params))
+          [Paleolog::Repo::Occurrence.update(occurrence_id, params), {}]
         end
 
         private

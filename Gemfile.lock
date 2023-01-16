@@ -1,5 +1,5 @@
 GIT
-  remote: git@github.com:mradmacher/param-param.git
+  remote: https://github.com/mradmacher/param-param.git
   revision: 2d236d46d77b4d4de3787e4dd7995a03d83f0552
   tag: v0.0.1
   specs:

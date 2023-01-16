@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 
 gem 'bcrypt'
-gem 'param-param', git: 'git@github.com:mradmacher/param-param.git', tag: 'v0.0.1'
+gem 'param-param', git: 'https://github.com/mradmacher/param-param.git', tag: 'v0.0.1'
 gem 'pdfkit'
 gem 'pg'
 gem 'puma'

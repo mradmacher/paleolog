@@ -16,7 +16,12 @@ module Web
     end
 
     get '/projects/:project_id/countings/:id' do
-      @project = Paleolog::Repo::Project.find(params[:project_id].to_i)
+      @project = Paleolog::Repo::Project.find(
+        params[:project_id].to_i,
+        Paleolog::Repo::Project.with_countings,
+        Paleolog::Repo::Project.with_sections,
+        Paleolog::Repo::Project.with_participations,
+      )
       @counting = Paleolog::Repo::Counting.find_for_project(params[:id].to_i, @project.id)
       using_project_layout { display 'countings/show.html' }
     end
