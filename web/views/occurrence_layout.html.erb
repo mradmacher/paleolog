@@ -1,114 +1,110 @@
-<fieldset>
-  <legend>Ocurrences</legend>
-
-  <div class="ui grid">
-    <div class="two wide column">
-      <table class="ui celled table">
-        <thead>
-          <tr>
-            <th>Counting</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @project.countings.each do |counting| %>
-            <tr>
-              <% if counting.id == @counting&.id %>
-                <td class="positive">
-                  <i class="icon checkmark"></i>
-                  <%= counting.name %>
-                </td>
-              <% else %>
-                <td>
-                  <a href="<%= occurrences_path(@project, counting: counting, section: @section, sample: @sample) %>"><%= counting.name %></a>
-                </td>
-              <% end %>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-
-      <table class="ui celled table">
-        <thead>
-          <tr>
-            <th>Section</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @project.sections.each do |section| %>
-            <tr>
-              <% if section.id == @section&.id %>
-                <td class="positive">
-                  <i class="icon checkmark"></i>
-                  <%= section.name %>
-                </td>
-              <% else %>
-                <td>
-                  <a href="<%= occurrences_path(@project, counting: @counting, section: section, sample: nil) %>"><%= section.name %></a>
-                </td>
-              <% end %>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="twelve wide column" %>
-      <div class="ui breadcrumb">
-        <span class="section">
+<div class="ui fluid card">
+  <div class="content">
+    <div class="header">
+      <div class="ui ribbon label">occurrences</div>
+      <h2 class="header">
           <% if @counting %>
-            Counting <b><%= @counting.name %></b>
+            <%= @counting.name %>
           <% else %>
-            [select counting]
+            [select]
           <% end %>
-        </span>
-        <div class="divider"> / </div>
-        <span class="section">
+          <span class="ui left pointing label">counting</span>
           <% if @section %>
-            Section <b><%= @section.name %></b>
+            <%= @section.name %>
           <% else %>
-            [select section]
+            [select]
           <% end %>
-        </span>
-        <div class="divider"> / </div>
-        <span class="section">
+          <span class="ui left pointing label">section</span>
           <% if @sample %>
-            Sample <b><%= @sample.name %></b>
+            <%= @sample.name %>
           <% else %>
-            [select sample]
+            [select]
           <% end %>
-        </span>
-      </div>
-      <hr />
-
-      <%= yield %>
+          <span class="ui left pointing label">sample</span>
+        </h2>
     </div>
+    <div class="ui description grid">
 
-    <div class="two wide column" %>
-      <table class="ui celled table">
-        <thead>
-          <tr>
-            <th>Sample</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% if @section %>
-            <% @section.samples.each do |sample| %>
+      <div class="twelve wide column" %>
+        <%= yield %>
+      </div>
+
+      <div class="two wide column">
+        <table class="ui celled table">
+          <thead>
+            <tr>
+              <th>Counting</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @project.countings.each do |counting| %>
               <tr>
-                <% if sample.id == @sample&.id %>
+                <% if counting.id == @counting&.id %>
                   <td class="positive">
                     <i class="icon checkmark"></i>
-                    <%= sample.name %>
+                    <%= counting.name %>
                   </td>
                 <% else %>
                   <td>
-                    <a href="<%= occurrences_path(@project, counting: @counting, section: @section, sample: sample) %>"><%= sample.name %></a>
+                    <a href="<%= occurrences_path(@project, counting: counting, section: @section, sample: @sample) %>"><%= counting.name %></a>
                   </td>
                 <% end %>
               </tr>
             <% end %>
-          <% end %>
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+
+        <table class="ui celled table">
+          <thead>
+            <tr>
+              <th>Section</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @project.sections.each do |section| %>
+              <tr>
+                <% if section.id == @section&.id %>
+                  <td class="positive">
+                    <i class="icon checkmark"></i>
+                    <%= section.name %>
+                  </td>
+                <% else %>
+                  <td>
+                    <a href="<%= occurrences_path(@project, counting: @counting, section: section, sample: nil) %>"><%= section.name %></a>
+                  </td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <div class="two wide column" %>
+        <table class="ui celled table">
+          <thead>
+            <tr>
+              <th>Sample</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if @section %>
+              <% @section.samples.each do |sample| %>
+                <tr>
+                  <% if sample.id == @sample&.id %>
+                    <td class="positive">
+                      <i class="icon checkmark"></i>
+                      <%= sample.name %>
+                    </td>
+                  <% else %>
+                    <td>
+                      <a href="<%= occurrences_path(@project, counting: @counting, section: @section, sample: sample) %>"><%= sample.name %></a>
+                    </td>
+                  <% end %>
+                </tr>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
-</fieldset>
+</div>

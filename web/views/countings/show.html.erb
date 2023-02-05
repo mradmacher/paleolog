@@ -1,20 +1,29 @@
-<fieldset>
-  <legend>Counting</legend>
-  <dl>
-    <dt>Name</dt>
-    <dd><h2><%= @counting.name %></h2></dd>
-    <% unless @counting.group.nil? %>
-      <dt>Counting's Group</dt>
-      <dd><%= @counting.group.name %></dd>
-    <% end %>
-    <% unless @counting.marker.nil? %>
-      <dt>Marker</dt>
-      <dd><%= @counting.marker.name %> (<%= @counting.marker.group.name %>)</dd>
-    <% end %>
-    <% if @counting.marker_count %>
-      <dt>Marker Count</dt>
-      <dd><%= @counting.marker_count %></dd>
-    <% end %>
-  </dl>
-  <a class="ui primary button" href="<%= occurrences_path(@project, counting: @counting) %>">Count</a>
-</fieldset>
+<div class="ui fluid card">
+  <div class="content">
+    <div class="header">
+      <div class="ui ribbon label">counting</div>
+      <h2 class="ui header">
+        <%= @counting.name %>
+      </h2>
+    </div>
+    <div class="description">
+      <dl>
+        <% unless @counting.group.nil? %>
+          <dt>Counting's Group</dt>
+          <dd><%= @counting.group.name %></dd>
+        <% end %>
+        <% unless @counting.marker.nil? %>
+          <dt>Marker</dt>
+          <dd><%= @counting.marker.name %> (<%= @counting.marker.group.name %>)</dd>
+        <% end %>
+        <% if @counting.marker_count %>
+          <dt>Marker Count</dt>
+          <dd><%= @counting.marker_count %></dd>
+        <% end %>
+      </dl>
+      <div class="ui fluid horizontal menu">
+        <a class="item" href="<%= occurrences_path(@project, section: @section) %>">Occurrences</a>
+      </div>
+    </div>
+  </div>
+</div>

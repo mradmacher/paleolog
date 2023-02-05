@@ -1,19 +1,27 @@
 <div class="ui grid">
   <div class="sixteen wide column">
-    <fieldset>
-      <legend>Project</legend>
-      <h1 class="ui header"><a href="<%= project_path(@project) %>"><%= @project.name %></a></h1>
-      <div class="ui text menu">
-        <a class="item" href="<%= project_species_path(@project) %>">Species</a>
-        <a class="item" href="<%= occurrences_path(@project) %>">Count</a>
-        <a class="item" href="<%= reports_path(@project) %>">Reports</a>
-        <div class="ui right secondary mini menu">
-          <div class="item">
-            <button class="ui basic button edit-project-action">Rename</button>
+    <div class="ui fluid card">
+      <div class="content">
+        <div class="header">
+          <div class="ui ribbon label">project</div>
+          <h1 class="ui header">
+            <a href="<%= project_path(@project) %>"><%= @project.name %></a>
+          </h1>
+        </div>
+        <div class="description">
+          <div class="ui menu">
+            <a class="item" href="<%= project_species_path(@project) %>">Species</a>
+            <a class="item" href="<%= occurrences_path(@project) %>">Occurrences</a>
+            <a class="item" href="<%= reports_path(@project) %>">Reports</a>
+            <div class="ui right secondary menu">
+              <div class="item">
+                <button class="ui button edit-project-action">Edit</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </fieldset>
+    </div>
     <div class="ui modal" id="project-form-window">
       <div class="header">Edit Project</div>
       <div class="content">
@@ -33,35 +41,49 @@
     </div>
   </div>
   <div class="three wide column">
-    <fieldset>
-      <legend>Details</legend>
-      <h2 class="ui header">Researchers</h2>
-      <p>
-        <ul>
-        <% @project.research_participations.each do |participation| %>
-          <li><%= participation.user.name %>
-        <% end %>
-        </ul>
-      </p>
+    <div class="ui cards">
+      <div class="ui fluid card">
+        <div class="content">
+          <div class="header">Researchers</div>
+          <div class="description">
+            <ul>
+            <% @project.research_participations.each do |participation| %>
+              <li><%= participation.user.name %>
+            <% end %>
+            </ul>
+          </div>
+        </div>
+        <button class="ui mini bottom attached button disabled add-researcher-action"><i class="add icon"></i>Add</button>
+      </div>
 
-      <h2 class="ui header">Countings</h2>
-      <p>
-        <ul>
-        <% @project.countings.each do |counting| %>
-          <li><a href="<%= counting_path(@project, counting) %>"><%= counting.name %></a></li>
-        <% end %>
-        </ul>
-      </p>
+      <div class="ui fluid card">
+        <div class="content">
+          <div class="header">Countings</div>
+          <div class="description">
+            <ul>
+            <% @project.countings.each do |counting| %>
+              <li><a href="<%= counting_path(@project, counting) %>"><%= counting.name %></a></li>
+            <% end %>
+            </ul>
+          </div>
+        </div>
+        <button class="ui mini bottom attached button disabled add-counting-action"><i class="add icon"></i>Add</button>
+      </div>
 
-      <h2 class="ui header">Sections</h2>
-      <p>
-        <ul>
-        <% @project.sections.each do |section| %>
-          <li><a href="<%= section_path(@project, section) %>"><%= section.name %></a></li>
-        <% end %>
-        </ul>
-      </p>
-    </fieldset>
+      <div class="ui fluid card">
+        <div class="content">
+          <div class="header">Sections</div>
+          <div class="description">
+            <ul>
+            <% @project.sections.each do |section| %>
+              <li><a href="<%= section_path(@project, section) %>"><%= section.name %></a></li>
+            <% end %>
+            </ul>
+          </div>
+        </div>
+        <button class="ui mini bottom attached button add-section-action"><i class="add icon"></i>Add</button>
+      </div>
+    </div>
   </div>
   <div class="thirteen wide column">
     <%= yield %>
