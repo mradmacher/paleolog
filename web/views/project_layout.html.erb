@@ -93,29 +93,7 @@
 <script type="text/javascript">
 $(function() {
   $('.edit-project-action').click(() => {
-    var validationMessageView = new ValidationMessageView('project');
-    validationMessageView.hide();
-    $('#project-form').trigger('reset');
-    $('#project-form-window').modal({
-      closable: false,
-      onApprove: function() {
-        const id = $('#project-form #project-id').val();
-        const attrs = {
-          name: $('#project-form #project-name').val(),
-        }
-        var service = new ProjectRequest
-        service.update(id, attrs).then(
-          project => {
-            window.location.reload();
-          },
-          errors => {
-            validationMessageView.show(errors)
-          }
-        )
-        return false;
-      }
-    })
-    .modal('show');
+    new EditModalFormView('project', new ProjectRequest, (project) => window.location.reload()).show()
   });
 });
 </script>

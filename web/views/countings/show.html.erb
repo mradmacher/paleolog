@@ -5,6 +5,9 @@
       <h2 class="ui header">
         <%= @counting.name %>
       </h2>
+      <div class="ui fluid horizontal menu">
+        <a class="item" href="<%= occurrences_path(@project, section: @section) %>">Occurrences</a>
+      </div>
     </div>
     <div class="description">
       <dl>
@@ -21,9 +24,6 @@
           <dd><%= @counting.marker_count %></dd>
         <% end %>
       </dl>
-      <div class="ui fluid horizontal menu">
-        <a class="item" href="<%= occurrences_path(@project, section: @section) %>">Occurrences</a>
-      </div>
     </div>
   </div>
 </div>

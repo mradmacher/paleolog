@@ -5,17 +5,35 @@
       <h2 class="ui header">
         <%= @section.name %>
       </h2>
-    </div>
-    <div class="ui description grid">
       <div class="ui fluid horizontal menu">
         <a class="item" href="<%= occurrences_path(@project, section: @section) %>">Occurrences</a>
         <div class="ui right secondary menu">
           <div class="item">
-            <button class="ui button">Edit</button>
+            <button class="ui button edit-section-action">Edit</button>
           </div>
         </div>
       </div>
     </div>
+    <div class="ui description grid">
+    </div>
+    <div class="ui modal" id="section-form-window">
+      <div class="header">Edit Section</div>
+      <div class="content">
+        <%= erb :'_validation_messages.html', layout: false %>
+        <form class="ui form" id="section-form">
+          <div class="field">
+            <input id="section-id" type="hidden" value="<%= @section.id %>" />
+            <label for="section-name">Name</label>
+            <input id="section-name" type="text" name="name" value="<%= @section.name %>" />
+          </div>
+        </form>
+      </div>
+      <div class="actions">
+        <button class="ui cancel negative button">Cancel</button>
+        <button class="ui approve positive button">Save</button>
+      </div>
+    </div>
+
     <h3>Samples</h3>
     <table class="ui striped celled table">
       <thead>
@@ -50,3 +68,10 @@
     </table>
   </div>
 </div>
+<script type="text/javascript">
+$(function() {
+  $('.edit-section-action').click(() => {
+    new EditModalFormView('section', new SectionRequest, (section) => window.location.reload()).show()
+  });
+});
+</script>
