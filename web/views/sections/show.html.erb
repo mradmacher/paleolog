@@ -13,25 +13,9 @@
           </div>
         </div>
       </div>
+      <%= erb :'sections/_edit_form.html', layout: false %>
     </div>
     <div class="ui description grid">
-    </div>
-    <div class="ui modal" id="section-form-window">
-      <div class="header">Edit Section</div>
-      <div class="content">
-        <%= erb :'_validation_messages.html', layout: false %>
-        <form class="ui form" id="section-form">
-          <div class="field">
-            <input id="section-id" type="hidden" value="<%= @section.id %>" />
-            <label for="section-name">Name</label>
-            <input id="section-name" type="text" name="name" value="<%= @section.name %>" />
-          </div>
-        </form>
-      </div>
-      <div class="actions">
-        <button class="ui cancel negative button">Cancel</button>
-        <button class="ui approve positive button">Save</button>
-      </div>
     </div>
 
     <h3>Samples</h3>

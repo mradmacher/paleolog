@@ -1,0 +1,17 @@
+<div class="ui modal" id="project-edit-form-window">
+  <div class="header">Edit Project</div>
+  <div class="content">
+    <%= erb :'_validation_messages.html', layout: false %>
+    <form class="ui form" id="project-form">
+      <div class="field">
+        <input id="project-id" type="hidden" value="<%= @project.id %>" />
+        <label for="project-name">Name</label>
+        <input id="project-name" type="text" name="name" value="<%= @project.name %>" />
+      </div>
+    </form>
+  </div>
+  <div class="actions">
+    <button class="ui cancel negative button">Cancel</button>
+    <button class="ui approve positive button">Save</button>
+  </div>
+</div>

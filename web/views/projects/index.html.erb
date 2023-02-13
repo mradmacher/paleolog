@@ -8,22 +8,7 @@
         <button class="ui basic button add-project-action">Add</button>
       </div>
     </fieldset>
-    <div class="ui modal" id="project-form-window">
-      <div class="header">Add Project</div>
-      <div class="content">
-        <%= erb :'_validation_messages.html', layout: false %>
-        <form class="ui form" id="project-form">
-          <div class="field">
-            <label for="project-name">Name</label>
-            <input id="project-name" type="text" name="name" />
-          </div>
-        </form>
-      </div>
-      <div class="actions">
-        <button class="ui cancel negative button">Cancel</button>
-        <button class="ui approve positive button">Save</button>
-      </div>
-    </div>
+    <%= erb :'projects/_add_form.html', layout: false %>
   </div>
 
   <div class="three wide column">
@@ -67,28 +52,7 @@
 <script type="text/javascript">
 $(function() {
   $('.add-project-action').click(() => {
-    var validationMessageView = new ValidationMessageView('project');
-    validationMessageView.hide();
-    $('#project-form').trigger('reset');
-    $('#project-form-window').modal({
-      closable: false,
-      onApprove: function() {
-        const attrs = {
-          name: $('#project-form #project-name').val(),
-        }
-        var service = new ProjectRequest
-        service.create(attrs).then(
-          project => {
-            window.location.reload();
-          },
-          errors => {
-            validationMessageView.show(errors)
-          }
-        )
-        return false;
-      }
-    })
-    .modal('show');
+    new AddModalFormView('project', new ProjectRequest, (project) => window.location.reload()).show()
   });
 });
 </script>

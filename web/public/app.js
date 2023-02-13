@@ -78,7 +78,6 @@ class ValidationMessageView {
 class EditModalFormView {
   constructor(model, requestService, callback) {
     this.model = model;
-    this.elementPath = `#${model}-form-window`;
     this.element = $(this.elementPath);
     this.requestService = requestService;
     this.callback = callback;
@@ -89,7 +88,7 @@ class EditModalFormView {
     validationMessageView.hide();
     var that = this;
     $(`#${this.model}-form`).trigger('reset');
-    $(`#${this.model}-form-window`).modal({
+    $(`#${this.model}-edit-form-window`).modal({
       closable: false,
       onApprove: function() {
         const id = $(`#${that.model}-form #${that.model}-id`).val();
@@ -97,6 +96,40 @@ class EditModalFormView {
           name: $(`#${that.model}-form #${that.model}-name`).val(),
         }
         that.requestService.update(id, attrs).then(
+          result => {
+            that.callback(result)
+          },
+          errors => {
+            validationMessageView.show(errors)
+          }
+        )
+        return false;
+      }
+    })
+    .modal('show');
+  }
+}
+
+class AddModalFormView {
+  constructor(model, requestService, callback) {
+    this.model = model;
+    this.element = $(this.elementPath);
+    this.requestService = requestService;
+    this.callback = callback;
+  }
+
+  show() {
+    var validationMessageView = new ValidationMessageView(this.model);
+    validationMessageView.hide();
+    var that = this;
+    $(`#${this.model}-form`).trigger('reset');
+    $(`#${this.model}-add-form-window`).modal({
+      closable: false,
+      onApprove: function() {
+        const attrs = {
+          name: $(`#${that.model}-form #${that.model}-name`).val(),
+        }
+        that.requestService.create(attrs).then(
           result => {
             that.callback(result)
           },

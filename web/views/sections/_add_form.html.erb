@@ -1,0 +1,16 @@
+<div class="ui modal" id="section-add-form-window">
+  <div class="header">Add Section</div>
+  <div class="content">
+    <%= erb :'_validation_messages.html', layout: false %>
+    <form class="ui form" id="section-form">
+      <div class="field">
+        <label for="section-name">Name</label>
+        <input id="section-name" type="text" name="name" />
+      </div>
+    </form>
+  </div>
+  <div class="actions">
+    <button class="ui cancel negative button">Cancel</button>
+    <button class="ui approve positive button">Save</button>
+  </div>
+</div>
