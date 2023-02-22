@@ -7,29 +7,28 @@ const errorMessages = {
   }
 }
 
-class ProjectRequest {
-  create(attrs) {
-    return new Promise((resolve, reject) => {
-      $.ajax({
-        url: '/api/projects',
-        data: attrs,
-        type: "POST",
-        dataType: "json",
-      })
-      .done(function(json) {
-        resolve(json);
-      }).fail(function(xhr, status, error) {
-        reject(xhr.responseJSON.errors);
-      })
-    })
+class ModelRequest {
+  constructor(path) {
+    this.path = path;
   }
 
-  update(id, attrs) {
+  save(attrs) {
+    let {id, ...params} = attrs;
+    var url;
+    var type;
+    if (id) {
+      url = `${this.path}/${id}`;
+      type = 'PATCH'
+    } else {
+      url = this.path;
+      type = 'POST';
+    }
+
     return new Promise((resolve, reject) => {
       $.ajax({
-        url: `/api/projects/${id}`,
-        data: attrs,
-        type: "PATCH",
+        url: url,
+        data: params,
+        type: type,
         dataType: "json",
       })
       .done(function(json) {
@@ -41,11 +40,15 @@ class ProjectRequest {
   }
 }
 
-class SectionRequest {
-  create(attrs) {
+class ProjectRequest extends ModelRequest {
+  constructor() {
+    super('/api/projects');
   }
+}
 
-  update(id, attrs) {
+class SectionRequest extends ModelRequest {
+  constructor() {
+    super('/api/sections');
   }
 }
 
@@ -75,9 +78,10 @@ class ValidationMessageView {
   }
 }
 
-class EditModalFormView {
-  constructor(model, requestService, callback) {
+class ModalFormView {
+  constructor(model, attrs, requestService, callback) {
     this.model = model;
+    this.attrs = attrs;
     this.element = $(this.elementPath);
     this.requestService = requestService;
     this.callback = callback;
@@ -86,50 +90,19 @@ class EditModalFormView {
   show() {
     var validationMessageView = new ValidationMessageView(this.model);
     validationMessageView.hide();
-    var that = this;
     $(`#${this.model}-form`).trigger('reset');
-    $(`#${this.model}-edit-form-window`).modal({
+    for (const field in this.attrs) {
+      $(`#${this.model}-form #${this.model}-${field}`).val(this.attrs[field]);
+    }
+    var that = this;
+    $(`#${this.model}-form-window`).modal({
       closable: false,
       onApprove: function() {
-        const id = $(`#${that.model}-form #${that.model}-id`).val();
-        const attrs = {
-          name: $(`#${that.model}-form #${that.model}-name`).val(),
+        var attrs = {};
+        for (const field in that.attrs) {
+          attrs[field] = $(`#${that.model}-form #${that.model}-${field}`).val();
         }
-        that.requestService.update(id, attrs).then(
-          result => {
-            that.callback(result)
-          },
-          errors => {
-            validationMessageView.show(errors)
-          }
-        )
-        return false;
-      }
-    })
-    .modal('show');
-  }
-}
-
-class AddModalFormView {
-  constructor(model, requestService, callback) {
-    this.model = model;
-    this.element = $(this.elementPath);
-    this.requestService = requestService;
-    this.callback = callback;
-  }
-
-  show() {
-    var validationMessageView = new ValidationMessageView(this.model);
-    validationMessageView.hide();
-    var that = this;
-    $(`#${this.model}-form`).trigger('reset');
-    $(`#${this.model}-add-form-window`).modal({
-      closable: false,
-      onApprove: function() {
-        const attrs = {
-          name: $(`#${that.model}-form #${that.model}-name`).val(),
-        }
-        that.requestService.create(attrs).then(
+        that.requestService.save(attrs).then(
           result => {
             that.callback(result)
           },

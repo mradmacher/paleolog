@@ -8,7 +8,7 @@
         <button class="ui basic button add-project-action">Add</button>
       </div>
     </fieldset>
-    <%= erb :'projects/_add_form.html', layout: false %>
+    <%= erb :'projects/_form.html', layout: false %>
   </div>
 
   <div class="three wide column">
@@ -52,7 +52,7 @@
 <script type="text/javascript">
 $(function() {
   $('.add-project-action').click(() => {
-    new AddModalFormView('project', new ProjectRequest, (project) => window.location.reload()).show()
+    new ModalFormView('project', {}, new ProjectRequest, (project) => window.location.reload()).show()
   });
 });
 </script>

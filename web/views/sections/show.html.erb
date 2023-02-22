@@ -13,7 +13,7 @@
           </div>
         </div>
       </div>
-      <%= erb :'sections/_edit_form.html', layout: false %>
+      <%= erb :'sections/_form.html', layout: false %>
     </div>
     <div class="ui description grid">
     </div>
@@ -54,8 +54,12 @@
 </div>
 <script type="text/javascript">
 $(function() {
+  const section = {
+    id: <%= @section.id %>,
+    name: "<%= @section.name %>",
+  }
   $('.edit-section-action').click(() => {
-    new EditModalFormView('section', new SectionRequest, (section) => window.location.reload()).show()
+    new ModalFormView('section', section, new SectionRequest, (section) => window.location.reload()).show()
   });
 });
 </script>

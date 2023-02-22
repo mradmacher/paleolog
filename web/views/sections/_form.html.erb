@@ -1,11 +1,13 @@
-<div class="ui modal" id="section-add-form-window">
-  <div class="header">Add Section</div>
+<div class="ui modal" id="section-form-window">
+  <div class="header">Edit Section</div>
   <div class="content">
     <%= erb :'_validation_messages.html', layout: false %>
     <form class="ui form" id="section-form">
       <div class="field">
+        <input id="section-id" name="id" type="hidden" />
+        <input id="section-project-id" name="project_id" type="hidden" />
         <label for="section-name">Name</label>
-        <input id="section-name" type="text" name="name" />
+        <input id="section-name" name="name" type="text" />
       </div>
     </form>
   </div>

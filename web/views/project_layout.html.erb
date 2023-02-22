@@ -22,8 +22,8 @@
         </div>
       </div>
     </div>
-    <%= erb :'projects/_edit_form.html', layout: false %>
-    <%= erb :'sections/_add_form.html', layout: false %>
+    <%= erb :'projects/_form.html', layout: false %>
+    <%= erb :'sections/_form.html', layout: false %>
   </div>
   <div class="three wide column">
     <div class="ui cards">
@@ -77,11 +77,20 @@
 
 <script type="text/javascript">
 $(function() {
+  const project = {
+    id: <%= @project.id %>,
+    name: "<%= @project.name %>",
+  }
+
+  const section = {
+    project_id: <%= @project.id %>,
+  }
+
   $('.edit-project-action').click(() => {
-    new EditModalFormView('project', new ProjectRequest, (project) => window.location.reload()).show()
+    new ModalFormView('project', project, new ProjectRequest, (project) => window.location.reload()).show()
   });
   $('.add-section-action').click(() => {
-    new AddModalFormView('section', new SectionRequest, (section) => window.location.reload()).show()
+    new ModalFormView('section', section, new SectionRequest, (section) => window.location.reload()).show()
   });
 });
 </script>
