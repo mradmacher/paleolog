@@ -32,12 +32,7 @@ module Web
     end
 
     get '/projects/:id/species' do
-      @project = Paleolog::Repo::Project.find(
-        params[:id].to_i,
-        Paleolog::Repo::Project.with_countings,
-        Paleolog::Repo::Project.with_sections,
-        Paleolog::Repo::Project.with_participations,
-      )
+      @project = Paleolog::Repo::Project.find(params[:id].to_i)
       @filters = {}
       @filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
       @filters[:name] = params[:name] if params[:name] && !params[:name].empty?

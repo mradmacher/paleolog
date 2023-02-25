@@ -6,7 +6,8 @@
         <%= @counting.name %>
       </h2>
       <div class="ui fluid horizontal menu">
-        <a class="item" href="<%= occurrences_path(@project, section: @section) %>">Occurrences</a>
+        <a class="item" href="<%= occurrences_path(@project, counting: @counting) %>">Occurrences</a>
+        <a class="item" href="<%= reports_path(@project, counting: @counting) %>">Report</a>
       </div>
     </div>
     <div class="description">
