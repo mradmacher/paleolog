@@ -1,0 +1,37 @@
+<div class="ui fluid card">
+  <div class="content">
+    <div class="header">
+      <div class="ui ribbon label">project</div>
+      <h1 class="ui header">
+        <a href="<%= project_path(@project) %>"><%= @project.name %></a>
+      </h1>
+    </div>
+    <div class="description">
+      <div class="ui menu">
+        <a class="item" href="<%= project_path(@project) %>">Project</a>
+        <a class="item" href="<%= project_species_path(@project) %>">Species</a>
+        <a class="item" href="<%= occurrences_path(@project) %>">Occurrences</a>
+        <a class="item" href="<%= reports_path(@project) %>">Reports</a>
+        <div class="ui right secondary menu">
+          <div class="item">
+            <button class="ui button edit-project-action">Edit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<%= erb :'projects/_form.html', layout: false %>
+
+<script type="text/javascript">
+$(function() {
+  const project = {
+    id: <%= @project.id %>,
+    name: "<%= @project.name %>",
+  }
+
+  $('.edit-project-action').click(() => {
+    new ModalFormView('project', project, new ProjectRequest, (project) => window.location.reload()).show()
+  });
+});
+</script>

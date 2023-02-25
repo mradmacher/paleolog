@@ -43,7 +43,7 @@ module Web
       @filters[:name] = params[:name] if params[:name] && !params[:name].empty?
       @filters[:verified] = true if params[:verified] == 'true'
 
-      using_project_layout { display 'projects/catalog.html' }
+      using_project_without_sidebar_layout { display 'projects/catalog.html' }
     end
   end
 end
