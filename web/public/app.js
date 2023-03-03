@@ -116,3 +116,15 @@ class ModalFormView {
     .modal('show');
   }
 }
+
+class ProjectModalFormView extends ModalFormView {
+  constructor(attrs, callback) {
+    super('project', attrs, new ProjectRequest, callback);
+  }
+}
+
+class SectionModalFormView extends ModalFormView {
+  constructor(attrs, callback) {
+    super('section', attrs, new SectionRequest, callback);
+  }
+}

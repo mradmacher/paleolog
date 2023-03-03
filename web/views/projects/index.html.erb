@@ -51,8 +51,12 @@
 
 <script type="text/javascript">
 $(function() {
+  const project = {
+    name: null,
+  }
+
   $('.add-project-action').click(() => {
-    new ModalFormView('project', {}, new ProjectRequest, (project) => window.location.reload()).show()
+    new ProjectModalFormView(project, (project) => window.location.reload()).show()
   });
 });
 </script>

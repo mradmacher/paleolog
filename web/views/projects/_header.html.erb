@@ -31,7 +31,7 @@ $(function() {
   }
 
   $('.edit-project-action').click(() => {
-    new ModalFormView('project', project, new ProjectRequest, (project) => window.location.reload()).show()
+    new ProjectModalFormView(project, (project) => window.location.reload()).show()
   });
 });
 </script>

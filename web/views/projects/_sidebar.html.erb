@@ -47,10 +47,11 @@
 $(function() {
   const section = {
     project_id: <%= @project.id %>,
+    name: null,
   }
 
   $('.add-section-action').click(() => {
-    new ModalFormView('section', section, new SectionRequest, (section) => window.location.reload()).show()
+    new SectionModalFormView(section, (section) => window.location.reload()).show()
   });
 });
 </script>

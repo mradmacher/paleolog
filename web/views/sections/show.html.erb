@@ -60,7 +60,7 @@ $(function() {
     name: "<%= @section.name %>",
   }
   $('.edit-section-action').click(() => {
-    new ModalFormView('section', section, new SectionRequest, (section) => window.location.reload()).show()
+    new SectionModalFormView(section, (section) => window.location.reload()).show()
   });
 });
 </script>

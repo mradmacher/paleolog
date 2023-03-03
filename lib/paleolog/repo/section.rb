@@ -35,6 +35,12 @@ module Paleolog
           ds.where(project_id: project_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
         end
 
+        def name_exists_within_same_project?(name, section_id:)
+          ds.exclude(id: section_id)
+            .where(project_id: ds.where(id: section_id).select(:project_id))
+            .where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
+        end
+
         def entity_class
           Paleolog::Section
         end

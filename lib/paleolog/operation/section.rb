@@ -4,20 +4,40 @@ module Paleolog
   module Operation
     class Section
       class << self
-        SectionParams = Pp.define.(
-          name: Pp.required.(Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)]))),
+        NameRules = Pp.required.(
+          Pp.string.(
+            Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)])
+          )
+        )
+
+        CreateRules = Pp.define.(
+          name: NameRules,
           project_id: Pp.required.(Pp.integer.(Pp.gt.(0))),
+        )
+        UpdateRules = Pp.define.(
+          name: NameRules,
         )
 
         def create(name:, project_id:)
-          params, errors = SectionParams.(name: name, project_id: project_id)
-          return Failure.new(errors) unless errors.empty?
+          params, errors = CreateRules.(name: name, project_id: project_id)
+          return [nil, errors] unless errors.empty?
 
           if Paleolog::Repo::Section.name_exists_within_project?(params[:name], params[:project_id])
-            return Failure.new({ name: :taken })
+            return [nil, { name: :taken }]
           end
 
-          Success.new(Paleolog::Repo::Section.create(params))
+          section = Paleolog::Repo::Section.create(params)
+          [section, {}]
+        end
+
+        def rename(section_id, name:)
+          params, errors = UpdateRules.(name: name)
+          return [nil, errors] unless errors.empty?
+
+          return [nil, { name: :taken }] if Paleolog::Repo::Section.name_exists_within_same_project?(params[:name], section_id: section_id)
+
+          section = Paleolog::Repo::Section.update(section_id, params)
+          [section, {}]
         end
       end
     end
