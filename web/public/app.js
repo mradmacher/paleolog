@@ -47,8 +47,8 @@ class ProjectRequest extends ModelRequest {
 }
 
 class SectionRequest extends ModelRequest {
-  constructor() {
-    super('/api/sections');
+  constructor(projectId) {
+    super(`/api/${projectId}/sections`);
   }
 }
 
@@ -125,6 +125,6 @@ class ProjectModalFormView extends ModalFormView {
 
 class SectionModalFormView extends ModalFormView {
   constructor(attrs, callback) {
-    super('section', attrs, new SectionRequest, callback);
+    super('section', attrs, new SectionRequest(attrs['project_id']), callback);
   }
 }

@@ -14,6 +14,12 @@ module Paleolog
           !ds.where(project_id: project_id, user_id: user_id, manager: true).first.nil?
         end
 
+        def can_manage_section?(user_id, section_id)
+          !ds.where(user_id: user_id, manager: true, Sequel[:sections][:id] => section_id)
+             .join(:projects, Sequel[:projects][:id] => :project_id)
+             .join(:sections, Sequel[:sections][:project_id] => :id).first.nil?
+        end
+
         def all_for_user(user_id)
           ds.where(user_id: user_id).all.map do |result|
             Paleolog::ResearchParticipation.new(**result) do |participation|

@@ -104,7 +104,7 @@ module Paleolog
           query = query.where(group_id: filters[:group_id]) if filters[:group_id]
           query = query.where(Sequel.ilike(Sequel[:species][:name], "%#{filters[:name]}%")) if filters[:name]
           query = query.where(verified: true) if filters[:verified]
-          #FIXME: project filter is not working correctly
+          # FIXME: project filter is not working correctly
           # query = project_filter(query, filters[:project_id]) if filters[:project_id]
           query
         end

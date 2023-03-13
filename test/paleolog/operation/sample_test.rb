@@ -6,7 +6,7 @@ describe Paleolog::Operation::Sample do
   let(:operation) { Paleolog::Operation::Sample }
   let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
   let(:project) { Paleolog::Operation::Project.create(name: 'Project for Section', user_id: user.id).first }
-  let(:section) { Paleolog::Operation::Section.create(name: 'Section for Sample', project_id: project.id).value }
+  let(:section) { Paleolog::Operation::Section.create(name: 'Section for Sample', project_id: project.id, user_id: user.id).first }
 
   after do
     Paleolog::Repo::Sample.delete_all
