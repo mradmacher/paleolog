@@ -42,15 +42,21 @@ describe Paleolog::Operation::Project do
   end
 
   describe '#create' do
+    it 'rejects missing user' do
+      _, errors = operation.create({ name: 'Some Name' }, user_id: nil)
+      refute_predicate errors, :empty?
+      assert_equal Paleolog::Operation::UNAUTHORIZED, errors[:general]
+    end
+
     it 'adds new project' do
-      project, errors = operation.create(name: 'Some Name', user_id: user.id)
+      project, errors = operation.create({ name: 'Some Name' }, user_id: user.id)
       assert_predicate errors, :empty?
       refute_nil project.id
       assert_equal 'Some Name', project.name
     end
 
     it 'adds user as project manager' do
-      project, errors = operation.create(name: 'Some Name', user_id: user.id)
+      project, errors = operation.create({ name: 'Some Name' }, user_id: user.id)
 
       assert_predicate errors, :empty?
       refute_nil project.id
@@ -62,46 +68,46 @@ describe Paleolog::Operation::Project do
     end
 
     it 'adds created_at timestamp' do
-      project, errors = operation.create(name: 'Some Name', user_id: user.id)
+      project, errors = operation.create({ name: 'Some Name' }, user_id: user.id)
       assert_predicate errors, :empty?
       refute_nil project.created_at
     end
 
     it 'complains when user missing' do
-      project, errors = operation.create(name: 'name', user_id: nil)
+      project, errors = operation.create({ name: 'name' }, user_id: nil)
       refute_predicate errors, :empty?
       assert_equal :non_integer, errors[:user_id]
       assert_nil project
     end
 
     it 'does not complain when name not taken yet' do
-      project, errors = operation.create(name: 'Some Name', user_id: user.id)
+      project, errors = operation.create({ name: 'Some Name' }, user_id: user.id)
       assert_predicate errors, :empty?
       assert_equal 'Some Name', project.name
 
-      project, errors = operation.create(name: 'Other Name', user_id: user.id)
+      project, errors = operation.create({ name: 'Other Name' }, user_id: user.id)
       assert_predicate errors, :empty?
       assert_equal 'Other Name', project.name
     end
 
     it 'complains when name is blank' do
-      project, errors = operation.create(name: nil, user_id: user.id)
+      project, errors = operation.create({ name: nil }, user_id: user.id)
       refute_predicate errors, :empty?
       assert_equal :blank, errors[:name]
       assert_nil project
 
-      project, errors = operation.create(name: '  ', user_id: user.id)
+      project, errors = operation.create({ name: '  ' }, user_id: user.id)
       refute_predicate errors, :empty?
       assert_equal :blank, errors[:name]
       assert_nil project
     end
 
     it 'complains when name already exists' do
-      project, errors = operation.create(name: 'Some Name', user_id: user.id)
+      project, errors = operation.create({ name: 'Some Name' }, user_id: user.id)
       assert_predicate errors, :empty?
       refute_nil project
 
-      project, errors = operation.create(name: 'Some Name', user_id: user.id)
+      project, errors = operation.create({ name: 'Some Name' }, user_id: user.id)
       refute_predicate errors, :empty?
       assert_equal :taken, errors[:name]
       assert_nil project
@@ -109,62 +115,84 @@ describe Paleolog::Operation::Project do
 
     it 'complains when name is too long' do
       max = 255
-      project, errors = operation.create(name: 'a' * (max + 1), user_id: user.id)
+      project, errors = operation.create({ name: 'a' * (max + 1) }, user_id: user.id)
       refute_predicate errors, :empty?
       assert_equal :too_long, errors[:name]
       assert_nil project
 
-      project, errors = operation.create(name: 'a' * max, user_id: user.id)
+      project, errors = operation.create({ name: 'a' * max }, user_id: user.id)
       assert_predicate errors, :empty?
       refute_nil project
     end
 
     it 'complains when name with different cases already exists' do
-      _, errors = operation.create(name: 'Some Name', user_id: user.id)
+      _, errors = operation.create({ name: 'Some Name' }, user_id: user.id)
       assert_predicate errors, :empty?
 
-      _, errors = operation.create(name: ' some name ', user_id: user.id)
+      _, errors = operation.create({ name: ' some name ' }, user_id: user.id)
       refute_predicate errors, :empty?
       assert_equal :taken, errors[:name]
     end
   end
 
   describe '#rename' do
-    let(:project_id) { operation.create(name: 'Some Name', user_id: user.id).first.id }
+    let(:project_id) do
+      project, errors = operation.create({ name: 'Some Name' }, user_id: user.id)
+      assert_predicate errors, :empty?
+      project.id
+    end
 
-    before do
-      refute_nil project_id
+    it 'rejects missing user' do
+      _, errors = operation.rename({ id: project_id, name: 'Some Name' }, user_id: nil)
+      refute_predicate errors, :empty?
+      assert_equal Paleolog::Operation::UNAUTHORIZED, errors[:general]
+    end
+
+    it 'rejects guest access' do
+      other_user = Paleolog::Repo.save(Paleolog::User.new(login: 'other user', password: 'test123'))
+      _, errors = operation.rename({ id: project_id, name: 'Other Name' }, user_id: other_user.id)
+      refute_predicate errors, :empty?
+      assert_equal Paleolog::Operation::UNAUTHORIZED, errors[:general]
+    end
+
+    it 'rejects user observing the project' do
+      other_user = Paleolog::Repo.save(Paleolog::User.new(login: 'other user', password: 'test123'))
+      Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: other_user, project_id: project_id))
+
+      _, errors = operation.rename({ id: project_id, name: 'Other Name' }, user_id: other_user.id)
+      refute_predicate errors, :empty?
+      assert_equal Paleolog::Operation::UNAUTHORIZED, errors[:general]
     end
 
     it 'renames project' do
-      project, errors = operation.rename(project_id, name: 'Other Name')
+      project, errors = operation.rename({ id: project_id, name: 'Other Name' }, user_id: user.id)
       assert_predicate errors, :empty?
       assert_equal 'Other Name', project.name
     end
 
     it 'can set the same name' do
-      project, errors = operation.rename(project_id, name: 'Some Name')
+      project, errors = operation.rename({ id: project_id, name: 'Some Name' }, user_id: user.id)
       assert_predicate errors, :empty?
       assert_equal 'Some Name', project.name
     end
 
     it 'complains when name is blank' do
-      project, errors = operation.rename(project_id, name: nil)
+      project, errors = operation.rename({ id: project_id, name: nil }, user_id: user.id)
       refute_predicate errors, :empty?
       assert_equal :blank, errors[:name]
       assert_nil project
 
-      project, errors = operation.rename(project_id, name: '   ')
+      project, errors = operation.rename({ id: project_id, name: '   ' }, user_id: user.id)
       refute_predicate errors, :empty?
       assert_equal :blank, errors[:name]
       assert_nil project
     end
 
     it 'complains when name already exists' do
-      _, errors = operation.create(name: 'Other Name', user_id: user.id)
+      _, errors = operation.create({ name: 'Other Name' }, user_id: user.id)
       assert_predicate errors, :empty?
 
-      project, errors = operation.rename(project_id, name: 'Other Name')
+      project, errors = operation.rename({ id: project_id, name: 'Other Name' }, user_id: user.id)
       refute_predicate errors, :empty?
       assert_equal :taken, errors[:name]
       assert_nil project
@@ -172,21 +200,21 @@ describe Paleolog::Operation::Project do
 
     it 'complains when name is too long' do
       max = 255
-      project, errors = operation.rename(project_id, name: 'a' * (max + 1))
+      project, errors = operation.rename({ id: project_id, name: 'a' * (max + 1) }, user_id: user.id)
       refute_predicate errors, :empty?
       assert_equal :too_long, errors[:name]
       assert_nil project
 
-      project, errors = operation.rename(project_id, name: 'a' * max)
+      project, errors = operation.rename({ id: project_id, name: 'a' * max }, user_id: user.id)
       assert_predicate errors, :empty?
       assert_equal 'a' * max, project.name
     end
 
     it 'complains when name with different cases already exists' do
-      _, errors = operation.create(name: 'Other Name', user_id: user.id)
+      _, errors = operation.create({ name: 'Other Name' }, user_id: user.id)
       assert_predicate errors, :empty?
 
-      _, errors = operation.rename(project_id, name: ' other name ')
+      _, errors = operation.rename({ id: project_id, name: ' other name ' }, user_id: user.id)
       refute_predicate errors, :empty?
       assert_equal :taken, errors[:name]
     end

@@ -14,11 +14,11 @@ module Web
       end
 
       post '/api/:project_id/sections' do
-        model_or_errors(*Paleolog::Operation::Section.create(params.merge(user_id: session[:user_id])), serializer)
+        model_or_errors(*Paleolog::Operation::Section.create(params, user_id: session[:user_id]), serializer)
       end
 
       patch '/api/:project_id/sections/:id' do
-        model_or_errors(*Paleolog::Operation::Section.rename(params.merge(user_id: session[:user_id])), serializer)
+        model_or_errors(*Paleolog::Operation::Section.rename(params, user_id: session[:user_id]), serializer)
       end
 
       private

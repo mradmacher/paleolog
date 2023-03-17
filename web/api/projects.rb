@@ -25,13 +25,11 @@ module Web
       end
 
       post '/api/projects' do
-        model_or_errors(*settings.operation.create(name: params[:name], user_id: authorizer.user_id), serializer)
+        model_or_errors(*Paleolog::Operation::Project.create(params, user_id: authorizer.user_id), serializer)
       end
 
       patch '/api/projects/:id' do
-        halt 403 unless Paleolog::Repo::ResearchParticipation.can_manage_project?(session[:user_id], params[:id])
-
-        model_or_errors(*settings.operation.rename(params[:id], name: params[:name]), serializer)
+        model_or_errors(*Paleolog::Operation::Project.rename(params, user_id: authorizer.user_id), serializer)
       end
 
       private

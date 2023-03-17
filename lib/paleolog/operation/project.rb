@@ -4,25 +4,23 @@ module Paleolog
   module Operation
     class Project
       class << self
-        NameRules = Pp.required.(
-          Pp.string.(
-            Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)]),
-          ),
-        )
         CreateRules = Pp.define.(
-          name: NameRules,
-          user_id: Pp.required.(Pp.integer.(Pp.gt.(0))),
+          name: Pp.required.(NameRules),
+          user_id: Pp.required.(IdRules),
         )
         UpdateRules = Pp.define.(
-          name: NameRules,
+          id: Pp.required.(IdRules),
+          name: Pp.required.(NameRules),
         )
 
         def find_all_for_user(user_id)
           Repo::ResearchParticipation.all_for_user(user_id).map(&:project)
         end
 
-        def create(name:, user_id:)
-          params, errors = CreateRules.(name: name, user_id: user_id)
+        def create(params, user_id:)
+          return [nil, { general: UNAUTHORIZED }] if user_id.nil?
+
+          params, errors = CreateRules.(params.merge(user_id: user_id))
           return [nil, errors] unless errors.empty?
 
           return [nil, { name: :taken }] if Paleolog::Repo::Project.name_exists?(params[:name])
@@ -37,13 +35,22 @@ module Paleolog
           [project, {}]
         end
 
-        def rename(project_id, name:)
-          params, errors = UpdateRules.(name: name)
+        def rename(params, user_id:)
+          return [nil, { general: UNAUTHORIZED }] if user_id.nil?
+
+          params, errors = UpdateRules.(params)
           return [nil, errors] unless errors.empty?
 
-          return [nil, { name: :taken }] if Paleolog::Repo::Project.name_exists?(params[:name], exclude_id: project_id)
+          unless Paleolog::Repo::ResearchParticipation.can_manage_project?(
+            user_id,
+            params[:id],
+          )
+            return [false, { general: UNAUTHORIZED }]
+          end
 
-          project = Paleolog::Repo::Project.update(project_id, params)
+          return [nil, { name: :taken }] if Paleolog::Repo::Project.name_exists?(params[:name], exclude_id: params[:id])
+
+          project = Paleolog::Repo::Project.update(params[:id], params.except(:id))
           [project, {}]
         end
       end
