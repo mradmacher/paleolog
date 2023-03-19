@@ -3,6 +3,7 @@
 module Paleolog
   module Operation
     UNAUTHORIZED = :unauthorized
+    UNAUTHORIZED_RESULT = [nil, { general: UNAUTHORIZED }]
 
     IdRules = Pp.required.(Pp.integer.(Pp.gt.(0)))
     NameRules = Pp.string.(

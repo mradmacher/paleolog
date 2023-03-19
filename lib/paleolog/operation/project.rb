@@ -18,7 +18,7 @@ module Paleolog
         end
 
         def create(params, user_id:)
-          return [nil, { general: UNAUTHORIZED }] if user_id.nil?
+          return UNAUTHORIZED_RESULT if user_id.nil?
 
           params, errors = CreateRules.(params.merge(user_id: user_id))
           return [nil, errors] unless errors.empty?
@@ -36,7 +36,7 @@ module Paleolog
         end
 
         def rename(params, user_id:)
-          return [nil, { general: UNAUTHORIZED }] if user_id.nil?
+          return UNAUTHORIZED_RESULT if user_id.nil?
 
           params, errors = UpdateRules.(params)
           return [nil, errors] unless errors.empty?
@@ -45,7 +45,7 @@ module Paleolog
             user_id,
             params[:id],
           )
-            return [false, { general: UNAUTHORIZED }]
+            return UNAUTHORIZED_RESULT
           end
 
           return [nil, { name: :taken }] if Paleolog::Repo::Project.name_exists?(params[:name], exclude_id: params[:id])

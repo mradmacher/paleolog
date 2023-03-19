@@ -76,7 +76,7 @@ describe Paleolog::Operation::Project do
     it 'complains when user missing' do
       project, errors = operation.create({ name: 'name' }, user_id: nil)
       refute_predicate errors, :empty?
-      assert_equal :non_integer, errors[:user_id]
+      assert_equal Paleolog::Operation::UNAUTHORIZED, errors[:general]
       assert_nil project
     end
 

@@ -14,7 +14,7 @@ module Paleolog
         )
 
         def create(params, user_id:)
-          return [nil, { general: UNAUTHORIZED }] if user_id.nil?
+          return UNAUTHORIZED_RESULT if user_id.nil?
 
           params, errors = CreateRules.(params)
           return [nil, errors] unless errors.empty?
@@ -23,7 +23,7 @@ module Paleolog
             user_id,
             params[:project_id],
           )
-            return [false, { general: UNAUTHORIZED }]
+            return UNAUTHORIZED_RESULT
           end
 
           if Paleolog::Repo::Section.name_exists_within_project?(params[:name], params[:project_id])

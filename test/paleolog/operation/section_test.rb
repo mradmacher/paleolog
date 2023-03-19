@@ -113,8 +113,6 @@ describe Paleolog::Operation::Section do
       section.id
     end
 
-    before { refute_nil section_id }
-
     it 'rejects missing user' do
       _, errors = operation.rename({ id: section_id, name: 'Other Name' }, user_id: nil)
       refute_predicate errors, :empty?

@@ -47,8 +47,8 @@ class ProjectRequest extends ModelRequest {
 }
 
 class SectionRequest extends ModelRequest {
-  constructor(projectId) {
-    super(`/api/${projectId}/sections`);
+  constructor() {
+    super(`/api/sections`);
   }
 }
 
@@ -73,7 +73,7 @@ class ValidationMessageView {
     this.clear();
     jQuery.each(errors, function(field, message) {
       that.element.show();
-      that.element.find('.content').append(errorMessages['project'][field][message]);
+      that.element.find('.content').append(errorMessages[that.model][field][message]);
     })
   }
 }
@@ -98,9 +98,9 @@ class ModalFormView {
     $(`#${this.model}-form-window`).modal({
       closable: false,
       onApprove: function() {
-        var attrs = {};
+        var attrs = {}
         for (const field in that.attrs) {
-          attrs[field] = $(`#${that.model}-form #${that.model}-${field}`).val();
+          attrs[field] = $(`#${that.model}-form #${that.model}-${field}`).val()
         }
         that.requestService.save(attrs).then(
           result => {
@@ -110,10 +110,10 @@ class ModalFormView {
             validationMessageView.show(errors)
           }
         )
-        return false;
+        return false
       }
     })
-    .modal('show');
+    .modal('show')
   }
 }
 
@@ -125,6 +125,6 @@ class ProjectModalFormView extends ModalFormView {
 
 class SectionModalFormView extends ModalFormView {
   constructor(attrs, callback) {
-    super('section', attrs, new SectionRequest(attrs['project_id']), callback);
+    super('section', attrs, new SectionRequest, callback);
   }
 }

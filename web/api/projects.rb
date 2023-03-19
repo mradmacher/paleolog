@@ -9,16 +9,12 @@ module Web
     class Projects < Sinatra::Base
       helpers Web::AuthHelpers, Web::ApiHelpers
 
-      configure do
-        set :operation, Paleolog::Operation::Project
-      end
-
       before '/api/projects*' do
         authorize_api!
       end
 
       get '/api/projects' do
-        projects = settings.operation.find_all_for_user(authorizer.user_id)
+        projects = Paleolog::Operation::Project.find_all_for_user(authorizer.user_id)
         {
           projects: projects.map { |project| serializer.call(project) },
         }.to_json
