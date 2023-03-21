@@ -23,7 +23,7 @@ describe 'Sections' do
     Paleolog::Repo::Project.delete_all
   end
 
-  describe 'POST /api/:project_id/sections' do
+  describe 'POST /api/sections' do
     it 'rejects guest access' do
       assert_unauthorized(-> { post '/api/sections', { project_id: project.id } })
     end
@@ -65,7 +65,7 @@ describe 'Sections' do
     end
   end
 
-  describe 'PATCH /api/:project_id/sections/:id' do
+  describe 'PATCH /api/sections/:id' do
     it 'rejects guest access' do
       assert_unauthorized(-> { patch '/api/sections/1', { project_id: project.id } })
     end
