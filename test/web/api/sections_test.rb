@@ -8,7 +8,7 @@ describe 'Sections' do
   let(:app) { Web::Api::Sections.new }
   let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
   let(:project) do
-    project, errors = Paleolog::Operation::Project.create({ name: 'some project' }, user_id: user.id)
+    project, errors = Paleolog::Operation::Project.create({ name: 'project for section' }, user_id: user.id)
     assert_predicate errors, :empty?
     project
   end

@@ -8,7 +8,7 @@ describe 'Projects' do
   let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
   let(:project) do
     project, errors = Paleolog::Operation::Project.create({ name: 'some test project' }, user_id: user.id)
-    assert_predicat errors, :empty?
+    assert_predicate errors, :empty?
     project
   end
   let(:app) { Web::Api::Projects.new }

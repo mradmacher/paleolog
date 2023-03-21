@@ -4,6 +4,12 @@ const errorMessages = {
       taken: "Name is already taken",
       blank: "Name can't be blank"
     }
+  },
+  section: {
+    name: {
+      taken: "Name is already taken",
+      blank: "Name can't be blank"
+    }
   }
 }
 
