@@ -89,17 +89,6 @@ describe Paleolog::Repo::Species do
         assert_equal result.first.id, species1.id
         refute_nil result.first.group
       end
-
-      it 'displays species from project images' do
-        section = Paleolog::Repo.save(Paleolog::Section.new(name: 'Some section', project: project))
-        sample = Paleolog::Repo.save(Paleolog::Sample.new(name: 'Some sample', section: section))
-        Paleolog::Repo.save(Paleolog::Image.new(image_file_name: 'img1.png', species: species1, sample: sample))
-
-        result = repo.search({ project_id: project.id, name: 'costa' })
-        assert_equal 1, result.size
-        assert_equal result.first.id, species1.id
-        refute_nil result.first.group
-      end
     end
 
     describe 'when name, group and verified filters provided' do

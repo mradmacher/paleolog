@@ -53,11 +53,11 @@ describe 'Project Catalog' do
   it 'at the beginning displays all project species' do
     visit "/projects/#{project.id}/species"
 
-    page.must_have_content('Species list (2)')
+    assert_text('Species list (2)')
     within('#species-list') do
-      page.must_have_css('.species', count: 2)
-      page.must_have_content('Odontochitina costata')
-      page.must_have_content('Cerodinium costata')
+      assert_css('.species', count: 2)
+      assert_text('Odontochitina costata')
+      assert_text('Cerodinium costata')
     end
   end
 
@@ -67,9 +67,9 @@ describe 'Project Catalog' do
     within('#species-search') do
       click_on('Search')
     end
-    page.must_have_css('.species', count: 2)
-    page.must_have_content('Odontochitina costata')
-    page.must_have_content('Cerodinium costata')
+    assert_css('.species', count: 2)
+    assert_text('Odontochitina costata')
+    assert_text('Cerodinium costata')
   end
 
   it 'allows searching species' do
@@ -81,11 +81,11 @@ describe 'Project Catalog' do
       check('Verified')
       click_on('Search')
     end
-    page.must_have_content('Species list (1)')
+    assert_text('Species list (1)')
     within('#species-list') do
-      page.must_have_css('.species', count: 1)
+      assert_css('.species', count: 1)
     end
-    page.must_have_content('Cerodinium costata')
+    assert_text('Cerodinium costata')
   end
 
   it 'updates path after searching' do
@@ -105,11 +105,11 @@ describe 'Project Catalog' do
   it 'allows passing search params in url' do
     visit "/catalog?group_id=#{group1.id}&name=cero&verified=true"
 
-    page.must_have_content('Species list (1)')
+    assert_text('Species list (1)')
     within('#species-list') do
-      page.must_have_css('.species', count: 1)
+      assert_css('.species', count: 1)
     end
-    page.must_have_content('Cerodinium costata')
+    assert_text('Cerodinium costata')
   end
 
   it 'updates path to only include provided attributes' do
