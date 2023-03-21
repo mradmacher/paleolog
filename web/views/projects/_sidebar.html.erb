@@ -1,0 +1,57 @@
+<div class="ui cards">
+  <div class="ui fluid card">
+    <div class="content">
+      <div class="header">Researchers</div>
+      <div class="description">
+        <ul>
+        <% @project.research_participations.each do |participation| %>
+          <li><%= participation.user.name %>
+        <% end %>
+        </ul>
+      </div>
+    </div>
+    <button class="ui mini bottom attached button disabled add-researcher-action"><i class="add icon"></i>Add</button>
+  </div>
+
+  <div class="ui fluid card">
+    <div class="content">
+      <div class="header">Countings</div>
+      <div class="description">
+        <ul>
+        <% @project.countings.each do |counting| %>
+          <li><a href="<%= counting_path(@project, counting) %>"><%= counting.name %></a></li>
+        <% end %>
+        </ul>
+      </div>
+    </div>
+    <button class="ui mini bottom attached button disabled add-counting-action"><i class="add icon"></i>Add</button>
+  </div>
+
+  <div class="ui fluid card">
+    <div class="content project-sections">
+      <%= erb :'sections/_form.html', layout: false %>
+      <div class="header">Sections</div>
+      <div class="description">
+        <ul>
+        <% @project.sections.each do |section| %>
+          <li><a href="<%= section_path(@project, section) %>"><%= section.name %></a></li>
+        <% end %>
+        </ul>
+      </div>
+    </div>
+    <button class="ui mini bottom attached button add-section-action"><i class="add icon"></i>Add</button>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(function() {
+  const section = {
+    project_id: <%= @project.id %>,
+    name: null,
+  }
+
+  $('.add-section-action').click(() => {
+    new SectionModalFormView(section, (section) => window.location.reload()).show()
+  });
+});
+</script>

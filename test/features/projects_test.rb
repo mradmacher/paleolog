@@ -59,7 +59,7 @@ describe 'Projects' do
     page.must_have_content('Other Project')
   end
 
-  it 'displays validation errors whle renaming project' do
+  it 'displays validation errors while renaming project' do
     visit '/projects'
 
     click_button(class: 'add-project-action')

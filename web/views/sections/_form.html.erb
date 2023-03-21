@@ -1,0 +1,18 @@
+<div class="ui modal" id="section-form-window">
+  <div class="header">Edit Section</div>
+  <div class="content">
+    <%= erb :'_validation_messages.html', layout: false %>
+    <form class="ui form" id="section-form">
+      <input id="section-id" name="id" type="hidden" />
+      <input id="section-project_id" name="project_id" type="hidden" />
+      <div class="field">
+        <label for="section-name">Name</label>
+        <input id="section-name" name="name" type="text" />
+      </div>
+    </form>
+  </div>
+  <div class="actions">
+    <button class="ui cancel negative button">Cancel</button>
+    <button class="ui approve positive button">Save</button>
+  </div>
+</div>

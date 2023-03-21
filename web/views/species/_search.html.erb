@@ -4,28 +4,32 @@
   </div>
 
   <div class="three wide column">
-    <form id="species-search" class="ui form">
-      <fieldset>
-        <legend>Find species</legend>
-        <div class="field">
-          <label for="search-group-id">Group</label>
-          <template id="search-group-option-template">
-            <option value=""></option>
-          </template>
-          <select id="search-group-id" name="group_id">
-          </select>
+    <div class="ui fluid card">
+      <div class="content">
+        <div class="header">Find species</div>
+        <div class="description">
+          <form id="species-search" class="ui form">
+            <div class="field">
+              <label for="search-group-id">Group</label>
+              <template id="search-group-option-template">
+                <option value=""></option>
+              </template>
+              <select id="search-group-id" name="group_id">
+              </select>
+            </div>
+            <div class="field">
+              <label for="search-name">Name</label>
+              <input id="search-name" type="text" name="name" />
+            </div>
+            <div class="field">
+              <label for="search-verified">Verified</label>
+              <input id="search-verified" type="checkbox" name="verified" />
+            </div>
+            <button class="ui button" type="submit">Search</button>
+          </form>
         </div>
-        <div class="field">
-          <label for="search-name">Name</label>
-          <input id="search-name" type="text" name="name" />
-        </div>
-        <div class="field">
-          <label for="search-verified">Verified</label>
-          <input id="search-verified" type="checkbox" name="verified" />
-        </div>
-        <button class="ui button" type="submit">Search</button>
-      </fieldset>
-    </form>
+      </div>
+    </div>
   </div>
 
   <div class="thirteen wide column scrolling content">
@@ -49,6 +53,7 @@
       </tbody>
     </table>
   </div>
+
 </div>
 
 <script type="text/javascript">

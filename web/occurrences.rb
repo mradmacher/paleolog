@@ -41,7 +41,7 @@ module Web
                                   sample: @sample || @section&.samples&.first,)
       end
 
-      using_project_layout { using_occurrences_layout { display 'occurrences/show.html' } }
+      using_project_without_sidebar_layout { using_occurrences_layout { display 'occurrences/show.html' } }
     end
   end
 end

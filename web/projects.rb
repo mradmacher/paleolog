@@ -30,5 +30,15 @@ module Web
       )
       using_project_layout { display 'projects/show.html' }
     end
+
+    get '/projects/:id/species' do
+      @project = Paleolog::Repo::Project.find(params[:id].to_i)
+      @filters = {}
+      @filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
+      @filters[:name] = params[:name] if params[:name] && !params[:name].empty?
+      @filters[:verified] = true if params[:verified] == 'true'
+
+      using_project_without_sidebar_layout { display 'projects/catalog.html' }
+    end
   end
 end

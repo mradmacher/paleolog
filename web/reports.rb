@@ -32,7 +32,7 @@ module Web
       @occurrences = @counting && @section ? Paleolog::Repo::Occurrence.all_for_section(@counting, @section) : []
       @species = @occurrences.map(&:species).uniq(&:id)
 
-      using_project_layout { using_reports_layout { display 'reports/index.html' } }
+      using_project_without_sidebar_layout { using_reports_layout { display 'reports/index.html' } }
     end
 
     post '/projects/:project_id/reports' do

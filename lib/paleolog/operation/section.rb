@@ -4,20 +4,55 @@ module Paleolog
   module Operation
     class Section
       class << self
-        SectionParams = Pp.define.(
-          name: Pp.required.(Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)]))),
-          project_id: Pp.required.(Pp.integer.(Pp.gt.(0))),
+        CreateRules = Pp.define.(
+          name: Pp.required.(NameRules),
+          project_id: Pp.required.(IdRules),
+        )
+        UpdateRules = Pp.define.(
+          id: Pp.required.(IdRules),
+          name: Pp.required.(NameRules),
         )
 
-        def create(name:, project_id:)
-          params, errors = SectionParams.(name: name, project_id: project_id)
-          return Failure.new(errors) unless errors.empty?
+        def create(params, user_id:)
+          return UNAUTHORIZED_RESULT if user_id.nil?
 
-          if Paleolog::Repo::Section.name_exists_within_project?(params[:name], params[:project_id])
-            return Failure.new({ name: :taken })
+          params, errors = CreateRules.(params)
+          return [nil, errors] unless errors.empty?
+
+          unless Paleolog::Repo::ResearchParticipation.can_manage_project?(
+            user_id,
+            params[:project_id],
+          )
+            return UNAUTHORIZED_RESULT
           end
 
-          Success.new(Paleolog::Repo::Section.create(params))
+          if Paleolog::Repo::Section.name_exists_within_project?(params[:name], params[:project_id])
+            return [nil, { name: :taken }]
+          end
+
+          section = Paleolog::Repo::Section.create(params)
+          [section, {}]
+        end
+
+        def rename(params, user_id:)
+          return [nil, { general: UNAUTHORIZED }] if user_id.nil?
+
+          params, errors = UpdateRules.(params)
+          return [false, errors] unless errors.empty?
+
+          unless Paleolog::Repo::ResearchParticipation.can_manage_section?(
+            user_id,
+            params[:id],
+          )
+            return [false, { general: UNAUTHORIZED }]
+          end
+
+          if Paleolog::Repo::Section.name_exists_within_same_project?(params[:name], section_id: params[:id])
+            return [nil, { name: :taken }]
+          end
+
+          section = Paleolog::Repo::Section.update(params[:id], params.except(:id))
+          [section, {}]
         end
       end
     end

@@ -11,6 +11,7 @@ require 'paleolog'
 require_relative './auth_helpers'
 require_relative './api/occurrences'
 require_relative './api/projects'
+require_relative './api/sections'
 require_relative './projects'
 require_relative './sections'
 require_relative './countings'
@@ -40,6 +41,7 @@ class PaleologWeb < Sinatra::Base
   use Web::Occurrences
   use Web::Api::Occurrences
   use Web::Api::Projects
+  use Web::Api::Sections
   use Web::Species
   use Web::Reports
 
