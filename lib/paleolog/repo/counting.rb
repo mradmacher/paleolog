@@ -22,6 +22,16 @@ module Paleolog
           end
         end
 
+        def name_exists_within_project?(name, project_id)
+          ds.where(project_id: project_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
+        end
+
+        def name_exists_within_same_project?(name, counting_id:)
+          ds.exclude(id: counting_id)
+            .where(project_id: ds.where(id: counting_id).select(:project_id))
+            .where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
+        end
+
         def entity_class
           Paleolog::Counting
         end

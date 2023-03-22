@@ -13,6 +13,7 @@ module Paleolog
 end
 
 require 'paleolog/operation/choice'
+require 'paleolog/operation/counting'
 require 'paleolog/operation/field'
 require 'paleolog/operation/group'
 require 'paleolog/operation/occurrence'

@@ -37,4 +37,34 @@ describe Paleolog::Repo::Counting do
       assert_equal(marker, result.marker)
     end
   end
+
+  describe '#name_exists_within_project?' do
+    let(:project) { Paleolog::Repo.save(Paleolog::Project.new(name: 'Some project')) }
+
+    after do
+      Paleolog::Repo::Project.delete_all
+    end
+
+    it 'checks name uniqueness within project scope' do
+      common_name = 'Some name'
+      Paleolog::Repo.save(Paleolog::Counting.new(name: common_name, project: project))
+
+      assert(repo.name_exists_within_project?(common_name, project.id))
+      refute(repo.name_exists_within_project?("#{common_name}123", project.id))
+    end
+
+    it 'does not check name uniqueness accross different projects' do
+      common_name = 'Some name'
+      other_project = Paleolog::Repo.save(Paleolog::Project.new(name: 'Other project'))
+      Paleolog::Repo.save(Paleolog::Counting.new(name: common_name, project: project))
+
+      refute(repo.name_exists_within_project?(common_name, other_project.id))
+    end
+
+    it 'is case insensitive' do
+      Paleolog::Repo.save(Paleolog::Counting.new(name: 'Some name', project: project))
+
+      assert(repo.name_exists_within_project?('soMe nAmE', project.id))
+    end
+  end
 end
