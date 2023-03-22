@@ -10,6 +10,11 @@ require 'minitest/rg'
 # require 'minitest/hooks/default'
 require 'paleolog'
 
+class HappyAuthorizer
+  def authenticated? = true
+  def can_manage?(_, _) = true
+end
+
 # class Minitest::DbCleanup
 #  def around
 #    Paleolog::Repo::Config.db.transaction(rollback: :always, auto_savepoint: true) { super }

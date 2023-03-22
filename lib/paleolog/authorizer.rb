@@ -8,6 +8,15 @@ module Paleolog
 
     class InvalidPassword < StandardError; end
 
+    MANAGE_PRIVILEGES = {
+      Paleolog::Project => lambda do |user_id, id|
+        Paleolog::Repo::ResearchParticipation.can_manage_project?(user_id, id)
+      end,
+      Paleolog::Counting => lambda do |user_id, id|
+        Paleolog::Repo::ResearchParticipation.can_manage_counting?(user_id, id)
+      end,
+    }.tap { |h| h.default = ->(_user_id, _id) { false } }
+
     attr_reader :session
 
     def initialize(session)
@@ -34,9 +43,18 @@ module Paleolog
     def logged_in?
       session[:user_id]
     end
+    alias authenticated? logged_in?
 
     def logout
       session.clear
+    end
+
+    def can_manage?(entity_class, id)
+      MANAGE_PRIVILEGES[entity_class].call(user_id, id)
+    end
+
+    def can_view?(entity_class, id)
+      false
     end
   end
 end

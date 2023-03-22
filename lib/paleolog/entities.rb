@@ -45,6 +45,7 @@ module Paleolog
       belongs_to :project, :user
     end
   end
+  Researcher = ResearchParticipation
 
   class Counting
     include Entity

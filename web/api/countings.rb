@@ -14,11 +14,11 @@ module Web
       end
 
       post '/api/countings' do
-        model_or_errors(*Paleolog::Operation::Counting.update(params, user_id: authorizer.user_id), serializer)
+        model_or_errors(*Paleolog::Operation::Counting.update(params, authorizer: authorizer), serializer)
       end
 
       patch '/api/countings/:id' do
-        model_or_errors(*Paleolog::Operation::Counting.update(params, user_id: authorizer.user_id), serializer)
+        model_or_errors(*Paleolog::Operation::Counting.update(params, authorizer: authorizer), serializer)
       end
 
       private
@@ -37,4 +37,3 @@ module Web
     end
   end
 end
-

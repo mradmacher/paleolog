@@ -51,5 +51,6 @@ module Paleolog
         end
       end
     end
+    Researcher = ResearchParticipation
   end
 end

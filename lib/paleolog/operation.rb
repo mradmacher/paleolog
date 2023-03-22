@@ -3,6 +3,8 @@
 module Paleolog
   module Operation
     UNAUTHORIZED = :unauthorized
+    UNAUTHENTICATED = :unauthenticated
+    UNAUTHENTICATED_RESULT = [nil, { general: UNAUTHENTICATED }].freeze
     UNAUTHORIZED_RESULT = [nil, { general: UNAUTHORIZED }].freeze
 
     IdRules = Pp.required.(Pp.integer.(Pp.gt.(0)))
