@@ -13,11 +13,11 @@ describe 'Sections' do
     project
   end
   let(:researcher) do
-    Paleolog::Repo::ResearchParticipation.all_for_project(project.id).detect { |r| r.user_id == user.id }
+    Paleolog::Repo::Researcher.all_for_project(project.id).detect { |r| r.user_id == user.id }
   end
 
   after do
-    Paleolog::Repo::ResearchParticipation.delete_all
+    Paleolog::Repo::Researcher.delete_all
     Paleolog::Repo::User.delete_all
     Paleolog::Repo::Section.delete_all
     Paleolog::Repo::Project.delete_all
@@ -78,7 +78,7 @@ describe 'Sections' do
 
     describe 'with user' do
       let(:section) do
-        Paleolog::Operation::Section.create({ name: 'some project', project_id: project.id }, user_id: user.id).first
+        Paleolog::Operation::Section.create({ name: 'some project', project_id: project.id }, authorizer: HappyAuthorizer.new).first
       end
 
       before do

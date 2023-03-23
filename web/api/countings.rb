@@ -9,10 +9,6 @@ module Web
     class Countings < Sinatra::Base
       helpers Web::AuthHelpers, Web::ApiHelpers
 
-      before '/api/countings*' do
-        authorize_api!
-      end
-
       post '/api/countings' do
         model_or_errors(*Paleolog::Operation::Counting.update(params, authorizer: authorizer), serializer)
       end

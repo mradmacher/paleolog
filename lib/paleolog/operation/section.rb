@@ -13,18 +13,13 @@ module Paleolog
           name: Pp.required.(NameRules),
         )
 
-        def create(params, user_id:)
-          return UNAUTHORIZED_RESULT if user_id.nil?
+        def create(params, authorizer:)
+          return UNAUTHENTICATED_RESULT unless authorizer.authenticated?
 
           params, errors = CreateRules.(params)
           return [nil, errors] unless errors.empty?
 
-          unless Paleolog::Repo::ResearchParticipation.can_manage_project?(
-            user_id,
-            params[:project_id],
-          )
-            return UNAUTHORIZED_RESULT
-          end
+          return UNAUTHORIZED_RESULT unless authorizer.can_manage?(Paleolog::Project, params[:project_id])
 
           if Paleolog::Repo::Section.name_exists_within_project?(params[:name], params[:project_id])
             return [nil, { name: :taken }]
@@ -34,18 +29,13 @@ module Paleolog
           [section, {}]
         end
 
-        def rename(params, user_id:)
-          return [nil, { general: UNAUTHORIZED }] if user_id.nil?
+        def update(params, authorizer:)
+          return UNAUTHENTICATED_RESULT unless authorizer.authenticated?
 
           params, errors = UpdateRules.(params)
           return [false, errors] unless errors.empty?
 
-          unless Paleolog::Repo::ResearchParticipation.can_manage_section?(
-            user_id,
-            params[:id],
-          )
-            return [false, { general: UNAUTHORIZED }]
-          end
+          return UNAUTHORIZED_RESULT unless authorizer.can_manage?(Paleolog::Section, params[:id])
 
           if Paleolog::Repo::Section.name_exists_within_same_project?(params[:name], section_id: params[:id])
             return [nil, { name: :taken }]

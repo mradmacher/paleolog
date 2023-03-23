@@ -12,14 +12,9 @@ describe Paleolog::Operation::Counting do
   end
   let(:authorizer) { Minitest::Mock.new }
 
-  class HappyAuthorizer
-    def authenticated? = true
-    def can_manage?(_, _) = true
-  end
-
   after do
     Paleolog::Repo::Counting.delete_all
-    Paleolog::Repo::ResearchParticipation.delete_all
+    Paleolog::Repo::Researcher.delete_all
     Paleolog::Repo::Project.delete_all
     Paleolog::Repo::User.delete_all
   end

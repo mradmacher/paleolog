@@ -5,7 +5,6 @@ require 'bcrypt'
 module Paleolog
   class Authorizer
     class InvalidLogin < StandardError; end
-
     class InvalidPassword < StandardError; end
 
     MANAGE_PRIVILEGES = {
@@ -14,6 +13,9 @@ module Paleolog
       end,
       Paleolog::Counting => lambda do |user_id, id|
         Paleolog::Repo::ResearchParticipation.can_manage_counting?(user_id, id)
+      end,
+      Paleolog::Section => lambda do |user_id, id|
+        Paleolog::Repo::ResearchParticipation.can_manage_section?(user_id, id)
       end,
     }.tap { |h| h.default = ->(_user_id, _id) { false } }
 
