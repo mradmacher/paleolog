@@ -9,23 +9,23 @@ module Web
     class Projects < Sinatra::Base
       helpers Web::AuthHelpers, Web::ApiHelpers
 
-      before '/api/projects*' do
-        authorize_api!
-      end
-
       get '/api/projects' do
-        projects = Paleolog::Operation::Project.find_all_for_user(authorizer.user_id)
-        {
-          projects: projects.map { |project| serializer.call(project) },
-        }.to_json
+        model_or_errors(
+          *Paleolog::Operation::Project.find_all_for_user(authorizer.user_id, authorizer: authorizer),
+          serializer,
+          :projects,
+        )
       end
 
       post '/api/projects' do
-        model_or_errors(*Paleolog::Operation::Project.create(params, user_id: authorizer.user_id), serializer)
+        model_or_errors(
+          *Paleolog::Operation::Project.create(params.merge(user_id: authorizer.user_id), authorizer: authorizer),
+          serializer,
+        )
       end
 
       patch '/api/projects/:id' do
-        model_or_errors(*Paleolog::Operation::Project.rename(params, user_id: authorizer.user_id), serializer)
+        model_or_errors(*Paleolog::Operation::Project.rename(params, authorizer: authorizer), serializer)
       end
 
       private

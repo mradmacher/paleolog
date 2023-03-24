@@ -6,7 +6,10 @@ describe Paleolog::Operation::Counting do
   let(:operation) { Paleolog::Operation::Counting }
   let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
   let(:project) do
-    project, errors = Paleolog::Operation::Project.create({ name: 'Project for Counting' }, user_id: user.id)
+    project, errors = Paleolog::Operation::Project.create(
+      { name: 'Project for Counting', user_id: user.id },
+      authorizer: HappyAuthorizer.new,
+    )
     assert_predicate errors, :empty?
     project
   end
@@ -116,7 +119,10 @@ describe Paleolog::Operation::Counting do
 
   describe '#update' do
     let(:existing_counting) do
-      counting, errors = operation.create({ name: 'Some Name', project_id: project.id }, authorizer: HappyAuthorizer.new)
+      counting, errors = operation.create(
+        { name: 'Some Name', project_id: project.id },
+        authorizer: HappyAuthorizer.new,
+      )
       assert_predicate errors, :empty?
       counting
     end
@@ -189,8 +195,14 @@ describe Paleolog::Operation::Counting do
       end
 
       it 'does not complain when name exists but in other project' do
-        other_project, = Paleolog::Operation::Project.create({ name: 'Other Project for Section' }, user_id: user.id)
-        _, errors = operation.create({ name: 'Another Name', project_id: other_project.id }, authorizer: HappyAuthorizer.new)
+        other_project, = Paleolog::Operation::Project.create(
+          { name: 'Other Project for Section', user_id: user.id },
+          authorizer: HappyAuthorizer.new,
+        )
+        _, errors = operation.create(
+          { name: 'Another Name', project_id: other_project.id },
+          authorizer: HappyAuthorizer.new,
+        )
         assert_predicate errors, :empty?
 
         _, errors = operation.update({ id: existing_counting.id, name: 'Another Name' }, authorizer: authorizer)
@@ -198,7 +210,10 @@ describe Paleolog::Operation::Counting do
       end
 
       it 'can set the same name' do
-        counting, errors = operation.update({ id: existing_counting.id, name: existing_counting.name }, authorizer: authorizer)
+        counting, errors = operation.update(
+          { id: existing_counting.id, name: existing_counting.name },
+          authorizer: authorizer,
+        )
         assert_predicate errors, :empty?
         assert_equal existing_counting.name, counting.name
       end

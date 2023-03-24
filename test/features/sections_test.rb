@@ -6,7 +6,10 @@ describe 'Sections' do
   before do
     use_javascript_driver
     user = Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
-    project, = Paleolog::Operation::Project.create({ name: 'test' }, user_id: user.id)
+    project, = Paleolog::Operation::Project.create(
+      { name: 'test', user_id: user.id },
+      authorizer: HappyAuthorizer.new,
+    )
 
     visit '/login'
     fill_in('login-field', with: 'test')

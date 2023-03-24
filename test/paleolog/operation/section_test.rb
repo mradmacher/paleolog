@@ -6,7 +6,10 @@ describe Paleolog::Operation::Section do
   let(:operation) { Paleolog::Operation::Section }
   let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
   let(:project) do
-    project, errors = Paleolog::Operation::Project.create({ name: 'Project for Section' }, user_id: user.id)
+    project, errors = Paleolog::Operation::Project.create(
+      { name: 'Project for Section', user_id: user.id },
+      authorizer: HappyAuthorizer.new,
+    )
     assert_predicate errors, :empty?
     project
   end
@@ -197,8 +200,12 @@ describe Paleolog::Operation::Section do
       end
 
       it 'does not complain when name exists but in other project' do
-        other_project, = Paleolog::Operation::Project.create({ name: 'Other Project for Section' }, user_id: user.id)
-        _, errors = operation.create({ name: 'Another Name', project_id: other_project.id }, authorizer: HappyAuthorizer.new)
+        other_project, = Paleolog::Operation::Project.create(
+          { name: 'Other Project for Section', user_id: user.id }, authorizer: HappyAuthorizer.new,
+        )
+        _, errors = operation.create(
+          { name: 'Another Name', project_id: other_project.id }, authorizer: HappyAuthorizer.new,
+        )
         assert_predicate errors, :empty?
 
         _, errors = operation.update({ id: existing_section.id, name: 'Another Name' }, authorizer: authorizer)
@@ -206,7 +213,9 @@ describe Paleolog::Operation::Section do
       end
 
       it 'can set the same name' do
-        section, errors = operation.update({ id: existing_section.id, name: existing_section.name }, authorizer: authorizer)
+        section, errors = operation.update(
+          { id: existing_section.id, name: existing_section.name }, authorizer: authorizer,
+        )
         assert_predicate errors, :empty?
         assert_equal existing_section.name, section.name
       end

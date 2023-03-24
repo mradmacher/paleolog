@@ -55,7 +55,7 @@ module Paleolog
       MANAGE_PRIVILEGES[entity_class].call(user_id, id)
     end
 
-    def can_view?(entity_class, id)
+    def can_view?(_entity_class, _id)
       false
     end
   end
