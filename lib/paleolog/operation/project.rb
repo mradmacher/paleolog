@@ -16,7 +16,7 @@ module Paleolog
         def find_all_for_user(user_id, authorizer:)
           return UNAUTHENTICATED_RESULT unless authorizer.authenticated?
 
-          projects = Repo::ResearchParticipation.all_for_user(user_id).map(&:project)
+          projects = Repo::Researcher.all_for_user(user_id).map(&:project)
           [projects, {}]
         end
 
@@ -30,7 +30,7 @@ module Paleolog
 
           # FIXME: add transaction
           project = Paleolog::Repo::Project.create(name: params[:name])
-          Paleolog::Repo::ResearchParticipation.create(
+          Paleolog::Repo::Researcher.create(
             user_id: params[:user_id],
             project_id: project.id,
             manager: true,

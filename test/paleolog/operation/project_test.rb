@@ -39,9 +39,9 @@ describe Paleolog::Operation::Project do
         project_with_different_user = Paleolog::Repo.save(Paleolog::Project.new(name: 'project1'))
         other_user = Paleolog::Repo.save(Paleolog::User.new(login: 'other test', password: 'test123'))
         Paleolog::Repo.save(Paleolog::Project.new(name: 'project2'))
-        Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: other_user, project: project_with_different_user))
+        Paleolog::Repo.save(Paleolog::Researcher.new(user: other_user, project: project_with_different_user))
         project = Paleolog::Repo.save(Paleolog::Project.new(name: 'some project'))
-        Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project))
+        Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project))
 
         projects, = operation.find_all_for_user(user.id, authorizer: authorizer)
         assert_equal 1, projects.size
@@ -50,7 +50,7 @@ describe Paleolog::Operation::Project do
 
       it 'returns all necessary attributes' do
         project = Paleolog::Repo.save(Paleolog::Project.new(name: 'some project'))
-        Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project))
+        Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project))
         projects, = operation.find_all_for_user(user.id, authorizer: authorizer)
 
         assert_equal 1, projects.size

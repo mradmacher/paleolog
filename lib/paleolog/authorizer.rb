@@ -9,13 +9,13 @@ module Paleolog
 
     MANAGE_PRIVILEGES = {
       Paleolog::Project => lambda do |user_id, id|
-        Paleolog::Repo::ResearchParticipation.can_manage_project?(user_id, id)
+        Paleolog::Repo::Researcher.can_manage_project?(user_id, id)
       end,
       Paleolog::Counting => lambda do |user_id, id|
-        Paleolog::Repo::ResearchParticipation.can_manage_counting?(user_id, id)
+        Paleolog::Repo::Researcher.can_manage_counting?(user_id, id)
       end,
       Paleolog::Section => lambda do |user_id, id|
-        Paleolog::Repo::ResearchParticipation.can_manage_section?(user_id, id)
+        Paleolog::Repo::Researcher.can_manage_section?(user_id, id)
       end,
     }.tap { |h| h.default = ->(_user_id, _id) { false } }
 

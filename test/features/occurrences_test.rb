@@ -20,7 +20,7 @@ describe 'Occurrences' do
     Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species21, rank: 2))
     Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species12, rank: 3))
     user = Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
-    Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: true))
+    Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
 
     visit '/login'
     fill_in('login-field', with: 'test')

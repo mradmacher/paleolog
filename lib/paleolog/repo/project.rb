@@ -22,10 +22,10 @@ module Paleolog
           }
         end
 
-        def with_participations
+        def with_researchers
           lambda { |project|
-            Paleolog::Repo::ResearchParticipation.all_for_project(project.id).each do |participation|
-              project.research_participations << participation
+            Paleolog::Repo::Researcher.all_for_project(project.id).each do |researcher|
+              project.researchers << researcher
             end
           }
         end

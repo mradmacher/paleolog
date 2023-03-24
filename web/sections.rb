@@ -20,7 +20,7 @@ module Web
         params[:project_id].to_i,
         Paleolog::Repo::Project.with_countings,
         Paleolog::Repo::Project.with_sections,
-        Paleolog::Repo::Project.with_participations,
+        Paleolog::Repo::Project.with_researchers,
       )
       @section = Paleolog::Repo::Section.find_for_project(params[:id].to_i, @project.id)
       using_project_layout { display 'sections/show.html' }

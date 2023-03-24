@@ -28,7 +28,7 @@ describe 'Occurrences' do
     end
 
     it 'accepts user participating in the project' do
-      Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project))
+      Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project))
       params = { sample_id: sample.id, counting_id: counting.id }
       login(user)
       assert_permitted(-> { get "/api/projects/#{project.id}/occurrences", params })
@@ -36,7 +36,7 @@ describe 'Occurrences' do
 
     describe 'with user' do
       before do
-        Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project))
+        Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project))
         login(user)
       end
 
@@ -112,14 +112,14 @@ describe 'Occurrences' do
     end
 
     it 'rejects user observing the project' do
-      Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: false))
+      Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: false))
       params = { sample_id: sample.id, species_id: species11.id, counting_id: counting.id }
       login(user)
       assert_forbidden(-> { post "/api/projects/#{project.id}/occurrences", params })
     end
 
     it 'accepts user managing the project' do
-      Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: true))
+      Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
       params = { sample_id: sample.id, species_id: species11.id, counting_id: counting.id }
       login(user)
       assert_permitted(-> { post "/api/projects/#{project.id}/occurrences", params })
@@ -127,7 +127,7 @@ describe 'Occurrences' do
 
     describe 'with user' do
       before do
-        Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: true))
+        Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
         login(user)
       end
 
@@ -182,20 +182,20 @@ describe 'Occurrences' do
     end
 
     it 'rejects user observing the project' do
-      Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: false))
+      Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: false))
       login(user)
       assert_forbidden(-> { delete "/api/projects/#{project.id}/occurrences/#{occurrence.id}", {} })
     end
 
     it 'accepts user managing the project' do
-      Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: true))
+      Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
       login(user)
       assert_permitted(-> { delete "/api/projects/#{project.id}/occurrences/#{occurrence.id}", {} })
     end
 
     describe 'with user' do
       before do
-        Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: true))
+        Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
         login(user)
       end
 
@@ -224,14 +224,14 @@ describe 'Occurrences' do
     end
 
     it 'rejects user observing the project' do
-      Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: false))
+      Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: false))
       params = { shift: '1' }
       login(user)
       assert_forbidden(-> { patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", params })
     end
 
     it 'accepts user managing the project' do
-      Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: true))
+      Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
       params = { shift: '1' }
       login(user)
       assert_permitted(-> { patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", params })
@@ -239,7 +239,7 @@ describe 'Occurrences' do
 
     describe 'with user' do
       before do
-        Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: true))
+        Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
         login(user)
       end
 

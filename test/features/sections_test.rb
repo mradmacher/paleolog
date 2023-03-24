@@ -20,7 +20,7 @@ describe 'Sections' do
   end
 
   after do
-    Paleolog::Repo.delete_all(Paleolog::ResearchParticipation)
+    Paleolog::Repo.delete_all(Paleolog::Researcher)
     Paleolog::Repo.delete_all(Paleolog::Project)
     Paleolog::Repo.delete_all(Paleolog::User)
     Paleolog::Repo.delete_all(Paleolog::Section)

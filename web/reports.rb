@@ -20,7 +20,7 @@ module Web
         params[:project_id].to_i,
         Paleolog::Repo::Project.with_countings,
         Paleolog::Repo::Project.with_sections,
-        Paleolog::Repo::Project.with_participations,
+        Paleolog::Repo::Project.with_researchers,
       )
       @section = Paleolog::Repo::Section.find_for_project(params[:section].to_i, @project.id) if params[:section]
       if params[:counting]
@@ -40,7 +40,7 @@ module Web
         params[:project_id].to_i,
         Paleolog::Repo::Project.with_countings,
         Paleolog::Repo::Project.with_sections,
-        Paleolog::Repo::Project.with_participations,
+        Paleolog::Repo::Project.with_researchers,
       )
       if params[:section_id]
         @section = Paleolog::Repo::Section.find_for_project(params[:section_id].to_i,
@@ -66,7 +66,7 @@ module Web
         params[:project_id].to_i,
         Paleolog::Repo::Project.with_countings,
         Paleolog::Repo::Project.with_sections,
-        Paleolog::Repo::Project.with_participations,
+        Paleolog::Repo::Project.with_researchers,
       )
       @section = Paleolog::Repo::Section.find_for_project(params['report']['section_id'].to_i, @project.id)
       @counting = Paleolog::Repo::Counting.find_for_project(params['report']['counting_id'].to_i, @project.id)

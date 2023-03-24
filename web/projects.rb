@@ -26,7 +26,7 @@ module Web
         params[:id].to_i,
         Paleolog::Repo::Project.with_countings,
         Paleolog::Repo::Project.with_sections,
-        Paleolog::Repo::Project.with_participations,
+        Paleolog::Repo::Project.with_researchers,
       )
       using_project_layout { display 'projects/show.html' }
     end

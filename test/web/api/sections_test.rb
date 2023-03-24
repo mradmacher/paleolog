@@ -32,7 +32,7 @@ describe 'Sections' do
     end
 
     it 'rejects user observing the project' do
-      Paleolog::Repo::ResearchParticipation.update(researcher.id, manager: false)
+      Paleolog::Repo::Researcher.update(researcher.id, manager: false)
       login(user)
       assert_forbidden(-> { post '/api/sections', { project_id: project.id, name: 'some name' } })
     end
@@ -74,7 +74,7 @@ describe 'Sections' do
     end
 
     it 'rejects user observing the project' do
-      Paleolog::Repo::ResearchParticipation.update(researcher.id, manager: false)
+      Paleolog::Repo::Researcher.update(researcher.id, manager: false)
       login(user)
       assert_forbidden(-> { patch '/api/sections/1', { name: 'some new name', project_id: project.id } })
     end

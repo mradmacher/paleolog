@@ -55,7 +55,7 @@ require 'paleolog/repo/field'
 require 'paleolog/repo/image'
 require 'paleolog/repo/occurrence'
 require 'paleolog/repo/project'
-require 'paleolog/repo/research_participation'
+require 'paleolog/repo/researcher'
 require 'paleolog/repo/sample'
 require 'paleolog/repo/section'
 require 'paleolog/repo/species'
@@ -76,7 +76,7 @@ module Paleolog
       Paleolog::Sample => Paleolog::Repo::Sample,
       Paleolog::Occurrence => Paleolog::Repo::Occurrence,
       Paleolog::User => Paleolog::Repo::User,
-      Paleolog::ResearchParticipation => Paleolog::Repo::ResearchParticipation,
+      Paleolog::Researcher => Paleolog::Repo::Researcher,
     }.freeze
 
     def self.save(obj)
