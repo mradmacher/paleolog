@@ -9,16 +9,12 @@ module Web
     class Sections < Sinatra::Base
       helpers Web::AuthHelpers, Web::ApiHelpers
 
-      before '/api/sections*' do
-        authorize_api!
-      end
-
       post '/api/sections' do
-        model_or_errors(*Paleolog::Operation::Section.create(params, user_id: authorizer.user_id), serializer)
+        model_or_errors(*Paleolog::Operation::Section.create(params, authorizer: authorizer), serializer)
       end
 
       patch '/api/sections/:id' do
-        model_or_errors(*Paleolog::Operation::Section.rename(params, user_id: authorizer.user_id), serializer)
+        model_or_errors(*Paleolog::Operation::Section.update(params, authorizer: authorizer), serializer)
       end
 
       private

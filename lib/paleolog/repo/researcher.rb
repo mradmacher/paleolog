@@ -2,7 +2,7 @@
 
 module Paleolog
   module Repo
-    class ResearchParticipation
+    class Researcher
       class << self
         include CommonQueries
 
@@ -20,9 +20,15 @@ module Paleolog
              .join(:sections, Sequel[:sections][:project_id] => :id).first.nil?
         end
 
+        def can_manage_counting?(user_id, counting_id)
+          !ds.where(user_id: user_id, manager: true, Sequel[:countings][:id] => counting_id)
+             .join(:projects, Sequel[:projects][:id] => :project_id)
+             .join(:countings, Sequel[:countings][:project_id] => :id).first.nil?
+        end
+
         def all_for_user(user_id)
           ds.where(user_id: user_id).all.map do |result|
-            Paleolog::ResearchParticipation.new(**result) do |participation|
+            Paleolog::Researcher.new(**result) do |participation|
               participation.project = Paleolog::Repo::Project.find(participation.project_id)
             end
           end
@@ -30,14 +36,14 @@ module Paleolog
 
         def all_for_project(project_id)
           ds.where(project_id: project_id).all.map do |result|
-            Paleolog::ResearchParticipation.new(**result) do |participation|
+            Paleolog::Researcher.new(**result) do |participation|
               participation.user = Paleolog::Repo::User.find(participation.user_id)
             end
           end
         end
 
         def entity_class
-          Paleolog::ResearchParticipation
+          Paleolog::Researcher
         end
 
         def ds

@@ -10,6 +10,12 @@ const errorMessages = {
       taken: "Name is already taken",
       blank: "Name can't be blank"
     }
+  },
+  counting: {
+    name: {
+      taken: "Name is already taken",
+      blank: "Name can't be blank"
+    }
   }
 }
 
@@ -55,6 +61,12 @@ class ProjectRequest extends ModelRequest {
 class SectionRequest extends ModelRequest {
   constructor() {
     super(`/api/sections`);
+  }
+}
+
+class CountingRequest extends ModelRequest {
+  constructor() {
+    super(`/api/countings`);
   }
 }
 
@@ -125,12 +137,18 @@ class ModalFormView {
 
 class ProjectModalFormView extends ModalFormView {
   constructor(attrs, callback) {
-    super('project', attrs, new ProjectRequest, callback);
+    super('project', attrs, new ProjectRequest, callback)
   }
 }
 
 class SectionModalFormView extends ModalFormView {
   constructor(attrs, callback) {
-    super('section', attrs, new SectionRequest, callback);
+    super('section', attrs, new SectionRequest, callback)
+  }
+}
+
+class CountingModalFormView extends ModalFormView {
+  constructor(attrs, callback) {
+    super('counting', attrs, new CountingRequest, callback)
   }
 }

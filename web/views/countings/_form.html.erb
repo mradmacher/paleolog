@@ -1,0 +1,18 @@
+<div class="ui modal" id="counting-form-window">
+  <div class="header">Edit Counting</div>
+  <div class="content">
+    <%= erb :'_validation_messages.html', layout: false %>
+    <form class="ui form" id="counting-form">
+      <input id="counting-id" name="id" type="hidden" />
+      <input id="counting-project_id" name="project_id" type="hidden" />
+      <div class="field">
+        <label for="counting-name">Name</label>
+        <input id="counting-name" name="name" type="text" />
+      </div>
+    </form>
+  </div>
+  <div class="actions">
+    <button class="ui cancel negative button">Cancel</button>
+    <button class="ui approve positive button">Save</button>
+  </div>
+</div>

@@ -23,18 +23,18 @@ describe 'Occurrences' do
     action.call
     assert_predicate last_response, :redirect?, 'Expected redirect when user not in project'
 
-    participation = Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project))
+    participation = Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project))
     action.call
     assert_predicate last_response, :ok?
 
-    Paleolog::Repo::ResearchParticipation.update(participation.id, manager: true)
+    Paleolog::Repo::Researcher.update(participation.id, manager: true)
     action.call
     assert_predicate last_response, :ok?
   end
   # rubocop:enable Metrics/AbcSize
 
   after do
-    Paleolog::Repo::ResearchParticipation.delete_all
+    Paleolog::Repo::Researcher.delete_all
     Paleolog::Repo::User.delete_all
     Paleolog::Repo::Project.delete_all
   end
@@ -51,7 +51,7 @@ describe 'Occurrences' do
 
     describe 'with user' do
       before do
-        Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: false))
+        Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: false))
         login(user)
       end
 

@@ -8,16 +8,19 @@ describe 'Sections' do
   let(:app) { Web::Api::Sections.new }
   let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
   let(:project) do
-    project, errors = Paleolog::Operation::Project.create({ name: 'project for section' }, user_id: user.id)
+    project, errors = Paleolog::Operation::Project.create(
+      { name: 'project for section', user_id: user.id },
+      authorizer: HappyAuthorizer.new,
+    )
     assert_predicate errors, :empty?
     project
   end
   let(:researcher) do
-    Paleolog::Repo::ResearchParticipation.all_for_project(project.id).detect { |r| r.user_id == user.id }
+    Paleolog::Repo::Researcher.all_for_project(project.id).detect { |r| r.user_id == user.id }
   end
 
   after do
-    Paleolog::Repo::ResearchParticipation.delete_all
+    Paleolog::Repo::Researcher.delete_all
     Paleolog::Repo::User.delete_all
     Paleolog::Repo::Section.delete_all
     Paleolog::Repo::Project.delete_all
@@ -29,7 +32,7 @@ describe 'Sections' do
     end
 
     it 'rejects user observing the project' do
-      Paleolog::Repo::ResearchParticipation.update(researcher.id, manager: false)
+      Paleolog::Repo::Researcher.update(researcher.id, manager: false)
       login(user)
       assert_forbidden(-> { post '/api/sections', { project_id: project.id, name: 'some name' } })
     end
@@ -71,14 +74,17 @@ describe 'Sections' do
     end
 
     it 'rejects user observing the project' do
-      Paleolog::Repo::ResearchParticipation.update(researcher.id, manager: false)
+      Paleolog::Repo::Researcher.update(researcher.id, manager: false)
       login(user)
       assert_forbidden(-> { patch '/api/sections/1', { name: 'some new name', project_id: project.id } })
     end
 
     describe 'with user' do
       let(:section) do
-        Paleolog::Operation::Section.create({ name: 'some project', project_id: project.id }, user_id: user.id).first
+        Paleolog::Operation::Section.create(
+          { name: 'some project', project_id: project.id },
+          authorizer: HappyAuthorizer.new,
+        ).first
       end
 
       before do

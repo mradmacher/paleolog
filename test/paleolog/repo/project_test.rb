@@ -17,7 +17,7 @@ describe Paleolog::Repo::Project do
         Paleolog::User.new(login: 'Test User', password: 'Test123'),
       )
       Paleolog::Repo.save(
-        Paleolog::ResearchParticipation.new(
+        Paleolog::Researcher.new(
           user: user,
           project: project,
           created_at: Time.now,
@@ -25,11 +25,11 @@ describe Paleolog::Repo::Project do
         ),
       )
 
-      result = repo.find(project.id, repo.with_participations)
-      refute_empty(result.research_participations, 'research participations are empty')
-      assert_equal(1, result.research_participations.size)
-      result.research_participations
-      assert_equal('Test User', result.research_participations.first.user.login)
+      result = repo.find(project.id, repo.with_researchers)
+      refute_empty(result.researchers, 'researchers are empty')
+      assert_equal(1, result.researchers.size)
+      result.researchers
+      assert_equal('Test User', result.researchers.first.user.login)
     end
 
     it 'loads countings' do

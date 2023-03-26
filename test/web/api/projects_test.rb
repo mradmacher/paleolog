@@ -7,7 +7,10 @@ describe 'Projects' do
 
   let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
   let(:project) do
-    project, errors = Paleolog::Operation::Project.create({ name: 'some test project' }, user_id: user.id)
+    project, errors = Paleolog::Operation::Project.create(
+      { name: 'some test project', user_id: user.id },
+      authorizer: HappyAuthorizer.new,
+    )
     assert_predicate errors, :empty?
     project
   end
@@ -18,7 +21,7 @@ describe 'Projects' do
   end
 
   after do
-    Paleolog::Repo::ResearchParticipation.delete_all
+    Paleolog::Repo::Researcher.delete_all
     Paleolog::Repo::Project.delete_all
     Paleolog::Repo::User.delete_all
   end
@@ -39,7 +42,7 @@ describe 'Projects' do
       end
 
       it 'returns empty collection when user has no projects' do
-        Paleolog::Repo::ResearchParticipation.delete_all
+        Paleolog::Repo::Researcher.delete_all
         Paleolog::Repo::Project.delete_all
         get '/api/projects'
         assert_predicate last_response, :ok?, "Expected 200, but got #{last_response.status}"
@@ -48,7 +51,10 @@ describe 'Projects' do
       end
 
       it 'returns many projects' do
-        other_project, = Paleolog::Operation::Project.create({ name: 'project1' }, user_id: user.id)
+        other_project, = Paleolog::Operation::Project.create(
+          { name: 'project1', user_id: user.id },
+          authorizer: HappyAuthorizer.new,
+        )
 
         get '/api/projects'
         result = JSON.parse(last_response.body)['projects']
@@ -114,14 +120,14 @@ describe 'Projects' do
     end
 
     it 'rejects user observing the project' do
-      Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: false))
+      Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: false))
       login(user)
       assert_forbidden(-> { patch '/api/projects/1', { name: 'some name' } })
     end
 
     describe 'with user' do
       before do
-        Paleolog::Repo.save(Paleolog::ResearchParticipation.new(user: user, project: project, manager: true))
+        Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
         login(user)
       end
 

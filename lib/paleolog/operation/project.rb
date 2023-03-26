@@ -13,21 +13,24 @@ module Paleolog
           name: Pp.required.(NameRules),
         )
 
-        def find_all_for_user(user_id)
-          Repo::ResearchParticipation.all_for_user(user_id).map(&:project)
+        def find_all_for_user(user_id, authorizer:)
+          return UNAUTHENTICATED_RESULT unless authorizer.authenticated?
+
+          projects = Repo::Researcher.all_for_user(user_id).map(&:project)
+          [projects, {}]
         end
 
-        def create(params, user_id:)
-          return UNAUTHORIZED_RESULT if user_id.nil?
+        def create(params, authorizer:)
+          return UNAUTHENTICATED_RESULT unless authorizer.authenticated?
 
-          params, errors = CreateRules.(params.merge(user_id: user_id))
+          params, errors = CreateRules.(params)
           return [nil, errors] unless errors.empty?
 
           return [nil, { name: :taken }] if Paleolog::Repo::Project.name_exists?(params[:name])
 
           # FIXME: add transaction
           project = Paleolog::Repo::Project.create(name: params[:name])
-          Paleolog::Repo::ResearchParticipation.create(
+          Paleolog::Repo::Researcher.create(
             user_id: params[:user_id],
             project_id: project.id,
             manager: true,
@@ -35,18 +38,13 @@ module Paleolog
           [project, {}]
         end
 
-        def rename(params, user_id:)
-          return UNAUTHORIZED_RESULT if user_id.nil?
+        def rename(params, authorizer:)
+          return UNAUTHENTICATED_RESULT unless authorizer.authenticated?
 
           params, errors = UpdateRules.(params)
           return [nil, errors] unless errors.empty?
 
-          unless Paleolog::Repo::ResearchParticipation.can_manage_project?(
-            user_id,
-            params[:id],
-          )
-            return UNAUTHORIZED_RESULT
-          end
+          return UNAUTHORIZED_RESULT unless authorizer.can_manage?(Paleolog::Project, params[:id])
 
           return [nil, { name: :taken }] if Paleolog::Repo::Project.name_exists?(params[:name], exclude_id: params[:id])
 

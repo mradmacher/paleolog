@@ -15,7 +15,7 @@ module Web
 
       # rubocop:disable Metrics/BlockLength
       get '/api/projects/:project_id/occurrences' do
-        halt 403 unless Paleolog::Repo::ResearchParticipation.can_view_project?(session[:user_id], params[:project_id])
+        halt 403 unless Paleolog::Repo::Researcher.can_view_project?(session[:user_id], params[:project_id])
         halt 422 unless params[:sample_id] && params[:counting_id]
 
         project = Paleolog::Repo::Project.find(params[:project_id].to_i)
@@ -53,8 +53,7 @@ module Web
       # rubocop:enable Metrics/BlockLength
 
       post '/api/projects/:project_id/occurrences' do
-        halt 403 unless Paleolog::Repo::ResearchParticipation.can_manage_project?(session[:user_id],
-                                                                                  params[:project_id],)
+        halt 403 unless Paleolog::Repo::Researcher.can_manage_project?(session[:user_id], params[:project_id])
 
         if params[:sample_id]
           sample = Paleolog::Repo::Sample.find_for_project(params[:sample_id].to_i,
@@ -82,8 +81,7 @@ module Web
       end
 
       delete '/api/projects/:project_id/occurrences/:id' do
-        halt 403 unless Paleolog::Repo::ResearchParticipation.can_manage_project?(session[:user_id],
-                                                                                  params[:project_id],)
+        halt 403 unless Paleolog::Repo::Researcher.can_manage_project?(session[:user_id], params[:project_id])
 
         occurrence = Paleolog::Repo::Occurrence.find_in_project(params[:id], params[:project_id])
         halt 404 if occurrence.nil?
@@ -106,8 +104,7 @@ module Web
 
       # rubocop:disable Metrics/BlockLength
       patch '/api/projects/:project_id/occurrences/:id' do
-        halt 403 unless Paleolog::Repo::ResearchParticipation.can_manage_project?(session[:user_id],
-                                                                                  params[:project_id],)
+        halt 403 unless Paleolog::Repo::Researcher.can_manage_project?(session[:user_id], params[:project_id])
 
         occurrence = Paleolog::Repo::Occurrence.find_in_project(params[:id], params[:project_id])
         halt 404 if occurrence.nil?

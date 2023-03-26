@@ -8,6 +8,11 @@
       <div class="ui fluid horizontal menu">
         <a class="item" href="<%= occurrences_path(@project, counting: @counting) %>">Occurrences</a>
         <a class="item" href="<%= reports_path(@project, counting: @counting) %>">Report</a>
+        <div class="ui right secondary menu">
+          <div class="item">
+            <button class="ui button edit-counting-action">Edit Counting</button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="description">
@@ -28,3 +33,15 @@
     </div>
   </div>
 </div>
+<script type="text/javascript">
+$(function() {
+  const counting = {
+    id: <%= @counting.id %>,
+    project_id: <%= @counting.project_id %>,
+    name: "<%= @counting.name %>",
+  }
+  $('.edit-counting-action').click(() => {
+    new CountingModalFormView(counting, (counting) => window.location.reload()).show()
+  });
+});
+</script>

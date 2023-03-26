@@ -16,7 +16,7 @@ module Web
     end
 
     get '/projects/:project_id/occurrences' do
-      unless Paleolog::Repo::ResearchParticipation.can_view_project?(session[:user_id], params[:project_id].to_i)
+      unless Paleolog::Repo::Researcher.can_view_project?(session[:user_id], params[:project_id].to_i)
         redirect projects_path
       end
 
@@ -24,7 +24,7 @@ module Web
         params[:project_id].to_i,
         Paleolog::Repo::Project.with_countings,
         Paleolog::Repo::Project.with_sections,
-        Paleolog::Repo::Project.with_participations,
+        Paleolog::Repo::Project.with_researchers,
       )
       if params[:counting]
         @counting = Paleolog::Repo::Counting.find_for_project(params[:counting].to_i,

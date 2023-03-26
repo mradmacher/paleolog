@@ -5,9 +5,17 @@ require 'test_helper'
 describe Paleolog::Operation::Sample do
   let(:operation) { Paleolog::Operation::Sample }
   let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
-  let(:project) { Paleolog::Operation::Project.create({ name: 'Project for Section' }, user_id: user.id).first }
+  let(:project) do
+    Paleolog::Operation::Project.create(
+      { name: 'Project for Section', user_id: user.id },
+      authorizer: HappyAuthorizer.new,
+    ).first
+  end
   let(:section) do
-    Paleolog::Operation::Section.create({ name: 'Section for Sample', project_id: project.id }, user_id: user.id).first
+    Paleolog::Operation::Section.create(
+      { name: 'Section for Sample', project_id: project.id },
+      authorizer: HappyAuthorizer.new,
+    ).first
   end
 
   after do

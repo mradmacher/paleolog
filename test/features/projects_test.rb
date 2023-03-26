@@ -15,6 +15,7 @@ describe 'Projects' do
   end
 
   after do
+    Paleolog::Repo.delete_all(Paleolog::Researcher)
     Paleolog::Repo.delete_all(Paleolog::Project)
     Paleolog::Repo.delete_all(Paleolog::User)
   end

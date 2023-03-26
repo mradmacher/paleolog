@@ -27,11 +27,11 @@ module Paleolog
 
       has_many :countings,
                :sections,
-               :research_participations
+               :researchers
     end
   end
 
-  class ResearchParticipation
+  class Researcher
     include Entity
 
     schema do

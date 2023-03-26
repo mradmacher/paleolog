@@ -4,8 +4,8 @@
       <div class="header">Researchers</div>
       <div class="description">
         <ul>
-        <% @project.research_participations.each do |participation| %>
-          <li><%= participation.user.name %>
+        <% @project.researchers.each do |researcher| %>
+          <li><%= researcher.user.name %>
         <% end %>
         </ul>
       </div>
@@ -14,7 +14,8 @@
   </div>
 
   <div class="ui fluid card">
-    <div class="content">
+    <div class="content project-countings">
+      <%= erb :'countings/_form.html', layout: false %>
       <div class="header">Countings</div>
       <div class="description">
         <ul>
@@ -24,7 +25,7 @@
         </ul>
       </div>
     </div>
-    <button class="ui mini bottom attached button disabled add-counting-action"><i class="add icon"></i>Add</button>
+    <button class="ui mini bottom attached button add-counting-action"><i class="add icon"></i>Add</button>
   </div>
 
   <div class="ui fluid card">
@@ -50,8 +51,17 @@ $(function() {
     name: null,
   }
 
+  const counting = {
+    project_id: <%= @project.id %>,
+    name: null,
+  }
+
   $('.add-section-action').click(() => {
     new SectionModalFormView(section, (section) => window.location.reload()).show()
-  });
+  })
+
+  $('.add-counting-action').click(() => {
+    new CountingModalFormView(counting, (counting) => window.location.reload()).show()
+  })
 });
 </script>
