@@ -58,7 +58,7 @@ describe 'Countings' do
       fill_in('Name', with: 'Other Counting')
       click_on('Save')
     end
-    refute_text('Some Section')
+    refute_text('Some Counting')
     within('.project-countings') do
       assert_text('Other Counting')
     end
@@ -70,7 +70,7 @@ describe 'Countings' do
       fill_in('Name', with: 'Some Counting')
       click_on('Save')
     end
-    click_on('Some Section')
+    click_on('Some Counting')
     click_button(class: 'edit-counting-action')
     within('#counting-form-window') do
       fill_in('Name', with: '')

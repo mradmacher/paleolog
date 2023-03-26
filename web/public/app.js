@@ -137,18 +137,18 @@ class ModalFormView {
 
 class ProjectModalFormView extends ModalFormView {
   constructor(attrs, callback) {
-    super('project', attrs, new ProjectRequest, callback);
+    super('project', attrs, new ProjectRequest, callback)
   }
 }
 
 class SectionModalFormView extends ModalFormView {
   constructor(attrs, callback) {
-    super('section', attrs, new SectionRequest, callback);
+    super('section', attrs, new SectionRequest, callback)
   }
 }
 
 class CountingModalFormView extends ModalFormView {
   constructor(attrs, callback) {
-    super('counting', attrs, new CountingRequest, callback);
+    super('counting', attrs, new CountingRequest, callback)
   }
 }
