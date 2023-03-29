@@ -3,19 +3,28 @@ const errorMessages = {
     name: {
       taken: "Name is already taken",
       blank: "Name can't be blank"
-    }
+    },
   },
   section: {
     name: {
       taken: "Name is already taken",
       blank: "Name can't be blank"
-    }
+    },
   },
   counting: {
     name: {
       taken: "Name is already taken",
       blank: "Name can't be blank"
-    }
+    },
+  },
+  sample: {
+    name: {
+      taken: "Name is already taken",
+      blank: "Name can't be blank"
+    },
+    weight: {
+      non_decimal: "Weight needs to be a decimal number",
+    },
   }
 }
 
@@ -70,6 +79,12 @@ class CountingRequest extends ModelRequest {
   }
 }
 
+class SampleRequest extends ModelRequest {
+  constructor() {
+    super(`/api/samples`);
+  }
+}
+
 class ValidationMessageView {
   constructor(model) {
     this.model = model;
@@ -109,6 +124,7 @@ class ModalFormView {
     var validationMessageView = new ValidationMessageView(this.model);
     validationMessageView.hide();
     $(`#${this.model}-form`).trigger('reset');
+    console.log(this.attrs)
     for (const field in this.attrs) {
       $(`#${this.model}-form #${this.model}-${field}`).val(this.attrs[field]);
     }
@@ -150,5 +166,11 @@ class SectionModalFormView extends ModalFormView {
 class CountingModalFormView extends ModalFormView {
   constructor(attrs, callback) {
     super('counting', attrs, new CountingRequest, callback)
+  }
+}
+
+class SampleModalFormView extends ModalFormView {
+  constructor(attrs, callback) {
+    super('sample', attrs, new SampleRequest, callback)
   }
 }
