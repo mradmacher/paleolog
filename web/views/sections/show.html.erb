@@ -8,9 +8,9 @@
       <div class="ui fluid horizontal menu">
         <a class="item" href="<%= occurrences_path(@project, section: @section) %>">Occurrences</a>
         <a class="item" href="<%= reports_path(@project, section: @section) %>">Report</a>
-        <div class="ui right secondary menu">
+        <div class="ui right mini secondary menu">
           <div class="item">
-            <button class="ui button edit-section-action">Edit Section</button>
+            <button class="ui secondary button edit-section-action">Edit Section</button>
           </div>
         </div>
       </div>
@@ -41,7 +41,7 @@
               <%= sample.weight ? Kernel.format('%.2f', sample.weight) : '' %>
             </td>
             <td>
-              <button class="ui button edit-sample-action">Edit</button>
+              <button class="ui mini secondary button edit-sample-action">Edit</button>
             </td>
           </tr>
         <% end %>
@@ -49,7 +49,7 @@
       <tfoot class="full-width">
         <tr>
           <th colspan="4">
-            <button class="ui fluid icon button add-sample-action"><i class="add icon"></i></button>
+            <button class="ui fluid icon mini secondary button add-sample-action"><i class="add icon"></i></button>
             <%= erb :'samples/_form.html', layout: false %>
           </th>
         </tr>
