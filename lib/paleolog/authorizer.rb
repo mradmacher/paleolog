@@ -17,6 +17,9 @@ module Paleolog
       Paleolog::Section => lambda do |user_id, id|
         Paleolog::Repo::Researcher.can_manage_section?(user_id, id)
       end,
+      Paleolog::Sample => lambda do |user_id, id|
+        Paleolog::Repo::Researcher.can_manage_sample?(user_id, id)
+      end,
     }.tap { |h| h.default = ->(_user_id, _id) { false } }
 
     attr_reader :session

@@ -24,6 +24,7 @@ const errorMessages = {
     },
     weight: {
       non_decimal: "Weight needs to be a decimal number",
+      not_gt: "Weight needs to be greater than 0",
     },
   }
 }
@@ -85,32 +86,6 @@ class SampleRequest extends ModelRequest {
   }
 }
 
-class ValidationMessageView {
-  constructor(model) {
-    this.model = model;
-    this.elementPath = `#${model}-form-window .validation-messages`;
-    this.element = $(this.elementPath);
-  }
-
-  hide() {
-    this.element.hide();
-    this.clear();
-  }
-
-  clear() {
-    this.element.find('.content').text('');
-  }
-
-  show(errors) {
-    var that = this;
-    this.clear();
-    jQuery.each(errors, function(field, message) {
-      that.element.show();
-      that.element.find('.content').append(errorMessages[that.model][field][message]);
-    })
-  }
-}
-
 class ModalFormView {
   constructor(model, attrs, requestService, callback) {
     this.model = model
@@ -128,13 +103,32 @@ class ModalFormView {
     } else {
       actionTitle = 'Add'
     }
-    this.modal.find('.header').text(`${actionTitle} ${modelTitle}`)
+    this.modal.find('>.header').text(`${actionTitle} ${modelTitle}`)
     this.modal.find('form').append(form)
   }
 
+  clearErrors() {
+    this.modal.find('.validation-messages .content').text('')
+  }
+
+  hideErrors() {
+    this.modal.find('.validation-messages').hide()
+    this.clearErrors()
+  }
+
+  showErrors(errors) {
+    this.clearErrors()
+    this.modal.find('.validation-messages').show()
+    var errorsContent = this.modal.find('.validation-messages .content')
+    var that = this
+    jQuery.each(errors, function(field, message) {
+      errorsContent.append(errorMessages[that.model][field][message])
+      errorsContent.append('<br />')
+    })
+  }
+
   show() {
-    var validationMessageView = new ValidationMessageView(this.model);
-    validationMessageView.hide();
+    this.hideErrors()
     var form = this.modal.find('form')
     form.trigger('reset');
     for (const field in this.attrs) {
@@ -154,7 +148,7 @@ class ModalFormView {
             that.callback(result)
           },
           errors => {
-            validationMessageView.show(errors)
+            that.showErrors(errors)
           }
         )
         return false

@@ -25,6 +25,7 @@ module Web
             id: sample.id,
             section_id: sample.section_id,
             name: sample.name,
+            description: sample.description,
             weight: sample.weight,
           }
         end

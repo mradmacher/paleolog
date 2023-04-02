@@ -7,12 +7,15 @@ module Paleolog
         CreateParams = Pp.define.(
           name: Pp.required.(NameRules),
           section_id: Pp.required.(IdRules),
+          description: Pp.optional.(DescriptionRules),
           weight: Pp.optional.(Pp.decimal.(Pp.gt.(0.0))),
         )
 
         UpdateParams = Pp.define.(
           id: Pp.required.(IdRules),
-          rank: Pp.optional.(Pp.integer.(Pp.any)),
+          name: Pp.optional.(NameRules),
+          description: Pp.optional.(DescriptionRules),
+          weight: Pp.optional.(Pp.blank_to_nil_or.(Pp.decimal.(Pp.gt.(0.0)))),
         )
 
         def create(params, authorizer:)
@@ -27,11 +30,27 @@ module Paleolog
             return [nil, { name: TAKEN }]
           end
 
-          max_rank = Paleolog::Repo::Sample
-                     .all_for_section(params[:section_id])
-                     .max_by(&:rank)&.rank || 0
+          max_rank = Paleolog::Repo::Sample.section_max_rank(params[:section_id]) || 0
 
           sample = Paleolog::Repo::Sample.create(params.merge(rank: max_rank + 1))
+          [sample, {}]
+        end
+
+        def update(params, authorizer:)
+          return UNAUTHENTICATED_RESULT unless authorizer.authenticated?
+
+          params, errors = UpdateParams.(params)
+          return [nil, errors] unless errors.empty?
+
+          return UNAUTHORIZED_RESULT unless authorizer.can_manage?(Paleolog::Sample, params[:id])
+
+          if params.key?(:name) &&
+             Paleolog::Repo::Sample.name_exists_within_same_section?(params[:name], sample_id: params[:id])
+
+            return [nil, { name: TAKEN }]
+          end
+
+          sample = Paleolog::Repo::Sample.update(params[:id], params.except(:id))
           [sample, {}]
         end
       end

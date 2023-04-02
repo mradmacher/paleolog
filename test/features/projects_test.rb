@@ -24,7 +24,7 @@ describe 'Projects' do
     visit '/projects'
 
     click_button(class: 'add-project action')
-    within('#project-form-window') do
+    within('.form-window') do
       fill_in('Name', with: 'Some Project')
       click_on('Save')
     end
@@ -36,7 +36,7 @@ describe 'Projects' do
     visit '/projects'
 
     click_button(class: 'add-project action')
-    within('#project-form-window') do
+    within('.form-window') do
       fill_in('Name', with: '')
       click_on('Save')
     end
@@ -47,13 +47,13 @@ describe 'Projects' do
     visit '/projects'
 
     click_button(class: 'add-project action')
-    within('#project-form-window') do
+    within('.form-window') do
       fill_in('Name', with: 'Some Project')
       click_on('Save')
     end
     click_on('Some Project')
     click_button(class: 'edit-project action')
-    within('#project-form-window') do
+    within('.form-window') do
       fill_in('Name', with: 'Other Project')
       click_on('Save')
     end
@@ -64,13 +64,13 @@ describe 'Projects' do
     visit '/projects'
 
     click_button(class: 'add-project action')
-    within('#project-form-window') do
+    within('.form-window') do
       fill_in('Name', with: 'Some Project')
       click_on('Save')
     end
     click_on('Some Project')
     click_button(class: 'edit-project action')
-    within('#project-form-window') do
+    within('.form-window') do
       fill_in('Name', with: '')
       click_on('Save')
     end

@@ -54,7 +54,7 @@ describe 'Samples' do
       click_on('Save')
     end
     assert_text("Name can't be blank")
-    assert_text("Weight needs to be a decimal number")
+    assert_text('Weight needs to be a decimal number')
   end
 
   it 'updates sample' do

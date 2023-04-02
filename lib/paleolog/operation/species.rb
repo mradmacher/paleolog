@@ -7,8 +7,8 @@ module Paleolog
         Params = Pp.define.(
           name: Pp.required.(Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)]))),
           group_id: Pp.required.(Pp.integer.(Pp.gt.(0))),
-          description: Pp.optional.(Pp.blank_to_nil_or.(Pp.string.(Pp.max_size.(4096)))),
-          environmental_preferences: Pp.optional.(Pp.blank_to_nil_or.(Pp.string.(Pp.max_size.(4096)))),
+          description: Pp.optional.(DescriptionRules),
+          environmental_preferences: Pp.optional.(DescriptionRules),
         )
 
         def create(name:, group_id:, description: Option.None, environmental_preferences: Option.None)

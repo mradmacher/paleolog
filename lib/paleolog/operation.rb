@@ -18,6 +18,7 @@ module Paleolog
     NameRules = Pp.string.(
       Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)]),
     )
+    DescriptionRules = Pp.blank_to_nil_or.(Pp.string.(Pp.max_size.(4096)))
   end
 end
 

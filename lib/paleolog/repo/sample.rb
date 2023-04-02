@@ -12,6 +12,10 @@ module Paleolog
           end
         end
 
+        def section_max_rank(section_id)
+          ds.where(section_id: section_id).max(:rank)
+        end
+
         def find_for_project(id, project_id)
           result = ds.where(Sequel[:samples][:id] => id, Sequel[:projects][:id] => project_id)
                      .join(:sections, Sequel[:sections][:id] => :section_id)
@@ -28,6 +32,12 @@ module Paleolog
 
         def name_exists_within_section?(name, section_id)
           ds.where(section_id: section_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
+        end
+
+        def name_exists_within_same_section?(name, sample_id:)
+          ds.exclude(id: sample_id)
+            .where(section_id: ds.where(id: sample_id).select(:section_id))
+            .where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
         end
 
         def rank_exists_within_section?(rank, section_id)

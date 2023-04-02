@@ -41,7 +41,7 @@
               <%= sample.weight ? Kernel.format('%.2f', sample.weight) : '' %>
             </td>
             <td>
-              <button class="ui mini secondary button edit-sample action">Edit</button>
+              <button class="ui mini secondary button edit-sample action" data-sample-id="<%= sample.id %>">Edit</button>
             </td>
           </tr>
         <% end %>
@@ -63,16 +63,39 @@ $(function() {
     project_id: <%= @section.project_id %>,
     name: "<%= @section.name %>",
   }
+
   const sample = {
     section_id: <%= @section.id %>,
     name: null,
+    description: null,
     weight: null,
   }
+
+  const samples = [
+  <% @section.samples.each do |sample| %>
+    {
+      id: <%= sample.id %>,
+      section_id: <%= sample.section_id %>,
+      name: "<%= sample.name %>",
+      description: "<%= sample.description %>",
+      weight: "<%= sample.weight ? Kernel.format('%.2f', sample.weight) : '' %>",
+    },
+  <% end %>
+  ]
+
+  $('.edit-sample.action').click((event) => {
+    var sample_id = $(event.target).data('sample-id')
+    var sample = samples.find((element) => element.id == sample_id)
+    new SampleModalFormView(sample, (sample) => window.location.reload()).show()
+  })
+
   $('.edit-section.action').click(() => {
     new SectionModalFormView(section, (section) => window.location.reload()).show()
-  });
+  })
+
   $('.add-sample.action').click(() => {
     new SampleModalFormView(sample, (sample) => window.location.reload()).show()
-  });
+  })
+
 });
 </script>

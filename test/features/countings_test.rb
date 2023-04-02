@@ -28,7 +28,7 @@ describe 'Countings' do
 
   it 'adds counting' do
     click_button(class: 'add-counting action')
-    within('#counting-form-window') do
+    within('.form-window') do
       fill_in('Name', with: 'Some Counting')
       click_on('Save')
     end
@@ -39,7 +39,7 @@ describe 'Countings' do
 
   it 'displays validation errors while creating counting' do
     click_button(class: 'add-counting action')
-    within('#counting-form-window') do
+    within('.form-window') do
       fill_in('Name', with: '')
       click_on('Save')
     end
@@ -48,13 +48,13 @@ describe 'Countings' do
 
   it 'renames counting' do
     click_button(class: 'add-counting action')
-    within('#counting-form-window') do
+    within('.form-window') do
       fill_in('Name', with: 'Some Counting')
       click_on('Save')
     end
     click_on('Some Counting')
     click_button(class: 'edit-counting action')
-    within('#counting-form-window') do
+    within('.form-window') do
       fill_in('Name', with: 'Other Counting')
       click_on('Save')
     end
@@ -66,13 +66,13 @@ describe 'Countings' do
 
   it 'displays validation errors whle renaming counting' do
     click_button(class: 'add-counting action')
-    within('#counting-form-window') do
+    within('.form-window') do
       fill_in('Name', with: 'Some Counting')
       click_on('Save')
     end
     click_on('Some Counting')
     click_button(class: 'edit-counting action')
-    within('#counting-form-window') do
+    within('.form-window') do
       fill_in('Name', with: '')
       click_on('Save')
     end
