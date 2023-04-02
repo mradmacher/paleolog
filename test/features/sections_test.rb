@@ -27,7 +27,7 @@ describe 'Sections' do
   end
 
   it 'adds section' do
-    click_button(class: 'add-section-action')
+    click_button(class: 'add-section action')
     within('#section-form-window') do
       fill_in('Name', with: 'Some Section')
       click_on('Save')
@@ -38,7 +38,7 @@ describe 'Sections' do
   end
 
   it 'displays validation errors while creating project' do
-    click_button(class: 'add-section-action')
+    click_button(class: 'add-section action')
     within('#section-form-window') do
       fill_in('Name', with: '')
       click_on('Save')
@@ -47,13 +47,13 @@ describe 'Sections' do
   end
 
   it 'renames section' do
-    click_button(class: 'add-section-action')
+    click_button(class: 'add-section action')
     within('#section-form-window') do
       fill_in('Name', with: 'Some Section')
       click_on('Save')
     end
     click_on('Some Section')
-    click_button(class: 'edit-section-action')
+    click_button(class: 'edit-section action')
     within('#section-form-window') do
       fill_in('Name', with: 'Other Section')
       click_on('Save')
@@ -65,13 +65,13 @@ describe 'Sections' do
   end
 
   it 'displays validation errors whle renaming section' do
-    click_button(class: 'add-section-action')
+    click_button(class: 'add-section action')
     within('#section-form-window') do
       fill_in('Name', with: 'Some Section')
       click_on('Save')
     end
     click_on('Some Section')
-    click_button(class: 'edit-section-action')
+    click_button(class: 'edit-section action')
     within('#section-form-window') do
       fill_in('Name', with: '')
       click_on('Save')

@@ -10,7 +10,7 @@
         <a class="item" href="<%= reports_path(@project, counting: @counting) %>">Report</a>
         <div class="ui right mini secondary menu">
           <div class="item">
-            <button class="ui secondary button edit-counting-action">Edit Counting</button>
+            <button class="ui secondary button edit-counting action">Edit Counting</button>
           </div>
         </div>
       </div>
@@ -40,7 +40,7 @@ $(function() {
     project_id: <%= @counting.project_id %>,
     name: "<%= @counting.name %>",
   }
-  $('.edit-counting-action').click(() => {
+  $('.edit-counting.action').click(() => {
     new CountingModalFormView(counting, (counting) => window.location.reload()).show()
   });
 });

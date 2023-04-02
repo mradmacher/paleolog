@@ -33,7 +33,7 @@ describe 'Samples' do
 
   it 'adds sample' do
     click_on('Section for Sample')
-    click_button(class: 'add-sample-action')
+    click_button(class: 'add-sample action')
     within('#sample-form-window') do
       fill_in('Name', with: 'Some Sample')
       fill_in('Weight', with: '1.23')
@@ -47,7 +47,7 @@ describe 'Samples' do
 
   it 'displays validation errors while creating sample' do
     click_on('Section for Sample')
-    click_button(class: 'add-sample-action')
+    click_button(class: 'add-sample action')
     within('#sample-form-window') do
       fill_in('Name', with: '')
       fill_in('Weight', with: 'xyz')
@@ -59,13 +59,13 @@ describe 'Samples' do
 
   it 'updates sample' do
     click_on('Section for Sample')
-    click_button(class: 'add-sample-action')
+    click_button(class: 'add-sample action')
     within('#sample-form-window') do
       fill_in('Name', with: 'Some Sample')
       fill_in('Weight', with: '1.23')
       click_on('Save')
     end
-    click_button(class: 'edit-sample-action')
+    click_button(class: 'edit-sample action')
     within('#sample-form-window') do
       fill_in('Name', with: 'Other Sample')
       fill_in('Weight', with: '3.21')
@@ -79,12 +79,12 @@ describe 'Samples' do
   end
 
   it 'displays validation errors while editing section' do
-    click_button(class: 'add-sample-action')
+    click_button(class: 'add-sample action')
     within('#sample-form-window') do
       fill_in('Name', with: 'Some Sample')
       click_on('Save')
     end
-    click_button(class: 'edit-sample-action')
+    click_button(class: 'edit-sample action')
     within('#sample-form-window') do
       fill_in('Name', with: '')
       fill_in('Weight', with: 'xyz')

@@ -10,7 +10,7 @@
         </ul>
       </div>
     </div>
-    <button class="ui mini secondary bottom attached button disabled add-researcher-action"><i class="add icon"></i>Add</button>
+    <button class="ui mini secondary bottom attached button disabled add-researcher.action"><i class="add icon"></i>Add</button>
   </div>
 
   <div class="ui fluid card">
@@ -25,7 +25,7 @@
         </ul>
       </div>
     </div>
-    <button class="ui mini secondary bottom attached button add-counting-action"><i class="add icon"></i>Add</button>
+    <button class="ui mini secondary bottom attached button add-counting action"><i class="add icon"></i>Add</button>
   </div>
 
   <div class="ui fluid card">
@@ -40,7 +40,7 @@
         </ul>
       </div>
     </div>
-    <button class="ui mini secondary bottom attached button add-section-action"><i class="add icon"></i>Add</button>
+    <button class="ui mini secondary bottom attached button add-section action"><i class="add icon"></i>Add</button>
   </div>
 </div>
 
@@ -56,11 +56,11 @@ $(function() {
     name: null,
   }
 
-  $('.add-section-action').click(() => {
+  $('.add-section.action').click(() => {
     new SectionModalFormView(section, (section) => window.location.reload()).show()
   })
 
-  $('.add-counting-action').click(() => {
+  $('.add-counting.action').click(() => {
     new CountingModalFormView(counting, (counting) => window.location.reload()).show()
   })
 });

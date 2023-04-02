@@ -23,7 +23,7 @@ describe 'Projects' do
   it 'adds project' do
     visit '/projects'
 
-    click_button(class: 'add-project-action')
+    click_button(class: 'add-project action')
     within('#project-form-window') do
       fill_in('Name', with: 'Some Project')
       click_on('Save')
@@ -35,7 +35,7 @@ describe 'Projects' do
   it 'displays validation errors while creating project' do
     visit '/projects'
 
-    click_button(class: 'add-project-action')
+    click_button(class: 'add-project action')
     within('#project-form-window') do
       fill_in('Name', with: '')
       click_on('Save')
@@ -46,13 +46,13 @@ describe 'Projects' do
   it 'renames project' do
     visit '/projects'
 
-    click_button(class: 'add-project-action')
+    click_button(class: 'add-project action')
     within('#project-form-window') do
       fill_in('Name', with: 'Some Project')
       click_on('Save')
     end
     click_on('Some Project')
-    click_button(class: 'edit-project-action')
+    click_button(class: 'edit-project action')
     within('#project-form-window') do
       fill_in('Name', with: 'Other Project')
       click_on('Save')
@@ -63,13 +63,13 @@ describe 'Projects' do
   it 'displays validation errors while renaming project' do
     visit '/projects'
 
-    click_button(class: 'add-project-action')
+    click_button(class: 'add-project action')
     within('#project-form-window') do
       fill_in('Name', with: 'Some Project')
       click_on('Save')
     end
     click_on('Some Project')
-    click_button(class: 'edit-project-action')
+    click_button(class: 'edit-project action')
     within('#project-form-window') do
       fill_in('Name', with: '')
       click_on('Save')
