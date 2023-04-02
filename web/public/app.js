@@ -113,28 +113,41 @@ class ValidationMessageView {
 
 class ModalFormView {
   constructor(model, attrs, requestService, callback) {
-    this.model = model;
-    this.attrs = attrs;
-    this.element = $(this.elementPath);
-    this.requestService = requestService;
-    this.callback = callback;
+    this.model = model
+    this.attrs = attrs
+    this.requestService = requestService
+    this.callback = callback
+
+    this.modal = $($('#form-window-template').html())
+    var form = $($(`#${model}-form-template`).html())
+    console.log(form)
+    var modelTitle = model.charAt(0).toUpperCase() + model.slice(1)
+    var actionTitle = ''
+    if ('id' in attrs) {
+      actionTitle = 'Edit'
+    } else {
+      actionTitle = 'Add'
+    }
+    this.modal.find('.header').text(`${actionTitle} ${modelTitle}`)
+    this.modal.find('form').append(form)
   }
 
   show() {
     var validationMessageView = new ValidationMessageView(this.model);
     validationMessageView.hide();
-    $(`#${this.model}-form`).trigger('reset');
-    console.log(this.attrs)
+    var form = this.modal.find('form')
+    form.trigger('reset');
     for (const field in this.attrs) {
-      $(`#${this.model}-form #${this.model}-${field}`).val(this.attrs[field]);
+      form.find(`[name=${field}]`).val(this.attrs[field]);
     }
     var that = this;
-    $(`#${this.model}-form-window`).modal({
+    this.modal.modal({
       closable: false,
       onApprove: function() {
         var attrs = {}
+        var form = that.modal.find('form')
         for (const field in that.attrs) {
-          attrs[field] = $(`#${that.model}-form #${that.model}-${field}`).val()
+          attrs[field] = form.find(`[name=${field}]`).val()
         }
         that.requestService.save(attrs).then(
           result => {
