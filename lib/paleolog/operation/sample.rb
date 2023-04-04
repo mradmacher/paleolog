@@ -4,54 +4,66 @@ module Paleolog
   module Operation
     class Sample
       class << self
-        CreateParams = Pp.define.(
+        include Operation::Helpers
+
+        CREATE_PARAMS_RULES = Pp.define.(
           name: Pp.required.(NameRules),
           section_id: Pp.required.(IdRules),
           description: Pp.optional.(DescriptionRules),
           weight: Pp.optional.(Pp.decimal.(Pp.gt.(0.0))),
         )
 
-        UpdateParams = Pp.define.(
+        UPDATE_PARAMS_RULES = Pp.define.(
           id: Pp.required.(IdRules),
           name: Pp.optional.(NameRules),
           description: Pp.optional.(DescriptionRules),
           weight: Pp.optional.(Pp.blank_to_nil_or.(Pp.decimal.(Pp.gt.(0.0)))),
         )
 
-        def create(params, authorizer:)
-          return UNAUTHENTICATED_RESULT unless authorizer.authenticated?
-
-          params, errors = CreateParams.(params)
-          return [nil, errors] unless errors.empty?
-
-          return UNAUTHORIZED_RESULT unless authorizer.can_manage?(Paleolog::Section, params[:section_id])
-
-          if Paleolog::Repo::Sample.name_exists_within_section?(params[:name], params[:section_id])
-            return [nil, { name: TAKEN }]
-          end
-
-          max_rank = Paleolog::Repo::Sample.section_max_rank(params[:section_id]) || 0
-
-          sample = Paleolog::Repo::Sample.create(params.merge(rank: max_rank + 1))
-          [sample, {}]
+        def create(user_params, authorizer:)
+          perform(
+            user_params,
+            authenticate(authorizer),
+            parameterize(CREATE_PARAMS_RULES),
+            authorize_can_manage(authorizer, Paleolog::Section, :section_id),
+            verify(name_uniqueness),
+            merge(next_rank),
+            finalize(->(params) { Paleolog::Repo::Sample.create(params) }),
+          )
         end
 
-        def update(params, authorizer:)
-          return UNAUTHENTICATED_RESULT unless authorizer.authenticated?
+        def update(user_params, authorizer:)
+          perform(
+            user_params,
+            authenticate(authorizer),
+            parameterize(UPDATE_PARAMS_RULES),
+            authorize_can_manage(authorizer, Paleolog::Sample, :id),
+            verify(name_uniqueness),
+            finalize(->(params) { Paleolog::Repo::Sample.update(params[:id], params.except(:id)) }),
+          )
+        end
 
-          params, errors = UpdateParams.(params)
-          return [nil, errors] unless errors.empty?
+        private
 
-          return UNAUTHORIZED_RESULT unless authorizer.can_manage?(Paleolog::Sample, params[:id])
+        def name_uniqueness
+          lambda do |params|
+            break unless params.key?(:name)
 
-          if params.key?(:name) &&
-             Paleolog::Repo::Sample.name_exists_within_same_section?(params[:name], sample_id: params[:id])
-
-            return [nil, { name: TAKEN }]
+            if Paleolog::Repo::Sample.similar_name_exists?(
+              params[:name],
+              section_id: params[:section_id],
+              exclude_id: params[:id],
+            )
+              { name: TAKEN }
+            end
           end
+        end
 
-          sample = Paleolog::Repo::Sample.update(params[:id], params.except(:id))
-          [sample, {}]
+        def next_rank
+          lambda do |params|
+            max_rank = Paleolog::Repo::Sample.section_max_rank(params[:section_id]) || 0
+            { rank: max_rank + 1 }
+          end
         end
       end
     end

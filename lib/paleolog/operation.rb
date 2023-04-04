@@ -22,6 +22,7 @@ module Paleolog
   end
 end
 
+require 'paleolog/operation/helpers'
 require 'paleolog/operation/choice'
 require 'paleolog/operation/counting'
 require 'paleolog/operation/field'

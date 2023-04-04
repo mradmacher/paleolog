@@ -30,8 +30,17 @@ module Paleolog
           result ? Paleolog::Sample.new(**result) : nil
         end
 
-        def name_exists_within_section?(name, section_id)
-          ds.where(section_id: section_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
+        def similar_name_exists?(name, section_id: nil, exclude_id: nil)
+          scope =
+            if section_id
+              ds.where(section_id: section_id)
+            elsif exclude_id
+              ds.where(section_id: ds.where(id: exclude_id).select(:section_id))
+            else
+              ds
+            end
+          query = exclude_id ? scope.exclude(id: exclude_id) : scope
+          query.where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
         end
 
         def name_exists_within_same_section?(name, sample_id:)
