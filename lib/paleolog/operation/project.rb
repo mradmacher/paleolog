@@ -4,52 +4,73 @@ module Paleolog
   module Operation
     class Project
       class << self
-        CreateRules = Pp.define.(
+        include Operation::Helpers
+
+        CREATE_PARAMS_RULES = Pp.define.(
           name: Pp.required.(NameRules),
           user_id: Pp.required.(IdRules),
         )
-        UpdateRules = Pp.define.(
+
+        UPDATE_PARAMS_RULES = Pp.define.(
           id: Pp.required.(IdRules),
           name: Pp.required.(NameRules),
         )
 
         def find_all_for_user(user_id, authorizer:)
-          return UNAUTHENTICATED_RESULT unless authorizer.authenticated?
-
-          projects = Repo::Researcher.all_for_user(user_id).map(&:project)
-          [projects, {}]
-        end
-
-        def create(params, authorizer:)
-          return UNAUTHENTICATED_RESULT unless authorizer.authenticated?
-
-          params, errors = CreateRules.(params)
-          return [nil, errors] unless errors.empty?
-
-          return [nil, { name: :taken }] if Paleolog::Repo::Project.name_exists?(params[:name])
-
-          # FIXME: add transaction
-          project = Paleolog::Repo::Project.create(name: params[:name])
-          Paleolog::Repo::Researcher.create(
-            user_id: params[:user_id],
-            project_id: project.id,
-            manager: true,
+          perform(
+            {},
+            authenticate(authorizer),
+            finalize(->(_) { Repo::Researcher.all_for_user(user_id).map(&:project) }),
           )
-          [project, {}]
         end
 
-        def rename(params, authorizer:)
-          return UNAUTHENTICATED_RESULT unless authorizer.authenticated?
+        def create(raw_params, authorizer:)
+          perform(
+            raw_params,
+            authenticate(authorizer),
+            parameterize(CREATE_PARAMS_RULES),
+            verify(name_uniqueness),
+            finalize(
+              lambda do |params|
+                project = nil
+                Paleolog::Repo::Config.db.transaction do
+                  project = Paleolog::Repo::Project.create(params.except(:user_id))
+                  Paleolog::Repo::Researcher.create(
+                    user_id: params[:user_id],
+                    project_id: project.id,
+                    manager: true,
+                  )
+                end
+                project
+              end
+            ),
+          )
+        end
 
-          params, errors = UpdateRules.(params)
-          return [nil, errors] unless errors.empty?
+        def rename(raw_params, authorizer:)
+          perform(
+            raw_params,
+            authenticate(authorizer),
+            parameterize(UPDATE_PARAMS_RULES),
+            authorize_can_manage(authorizer, Paleolog::Project, :id),
+            verify(name_uniqueness),
+            finalize(->(params) { Paleolog::Repo::Project.update(params[:id], params.except(:id)) }),
+          )
+        end
 
-          return UNAUTHORIZED_RESULT unless authorizer.can_manage?(Paleolog::Project, params[:id])
+        private
 
-          return [nil, { name: :taken }] if Paleolog::Repo::Project.name_exists?(params[:name], exclude_id: params[:id])
+        def name_uniqueness
+          lambda do |params|
+            break unless params.key?(:name)
 
-          project = Paleolog::Repo::Project.update(params[:id], params.except(:id))
-          [project, {}]
+            if Paleolog::Repo::Project.similar_name_exists?(
+              params[:name],
+              exclude_id: params[:id],
+            )
+              { name: :taken }
+            end
+          end
         end
       end
     end

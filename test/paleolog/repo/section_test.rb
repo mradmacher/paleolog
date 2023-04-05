@@ -67,7 +67,7 @@ describe Paleolog::Repo::Section do
     end
   end
 
-  describe '#name_exists_within_project?' do
+  describe '#similar_name_exists?' do
     before do
       @project = Paleolog::Repo.save(Paleolog::Project.new(name: 'Some project'))
     end
@@ -76,8 +76,8 @@ describe Paleolog::Repo::Section do
       common_name = 'Some name'
       @section = Paleolog::Repo.save(Paleolog::Section.new(name: common_name, project: @project))
 
-      assert(repo.name_exists_within_project?(common_name, @project.id))
-      refute(repo.name_exists_within_project?("#{common_name}123", @project.id))
+      assert(repo.similar_name_exists?(common_name, project_id: @project.id))
+      refute(repo.similar_name_exists?("#{common_name}123", project_id: @project.id))
     end
 
     it 'does not check name uniqueness accross different projects' do
@@ -85,13 +85,13 @@ describe Paleolog::Repo::Section do
       other_project = Paleolog::Repo.save(Paleolog::Project.new(name: 'Other project'))
       @section = Paleolog::Repo.save(Paleolog::Section.new(name: common_name, project: @project))
 
-      refute(repo.name_exists_within_project?(common_name, other_project.id))
+      refute(repo.similar_name_exists?(common_name, project_id: other_project.id))
     end
 
     it 'is case insensitive' do
       @section = Paleolog::Repo.save(Paleolog::Section.new(name: 'Some name', project: @project))
 
-      assert(repo.name_exists_within_project?('soMe nAmE', @project.id))
+      assert(repo.similar_name_exists?('soMe nAmE', project_id: @project.id))
     end
   end
 end

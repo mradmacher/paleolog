@@ -53,18 +53,18 @@ describe Paleolog::Repo::Project do
     end
   end
 
-  describe '#name_exists?' do
+  describe '#similar_name_exists?' do
     it 'checks name uniqueness' do
       repo.create(name: 'Some name')
 
-      assert(repo.name_exists?('Some name'))
-      refute(repo.name_exists?('Other name'))
+      assert(repo.similar_name_exists?('Some name'))
+      refute(repo.similar_name_exists?('Other name'))
     end
 
     it 'is case insensitive' do
       repo.create(name: 'Some name')
 
-      assert(repo.name_exists?('sOme NamE'))
+      assert(repo.similar_name_exists?('sOme NamE'))
     end
   end
 end

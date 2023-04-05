@@ -20,9 +20,9 @@ module Paleolog
           weight: Pp.optional.(Pp.blank_to_nil_or.(Pp.decimal.(Pp.gt.(0.0)))),
         )
 
-        def create(user_params, authorizer:)
+        def create(raw_params, authorizer:)
           perform(
-            user_params,
+            raw_params,
             authenticate(authorizer),
             parameterize(CREATE_PARAMS_RULES),
             authorize_can_manage(authorizer, Paleolog::Section, :section_id),
@@ -32,9 +32,9 @@ module Paleolog
           )
         end
 
-        def update(user_params, authorizer:)
+        def update(raw_params, authorizer:)
           perform(
-            user_params,
+            raw_params,
             authenticate(authorizer),
             parameterize(UPDATE_PARAMS_RULES),
             authorize_can_manage(authorizer, Paleolog::Sample, :id),
