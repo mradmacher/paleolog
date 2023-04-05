@@ -155,14 +155,22 @@ describe Paleolog::Operation::Sample do
       end
 
       it 'requires numerical weight' do
-        ['  ', 'a', '#', '34a', 'a34'].each do |value|
+        ['a', '#', '34a', 'a34'].each do |value|
           _, errors = operation.create(
-            { name: 'Name', section_id: section.id, weight: value },
+            { section_id: section.id, weight: value },
             authorizer: HappyAuthorizer.new,
           )
           refute_predicate errors, :empty?
           assert_equal Paleolog::Operation::NON_DECIMAL, errors[:weight]
         end
+      end
+
+      it 'converts blank weight to nil' do
+        sample, = operation.create(
+          { name: 'Name1', section_id: section.id, weight: '' },
+          authorizer: HappyAuthorizer.new,
+        )
+        assert_nil sample.weight
       end
 
       it 'accepts weight passed as string' do
@@ -213,6 +221,14 @@ describe Paleolog::Operation::Sample do
       it 'requires weight just something above 0' do
         _, errors = operation.create({ name: 'Name', section_id: section.id, weight: 0.0001 }, authorizer: authorizer)
         assert_predicate errors, :empty?
+      end
+
+      it 'converts blank description to nil' do
+        sample, = operation.create(
+          { name: 'Name1', section_id: section.id, description: '' },
+          authorizer: HappyAuthorizer.new,
+        )
+        assert_nil sample.description
       end
     end
   end
@@ -337,11 +353,19 @@ describe Paleolog::Operation::Sample do
       end
 
       it 'requires numerical weight' do
-        ['  ', 'a', '#', '34a', 'a34'].each do |value|
-          _, errors = operation.create({ id: existing_sample.id, weight: value }, authorizer: HappyAuthorizer.new)
+        ['a', '#', '34a', 'a34'].each do |value|
+          _, errors = operation.update({ id: existing_sample.id, weight: value }, authorizer: HappyAuthorizer.new)
           refute_predicate errors, :empty?
           assert_equal Paleolog::Operation::NON_DECIMAL, errors[:weight]
         end
+      end
+
+      it 'converts blank weight to nil' do
+        sample, = operation.update(
+          { id: existing_sample.id, weight: ' ' },
+          authorizer: HappyAuthorizer.new,
+        )
+        assert_nil sample.weight
       end
 
       it 'requires weight greater than 0' do

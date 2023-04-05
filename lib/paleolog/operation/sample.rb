@@ -10,7 +10,7 @@ module Paleolog
           name: Pp.required.(NameRules),
           section_id: Pp.required.(IdRules),
           description: Pp.optional.(DescriptionRules),
-          weight: Pp.optional.(Pp.decimal.(Pp.gt.(0.0))),
+          weight: Pp.optional.(Pp.blank_to_nil_or.(Pp.decimal.(Pp.gt.(0.0)))),
         )
 
         UPDATE_PARAMS_RULES = Pp.define.(
