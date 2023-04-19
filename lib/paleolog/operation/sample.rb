@@ -4,30 +4,66 @@ module Paleolog
   module Operation
     class Sample
       class << self
-        CreateParams = Pp.define.(
-          name: Pp.required.(Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)]))),
-          section_id: Pp.required.(Pp.integer.(Pp.gt.(0))),
-          weight: Pp.optional.(Pp.decimal.(Pp.gt.(0.0))),
+        include Operation::Helpers
+
+        CREATE_PARAMS_RULES = Pp.define.(
+          name: Pp.required.(NameRules),
+          section_id: Pp.required.(IdRules),
+          description: Pp.optional.(DescriptionRules),
+          weight: Pp.optional.(Pp.blank_to_nil_or.(Pp.decimal.(Pp.gt.(0.0)))),
         )
 
-        UpdateParams = Pp.define.(
-          rank: Pp.optional.(Pp.integer.(Pp.any)),
+        UPDATE_PARAMS_RULES = Pp.define.(
+          id: Pp.required.(IdRules),
+          name: Pp.optional.(NameRules),
+          description: Pp.optional.(DescriptionRules),
+          weight: Pp.optional.(Pp.blank_to_nil_or.(Pp.decimal.(Pp.gt.(0.0)))),
         )
 
-        def create(name:, section_id:, weight: Option.None)
-          params, errors = CreateParams.(name: name, section_id: section_id, weight: weight)
-          return Failure.new(errors) unless errors.empty?
+        def create(raw_params, authorizer:)
+          perform(
+            raw_params,
+            authenticate(authorizer),
+            parameterize(CREATE_PARAMS_RULES),
+            authorize_can_manage(authorizer, Paleolog::Section, :section_id),
+            verify(name_uniqueness),
+            merge(next_rank),
+            finalize(->(params) { Paleolog::Repo::Sample.create(params) }),
+          )
+        end
 
-          if Paleolog::Repo::Sample.name_exists_within_section?(params[:name], params[:section_id])
-            return Failure.new({ name: :taken })
+        def update(raw_params, authorizer:)
+          perform(
+            raw_params,
+            authenticate(authorizer),
+            parameterize(UPDATE_PARAMS_RULES),
+            authorize_can_manage(authorizer, Paleolog::Sample, :id),
+            verify(name_uniqueness),
+            finalize(->(params) { Paleolog::Repo::Sample.update(params[:id], params.except(:id)) }),
+          )
+        end
+
+        private
+
+        def name_uniqueness
+          lambda do |params|
+            break unless params.key?(:name)
+
+            if Paleolog::Repo::Sample.similar_name_exists?(
+              params[:name],
+              section_id: params[:section_id],
+              exclude_id: params[:id],
+            )
+              { name: TAKEN }
+            end
           end
+        end
 
-          max_rank = Paleolog::Repo::Sample
-                     .all_for_section(section_id)
-                     .max_by(&:rank)&.rank || 0
-          params[:rank] = max_rank + 1
-
-          Success.new(Paleolog::Repo::Sample.create(params))
+        def next_rank
+          lambda do |params|
+            max_rank = Paleolog::Repo::Sample.section_max_rank(params[:section_id]) || 0
+            { rank: max_rank + 1 }
+          end
         end
       end
     end

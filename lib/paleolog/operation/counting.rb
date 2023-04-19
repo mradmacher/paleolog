@@ -4,45 +4,54 @@ module Paleolog
   module Operation
     class Counting
       class << self
-        CreateRules = Pp.define.(
+        include Operation::Helpers
+
+        CREATE_PARAMS_RULES = Pp.define.(
           name: Pp.required.(NameRules),
           project_id: Pp.required.(IdRules),
         )
-        UpdateRules = Pp.define.(
+
+        UPDATE_PARAMS_RULES = Pp.define.(
           id: Pp.required.(IdRules),
           name: Pp.required.(NameRules),
         )
 
-        def create(params, authorizer:)
-          return UNAUTHENTICATED_RESULT unless authorizer.authenticated?
-
-          params, errors = CreateRules.(params)
-          return [nil, errors] unless errors.empty?
-
-          return UNAUTHORIZED_RESULT unless authorizer.can_manage?(Paleolog::Project, params[:project_id])
-
-          if Paleolog::Repo::Counting.name_exists_within_project?(params[:name], params[:project_id])
-            return [nil, { name: :taken }]
-          end
-
-          counting = Paleolog::Repo::Counting.create(params)
-          [counting, {}]
+        def create(raw_params, authorizer:)
+          perform(
+            raw_params,
+            authenticate(authorizer),
+            parameterize(CREATE_PARAMS_RULES),
+            authorize_can_manage(authorizer, Paleolog::Project, :project_id),
+            verify(name_uniqueness),
+            finalize(->(params) { Paleolog::Repo::Counting.create(params) }),
+          )
         end
 
-        def update(params, authorizer:)
-          return UNAUTHENTICATED_RESULT unless authorizer.authenticated?
+        def update(raw_params, authorizer:)
+          perform(
+            raw_params,
+            authenticate(authorizer),
+            parameterize(UPDATE_PARAMS_RULES),
+            authorize_can_manage(authorizer, Paleolog::Counting, :id),
+            verify(name_uniqueness),
+            finalize(->(params) { Paleolog::Repo::Counting.update(params[:id], params.except(:id)) }),
+          )
+        end
 
-          params, errors = UpdateRules.(params)
-          return [false, errors] unless errors.empty?
+        private
 
-          return UNAUTHORIZED_RESULT unless authorizer.can_manage?(Paleolog::Counting, params[:id])
+        def name_uniqueness
+          lambda do |params|
+            break unless params.key?(:name)
 
-          if Paleolog::Repo::Counting.name_exists_within_same_project?(params[:name], counting_id: params[:id])
-            return [nil, { name: :taken }]
+            if Paleolog::Repo::Counting.similar_name_exists?(
+              params[:name],
+              project_id: params[:project_id],
+              exclude_id: params[:id],
+            )
+              { name: :taken }
+            end
           end
-
-          counting = Paleolog::Repo::Counting.update(params[:id], params.except(:id))
-          [counting, {}]
         end
       end
     end

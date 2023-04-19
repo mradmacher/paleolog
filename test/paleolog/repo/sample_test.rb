@@ -41,20 +41,20 @@ describe Paleolog::Repo::Sample do
     end
   end
 
-  describe '#name_exists_within_section?' do
+  describe '#similar_name_exists?' do
     let(:section) { Paleolog::Repo::Section.create(name: 'Some section') }
 
     it 'checks name uniqueness within section scope' do
       repo.create(name: 'Some sample', section_id: section.id)
 
-      assert(repo.name_exists_within_section?('Some sample', section.id))
-      refute(repo.name_exists_within_section?('Other sample', section.id))
+      assert(repo.similar_name_exists?('Some sample', section_id: section.id))
+      refute(repo.similar_name_exists?('Other sample', section_id: section.id))
     end
 
     it 'is case insensitive' do
       repo.create(name: 'Some sample', section_id: section.id)
 
-      assert(repo.name_exists_within_section?('soMe sAmPle', section.id))
+      assert(repo.similar_name_exists?('soMe sAmPle', section_id: section.id))
     end
   end
 

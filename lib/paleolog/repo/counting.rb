@@ -22,14 +22,17 @@ module Paleolog
           end
         end
 
-        def name_exists_within_project?(name, project_id)
-          ds.where(project_id: project_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
-        end
-
-        def name_exists_within_same_project?(name, counting_id:)
-          ds.exclude(id: counting_id)
-            .where(project_id: ds.where(id: counting_id).select(:project_id))
-            .where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
+        def similar_name_exists?(name, project_id: nil, exclude_id: nil)
+          scope =
+            if project_id
+              ds.where(project_id: project_id)
+            elsif exclude_id
+              ds.where(project_id: ds.where(id: exclude_id).select(:project_id))
+            else
+              ds
+            end
+          query = exclude_id ? scope.exclude(id: exclude_id) : scope
+          query.where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
         end
 
         def entity_class

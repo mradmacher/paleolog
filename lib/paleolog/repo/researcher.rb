@@ -20,6 +20,13 @@ module Paleolog
              .join(:sections, Sequel[:sections][:project_id] => :id).first.nil?
         end
 
+        def can_manage_sample?(user_id, sample_id)
+          !ds.where(user_id: user_id, manager: true, Sequel[:samples][:id] => sample_id)
+             .join(:projects, Sequel[:projects][:id] => :project_id)
+             .join(:sections, Sequel[:sections][:project_id] => :id)
+             .join(:samples, Sequel[:samples][:section_id] => :id).first.nil?
+        end
+
         def can_manage_counting?(user_id, counting_id)
           !ds.where(user_id: user_id, manager: true, Sequel[:countings][:id] => counting_id)
              .join(:projects, Sequel[:projects][:id] => :project_id)

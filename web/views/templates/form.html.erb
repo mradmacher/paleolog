@@ -1,0 +1,62 @@
+<template id="project-form-template">
+  <input id="project-id" type="hidden" name="id" />
+  <div class="field">
+    <label for="project-name">Name</label>
+    <input id="project-name" type="text" name="name" />
+  </div>
+</template>
+
+<template id="section-form-template">
+  <input id="section-id" name="id" type="hidden" />
+  <input id="section-project_id" name="project_id" type="hidden" />
+  <div class="field">
+    <label for="section-name">Name</label>
+    <input id="section-name" name="name" type="text" />
+  </div>
+</template>
+
+<template id="counting-form-template">
+  <input id="counting-id" name="id" type="hidden" />
+  <input id="counting-project_id" name="project_id" type="hidden" />
+  <div class="field">
+    <label for="counting-name">Name</label>
+    <input id="counting-name" name="name" type="text" />
+  </div>
+</template>
+
+<template id="sample-form-template">
+  <input id="sample-id" name="id" type="hidden" />
+  <input id="sample-section-id" name="section_id" type="hidden" />
+  <div class="field">
+    <label for="sample-name">Name</label>
+    <input id="sample-name" name="name" type="text" />
+  </div>
+  <div class="field">
+    <label for="sample-description">Description</label>
+    <textarea id="sample-description" name="description"></textarea>
+  </div>
+  <div class="field">
+    <label for="sample-weight">Weight</label>
+    <input id="sample-weight" name="weight" type="text" />
+  </div>
+</template>
+
+<template id=form-window-template>
+  <div class="ui modal form-window">
+    <div class="header"></div>
+    <div class="content">
+      <div class="ui negative hidden message validation-messages">
+        <div class="header">
+          There are some errors:
+        </div>
+        <p class="content"></p>
+      </div>
+      <form class="ui form">
+      </form>
+    </div>
+    <div class="actions">
+      <button class="ui cancel negative button">Cancel</button>
+      <button class="ui approve positive button">Save</button>
+    </div>
+  </div>
+</template>

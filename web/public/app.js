@@ -3,19 +3,29 @@ const errorMessages = {
     name: {
       taken: "Name is already taken",
       blank: "Name can't be blank"
-    }
+    },
   },
   section: {
     name: {
       taken: "Name is already taken",
       blank: "Name can't be blank"
-    }
+    },
   },
   counting: {
     name: {
       taken: "Name is already taken",
       blank: "Name can't be blank"
-    }
+    },
+  },
+  sample: {
+    name: {
+      taken: "Name is already taken",
+      blank: "Name can't be blank"
+    },
+    weight: {
+      non_decimal: "Weight needs to be a decimal number",
+      not_gt: "Weight needs to be greater than 0",
+    },
   }
 }
 
@@ -70,62 +80,75 @@ class CountingRequest extends ModelRequest {
   }
 }
 
-class ValidationMessageView {
-  constructor(model) {
-    this.model = model;
-    this.elementPath = `#${model}-form-window .validation-messages`;
-    this.element = $(this.elementPath);
-  }
-
-  hide() {
-    this.element.hide();
-    this.clear();
-  }
-
-  clear() {
-    this.element.find('.content').text('');
-  }
-
-  show(errors) {
-    var that = this;
-    this.clear();
-    jQuery.each(errors, function(field, message) {
-      that.element.show();
-      that.element.find('.content').append(errorMessages[that.model][field][message]);
-    })
+class SampleRequest extends ModelRequest {
+  constructor() {
+    super(`/api/samples`);
   }
 }
 
 class ModalFormView {
   constructor(model, attrs, requestService, callback) {
-    this.model = model;
-    this.attrs = attrs;
-    this.element = $(this.elementPath);
-    this.requestService = requestService;
-    this.callback = callback;
+    this.model = model
+    this.attrs = attrs
+    this.requestService = requestService
+    this.callback = callback
+
+    this.modal = $($('#form-window-template').html())
+    var form = $($(`#${model}-form-template`).html())
+    console.log(form)
+    var modelTitle = model.charAt(0).toUpperCase() + model.slice(1)
+    var actionTitle = ''
+    if ('id' in attrs) {
+      actionTitle = 'Edit'
+    } else {
+      actionTitle = 'Add'
+    }
+    this.modal.find('>.header').text(`${actionTitle} ${modelTitle}`)
+    this.modal.find('form').append(form)
+  }
+
+  clearErrors() {
+    this.modal.find('.validation-messages .content').text('')
+  }
+
+  hideErrors() {
+    this.modal.find('.validation-messages').hide()
+    this.clearErrors()
+  }
+
+  showErrors(errors) {
+    this.clearErrors()
+    this.modal.find('.validation-messages').show()
+    var errorsContent = this.modal.find('.validation-messages .content')
+    var that = this
+    jQuery.each(errors, function(field, message) {
+      errorsContent.append(errorMessages[that.model][field][message])
+      errorsContent.append('<br />')
+    })
   }
 
   show() {
-    var validationMessageView = new ValidationMessageView(this.model);
-    validationMessageView.hide();
-    $(`#${this.model}-form`).trigger('reset');
+    this.hideErrors()
+    var form = this.modal.find('form')
+    form.trigger('reset');
     for (const field in this.attrs) {
-      $(`#${this.model}-form #${this.model}-${field}`).val(this.attrs[field]);
+      form.find(`[name=${field}]`).val(this.attrs[field]);
     }
     var that = this;
-    $(`#${this.model}-form-window`).modal({
+    this.modal.modal({
       closable: false,
       onApprove: function() {
         var attrs = {}
+        var form = that.modal.find('form')
         for (const field in that.attrs) {
-          attrs[field] = $(`#${that.model}-form #${that.model}-${field}`).val()
+          attrs[field] = form.find(`[name=${field}]`).val()
         }
         that.requestService.save(attrs).then(
           result => {
             that.callback(result)
           },
           errors => {
-            validationMessageView.show(errors)
+            that.showErrors(errors)
           }
         )
         return false
@@ -150,5 +173,11 @@ class SectionModalFormView extends ModalFormView {
 class CountingModalFormView extends ModalFormView {
   constructor(attrs, callback) {
     super('counting', attrs, new CountingRequest, callback)
+  }
+}
+
+class SampleModalFormView extends ModalFormView {
+  constructor(attrs, callback) {
+    super('sample', attrs, new SampleRequest, callback)
   }
 }

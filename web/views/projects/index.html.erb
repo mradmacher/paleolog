@@ -5,10 +5,9 @@
         <h1 class="ui header">Projects (<%= @projects.size %>)</h1>
       </div>
       <div class="two wide column">
-        <button class="ui basic button add-project-action">Add</button>
+        <button class="ui mini secondary button add-project action">Add</button>
       </div>
     </fieldset>
-    <%= erb :'projects/_form.html', layout: false %>
   </div>
 
   <div class="three wide column">
@@ -55,7 +54,7 @@ $(function() {
     name: null,
   }
 
-  $('.add-project-action').click(() => {
+  $('.add-project.action').click(() => {
     new ProjectModalFormView(project, (project) => window.location.reload()).show()
   });
 });
