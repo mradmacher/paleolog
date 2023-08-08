@@ -8,12 +8,12 @@ describe 'Sections' do
   let(:app) { Web::Api::Sections.new }
   let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
   let(:project) do
-    project, errors = Paleolog::Operation::Project.create(
+    result = Paleolog::Operation::Project.create(
       { name: 'project for section', user_id: user.id },
       authorizer: HappyAuthorizer.new,
     )
-    assert_predicate errors, :empty?
-    project
+    assert_predicate result, :success?
+    result.value
   end
   let(:researcher) do
     Paleolog::Repo::Researcher.all_for_project(project.id).detect { |r| r.user_id == user.id }
@@ -84,7 +84,7 @@ describe 'Sections' do
         Paleolog::Operation::Section.create(
           { name: 'some project', project_id: project.id },
           authorizer: HappyAuthorizer.new,
-        ).first
+        ).value
       end
 
       before do

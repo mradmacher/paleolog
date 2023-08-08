@@ -11,8 +11,8 @@ module Paleolog
     NON_DECIMAL = ParamParam::NON_DECIMAL
     NON_INTEGER = ParamParam::NON_INTEGER
     NOT_GT = ParamParam::NOT_GT
-    UNAUTHENTICATED_RESULT = [nil, { general: UNAUTHENTICATED }].freeze
-    UNAUTHORIZED_RESULT = [nil, { general: UNAUTHORIZED }].freeze
+    UNAUTHENTICATED_RESULT = { general: UNAUTHENTICATED }.freeze
+    UNAUTHORIZED_RESULT = { general: UNAUTHORIZED }.freeze
 
     IdRules = Pp.integer.(Pp.gt.(0))
     NameRules = Pp.string.(

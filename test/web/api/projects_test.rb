@@ -7,12 +7,12 @@ describe 'Projects' do
 
   let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
   let(:project) do
-    project, errors = Paleolog::Operation::Project.create(
+    result = Paleolog::Operation::Project.create(
       { name: 'some test project', user_id: user.id },
       authorizer: HappyAuthorizer.new,
     )
-    assert_predicate errors, :empty?
-    project
+    assert_predicate result, :success?
+    result.value
   end
   let(:app) { Web::Api::Projects.new }
 
@@ -51,10 +51,10 @@ describe 'Projects' do
       end
 
       it 'returns many projects' do
-        other_project, = Paleolog::Operation::Project.create(
+        other_project = Paleolog::Operation::Project.create(
           { name: 'project1', user_id: user.id },
           authorizer: HappyAuthorizer.new,
-        )
+        ).value
 
         get '/api/projects'
         result = JSON.parse(last_response.body)['projects']

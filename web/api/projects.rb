@@ -11,7 +11,7 @@ module Web
 
       get '/api/projects' do
         model_or_errors(
-          *Paleolog::Operation::Project.find_all_for_user(authorizer.user_id, authorizer: authorizer),
+          Paleolog::Operation::Project.find_all_for_user(authorizer.user_id, authorizer: authorizer),
           serializer,
           :projects,
         )
@@ -19,13 +19,13 @@ module Web
 
       post '/api/projects' do
         model_or_errors(
-          *Paleolog::Operation::Project.create(params.merge(user_id: authorizer.user_id), authorizer: authorizer),
+          Paleolog::Operation::Project.create(params.merge(user_id: authorizer.user_id), authorizer: authorizer),
           serializer,
         )
       end
 
       patch '/api/projects/:id' do
-        model_or_errors(*Paleolog::Operation::Project.rename(params, authorizer: authorizer), serializer)
+        model_or_errors(Paleolog::Operation::Project.rename(params, authorizer: authorizer), serializer)
       end
 
       private

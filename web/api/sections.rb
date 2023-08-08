@@ -10,11 +10,11 @@ module Web
       helpers Web::AuthHelpers, Web::ApiHelpers
 
       post '/api/sections' do
-        model_or_errors(*Paleolog::Operation::Section.create(params, authorizer: authorizer), serializer)
+        model_or_errors(Paleolog::Operation::Section.create(params, authorizer: authorizer), serializer)
       end
 
       patch '/api/sections/:id' do
-        model_or_errors(*Paleolog::Operation::Section.update(params, authorizer: authorizer), serializer)
+        model_or_errors(Paleolog::Operation::Section.update(params, authorizer: authorizer), serializer)
       end
 
       private
