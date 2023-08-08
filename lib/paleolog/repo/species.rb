@@ -67,8 +67,9 @@ module Paleolog
           end
         end
 
-        def name_exists_within_group?(name, group_id)
-          ds.where(group_id: group_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
+        def name_exists_within_group?(name, group_id, exclude_id: nil)
+          (exclude_id ? ds.exclude(id: exclude_id) : ds)
+            .where(group_id: group_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
         end
 
         def entity_class
