@@ -61,13 +61,14 @@ module Web
         end
         counting = Paleolog::Repo::Counting.find_for_project(params[:counting_id].to_i, params[:project_id])
 
-        occurrence, errors = Paleolog::Operation::Occurrence.create(
+        result = Paleolog::Operation::Occurrence.create(
           counting_id: counting&.id,
           sample_id: sample&.id,
           species_id: params[:species_id],
         )
-        halt 400, errors.to_json unless errors.empty?
+        halt 400, result.error.to_json if result.failure?
 
+        occurrence = result.value
         {
           occurrence: {
             id: occurrence.id,
@@ -116,9 +117,10 @@ module Web
         end
         attributes[:status] = params[:status] if params.key?(:status)
         attributes[:uncertain] = params[:uncertain] if params.key?(:uncertain)
-        occurrence, errors = Paleolog::Operation::Occurrence.update(occurrence.id, **attributes)
-        halt 400, errors.to_json unless errors.empty?
+        result = Paleolog::Operation::Occurrence.update(occurrence.id, **attributes)
+        halt 400, result.error.to_json if result.failure?
 
+        occurrence = result.value
         counting_summary = Paleolog::CountingSummary.new(
           Paleolog::Repo::Occurrence.all_for_sample(occurrence.counting_id, occurrence.sample_id),
         )

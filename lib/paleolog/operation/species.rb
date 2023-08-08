@@ -14,22 +14,13 @@ module Paleolog
         )
 
         def create(raw_params, authorizer:)
-          result = perform(
+          reduce(
             raw_params,
             authenticate(authorizer),
             parameterize(CREATE_PARAMS_RULES),
             verify(name_uniqueness),
-            finalize(
-              lambda do |params|
-                Paleolog::Repo::Species.create(params)
-              end
-            )
+            finalize(->(params) { Paleolog::Repo::Species.create(params) }),
           )
-          if result.last.empty?
-            Success.new(result.first)
-          else
-            Failure.new(result.last)
-          end
         end
 
         private

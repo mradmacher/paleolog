@@ -10,11 +10,11 @@ module Web
       helpers Web::AuthHelpers, Web::ApiHelpers
 
       post '/api/countings' do
-        model_or_errors(*Paleolog::Operation::Counting.create(params, authorizer: authorizer), serializer)
+        model_or_errors(Paleolog::Operation::Counting.create(params, authorizer: authorizer), serializer)
       end
 
       patch '/api/countings/:id' do
-        model_or_errors(*Paleolog::Operation::Counting.update(params, authorizer: authorizer), serializer)
+        model_or_errors(Paleolog::Operation::Counting.update(params, authorizer: authorizer), serializer)
       end
 
       private

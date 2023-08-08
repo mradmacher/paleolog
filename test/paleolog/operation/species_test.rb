@@ -17,7 +17,7 @@ describe Paleolog::Operation::Species do
       authorizer.expect :authenticated?, false
 
       result = operation.create({ name: 'Just a Name' }, authorizer: authorizer)
-      refute_predicate result, :success?
+      assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
 
       authorizer.verify
@@ -38,7 +38,7 @@ describe Paleolog::Operation::Species do
 
       it 'complains when group_id blank' do
         result = operation.create(
-          {name: 'Name', group_id: nil},
+          { name: 'Name', group_id: nil },
           authorizer: authorizer,
         )
         assert_predicate result, :failure?
@@ -57,7 +57,7 @@ describe Paleolog::Operation::Species do
       it 'complains when name is nil' do
         result = operation.create(
           { name: nil, group_id: group.id },
-          authorizer: authorizer
+          authorizer: authorizer,
         )
         assert_predicate result, :failure?
         assert_equal :blank, result.error[:name]

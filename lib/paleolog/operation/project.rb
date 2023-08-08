@@ -17,7 +17,7 @@ module Paleolog
         )
 
         def find_all_for_user(user_id, authorizer:)
-          perform(
+          reduce(
             {},
             authenticate(authorizer),
             finalize(->(_) { Repo::Researcher.all_for_user(user_id).map(&:project) }),
@@ -25,30 +25,17 @@ module Paleolog
         end
 
         def create(raw_params, authorizer:)
-          perform(
+          reduce(
             raw_params,
             authenticate(authorizer),
             parameterize(CREATE_PARAMS_RULES),
             verify(name_uniqueness),
-            finalize(
-              lambda do |params|
-                project = nil
-                Paleolog::Repo::Config.db.transaction do
-                  project = Paleolog::Repo::Project.create(params.except(:user_id))
-                  Paleolog::Repo::Researcher.create(
-                    user_id: params[:user_id],
-                    project_id: project.id,
-                    manager: true,
-                  )
-                end
-                project
-              end
-            ),
+            finalize(->(params) { create_project(params) }),
           )
         end
 
         def rename(raw_params, authorizer:)
-          perform(
+          reduce(
             raw_params,
             authenticate(authorizer),
             parameterize(UPDATE_PARAMS_RULES),
@@ -59,6 +46,19 @@ module Paleolog
         end
 
         private
+
+        def create_project(params)
+          project = nil
+          Paleolog::Repo::Config.db.transaction do
+            project = Paleolog::Repo::Project.create(params.except(:user_id))
+            Paleolog::Repo::Researcher.create(
+              user_id: params[:user_id],
+              project_id: project.id,
+              manager: true,
+            )
+          end
+          project
+        end
 
         def name_uniqueness
           lambda do |params|

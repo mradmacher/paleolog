@@ -17,7 +17,7 @@ module Paleolog
         )
 
         def create(raw_params, authorizer:)
-          perform(
+          reduce(
             raw_params,
             authenticate(authorizer),
             parameterize(CREATE_PARAMS_RULES),
@@ -28,7 +28,7 @@ module Paleolog
         end
 
         def update(raw_params, authorizer:)
-          perform(
+          reduce(
             raw_params,
             authenticate(authorizer),
             parameterize(UPDATE_PARAMS_RULES),

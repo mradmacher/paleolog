@@ -6,10 +6,10 @@ describe 'Samples' do
   before do
     use_javascript_driver
     user = Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
-    project, = Paleolog::Operation::Project.create(
+    project = Paleolog::Operation::Project.create(
       { name: 'test', user_id: user.id },
       authorizer: HappyAuthorizer.new,
-    )
+    ).value
     Paleolog::Operation::Section.create(
       { name: 'Section for Sample', project_id: project.id },
       authorizer: HappyAuthorizer.new,

@@ -9,13 +9,13 @@ describe Paleolog::Operation::Sample do
     Paleolog::Operation::Project.create(
       { name: 'Project for Section', user_id: user.id },
       authorizer: HappyAuthorizer.new,
-    ).first
+    ).value
   end
   let(:section) do
     Paleolog::Operation::Section.create(
       { name: 'Section for Sample', project_id: project.id },
       authorizer: HappyAuthorizer.new,
-    ).first
+    ).value
   end
   let(:authorizer) { Minitest::Mock.new }
 
@@ -30,9 +30,12 @@ describe Paleolog::Operation::Sample do
     it 'returns unauthenticated error when not authenticated' do
       authorizer.expect :authenticated?, false
 
-      _, errors = operation.create({ name: 'Some Name', section_id: section.id }, authorizer: authorizer)
-      refute_predicate errors, :empty?
-      assert_equal Paleolog::Operation::UNAUTHENTICATED, errors[:general]
+      result = operation.create(
+        { name: 'Some Name', section_id: section.id },
+        authorizer: authorizer,
+      )
+      assert_predicate result, :failure?
+      assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
 
       authorizer.verify
     end
@@ -41,9 +44,12 @@ describe Paleolog::Operation::Sample do
       authorizer.expect :authenticated?, true
       authorizer.expect :can_manage?, false, [Paleolog::Section, section.id]
 
-      _, errors = operation.create({ name: 'Some Name', section_id: section.id }, authorizer: authorizer)
-      refute_predicate errors, :empty?
-      assert_equal Paleolog::Operation::UNAUTHORIZED, errors[:general]
+      result = operation.create(
+        { name: 'Some Name', section_id: section.id },
+        authorizer: authorizer,
+      )
+      assert_predicate result, :failure?
+      assert_equal Paleolog::Operation::UNAUTHORIZED, result.error[:general]
 
       authorizer.verify
     end
@@ -55,179 +61,219 @@ describe Paleolog::Operation::Sample do
       end
 
       it 'increases rank for each new sample' do
-        sample, = operation.create(
+        sample = operation.create(
           { name: 'Name1', section_id: section.id },
           authorizer: HappyAuthorizer.new,
-        )
+        ).value
         assert_equal 1, sample.rank
 
-        sample, = operation.create(
+        sample = operation.create(
           { name: 'Name2', section_id: section.id },
           authorizer: HappyAuthorizer.new,
-        )
+        ).value
         assert_equal 2, sample.rank
 
-        sample, = operation.create(
+        sample = operation.create(
           { name: 'Name3', section_id: section.id },
           authorizer: HappyAuthorizer.new,
-        )
+        ).value
         assert_equal 3, sample.rank
       end
 
       it 'increases rank in the scope of a section' do
-        other_section, = Paleolog::Operation::Section.create(
+        other_section = Paleolog::Operation::Section.create(
           { name: 'Other Section for Sample', project_id: project.id },
           authorizer: HappyAuthorizer.new,
-        )
+        ).value
 
-        sample, = operation.create(
+        sample = operation.create(
           { name: 'Name1', section_id: section.id },
           authorizer: HappyAuthorizer.new,
-        )
+        ).value
         assert_equal 1, sample.rank
 
-        sample, = operation.create(
+        sample = operation.create(
           { name: 'Name2', section_id: other_section.id },
           authorizer: HappyAuthorizer.new,
-        )
+        ).value
         assert_equal 1, sample.rank
       end
 
       it 'complains when section_id nil' do
-        _, errors = operation.create({ name: 'Name', section_id: nil }, authorizer: authorizer)
-        refute_predicate errors, :empty?
-        assert_equal Paleolog::Operation::NON_INTEGER, errors[:section_id]
+        result = operation.create(
+          { name: 'Name', section_id: nil },
+          authorizer: authorizer,
+        )
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::NON_INTEGER, result.error[:section_id]
       end
 
       it 'complains when section_id missing' do
-        _, errors = operation.create({ name: 'Name' }, authorizer: authorizer)
-        refute_predicate errors, :empty?
-        assert_equal Paleolog::Operation::MISSING, errors[:section_id]
+        result = operation.create({ name: 'Name' }, authorizer: authorizer)
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::MISSING, result.error[:section_id]
       end
 
       it 'complains when name is nil' do
-        _, errors = operation.create({ name: nil, section_id: section.id }, authorizer: authorizer)
-        refute_predicate errors, :empty?
-        assert_equal Paleolog::Operation::BLANK, errors[:name]
+        result = operation.create(
+          { name: nil, section_id: section.id },
+          authorizer: authorizer,
+        )
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::BLANK, result.error[:name]
       end
 
       it 'complains when name is blank' do
-        _, errors = operation.create({ name: '  ', section_id: section.id }, authorizer: authorizer)
-        refute_predicate errors, :empty?
-        assert_equal Paleolog::Operation::BLANK, errors[:name]
+        result = operation.create(
+          { name: '  ', section_id: section.id },
+          authorizer: authorizer,
+        )
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::BLANK, result.error[:name]
       end
 
       it 'complains when name is missing' do
-        _, errors = operation.create({ section_id: section.id }, authorizer: authorizer)
-        refute_predicate errors, :empty?
-        assert_equal Paleolog::Operation::MISSING, errors[:name]
+        result = operation.create({ section_id: section.id }, authorizer: authorizer)
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::MISSING, result.error[:name]
       end
 
       it 'complains when name already exists' do
-        _, errors = operation.create({ name: 'Some Name', section_id: section.id }, authorizer: HappyAuthorizer.new)
-        assert_predicate errors, :empty?
+        result = operation.create(
+          { name: 'Some Name', section_id: section.id },
+          authorizer: HappyAuthorizer.new,
+        )
+        assert_predicate result, :success?
 
-        _, errors = operation.create({ name: 'Some Name', section_id: section.id }, authorizer: authorizer)
-        refute_predicate errors, :empty?
-        assert_equal Paleolog::Operation::TAKEN, errors[:name]
+        result = operation.create(
+          { name: 'Some Name', section_id: section.id },
+          authorizer: authorizer,
+        )
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::TAKEN, result.error[:name]
       end
 
       it 'complains when name with different cases already exists' do
-        _, errors = operation.create({ name: 'Some Name', section_id: section.id }, authorizer: HappyAuthorizer.new)
-        assert_predicate errors, :empty?
+        result = operation.create(
+          { name: 'Some Name', section_id: section.id },
+          authorizer: HappyAuthorizer.new,
+        )
+        assert_predicate result, :success?
 
-        _, errors = operation.create({ name: ' some name ', section_id: section.id }, authorizer: authorizer)
-        refute_predicate errors, :empty?
-        assert_equal Paleolog::Operation::TAKEN, errors[:name]
+        result = operation.create(
+          { name: ' some name ', section_id: section.id },
+          authorizer: authorizer,
+        )
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::TAKEN, result.error[:name]
       end
 
       it 'complains when name is too long' do
         max = 255
-        _, errors = operation.create({ name: 'a' * (max + 1), section_id: section.id }, authorizer: authorizer)
-        refute_predicate errors, :empty?
-        assert_equal Paleolog::Operation::TOO_LONG, errors[:name]
+        result = operation.create(
+          { name: 'a' * (max + 1), section_id: section.id },
+          authorizer: authorizer,
+        )
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::TOO_LONG, result.error[:name]
       end
 
       it 'accepts max length name' do
-        max = 255
-        _, errors = operation.create({ name: 'a' * max, section_id: section.id }, authorizer: authorizer)
-        assert_predicate errors, :empty?
+        name = 'a' * 255
+        result = operation.create(
+          { name: name, section_id: section.id },
+          authorizer: authorizer,
+        )
+        assert_predicate result, :success?
+        assert_equal name, result.value.name
       end
 
       it 'requires numerical weight' do
         ['a', '#', '34a', 'a34'].each do |value|
-          _, errors = operation.create(
+          result = operation.create(
             { section_id: section.id, weight: value },
             authorizer: HappyAuthorizer.new,
           )
-          refute_predicate errors, :empty?
-          assert_equal Paleolog::Operation::NON_DECIMAL, errors[:weight]
+          assert_predicate result, :failure?
+          assert_equal Paleolog::Operation::NON_DECIMAL, result.error[:weight]
         end
       end
 
       it 'converts blank weight to nil' do
-        sample, = operation.create(
+        sample = operation.create(
           { name: 'Name1', section_id: section.id, weight: '' },
           authorizer: HappyAuthorizer.new,
-        )
+        ).value
         assert_nil sample.weight
       end
 
       it 'accepts weight passed as string' do
-        sample, errors = operation.create(
+        result = operation.create(
           { name: 'Name', section_id: section.id, weight: '1.3' },
           authorizer: authorizer,
         )
-        assert_predicate errors, :empty?
-        assert_in_delta(1.3, sample.weight)
+        assert_predicate result, :success?
+        assert_in_delta(1.3, result.value.weight)
       end
 
       it 'accepts weight passed as decimal' do
-        sample, errors = operation.create(
+        result = operation.create(
           { name: 'Name', section_id: section.id, weight: 1.3 },
           authorizer: authorizer,
         )
-        assert_predicate errors, :empty?
-        assert_in_delta(1.3, sample.weight)
+        assert_predicate result, :success?
+        assert_in_delta(1.3, result.value.weight)
       end
 
       it 'accepts weight passed as integer' do
-        sample, errors = operation.create(
+        result = operation.create(
           { name: 'Name', section_id: section.id, weight: 13 },
           authorizer: authorizer,
         )
-        assert_predicate errors, :empty?
-        assert_in_delta(13.0, sample.weight)
+        assert_predicate result, :success?
+        assert_in_delta(13.0, result.value.weight)
       end
 
       it 'requires weight greater than 0' do
-        _, errors = operation.create({ name: 'Name', section_id: section.id, weight: 0 }, authorizer: authorizer)
-        refute_predicate errors, :empty?
-        assert_equal Paleolog::Operation::NOT_GT, errors[:weight]
+        result = operation.create(
+          { name: 'Name', section_id: section.id, weight: 0 },
+          authorizer: authorizer,
+        )
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::NOT_GT, result.error[:weight]
       end
 
       it 'requires weight greater than 0.0' do
-        _, errors = operation.create({ name: 'Name', section_id: section.id, weight: 0.0 }, authorizer: authorizer)
-        refute_predicate errors, :empty?
-        assert_equal Paleolog::Operation::NOT_GT, errors[:weight]
+        result = operation.create(
+          { name: 'Name', section_id: section.id, weight: 0.0 },
+          authorizer: authorizer,
+        )
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::NOT_GT, result.error[:weight]
       end
 
       it 'requires weight greater than something just below 0' do
-        _, errors = operation.create({ name: 'Name', section_id: section.id, weight: -0.0001 }, authorizer: authorizer)
-        refute_predicate errors, :empty?
-        assert_equal Paleolog::Operation::NOT_GT, errors[:weight]
+        result = operation.create(
+          { name: 'Name', section_id: section.id, weight: -0.0001 },
+          authorizer: authorizer,
+        )
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::NOT_GT, result.error[:weight]
       end
 
       it 'requires weight just something above 0' do
-        _, errors = operation.create({ name: 'Name', section_id: section.id, weight: 0.0001 }, authorizer: authorizer)
-        assert_predicate errors, :empty?
+        result = operation.create(
+          { name: 'Name', section_id: section.id, weight: 0.0001 },
+          authorizer: authorizer,
+        )
+        assert_predicate result, :success?
       end
 
       it 'converts blank description to nil' do
-        sample, = operation.create(
+        sample = operation.create(
           { name: 'Name1', section_id: section.id, description: '' },
           authorizer: HappyAuthorizer.new,
-        )
+        ).value
         assert_nil sample.description
       end
     end
@@ -235,20 +281,20 @@ describe Paleolog::Operation::Sample do
 
   describe '#update' do
     let(:existing_sample) do
-      sample, errors = operation.create(
+      result = operation.create(
         { name: 'Some Sample', weight: 1.1, description: 'abc', section_id: section.id },
         authorizer: HappyAuthorizer.new,
       )
-      assert_predicate errors, :empty?
-      sample
+      assert_predicate result, :success?
+      result.value
     end
 
     it 'returns unauthenticated error when not authenticated' do
       authorizer.expect :authenticated?, false
 
-      _, errors = operation.update({ id: existing_sample.id }, authorizer: authorizer)
-      refute_predicate errors, :empty?
-      assert_equal Paleolog::Operation::UNAUTHENTICATED, errors[:general]
+      result = operation.update({ id: existing_sample.id }, authorizer: authorizer)
+      assert_predicate result, :failure?
+      assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
 
       authorizer.verify
     end
@@ -257,9 +303,9 @@ describe Paleolog::Operation::Sample do
       authorizer.expect :authenticated?, true
       authorizer.expect :can_manage?, false, [Paleolog::Sample, existing_sample.id]
 
-      _, errors = operation.update({ id: existing_sample.id }, authorizer: authorizer)
-      refute_predicate errors, :empty?
-      assert_equal Paleolog::Operation::UNAUTHORIZED, errors[:general]
+      result = operation.update({ id: existing_sample.id }, authorizer: authorizer)
+      assert_predicate result, :failure?
+      assert_equal Paleolog::Operation::UNAUTHORIZED, result.error[:general]
 
       authorizer.verify
     end
@@ -271,107 +317,128 @@ describe Paleolog::Operation::Sample do
       end
 
       it 'does not require any attributs' do
-        _, errors = operation.update({ id: existing_sample.id }, authorizer: authorizer)
-        assert_predicate errors, :empty?
+        result = operation.update({ id: existing_sample.id }, authorizer: authorizer)
+        assert_predicate result, :success?
       end
 
       it 'unsets blank weight and description attributes' do
         refute_nil existing_sample.weight
         refute_nil existing_sample.description
 
-        sample, errors = operation.update(
+        result = operation.update(
           { id: existing_sample.id, weight: '', description: '' },
           authorizer: authorizer,
         )
-        assert_predicate errors, :empty?
+        assert_predicate result, :success?
+        sample = result.value
         assert_nil sample.weight
         assert_nil sample.description
       end
 
       it 'does not change section_id' do
-        sample, errors = operation.update(
+        result = operation.update(
           { id: existing_sample.id, section_id: existing_sample.section_id + 1 },
           authorizer: authorizer,
         )
-        assert_predicate errors, :empty?
-        assert_equal existing_sample.section_id, sample.section_id
+        assert_predicate result, :success?
+        assert_equal existing_sample.section_id, result.value.section_id
       end
 
       it 'complains when name is nil' do
-        _, errors = operation.update({ id: existing_sample.id, name: nil }, authorizer: authorizer)
-        refute_predicate errors, :empty?
-        assert_equal Paleolog::Operation::BLANK, errors[:name]
+        result = operation.update(
+          { id: existing_sample.id, name: nil },
+          authorizer: authorizer,
+        )
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::BLANK, result.error[:name]
       end
 
       it 'complains when name is blank' do
-        _, errors = operation.update({ id: existing_sample.id, name: '   ' }, authorizer: authorizer)
-        refute_predicate errors, :empty?
-        assert_equal Paleolog::Operation::BLANK, errors[:name]
+        result = operation.update(
+          { id: existing_sample.id, name: '   ' },
+          authorizer: authorizer,
+        )
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::BLANK, result.error[:name]
       end
 
       it 'complains when name already exists' do
-        _, errors = operation.create(
+        result = operation.create(
           { name: 'Some Other Name', section_id: section.id },
           authorizer: HappyAuthorizer.new,
         )
-        assert_predicate errors, :empty?
+        assert_predicate result, :success?
 
-        _, errors = operation.update(
+        result = operation.update(
           { id: existing_sample.id, name: 'Some Other Name' },
           authorizer: authorizer,
         )
-        refute_predicate errors, :empty?
-        assert_equal Paleolog::Operation::TAKEN, errors[:name]
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::TAKEN, result.error[:name]
       end
 
       it 'complains when name with different cases already exists' do
-        _, errors = operation.create(
+        result = operation.create(
           { name: 'Some Other Name', section_id: section.id },
           authorizer: HappyAuthorizer.new,
         )
-        assert_predicate errors, :empty?
+        assert_predicate result, :success?
 
-        _, errors = operation.update(
+        result = operation.update(
           { id: existing_sample.id, name: '  some OTHER name  ' },
           authorizer: authorizer,
         )
-        refute_predicate errors, :empty?
-        assert_equal Paleolog::Operation::TAKEN, errors[:name]
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::TAKEN, result.error[:name]
       end
 
       it 'complains when name is too long' do
         max = 255
-        _, errors = operation.update({ id: existing_sample.id, name: 'a' * (max + 1) }, authorizer: authorizer)
-        refute_predicate errors, :empty?
-        assert_equal Paleolog::Operation::TOO_LONG, errors[:name]
+        result = operation.update(
+          { id: existing_sample.id, name: 'a' * (max + 1) },
+          authorizer: authorizer,
+        )
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::TOO_LONG, result.error[:name]
       end
 
       it 'accepts max length name' do
-        max = 255
-        _, errors = operation.update({ id: existing_sample.id, name: 'a' * max }, authorizer: authorizer)
-        assert_predicate errors, :empty?
+        name = 'a' * 255
+        result = operation.update(
+          { id: existing_sample.id, name: name },
+          authorizer: authorizer,
+        )
+        assert_predicate result, :success?
+        assert_equal name, result.value.name
       end
 
       it 'requires numerical weight' do
         ['a', '#', '34a', 'a34'].each do |value|
-          _, errors = operation.update({ id: existing_sample.id, weight: value }, authorizer: HappyAuthorizer.new)
-          refute_predicate errors, :empty?
-          assert_equal Paleolog::Operation::NON_DECIMAL, errors[:weight]
+          result = operation.update(
+            { id: existing_sample.id, weight: value },
+            authorizer: HappyAuthorizer.new,
+          )
+          assert_predicate result, :failure?
+          assert_equal Paleolog::Operation::NON_DECIMAL, result.error[:weight]
         end
       end
 
       it 'converts blank weight to nil' do
-        sample, = operation.update(
+        result = operation.update(
           { id: existing_sample.id, weight: ' ' },
           authorizer: HappyAuthorizer.new,
         )
-        assert_nil sample.weight
+        assert_predicate result, :success?
+        assert_nil result.value.weight
       end
 
       it 'requires weight greater than 0' do
-        _, errors = operation.update({ id: existing_sample.id, weight: 0 }, authorizer: authorizer)
-        refute_predicate errors, :empty?
-        assert_equal Paleolog::Operation::NOT_GT, errors[:weight]
+        result = operation.update(
+          { id: existing_sample.id, weight: 0 },
+          authorizer: authorizer,
+        )
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::NOT_GT, result.error[:weight]
       end
     end
   end
