@@ -8,7 +8,7 @@ gem 'pdfkit'
 gem 'pg'
 gem 'puma'
 gem 'rake'
-gem 'RedCloth'
+gem 'redcarpet'
 gem 'sequel'
 gem 'sinatra'
 

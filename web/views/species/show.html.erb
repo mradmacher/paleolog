@@ -6,9 +6,10 @@
 </p>
 <% if @species.description && !@species.description.empty? %>
   <h2>Description</h2>
-  <p><%= RedCloth.new(@species.description).to_html %></p>
+  <% markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(hard_wrap: true)) %>
+  <p><%= markdown.render(@species.description) %></p>
 <% end %>
 <% if @species.environmental_preferences && !@species.environmental_preferences.empty? %>
   <h2>Environmental Preferences</h2>
-  <p><%= RedCloth.new(@species.environmental_preferences).to_html %></p>
+  <p><%= markdown.render(@species.environmental_preferences) %></p>
 <% end %>
