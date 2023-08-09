@@ -9,12 +9,16 @@ module Web
     class Samples < Sinatra::Base
       helpers Web::AuthHelpers, Web::ApiHelpers
 
+      before do
+        @operation = Paleolog::Operation::Sample.new(Paleolog::Repo, authorizer)
+      end
+
       post '/api/samples' do
-        model_or_errors(Paleolog::Operation::Sample.create(params, authorizer: authorizer), serializer)
+        model_or_errors(@operation.create(params), serializer)
       end
 
       patch '/api/samples/:id' do
-        model_or_errors(Paleolog::Operation::Sample.update(params, authorizer: authorizer), serializer)
+        model_or_errors(@operation.update(params), serializer)
       end
 
       private

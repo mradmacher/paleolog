@@ -3,14 +3,18 @@
 require 'test_helper'
 
 describe Paleolog::Operation::Occurrence do
-  let(:operation) { Paleolog::Operation::Occurrence }
+  let(:repo) { Paleolog::Repo }
+  let(:authorizer) { Minitest::Mock.new }
+  let(:operation) do
+    Paleolog::Operation::Occurrence.new(repo, authorizer)
+  end
 
-  let(:project) { Paleolog::Repo.save(Paleolog::Project.new(name: 'some project')) }
-  let(:counting) { Paleolog::Repo.save(Paleolog::Counting.new(name: 'some counting', project: project)) }
-  let(:section) { Paleolog::Repo.save(Paleolog::Section.new(name: 'some section', project: project)) }
-  let(:sample) { Paleolog::Repo.save(Paleolog::Sample.new(name: 'some sample', section: section)) }
-  let(:group) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Dinoflagellate')) }
-  let(:species) { Paleolog::Repo.save(Paleolog::Species.new(group: group, name: 'Odontochitina costata')) }
+  let(:project) { repo.save(Paleolog::Project.new(name: 'some project')) }
+  let(:counting) { repo.save(Paleolog::Counting.new(name: 'some counting', project: project)) }
+  let(:section) { repo.save(Paleolog::Section.new(name: 'some section', project: project)) }
+  let(:sample) { repo.save(Paleolog::Sample.new(name: 'some sample', section: section)) }
+  let(:group) { repo.save(Paleolog::Group.new(name: 'Dinoflagellate')) }
+  let(:species) { repo.save(Paleolog::Species.new(group: group, name: 'Odontochitina costata')) }
 
   describe '#create' do
     it 'creates new occurrence' do
@@ -29,7 +33,7 @@ describe Paleolog::Operation::Occurrence do
     end
 
     it 'assigns rank greater than already existing' do
-      other_species = Paleolog::Repo.save(Paleolog::Species.new(group: group, name: 'Other species'))
+      other_species = repo.save(Paleolog::Species.new(group: group, name: 'Other species'))
       result = operation.create(
         sample_id: sample.id,
         species_id: other_species.id,

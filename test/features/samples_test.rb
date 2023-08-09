@@ -3,16 +3,16 @@
 require 'features_helper'
 
 describe 'Samples' do
+  let(:repo) { Paleolog::Repo }
+
   before do
     use_javascript_driver
-    user = Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
-    project = Paleolog::Operation::Project.create(
-      { name: 'test', user_id: user.id },
-      authorizer: HappyAuthorizer.new,
+    user = repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
+    project = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new).create(
+      name: 'test', user_id: user.id,
     ).value
-    Paleolog::Operation::Section.create(
-      { name: 'Section for Sample', project_id: project.id },
-      authorizer: HappyAuthorizer.new,
+    Paleolog::Operation::Section.new(repo, HappyAuthorizer.new).create(
+      name: 'Section for Sample', project_id: project.id,
     )
 
     visit '/login'
@@ -24,11 +24,11 @@ describe 'Samples' do
   end
 
   after do
-    Paleolog::Repo.delete_all(Paleolog::Researcher)
-    Paleolog::Repo.delete_all(Paleolog::Project)
-    Paleolog::Repo.delete_all(Paleolog::User)
-    Paleolog::Repo.delete_all(Paleolog::Section)
-    Paleolog::Repo.delete_all(Paleolog::Sample)
+    repo.for(Paleolog::Researcher).delete_all
+    repo.for(Paleolog::Project).delete_all
+    repo.for(Paleolog::User).delete_all
+    repo.for(Paleolog::Section).delete_all
+    repo.for(Paleolog::Sample).delete_all
   end
 
   it 'adds sample' do

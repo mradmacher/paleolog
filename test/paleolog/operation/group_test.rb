@@ -3,10 +3,14 @@
 require 'test_helper'
 
 describe Paleolog::Operation::Group do
-  let(:operation) { Paleolog::Operation::Group }
+  let(:repo) { Paleolog::Repo }
+  let(:authorizer) { Minitest::Mock.new }
+  let(:operation) do
+    Paleolog::Operation::Group.new(repo, authorizer)
+  end
 
   after do
-    Paleolog::Repo::Group.delete_all
+    repo.for(Paleolog::Group).delete_all
   end
 
   describe '#create' do

@@ -2,23 +2,21 @@
 
 module Paleolog
   module Operation
-    class Field
-      class << self
-        FieldRules = Pp.define.(
-          name: Pp.required.(
-            Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)])),
-          ),
-          group_id: Pp.required.(Pp.integer.(Pp.gt.(0))),
-        )
+    class Field < BaseOperation
+      FieldRules = Pp.define.(
+        name: Pp.required.(
+          Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)])),
+        ),
+        group_id: Pp.required.(Pp.integer.(Pp.gt.(0))),
+      )
 
-        def create(name:, group_id:)
-          params, errors = FieldRules.(name: name, group_id: group_id)
-          return Failure.new(errors) unless errors.empty?
+      def create(name:, group_id:)
+        params, errors = FieldRules.(name: name, group_id: group_id)
+        return Failure.new(errors) unless errors.empty?
 
-          return Failure.new({ name: :taken }) if Paleolog::Repo::Field.name_exists?(params[:name])
+        return Failure.new({ name: :taken }) if repo.for(Paleolog::Field).name_exists?(params[:name])
 
-          Success.new(Paleolog::Repo::Field.create(params))
-        end
+        Success.new(repo.for(Paleolog::Field).create(params))
       end
     end
   end

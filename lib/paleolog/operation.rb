@@ -23,6 +23,7 @@ module Paleolog
 end
 
 require 'paleolog/operation/helpers'
+require 'paleolog/operation/base_operation'
 require 'paleolog/operation/choice'
 require 'paleolog/operation/counting'
 require 'paleolog/operation/field'

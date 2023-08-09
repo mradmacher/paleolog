@@ -3,9 +3,10 @@
 require 'features_helper'
 
 describe 'Projects' do
+  let(:repo) { Paleolog::Repo }
   before do
     use_javascript_driver
-    Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
+    repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
 
     visit '/login'
     fill_in('login-field', with: 'test')
@@ -15,9 +16,9 @@ describe 'Projects' do
   end
 
   after do
-    Paleolog::Repo.delete_all(Paleolog::Researcher)
-    Paleolog::Repo.delete_all(Paleolog::Project)
-    Paleolog::Repo.delete_all(Paleolog::User)
+    repo.for(Paleolog::Researcher).delete_all
+    repo.for(Paleolog::Project).delete_all
+    repo.for(Paleolog::User).delete_all
   end
 
   it 'adds project' do

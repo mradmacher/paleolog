@@ -3,24 +3,25 @@
 require 'features_helper'
 
 describe 'Occurrences' do
-  let(:project) { Paleolog::Repo.save(Paleolog::Project.new(name: 'some project')) }
-  let(:counting) { Paleolog::Repo.save(Paleolog::Counting.new(name: 'some counting', project: project)) }
+  let(:repo) { Paleolog::Repo }
+  let(:project) { repo.save(Paleolog::Project.new(name: 'some project')) }
+  let(:counting) { repo.save(Paleolog::Counting.new(name: 'some counting', project: project)) }
 
   before do
     use_javascript_driver
-    group1 = Paleolog::Repo.save(Paleolog::Group.new(name: 'Dinoflagellate'))
-    group2 = Paleolog::Repo.save(Paleolog::Group.new(name: 'Other'))
-    species11 = Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Odontochitina costata'))
-    species21 = Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Cerodinium costata'))
-    species12 = Paleolog::Repo.save(Paleolog::Species.new(group: group2, name: 'Cerodinium diabelli'))
-    Paleolog::Repo.save(Paleolog::Species.new(group: group2, name: 'Diabella diabelli'))
-    section = Paleolog::Repo.save(Paleolog::Section.new(name: 'some section', project: project))
-    sample = Paleolog::Repo.save(Paleolog::Sample.new(name: 'some sample', section: section))
-    Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species11, rank: 1))
-    Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species21, rank: 2))
-    Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species12, rank: 3))
-    user = Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
-    Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
+    group1 = repo.save(Paleolog::Group.new(name: 'Dinoflagellate'))
+    group2 = repo.save(Paleolog::Group.new(name: 'Other'))
+    species11 = repo.save(Paleolog::Species.new(group: group1, name: 'Odontochitina costata'))
+    species21 = repo.save(Paleolog::Species.new(group: group1, name: 'Cerodinium costata'))
+    species12 = repo.save(Paleolog::Species.new(group: group2, name: 'Cerodinium diabelli'))
+    repo.save(Paleolog::Species.new(group: group2, name: 'Diabella diabelli'))
+    section = repo.save(Paleolog::Section.new(name: 'some section', project: project))
+    sample = repo.save(Paleolog::Sample.new(name: 'some sample', section: section))
+    repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species11, rank: 1))
+    repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species21, rank: 2))
+    repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species12, rank: 3))
+    user = repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
+    repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
 
     visit '/login'
     fill_in('login-field', with: 'test')
@@ -30,20 +31,20 @@ describe 'Occurrences' do
   end
 
   after do
-    Paleolog::Repo.delete_all(Paleolog::Occurrence)
-    Paleolog::Repo.delete_all(Paleolog::Sample)
-    Paleolog::Repo.delete_all(Paleolog::Section)
-    Paleolog::Repo.delete_all(Paleolog::Counting)
-    Paleolog::Repo.delete_all(Paleolog::Species)
-    Paleolog::Repo.delete_all(Paleolog::Group)
-    Paleolog::Repo.delete_all(Paleolog::Project)
-    Paleolog::Repo.delete_all(Paleolog::User)
+    repo.for(Paleolog::Occurrence).delete_all
+    repo.for(Paleolog::Sample).delete_all
+    repo.for(Paleolog::Section).delete_all
+    repo.for(Paleolog::Counting).delete_all
+    repo.for(Paleolog::Species).delete_all
+    repo.for(Paleolog::Group).delete_all
+    repo.for(Paleolog::Project).delete_all
+    repo.for(Paleolog::User).delete_all
   end
 
   it 'suggests counted group when adding occurrences' do
-    counted_group = Paleolog::Repo.save(Paleolog::Group.new(name: 'Counted'))
-    Paleolog::Repo.save(Paleolog::Species.new(group: counted_group, name: 'Counted Group Species'))
-    Paleolog::Repo::Counting.update(counting.id, group_id: counted_group.id)
+    counted_group = repo.save(Paleolog::Group.new(name: 'Counted'))
+    repo.save(Paleolog::Species.new(group: counted_group, name: 'Counted Group Species'))
+    repo.for(Paleolog::Counting).update(counting.id, group_id: counted_group.id)
     visit "/projects/#{project.id}/occurrences"
     click_button(class: 'add-occurrence')
     within page.find('#species-list') do
