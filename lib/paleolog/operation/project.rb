@@ -38,11 +38,15 @@ module Paleolog
           parameterize(UPDATE_PARAMS_RULES),
           authorize_can_manage(authorizer, Paleolog::Project, :id),
           verify(name_uniqueness),
-          finalize(->(params) { repo.for(Paleolog::Project).update(params[:id], params.except(:id)) }),
+          finalize(->(params) { update_project(params) }),
         )
       end
 
       private
+
+      def update_project(params)
+        repo.for(Paleolog::Project).update(params[:id], params.except(:id))
+      end
 
       def create_project(params)
         project = nil
