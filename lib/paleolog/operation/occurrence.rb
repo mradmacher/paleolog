@@ -2,56 +2,54 @@
 
 module Paleolog
   module Operation
-    class Occurrence
-      class << self
-        CreateRules = Pp.define.(
-          counting_id: Pp.required.(Pp.integer.(Pp.gt.(0))),
-          sample_id: Pp.required.(Pp.integer.(Pp.gt.(0))),
-          species_id: Pp.required.(Pp.integer.(Pp.gt.(0))),
+    class Occurrence < BaseOperation
+      CreateRules = Pp.define.(
+        counting_id: Pp.required.(Pp.integer.(Pp.gt.(0))),
+        sample_id: Pp.required.(Pp.integer.(Pp.gt.(0))),
+        species_id: Pp.required.(Pp.integer.(Pp.gt.(0))),
+      )
+
+      UpdateRules = Pp.define.(
+        quantity: Pp.optional.(Pp.blank_to_nil_or.(Pp.integer.(Pp.gte.(0)))),
+        status: Pp.optional.((Pp.integer.(Pp.included_in.(Paleolog::Occurrence::STATUSES)))),
+        uncertain: Pp.optional.(Pp.bool.(Pp.any)),
+      )
+
+      def create(counting_id:, sample_id:, species_id:)
+        params, errors = CreateRules.(
+          species_id: species_id,
+          counting_id: counting_id,
+          sample_id: sample_id,
         )
+        return Failure.new(errors) unless errors.empty?
 
-        UpdateRules = Pp.define.(
-          quantity: Pp.optional.(Pp.blank_to_nil_or.(Pp.integer.(Pp.gte.(0)))),
-          status: Pp.optional.((Pp.integer.(Pp.included_in.(Paleolog::Occurrence::STATUSES)))),
-          uncertain: Pp.optional.(Pp.bool.(Pp.any)),
-        )
-
-        def create(counting_id:, sample_id:, species_id:)
-          params, errors = CreateRules.(
-            species_id: species_id,
-            counting_id: counting_id,
-            sample_id: sample_id,
-          )
-          return Failure.new(errors) unless errors.empty?
-
-          if Paleolog::Repo::Occurrence.species_exists_within_counting_and_sample?(species_id, counting_id, sample_id)
-            return Failure.new(species_id: :taken)
-          end
-
-          params[:rank] = (counting_id && sample_id ? max_rank(counting_id, sample_id) : 0) + 1
-          params[:status] = Paleolog::Occurrence::NORMAL
-
-          Success.new(Paleolog::Repo::Occurrence.create(params))
+        if repo.for(Paleolog::Occurrence).species_exists_within_counting_and_sample?(species_id, counting_id, sample_id)
+          return Failure.new(species_id: :taken)
         end
 
-        def update(occurrence_id, status: Option.None, uncertain: Option.None, quantity: Option.None)
-          params, errors = UpdateRules.(
-            status: status,
-            uncertain: uncertain,
-            quantity: quantity,
-          )
-          return Failure.new(errors) unless errors.empty?
+        params[:rank] = (counting_id && sample_id ? max_rank(counting_id, sample_id) : 0) + 1
+        params[:status] = Paleolog::Occurrence::NORMAL
 
-          Success.new(Paleolog::Repo::Occurrence.update(occurrence_id, params))
-        end
+        Success.new(repo.for(Paleolog::Occurrence).create(params))
+      end
 
-        private
+      def update(occurrence_id, status: Option.None, uncertain: Option.None, quantity: Option.None)
+        params, errors = UpdateRules.(
+          status: status,
+          uncertain: uncertain,
+          quantity: quantity,
+        )
+        return Failure.new(errors) unless errors.empty?
 
-        def max_rank(counting_id, sample_id)
-          Paleolog::Repo::Occurrence
+        Success.new(repo.for(Paleolog::Occurrence).update(occurrence_id, params))
+      end
+
+      private
+
+      def max_rank(counting_id, sample_id)
+        repo.for(Paleolog::Occurrence)
             .all_for_sample(counting_id, sample_id)
             .max_by(&:rank)&.rank || 0
-        end
       end
     end
   end

@@ -3,20 +3,21 @@
 require 'features_helper'
 
 describe 'Project Catalog' do
-  let(:group1) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Dinoflagellate')) }
-  let(:group2) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Other')) }
-  let(:project) { Paleolog::Repo.save(Paleolog::Project.new(name: 'Test Project')) }
+  let(:repo) { Paleolog::Repo }
+  let(:group1) { repo.save(Paleolog::Group.new(name: 'Dinoflagellate')) }
+  let(:group2) { repo.save(Paleolog::Group.new(name: 'Other')) }
+  let(:project) { repo.save(Paleolog::Project.new(name: 'Test Project')) }
 
   before do
     use_javascript_driver
-    species1 = Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Odontochitina costata', verified: false))
-    species2 = Paleolog::Repo.save(Paleolog::Species.new(group: group1, name: 'Cerodinium costata', verified: true))
-    Paleolog::Repo.save(Paleolog::Species.new(group: group2, name: 'Cerodinium diabelli', verified: true))
-    Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
-    section = Paleolog::Repo::Section.create(name: 'Some section', project_id: project.id)
-    counting = Paleolog::Repo.save(Paleolog::Counting.new(name: 'Some counting', project: project))
-    sample = Paleolog::Repo.save(Paleolog::Sample.new(name: 'Some sample', section: section))
-    Paleolog::Repo.save(
+    species1 = repo.save(Paleolog::Species.new(group: group1, name: 'Odontochitina costata', verified: false))
+    species2 = repo.save(Paleolog::Species.new(group: group1, name: 'Cerodinium costata', verified: true))
+    repo.save(Paleolog::Species.new(group: group2, name: 'Cerodinium diabelli', verified: true))
+    repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
+    section = repo.save(Paleolog::Section.new(name: 'Some section', project_id: project.id))
+    counting = repo.save(Paleolog::Counting.new(name: 'Some counting', project: project))
+    sample = repo.save(Paleolog::Sample.new(name: 'Some sample', section: section))
+    repo.save(
       Paleolog::Occurrence.new(
         rank: 1,
         species_id: species1.id,
@@ -24,7 +25,7 @@ describe 'Project Catalog' do
         sample_id: sample.id,
       ),
     )
-    Paleolog::Repo.save(
+    repo.save(
       Paleolog::Occurrence.new(
         rank: 2,
         species_id: species2.id,
@@ -40,14 +41,14 @@ describe 'Project Catalog' do
   end
 
   after do
-    Paleolog::Repo::Species.delete_all
-    Paleolog::Repo::Group.delete_all
-    Paleolog::Repo::Occurrence.delete_all
-    Paleolog::Repo::Sample.delete_all
-    Paleolog::Repo::Section.delete_all
-    Paleolog::Repo::Counting.delete_all
-    Paleolog::Repo::Project.delete_all
-    Paleolog::Repo::User.delete_all
+    repo.for(Paleolog::Species).delete_all
+    repo.for(Paleolog::Group).delete_all
+    repo.for(Paleolog::Occurrence).delete_all
+    repo.for(Paleolog::Sample).delete_all
+    repo.for(Paleolog::Section).delete_all
+    repo.for(Paleolog::Counting).delete_all
+    repo.for(Paleolog::Project).delete_all
+    repo.for(Paleolog::User).delete_all
   end
 
   it 'at the beginning displays all project species' do

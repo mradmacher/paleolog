@@ -9,9 +9,13 @@ module Web
     class Projects < Sinatra::Base
       helpers Web::AuthHelpers, Web::ApiHelpers
 
+      before do
+        @operation = Paleolog::Operation::Project.new(Paleolog::Repo, authorizer)
+      end
+
       get '/api/projects' do
         model_or_errors(
-          Paleolog::Operation::Project.find_all_for_user(authorizer.user_id, authorizer: authorizer),
+          @operation.find_all_for_user(authorizer.user_id),
           serializer,
           :projects,
         )
@@ -19,13 +23,13 @@ module Web
 
       post '/api/projects' do
         model_or_errors(
-          Paleolog::Operation::Project.create(params.merge(user_id: authorizer.user_id), authorizer: authorizer),
+          @operation.create(params.merge(user_id: authorizer.user_id)),
           serializer,
         )
       end
 
       patch '/api/projects/:id' do
-        model_or_errors(Paleolog::Operation::Project.rename(params, authorizer: authorizer), serializer)
+        model_or_errors(@operation.rename(params), serializer)
       end
 
       private

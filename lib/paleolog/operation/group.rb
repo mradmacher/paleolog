@@ -2,22 +2,20 @@
 
 module Paleolog
   module Operation
-    class Group
-      class << self
-        GroupRules = Pp.define.(
-          name: Pp.required.(
-            Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)])),
-          ),
-        )
+    class Group < BaseOperation
+      GroupRules = Pp.define.(
+        name: Pp.required.(
+          Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)])),
+        ),
+      )
 
-        def create(name:)
-          params, errors = GroupRules.(name: name)
-          return Failure.new(errors) unless errors.empty?
+      def create(name:)
+        params, errors = GroupRules.(name: name)
+        return Failure.new(errors) unless errors.empty?
 
-          return Failure.new({ name: :taken }) if Paleolog::Repo::Group.name_exists?(params[:name])
+        return Failure.new({ name: :taken }) if repo.for(Paleolog::Group).name_exists?(params[:name])
 
-          Success.new(Paleolog::Repo::Group.create(params))
-        end
+        Success.new(repo.for(Paleolog::Group).create(params))
       end
     end
   end

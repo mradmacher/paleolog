@@ -3,14 +3,26 @@
 require 'test_helper'
 
 describe Paleolog::Operation::Choice do
-  let(:operation) { Paleolog::Operation::Choice }
-  let(:group) { Paleolog::Operation::Group.create(name: 'Group for Field').value }
-  let(:field) { Paleolog::Operation::Field.create(name: 'Field for Choice', group_id: group.id).value }
+  let(:repo) { Paleolog::Repo }
+  let(:authorizer) { Minitest::Mock.new }
+  let(:operation) do
+    Paleolog::Operation::Choice.new(repo, authorizer)
+  end
+  let(:group) do
+    Paleolog::Operation::Group.new(repo, HappyAuthorizer.new).create(
+      name: 'Group for Field',
+    ).value
+  end
+  let(:field) do
+    Paleolog::Operation::Field.new(repo, HappyAuthorizer.new).create(
+      name: 'Field for Choice', group_id: group.id,
+    ).value
+  end
 
   after do
-    Paleolog::Repo::Group.delete_all
-    Paleolog::Repo::Field.delete_all
-    Paleolog::Repo::Choice.delete_all
+    repo.for(Paleolog::Group).delete_all
+    repo.for(Paleolog::Field).delete_all
+    repo.for(Paleolog::Choice).delete_all
   end
 
   describe '#create' do

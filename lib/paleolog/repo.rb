@@ -95,12 +95,14 @@ module Paleolog
       self.for(type).delete(id)
     end
 
-    def self.delete_all(type)
-      self.for(type).delete_all
-    end
-
     def self.for(type)
       REPOS[type]
+    end
+
+    def self.with_transaction(&block)
+      Config.db.transaction do
+        block.call
+      end
     end
   end
 end

@@ -11,6 +11,7 @@ module Web
 
       before '/api/projects/:project_id/occurrences*' do
         authorize_api!
+        @operation = Paleolog::Operation::Occurrence.new(Paleolog::Repo, authorizer)
       end
 
       # rubocop:disable Metrics/BlockLength
@@ -61,7 +62,7 @@ module Web
         end
         counting = Paleolog::Repo::Counting.find_for_project(params[:counting_id].to_i, params[:project_id])
 
-        result = Paleolog::Operation::Occurrence.create(
+        result = @operation.create(
           counting_id: counting&.id,
           sample_id: sample&.id,
           species_id: params[:species_id],
@@ -117,7 +118,7 @@ module Web
         end
         attributes[:status] = params[:status] if params.key?(:status)
         attributes[:uncertain] = params[:uncertain] if params.key?(:uncertain)
-        result = Paleolog::Operation::Occurrence.update(occurrence.id, **attributes)
+        result = @operation.update(occurrence.id, **attributes)
         halt 400, result.error.to_json if result.failure?
 
         occurrence = result.value

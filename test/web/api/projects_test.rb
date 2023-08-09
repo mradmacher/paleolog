@@ -5,12 +5,11 @@ require 'web_helper'
 describe 'Projects' do
   include Rack::Test::Methods
 
-  let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
+  let(:repo) { Paleolog::Repo }
+  let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
+  let(:happy_operation) { Paleolog::Operation::Project.new(repo, HappyAuthorizer.new) }
   let(:project) do
-    result = Paleolog::Operation::Project.create(
-      { name: 'some test project', user_id: user.id },
-      authorizer: HappyAuthorizer.new,
-    )
+    result = happy_operation.create(name: 'some test project', user_id: user.id)
     assert_predicate result, :success?
     result.value
   end
@@ -21,9 +20,9 @@ describe 'Projects' do
   end
 
   after do
-    Paleolog::Repo::Researcher.delete_all
-    Paleolog::Repo::Project.delete_all
-    Paleolog::Repo::User.delete_all
+    repo.for(Paleolog::Researcher).delete_all
+    repo.for(Paleolog::Project).delete_all
+    repo.for(Paleolog::User).delete_all
   end
 
   describe 'GET /api/projects' do
@@ -42,8 +41,8 @@ describe 'Projects' do
       end
 
       it 'returns empty collection when user has no projects' do
-        Paleolog::Repo::Researcher.delete_all
-        Paleolog::Repo::Project.delete_all
+        repo.for(Paleolog::Researcher).delete_all
+        repo.for(Paleolog::Project).delete_all
         get '/api/projects'
         assert_predicate last_response, :ok?, "Expected 200, but got #{last_response.status}"
         response_body = JSON.parse(last_response.body)
@@ -51,10 +50,7 @@ describe 'Projects' do
       end
 
       it 'returns many projects' do
-        other_project = Paleolog::Operation::Project.create(
-          { name: 'project1', user_id: user.id },
-          authorizer: HappyAuthorizer.new,
-        ).value
+        other_project = happy_operation.create(name: 'project1', user_id: user.id).value
 
         get '/api/projects'
         result = JSON.parse(last_response.body)['projects']
@@ -120,14 +116,14 @@ describe 'Projects' do
     end
 
     it 'rejects user observing the project' do
-      Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: false))
+      repo.save(Paleolog::Researcher.new(user: user, project: project, manager: false))
       login(user)
       assert_forbidden(-> { patch '/api/projects/1', { name: 'some name' } })
     end
 
     describe 'with user' do
       before do
-        Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
+        repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
         login(user)
       end
 

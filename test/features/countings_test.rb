@@ -3,12 +3,13 @@
 require 'features_helper'
 
 describe 'Countings' do
+  let(:repo) { Paleolog::Repo }
+
   before do
     use_javascript_driver
-    user = Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
-    project = Paleolog::Operation::Project.create(
-      { name: 'test', user_id: user.id },
-      authorizer: HappyAuthorizer.new,
+    user = repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
+    project = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new).create(
+      name: 'test', user_id: user.id,
     ).value
 
     visit '/login'
@@ -20,10 +21,10 @@ describe 'Countings' do
   end
 
   after do
-    Paleolog::Repo.delete_all(Paleolog::Researcher)
-    Paleolog::Repo.delete_all(Paleolog::Project)
-    Paleolog::Repo.delete_all(Paleolog::User)
-    Paleolog::Repo.delete_all(Paleolog::Counting)
+    repo.for(Paleolog::Researcher).delete_all
+    repo.for(Paleolog::Project).delete_all
+    repo.for(Paleolog::User).delete_all
+    repo.for(Paleolog::Counting).delete_all
   end
 
   it 'adds counting' do
