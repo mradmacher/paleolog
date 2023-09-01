@@ -34,7 +34,7 @@ GEM
     multi_json (1.15.0)
     mustermann (3.0.0)
       ruby2_keywords (~> 0.0.1)
-    nio4r (2.5.8)
+    nio4r (2.5.9)
     nokogiri (1.14.3)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
@@ -46,7 +46,7 @@ GEM
     pdfkit (0.8.7.2)
     pg (1.4.3)
     public_suffix (5.0.0)
-    puma (5.6.5)
+    puma (5.6.7)
       nio4r (~> 2.0)
     racc (1.6.2)
     rack (2.2.6.4)
@@ -116,7 +116,7 @@ DEPENDENCIES
   param-param!
   pdfkit
   pg
-  puma
+  puma (~> 5.6.7)
   rack-test
   rake
   redcarpet
