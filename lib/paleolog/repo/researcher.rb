@@ -33,6 +33,12 @@ module Paleolog
              .join(:countings, Sequel[:countings][:project_id] => :id).first.nil?
         end
 
+        def can_view_counting?(user_id, counting_id)
+          !ds.where(user_id: user_id, Sequel[:countings][:id] => counting_id)
+             .join(:projects, Sequel[:projects][:id] => :project_id)
+             .join(:countings, Sequel[:countings][:project_id] => :id).first.nil?
+        end
+
         def all_for_user(user_id)
           ds.where(user_id: user_id).all.map do |result|
             Paleolog::Researcher.new(**result) do |participation|

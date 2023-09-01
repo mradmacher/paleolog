@@ -28,6 +28,12 @@ module Paleolog
         }
       end
 
+      def authorize_can_view(authorizer, model, key)
+        lambda { |params|
+          authorizer.can_view?(model, params[key]) ? Success.new(params) : Failure.new(UNAUTHORIZED_RESULT)
+        }
+      end
+
       def verify(func)
         lambda { |params|
           errors = func.call(params)

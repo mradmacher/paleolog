@@ -2,12 +2,10 @@
   <div class="content">
     <div class="header">
       <div class="ui ribbon label">counting</div>
-      <h2 class="ui header">
-        <%= @counting.name %>
-      </h2>
+      <h2 class="ui header counting-name"></h2>
       <div class="ui fluid horizontal menu">
-        <a class="item" href="<%= occurrences_path(@project, counting: @counting) %>">Occurrences</a>
-        <a class="item" href="<%= reports_path(@project, counting: @counting) %>">Report</a>
+        <a class="item occurrences-link" href="#">Occurrences</a>
+        <a class="item reports-link" href="#">Report</a>
         <div class="ui right mini secondary menu">
           <div class="item">
             <button class="ui secondary button edit-counting action">Edit Counting</button>
@@ -17,31 +15,51 @@
     </div>
     <div class="description">
       <dl>
-        <% unless @counting.group.nil? %>
-          <dt>Counting's Group</dt>
-          <dd><%= @counting.group.name %></dd>
-        <% end %>
-        <% unless @counting.marker.nil? %>
-          <dt>Marker</dt>
-          <dd><%= @counting.marker.name %> (<%= @counting.marker.group.name %>)</dd>
-        <% end %>
-        <% if @counting.marker_count %>
-          <dt>Marker Count</dt>
-          <dd><%= @counting.marker_count %></dd>
-        <% end %>
+        <dt class="group-name-wrapper">Counting's Group</dt>
+        <dd class="group-name-wrapper group-name"></dd>
+        <dt class="marker-name-wrapper">Marker</dt>
+        <dd class="marker-name-wrapper"><span class="marker-name"></span> (<span class="marker-group-name"></span>)</dd>
+        <dt class="marker-count-wrapper">Marker Count</dt>
+        <dd class="marker-count-wrapper marker-count"></dd>
       </dl>
     </div>
   </div>
 </div>
 <script type="text/javascript">
 $(function() {
-  const counting = {
-    id: <%= @counting.id %>,
-    project_id: <%= @counting.project_id %>,
-    name: "<%= @counting.name %>",
-  }
-  $('.edit-counting.action').click(() => {
-    new CountingModalFormView(counting, (counting) => window.location.reload()).show()
-  });
+  let projectId = <%= @project.id %>
+  let countingId = <%= @counting_id %>
+  let projectName = "<%= @project.name %>"
+
+  new CountingRequest().get(countingId).then(
+    result => {
+      let counting = result.counting
+      DomHelpers.setHref('.occurrences-link', UrlBuilder.projectOccurrences(projectId, { projectName: projectName, countingId: counting.id }))
+      DomHelpers.setHref('.reports-link', UrlBuilder.projectReports(projectId, { projectName: projectName, countingId: counting.id }))
+      DomHelpers.setText('.counting-name', counting.name)
+      if(counting.marker_count) {
+        DomHelpers.setText('.marker-count', counting.marker_count)
+      } else {
+        DomHelpers.hideAll('.marker-count-wrapper')
+      }
+      if(counting.group_name) {
+        DomHelpers.setText('.group-name', counting.group_name)
+      } else {
+        DomHelpers.hideAll('.group-name-wrapper')
+      }
+      if(counting.marker_name) {
+        DomHelpers.setText('.marker-name', counting.marker_name)
+        DomHelpers.setText('.marker-group-name', counting.marker_group_name)
+      } else {
+        DomHelpers.hideAll('.marker-name-wrapper')
+      }
+      $('.edit-counting.action').click(() => {
+        new CountingModalFormView(counting, (counting) => window.location.reload()).show()
+      });
+    },
+    errors => {
+      console.log(errors)
+    }
+  )
 });
 </script>

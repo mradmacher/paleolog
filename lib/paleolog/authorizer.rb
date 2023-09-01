@@ -22,6 +22,12 @@ module Paleolog
       end,
     }.tap { |h| h.default = ->(_user_id, _id) { false } }
 
+    VIEW_PRIVILEGES = {
+      Paleolog::Counting => lambda do |user_id, id|
+        Paleolog::Repo::Researcher.can_view_counting?(user_id, id)
+      end,
+    }.tap { |h| h.default = ->(_user_id, _id) { false } }
+
     attr_reader :session
 
     def initialize(session)
@@ -58,8 +64,8 @@ module Paleolog
       MANAGE_PRIVILEGES[entity_class].call(user_id, id)
     end
 
-    def can_view?(_entity_class, _id)
-      false
+    def can_view?(entity_class, id)
+      VIEW_PRIVILEGES[entity_class].call(user_id, id)
     end
   end
 end
