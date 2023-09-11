@@ -3,40 +3,42 @@
 module Paleolog
   module Repo
     class Researcher
+      NONE = :none
+      MANAGER = :manager
+      OBSERVER = :observer
+
       class << self
         include CommonQueries
 
-        def can_view_project?(user_id, project_id)
-          !ds.where(project_id: project_id, user_id: user_id).first.nil?
+        def project_role(project_id, user_id)
+          role_for(
+            ds.where(project_id: project_id, user_id: user_id).select_map(:manager)
+          )
         end
 
-        def can_manage_project?(user_id, project_id)
-          !ds.where(project_id: project_id, user_id: user_id, manager: true).first.nil?
+        def section_role(section_id, user_id)
+          role_for(
+            ds.where(user_id: user_id, Sequel[:sections][:id] => section_id)
+              .join(:projects, Sequel[:projects][:id] => :project_id)
+              .join(:sections, Sequel[:sections][:project_id] => :id).select_map(:manager)
+          )
         end
 
-        def can_manage_section?(user_id, section_id)
-          !ds.where(user_id: user_id, manager: true, Sequel[:sections][:id] => section_id)
-             .join(:projects, Sequel[:projects][:id] => :project_id)
-             .join(:sections, Sequel[:sections][:project_id] => :id).first.nil?
+        def sample_role(sample_id, user_id)
+          role_for(
+            ds.where(user_id: user_id, Sequel[:samples][:id] => sample_id)
+              .join(:projects, Sequel[:projects][:id] => :project_id)
+              .join(:sections, Sequel[:sections][:project_id] => :id)
+              .join(:samples, Sequel[:samples][:section_id] => :id).select_map(:manager)
+          )
         end
 
-        def can_manage_sample?(user_id, sample_id)
-          !ds.where(user_id: user_id, manager: true, Sequel[:samples][:id] => sample_id)
-             .join(:projects, Sequel[:projects][:id] => :project_id)
-             .join(:sections, Sequel[:sections][:project_id] => :id)
-             .join(:samples, Sequel[:samples][:section_id] => :id).first.nil?
-        end
-
-        def can_manage_counting?(user_id, counting_id)
-          !ds.where(user_id: user_id, manager: true, Sequel[:countings][:id] => counting_id)
-             .join(:projects, Sequel[:projects][:id] => :project_id)
-             .join(:countings, Sequel[:countings][:project_id] => :id).first.nil?
-        end
-
-        def can_view_counting?(user_id, counting_id)
-          !ds.where(user_id: user_id, Sequel[:countings][:id] => counting_id)
-             .join(:projects, Sequel[:projects][:id] => :project_id)
-             .join(:countings, Sequel[:countings][:project_id] => :id).first.nil?
+        def counting_role(counting_id, user_id)
+          role_for(
+            ds.where(user_id: user_id, Sequel[:countings][:id] => counting_id)
+               .join(:projects, Sequel[:projects][:id] => :project_id)
+               .join(:countings, Sequel[:countings][:project_id] => :id).select_map(:manager)
+          )
         end
 
         def all_for_user(user_id)
@@ -61,6 +63,14 @@ module Paleolog
 
         def ds
           Config.db[:research_participations]
+        end
+
+        private
+
+        def role_for(booleans)
+          return NONE if booleans.empty?
+
+          booleans.any? ? MANAGER : OBSERVER
         end
       end
     end

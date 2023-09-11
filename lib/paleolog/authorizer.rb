@@ -7,26 +7,20 @@ module Paleolog
     class InvalidLogin < StandardError; end
     class InvalidPassword < StandardError; end
 
-    MANAGE_PRIVILEGES = {
-      Paleolog::Project => lambda do |user_id, id|
-        Paleolog::Repo::Researcher.can_manage_project?(user_id, id)
+    ROLES = {
+      Project => lambda do |user_id, id|
+        Repo::Researcher.project_role(id, user_id)
       end,
       Paleolog::Counting => lambda do |user_id, id|
-        Paleolog::Repo::Researcher.can_manage_counting?(user_id, id)
+        Repo::Researcher.counting_role(id, user_id)
       end,
       Paleolog::Section => lambda do |user_id, id|
-        Paleolog::Repo::Researcher.can_manage_section?(user_id, id)
+        Repo::Researcher.section_role(id, user_id)
       end,
       Paleolog::Sample => lambda do |user_id, id|
-        Paleolog::Repo::Researcher.can_manage_sample?(user_id, id)
+        Repo::Researcher.sample_role(id, user_id)
       end,
-    }.tap { |h| h.default = ->(_user_id, _id) { false } }
-
-    VIEW_PRIVILEGES = {
-      Paleolog::Counting => lambda do |user_id, id|
-        Paleolog::Repo::Researcher.can_view_counting?(user_id, id)
-      end,
-    }.tap { |h| h.default = ->(_user_id, _id) { false } }
+    }.tap { |h| h.default = ->(_user_id, _id) { Repo::Researcher::NONE } }
 
     attr_reader :session
 
@@ -61,11 +55,11 @@ module Paleolog
     end
 
     def can_manage?(entity_class, id)
-      MANAGE_PRIVILEGES[entity_class].call(user_id, id)
+      ROLES[entity_class].call(user_id, id) == Repo::Researcher::MANAGER
     end
 
     def can_view?(entity_class, id)
-      VIEW_PRIVILEGES[entity_class].call(user_id, id)
+      ROLES[entity_class].call(user_id, id) != Repo::Researcher::NONE
     end
   end
 end

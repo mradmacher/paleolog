@@ -11,35 +11,127 @@ describe Paleolog::Repo::Researcher do
     repo.delete_all
   end
 
-  describe '#can_view_project?' do
-    it 'is false when user does not participate in project' do
-      refute repo.can_view_project?(user.id, project.id)
+  def assign_observer_role(user, project)
+    Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project))
+  end
+
+  def assign_manager_role(user, project)
+    Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
+  end
+
+  describe '#project_role' do
+    it 'returns empty result when user does not participate in project' do
+      result = repo.project_role(project.id, user.id)
+      assert_equal Paleolog::Repo::Researcher::NONE, result
     end
 
-    it 'is true when user participates in project as observer' do
-      Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project))
-      assert repo.can_view_project?(user.id, project.id)
+    it 'returns observer when user participates in project as observer' do
+      assign_observer_role(user, project)
+      result = repo.project_role(project.id, user.id)
+      assert_equal Paleolog::Repo::Researcher::OBSERVER, result
     end
 
-    it 'is true when user participates in project as manager' do
-      Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
-      assert repo.can_view_project?(user.id, project.id)
+    it 'returns manager when user participates in project as manager' do
+      assign_manager_role(user, project)
+      result = repo.project_role(project.id, user.id)
+      assert_equal Paleolog::Repo::Researcher::MANAGER, result
     end
   end
 
-  describe '#can_manage_project?' do
-    it 'is false when user does not participate in project' do
-      refute repo.can_manage_project?(user.id, project.id)
+  describe '#section_role' do
+    let(:section) do
+      result = Paleolog::Operation::Section.new(
+        Paleolog::Repo, HappyAuthorizer.new,
+      ).create(
+        { name: 'Some Name', project_id: project.id },
+      )
+      assert_predicate result, :success?
+      result.value
     end
 
-    it 'is false when user participates in project as observer' do
-      Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project))
-      refute repo.can_manage_project?(user.id, project.id)
+    it 'returns empty result when user does not participate in project' do
+      result = repo.section_role(section.id, user.id)
+      assert_equal Paleolog::Repo::Researcher::NONE, result
     end
 
-    it 'is true when user participates in project as manager' do
-      Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
-      assert repo.can_manage_project?(user.id, project.id)
+    it 'returns observer when user participates in project as observer' do
+      assign_observer_role(user, project)
+      result = repo.section_role(section.id, user.id)
+      assert_equal Paleolog::Repo::Researcher::OBSERVER, result
+    end
+
+    it 'returns manager when user participates in project as manager' do
+      assign_manager_role(user, project)
+      result = repo.section_role(section.id, user.id)
+      assert_equal Paleolog::Repo::Researcher::MANAGER, result
+    end
+  end
+
+  describe '#sample_role' do
+    let(:section) do
+      result = Paleolog::Operation::Section.new(
+        Paleolog::Repo, HappyAuthorizer.new,
+      ).create(
+        { name: 'Some Name', project_id: project.id },
+      )
+      assert_predicate result, :success?
+      result.value
+    end
+
+    let(:sample) do
+      result = Paleolog::Operation::Sample.new(
+        Paleolog::Repo, HappyAuthorizer.new,
+      ).create(
+        { name: 'Some Name', section_id: section.id },
+      )
+      assert_predicate result, :success?
+      result.value
+    end
+
+    it 'returns empty result when user does not participate in project' do
+      result = repo.sample_role(sample.id, user.id)
+      assert_equal Paleolog::Repo::Researcher::NONE, result
+    end
+
+    it 'returns observer when user participates in project as observer' do
+      assign_observer_role(user, project)
+      result = repo.sample_role(sample.id, user.id)
+      assert_equal Paleolog::Repo::Researcher::OBSERVER, result
+    end
+
+    it 'returns manager when user participates in project as manager' do
+      assign_manager_role(user, project)
+      result = repo.sample_role(sample.id, user.id)
+      assert_equal Paleolog::Repo::Researcher::MANAGER, result
+    end
+  end
+
+  describe '#counting_role' do
+    let(:counting) do
+      result = Paleolog::Operation::Counting.new(
+        Paleolog::Repo, HappyAuthorizer.new,
+      ).create(
+        { name: 'Some Name', project_id: project.id },
+      )
+      assert_predicate result, :success?
+      result.value
+    end
+
+    it 'returns empty result when user does not participate in project' do
+      result = repo.counting_role(counting.id, user.id)
+      assert_equal Paleolog::Repo::Researcher::NONE, result
+    end
+
+    it 'returns observer when user participates in project as observer' do
+      assign_observer_role(user, project)
+      result = repo.counting_role(counting.id, user.id)
+      assert_equal Paleolog::Repo::Researcher::OBSERVER, result
+    end
+
+    it 'returns manager when user participates in project as manager' do
+      assign_manager_role(user, project)
+      result = repo.counting_role(counting.id, user.id)
+      assert_equal Paleolog::Repo::Researcher::MANAGER, result
     end
   end
 
