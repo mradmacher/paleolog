@@ -23,6 +23,55 @@ describe Paleolog::Operation::Section do
     repo.for(Paleolog::User).delete_all
   end
 
+  describe '#find' do
+    let(:section) do
+      result = happy_operation.create(name: 'Test123', project_id: project.id)
+      assert_predicate result, :success?
+      result.value
+    end
+
+    it 'returns unauthenticated error when not authenticated' do
+      authorizer.expect :authenticated?, false
+
+      result = operation.find(id: section.id)
+      assert_predicate result, :failure?
+      assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
+
+      authorizer.verify
+    end
+
+    it 'returns unauthorized error when not authorized' do
+      authorizer.expect :authenticated?, true
+      authorizer.expect :can_view?, false, [Paleolog::Section, section.id]
+
+      result = operation.find(id: section.id)
+      assert_predicate result, :failure?
+      assert_equal Paleolog::Operation::UNAUTHORIZED, result.error[:general]
+
+      authorizer.verify
+    end
+
+    describe 'for authorized user' do
+      before do
+        authorizer.expect :authenticated?, true
+        authorizer.expect :can_view?, true, [Paleolog::Section, section.id]
+      end
+
+      it 'returns counting' do
+        result = operation.find(id: section.id)
+        assert_predicate result, :success?
+
+        found_section = result.value
+        refute_nil found_section
+
+        refute_nil found_section.id
+        assert_equal found_section.id, section.id
+        assert_equal found_section.name, section.name
+        assert_equal found_section.project_id, section.project_id
+      end
+    end
+  end
+
   describe '#create' do
     it 'returns unauthenticated error when not authenticated' do
       authorizer.expect :authenticated?, false

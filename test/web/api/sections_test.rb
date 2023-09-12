@@ -26,6 +26,89 @@ describe 'Sections' do
     repo.for(Paleolog::Project).delete_all
   end
 
+  describe 'GET /api/sections/:id' do
+    let(:section) do
+      Paleolog::Operation::Section.new(repo, HappyAuthorizer.new).create(
+        name: 'some project', project_id: project.id,
+      ).value
+    end
+
+    before do
+      refute_nil section
+    end
+
+    it 'rejects guest access' do
+      assert_unauthorized(-> { get "/api/sections/#{section.id}" })
+    end
+
+    it 'rejects user not being a researcher in the project' do
+      repo.for(Paleolog::Researcher).delete(researcher.id)
+      login(user)
+      assert_forbidden(-> { get "/api/sections/#{section.id}" })
+    end
+
+    describe 'with authorized user' do
+      before do
+        login(user)
+      end
+
+      it 'returns error if section does not exist' do
+        get "/api/sections/#{section.id + 1}"
+        assert_equal 403, last_response.status
+      end
+
+      it 'returns section attributes' do
+        get "/api/sections/#{section.id}"
+        assert_equal 200, last_response.status
+        result = JSON.parse(last_response.body)['section']
+        assert_equal section.id, result['id']
+        assert_equal section.name, result['name']
+        assert_equal section.project_id, result['project_id']
+      end
+
+      it 'returns section samples' do
+        result = Paleolog::Operation::Sample.new(repo, HappyAuthorizer.new).create(
+          section_id: section.id,
+          name: 'sample 1 for section',
+          description: 'sample 1 description',
+          weight: 1.0,
+        )
+        assert_predicate result, :success?
+        sample1 = result.value
+
+        result = Paleolog::Operation::Sample.new(repo, HappyAuthorizer.new).create(
+          section_id: section.id,
+          name: 'sample 2 for section',
+          description: 'sample 2 description',
+        )
+        assert_predicate result, :success?
+        sample2 = result.value
+
+        get "/api/sections/#{section.id}"
+        assert_equal 200, last_response.status
+        result = JSON.parse(last_response.body)['section']
+        samples = result['samples']
+        assert samples.is_a?(Array)
+
+        found_sample = samples.detect { |s| s['id'] == sample1.id }
+        refute_nil found_sample
+        assert_equal sample1.id, found_sample['id']
+        assert_equal sample1.section_id, found_sample['section_id']
+        assert_equal sample1.name, found_sample['name']
+        assert_equal sample1.description, found_sample['description']
+        assert_equal sample1.weight.to_s, found_sample['weight']
+
+        found_sample = samples.detect { |s| s['id'] == sample2.id }
+        refute_nil found_sample
+        assert_equal sample2.id, found_sample['id']
+        assert_equal sample2.section_id, found_sample['section_id']
+        assert_equal sample2.name, found_sample['name']
+        assert_equal sample2.description, found_sample['description']
+        assert_nil found_sample['weight']
+      end
+    end
+  end
+
   describe 'POST /api/sections' do
     it 'rejects guest access' do
       assert_unauthorized(-> { post '/api/sections', { project_id: project.id } })
