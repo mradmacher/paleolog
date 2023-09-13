@@ -23,9 +23,11 @@ module Paleolog
           authenticate(authorizer),
           parameterize(FIND_PARAMS_RULES),
           authorize_can_view(authorizer, Paleolog::Section, :id),
-          finalize(->(params) {
-            repo.for(Paleolog::Section).find(params[:id], Paleolog::Repo::Section.with_samples)
-          }),
+          finalize(
+            lambda do |params|
+              repo.for(Paleolog::Section).find(params[:id], Paleolog::Repo::Section.with_samples)
+            end,
+          ),
         )
       end
 

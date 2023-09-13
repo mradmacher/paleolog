@@ -12,7 +12,7 @@ module Paleolog
 
         def project_role(project_id, user_id)
           role_for(
-            ds.where(project_id: project_id, user_id: user_id).select_map(:manager)
+            ds.where(project_id: project_id, user_id: user_id).select_map(:manager),
           )
         end
 
@@ -20,7 +20,7 @@ module Paleolog
           role_for(
             ds.where(user_id: user_id, Sequel[:sections][:id] => section_id)
               .join(:projects, Sequel[:projects][:id] => :project_id)
-              .join(:sections, Sequel[:sections][:project_id] => :id).select_map(:manager)
+              .join(:sections, Sequel[:sections][:project_id] => :id).select_map(:manager),
           )
         end
 
@@ -29,7 +29,7 @@ module Paleolog
             ds.where(user_id: user_id, Sequel[:samples][:id] => sample_id)
               .join(:projects, Sequel[:projects][:id] => :project_id)
               .join(:sections, Sequel[:sections][:project_id] => :id)
-              .join(:samples, Sequel[:samples][:section_id] => :id).select_map(:manager)
+              .join(:samples, Sequel[:samples][:section_id] => :id).select_map(:manager),
           )
         end
 
@@ -37,7 +37,7 @@ module Paleolog
           role_for(
             ds.where(user_id: user_id, Sequel[:countings][:id] => counting_id)
                .join(:projects, Sequel[:projects][:id] => :project_id)
-               .join(:countings, Sequel[:countings][:project_id] => :id).select_map(:manager)
+               .join(:countings, Sequel[:countings][:project_id] => :id).select_map(:manager),
           )
         end
 

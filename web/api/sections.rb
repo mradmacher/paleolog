@@ -35,17 +35,19 @@ module Web
             name: section.name,
             created_at: section.created_at,
             updated_at: section.updated_at,
-            samples: section.samples.map { |sample|
-              {
-                id: sample.id,
-                section_id: sample.section_id,
-                name: sample.name,
-                description: sample.description,
-                weight: sample.weight ? Kernel.format('%.2f', sample.weight) : nil,
-              }
-            }
+            samples: section.samples.map { |sample| serialize_sample(sample) },
           }
         end
+      end
+
+      def serialize_sample(sample)
+        {
+          id: sample.id,
+          section_id: sample.section_id,
+          name: sample.name,
+          description: sample.description,
+          weight: sample.weight ? Kernel.format('%.2f', sample.weight) : nil,
+        }
       end
     end
   end
