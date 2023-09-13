@@ -3,14 +3,14 @@
 module Paleolog
   module Operation
     class Sample < BaseOperation
-      CREATE_PARAMS_RULES = Pp.define.(
+      CREATE_RULES = Pp.define.(
         name: Pp.required.(NameRules),
         section_id: Pp.required.(IdRules),
         description: Pp.optional.(DescriptionRules),
         weight: Pp.optional.(Pp.blank_to_nil_or.(Pp.decimal.(Pp.gt.(0.0)))),
       )
 
-      UPDATE_PARAMS_RULES = Pp.define.(
+      UPDATE_RULES = Pp.define.(
         id: Pp.required.(IdRules),
         name: Pp.optional.(NameRules),
         description: Pp.optional.(DescriptionRules),
@@ -18,26 +18,24 @@ module Paleolog
       )
 
       def create(raw_params)
-        reduce(
-          raw_params,
-          authenticate(authorizer),
-          parameterize(CREATE_PARAMS_RULES),
-          authorize_can_manage(authorizer, Paleolog::Section, :section_id),
-          verify(name_uniqueness),
-          merge(next_rank),
-          finalize(->(params) { repo.for(Paleolog::Sample).create(params) }),
-        )
+        authenticate
+          .and_then { parameterize(raw_params, CREATE_RULES) }
+          .and_then { authorize(_1, can_manage(Paleolog::Section, :section_id)) }
+          .and_then { verify(_1, name_uniqueness) }
+          .and_then { merge(_1, next_rank) }
+          .and_then {
+            carefully(_1, ->(params) { repo.for(Paleolog::Sample).create(params) })
+          }
       end
 
       def update(raw_params)
-        reduce(
-          raw_params,
-          authenticate(authorizer),
-          parameterize(UPDATE_PARAMS_RULES),
-          authorize_can_manage(authorizer, Paleolog::Sample, :id),
-          verify(name_uniqueness),
-          finalize(->(params) { repo.for(Paleolog::Sample).update(params[:id], params.except(:id)) }),
-        )
+        authenticate
+          .and_then { parameterize(raw_params, UPDATE_RULES) }
+          .and_then { authorize(_1, can_manage(Paleolog::Sample, :id)) }
+          .and_then { verify(_1, name_uniqueness) }
+          .and_then {
+            carefully(_1, ->(params) { repo.for(Paleolog::Sample).update(params[:id], params.except(:id)) })
+          }
       end
 
       private

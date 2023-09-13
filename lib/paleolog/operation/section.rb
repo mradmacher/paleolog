@@ -3,57 +3,53 @@
 module Paleolog
   module Operation
     class Section < BaseOperation
-      FIND_PARAMS_RULES = Pp.define.(
+      FIND_RULES = Pp.define.(
         id: Pp.required.(IdRules),
       )
 
-      CREATE_PARAMS_RULES = Pp.define.(
+      CREATE_RULES = Pp.define.(
         name: Pp.required.(NameRules),
         project_id: Pp.required.(IdRules),
       )
 
-      UPDATE_PARAMS_RULES = Pp.define.(
+      UPDATE_RULES = Pp.define.(
         id: Pp.required.(IdRules),
         name: Pp.required.(NameRules),
       )
 
       def find(raw_params)
-        reduce(
-          raw_params,
-          authenticate(authorizer),
-          parameterize(FIND_PARAMS_RULES),
-          authorize_can_view(authorizer, Paleolog::Section, :id),
-          finalize(
-            lambda do |params|
-              repo.for(Paleolog::Section).find(params[:id], Paleolog::Repo::Section.with_samples)
-            end,
-          ),
-        )
+        authenticate
+          .and_then { parameterize(raw_params, FIND_RULES) }
+          .and_then { authorize(_1, can_view(Paleolog::Section, :id)) }
+          .and_then { carefully(_1, find_section_with_samples) }
       end
 
       def create(raw_params)
-        reduce(
-          raw_params,
-          authenticate(authorizer),
-          parameterize(CREATE_PARAMS_RULES),
-          authorize_can_manage(authorizer, Paleolog::Project, :project_id),
-          verify(name_uniqueness),
-          finalize(->(params) { repo.for(Paleolog::Section).create(params) }),
-        )
+        authenticate
+          .and_then { parameterize(raw_params, CREATE_RULES) }
+          .and_then { authorize(_1, can_manage(Paleolog::Project, :project_id)) }
+          .and_then { verify(_1, name_uniqueness) }
+          .and_then { carefully(_1, ->(params) { repo.for(Paleolog::Section).create(params) }) }
       end
 
       def update(raw_params)
-        reduce(
-          raw_params,
-          authenticate(authorizer),
-          parameterize(UPDATE_PARAMS_RULES),
-          authorize_can_manage(authorizer, Paleolog::Section, :id),
-          verify(name_uniqueness),
-          finalize(->(params) { repo.for(Paleolog::Section).update(params[:id], params.except(:id)) }),
-        )
+        authenticate
+          .and_then { parameterize(raw_params, UPDATE_RULES) }
+          .and_then { authorize(_1, can_manage(Paleolog::Section, :id)) }
+          .and_then { verify(_1, name_uniqueness) }
+          .and_then { carefully(_1, ->(params) { repo.for(Paleolog::Section).update(params[:id], params.except(:id)) }) }
       end
 
       private
+
+      def find_section_with_samples
+        lambda do |params|
+          repo.for(Paleolog::Section).find(
+            params[:id],
+            Paleolog::Repo::Section.with_samples,
+          )
+        end
+      end
 
       def name_uniqueness
         lambda do |params|

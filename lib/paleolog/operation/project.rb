@@ -3,62 +3,63 @@
 module Paleolog
   module Operation
     class Project < BaseOperation
-      CREATE_PARAMS_RULES = Pp.define.(
+      CREATE_RULES = Pp.define.(
         name: Pp.required.(NameRules),
         user_id: Pp.required.(IdRules),
       )
 
-      UPDATE_PARAMS_RULES = Pp.define.(
+      UPDATE_RULES = Pp.define.(
         id: Pp.required.(IdRules),
         name: Pp.required.(NameRules),
       )
 
       def find_all_for_user(user_id)
-        reduce(
-          {},
-          authenticate(authorizer),
-          finalize(->(_) { repo.for(Paleolog::Researcher).all_for_user(user_id).map(&:project) }),
-        )
+        authenticate
+          .and_then { carefully(_1, find_projects(user_id)) }
       end
 
       def create(raw_params)
-        reduce(
-          raw_params,
-          authenticate(authorizer),
-          parameterize(CREATE_PARAMS_RULES),
-          verify(name_uniqueness),
-          finalize(->(params) { create_project(params) }),
-        )
+        authenticate
+          .and_then { parameterize(raw_params, CREATE_RULES) }
+          .and_then { verify(_1, name_uniqueness) }
+          .and_then { carefully(_1, create_project) }
       end
 
       def rename(raw_params)
-        reduce(
-          raw_params,
-          authenticate(authorizer),
-          parameterize(UPDATE_PARAMS_RULES),
-          authorize_can_manage(authorizer, Paleolog::Project, :id),
-          verify(name_uniqueness),
-          finalize(->(params) { update_project(params) }),
-        )
+        authenticate
+          .and_then { parameterize(raw_params, UPDATE_RULES) }
+          .and_then { authorize(_1, can_manage(Paleolog::Project, :id)) }
+          .and_then { verify(_1, name_uniqueness) }
+          .and_then { carefully(_1, update_project) }
       end
 
       private
 
-      def update_project(params)
-        repo.for(Paleolog::Project).update(params[:id], params.except(:id))
+      def find_projects(user_id)
+        lambda do |_|
+          repo.for(Paleolog::Researcher).all_for_user(user_id).map(&:project)
+        end
       end
 
-      def create_project(params)
-        project = nil
-        repo.with_transaction do
-          project = repo.for(Paleolog::Project).create(params.except(:user_id))
-          repo.for(Paleolog::Researcher).create(
-            user_id: params[:user_id],
-            project_id: project.id,
-            manager: true,
-          )
+      def update_project
+        lambda do |params|
+          repo.for(Paleolog::Project).update(params[:id], params.except(:id))
         end
-        project
+      end
+
+      def create_project
+        lambda do |params|
+          project = nil
+          repo.with_transaction do
+            project = repo.for(Paleolog::Project).create(params.except(:user_id))
+            repo.for(Paleolog::Researcher).create(
+              user_id: params[:user_id],
+              project_id: project.id,
+              manager: true,
+            )
+          end
+          project
+        end
       end
 
       def name_uniqueness

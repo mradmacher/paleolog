@@ -3,19 +3,22 @@
 module Paleolog
   module Operation
     class Group < BaseOperation
-      GroupRules = Pp.define.(
-        name: Pp.required.(
-          Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)])),
-        ),
+      CREATE_RULES = Pp.define.(
+        name: Pp.required.(NameRules),
       )
 
       def create(name:)
-        params, errors = GroupRules.(name: name)
-        return Failure.new(errors) unless errors.empty?
+        parameterize({ name: name }, CREATE_RULES)
+          .and_then { verify(_1, name_uniqueness) }
+          .and_then { carefully(_1, ->(params) { repo.for(Paleolog::Group).create(params) }) }
+      end
 
-        return Failure.new({ name: :taken }) if repo.for(Paleolog::Group).name_exists?(params[:name])
+      private
 
-        Success.new(repo.for(Paleolog::Group).create(params))
+      def name_uniqueness
+        lambda do |params|
+          { name: :taken } if repo.for(Paleolog::Group).name_exists?(params[:name])
+        end
       end
     end
   end

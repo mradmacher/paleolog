@@ -68,6 +68,7 @@ GEM
     rake (13.0.6)
     redcarpet (3.6.0)
     regexp_parser (2.5.0)
+    resonad (1.4.0)
     rexml (3.2.5)
     rubocop (1.36.0)
       json (~> 2.3)
@@ -132,6 +133,7 @@ DEPENDENCIES
   rack-test
   rake
   redcarpet
+  resonad
   rubocop
   rubocop-minitest
   rubocop-rake

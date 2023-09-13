@@ -1,58 +1,42 @@
 # frozen_string_literal: true
 
+require 'resonad'
+
 module Paleolog
   module Operation
     module Helpers
-      def authenticate(authorizer)
-        lambda { |params|
-          authorizer.authenticated? ? Success.new(params) : Failure.new(UNAUTHENTICATED_RESULT)
-        }
+      def authenticate
+        authorizer.authenticated? ? Resonad.success(nil) : Resonad.failure(UNAUTHENTICATED_RESULT)
       end
 
-      def parameterize(rules)
-        lambda { |params|
-          params, errors = rules.(params)
-          errors.empty? ? Success.new(params) : Failure.new(errors)
-        }
+      def authorize(params, func)
+        func.call(params) ? Resonad.success(params) : Resonad.failure(UNAUTHORIZED_RESULT)
       end
 
-      def authorize(func)
-        lambda { |params|
-          func.call(params) ? Success.new(params) : Failure.new(UNAUTHORIZED_RESULT)
-        }
+      def parameterize(params, rules)
+        params, errors = rules.(params)
+        errors.empty? ? Resonad.success(params) : Resonad.failure(errors)
       end
 
-      def authorize_can_manage(authorizer, model, key)
-        lambda { |params|
-          authorizer.can_manage?(model, params[key]) ? Success.new(params) : Failure.new(UNAUTHORIZED_RESULT)
-        }
+      def verify(params, func)
+        errors = func.call(params)
+        errors ? Resonad.failure(errors) : Resonad.success(params)
       end
 
-      def authorize_can_view(authorizer, model, key)
-        lambda { |params|
-          authorizer.can_view?(model, params[key]) ? Success.new(params) : Failure.new(UNAUTHORIZED_RESULT)
-        }
+      def merge(params, func)
+        Resonad.success(params.merge(func.call(params)))
       end
 
-      def verify(func)
-        lambda { |params|
-          errors = func.call(params)
-          errors ? Failure.new(errors) : Success.new(params)
-        }
+      def carefully(params, func)
+        Resonad.rescuing_from { func.call(params) }
       end
 
-      def merge(func)
-        lambda { |params|
-          Success.new(params.merge(func.call(params)))
-        }
+      def can_manage(model, key)
+        lambda { |params| authorizer.can_manage?(model, params[key]) }
       end
 
-      def finalize(func)
-        ->(params) { Success.new(func.call(params)) }
-      end
-
-      def reduce(params, *fns)
-        fns.reduce(Success.new(params)) { |result, fn| result.success? ? fn.call(result.value) : result }
+      def can_view(model, key)
+        lambda { |params| authorizer.can_view?(model, params[key]) }
       end
     end
   end
