@@ -41,7 +41,7 @@ module Web
                 section_id: sample.section_id,
                 name: sample.name,
                 description: sample.description,
-                weight: sample.weight,
+                weight: sample.weight ? Kernel.format('%.2f', sample.weight) : nil,
               }
             }
           }

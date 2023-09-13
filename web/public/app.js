@@ -81,18 +81,22 @@ class UrlBuilder {
 }
 
 class DomHelpers {
-  static hideAll(selector) {
-    document.querySelectorAll(selector).forEach((elem) => {
+  static hideAll(selector, scope = document) {
+    scope.querySelectorAll(selector).forEach((elem) => {
       elem.hidden = true
     })
   }
 
-  static setHref(selector, href) {
-    document.querySelector(selector).setAttribute('href', href)
+  static setHref(selector, href, scope = document) {
+    scope.querySelector(selector).setAttribute('href', href)
   }
 
-  static setText(selector, text) {
-    document.querySelector(selector).textContent = text
+  static setText(selector, text, scope = document) {
+    scope.querySelector(selector).textContent = text
+  }
+
+  static getTemplate(templateId) {
+    return document.getElementById(templateId).content.cloneNode(true)
   }
 }
 

@@ -93,15 +93,15 @@ describe 'Sections' do
         found_sample = samples.detect { |s| s['id'] == sample1.id }
         refute_nil found_sample
         assert_equal sample1.id, found_sample['id']
-        assert_equal sample1.section_id, found_sample['section_id']
+        assert_equal section.id, found_sample['section_id']
         assert_equal sample1.name, found_sample['name']
         assert_equal sample1.description, found_sample['description']
-        assert_equal sample1.weight.to_s, found_sample['weight']
+        assert_equal '1.00', found_sample['weight']
 
         found_sample = samples.detect { |s| s['id'] == sample2.id }
         refute_nil found_sample
         assert_equal sample2.id, found_sample['id']
-        assert_equal sample2.section_id, found_sample['section_id']
+        assert_equal section.id, found_sample['section_id']
         assert_equal sample2.name, found_sample['name']
         assert_equal sample2.description, found_sample['description']
         assert_nil found_sample['weight']

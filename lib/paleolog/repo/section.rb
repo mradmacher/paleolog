@@ -15,7 +15,10 @@ module Paleolog
         end
 
         def find(id, *options)
-          Paleolog::Section.new(**ds.where(id: id).first).tap do |section|
+          result = ds.where(id: id).first
+          return nil unless result
+
+          Paleolog::Section.new(**result).tap do |section|
             options.each { |opt| opt.call(section) }
           end
         end
