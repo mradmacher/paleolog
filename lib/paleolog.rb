@@ -5,10 +5,8 @@ require 'param_param'
 # just some shortcuts
 Failure = ParamParam::Failure
 Success = ParamParam::Success
-Option = ParamParam::Option
 Pp = ParamParam
 
-require 'paleolog/entity'
 require 'paleolog/entities'
 require 'paleolog/authorizer'
 require 'paleolog/repo'

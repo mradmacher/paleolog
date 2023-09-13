@@ -33,7 +33,7 @@ module Paleolog
         Success.new(repo.for(Paleolog::Occurrence).create(params))
       end
 
-      def update(occurrence_id, status: Option.None, uncertain: Option.None, quantity: Option.None)
+      def update(occurrence_id, status: Optiomist.none, uncertain: Optiomist.none, quantity: Optiomist.none)
         params, errors = UpdateRules.(
           status: status,
           uncertain: uncertain,

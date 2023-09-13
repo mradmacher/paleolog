@@ -1,9 +1,18 @@
 GIT
-  remote: https://github.com/mradmacher/param-param.git
-  revision: 2d236d46d77b4d4de3787e4dd7995a03d83f0552
-  tag: v0.0.1
+  remote: https://github.com/mradmacher/entitainer.git
+  revision: 4da847319d34c18739f39c786e589233f4a3d9f2
+  tag: 4da8473
   specs:
-    param-param (0.0.1)
+    entitainer (0.0.1)
+      optiomist (~> 0.0.3)
+
+GIT
+  remote: https://github.com/mradmacher/param_param.git
+  revision: a6b5380f4a189382a48ea7d8d67688cb9cdde069
+  tag: v0.0.2
+  specs:
+    param_param (0.0.2)
+      optiomist (~> 0.0.3)
 
 GEM
   remote: https://rubygems.org/
@@ -40,6 +49,7 @@ GEM
       racc (~> 1.4)
     nokogiri (1.14.3-x86_64-linux)
       racc (~> 1.4)
+    optiomist (0.0.3)
     parallel (1.22.1)
     parser (3.1.2.1)
       ast (~> 2.4.1)
@@ -110,10 +120,12 @@ PLATFORMS
 DEPENDENCIES
   bcrypt
   capybara
+  entitainer!
   minitest
   minitest-hooks
   minitest-rg
-  param-param!
+  optiomist (~> 0.0.3)
+  param_param!
   pdfkit
   pg
   puma (~> 5.6.7)

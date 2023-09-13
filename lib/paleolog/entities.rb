@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'entitainer'
+
 module Paleolog
   class User
-    include Entity
+    include Entitainer
 
     schema do
       attributes :id,
@@ -17,7 +19,7 @@ module Paleolog
   end
 
   class Project
-    include Entity
+    include Entitainer
 
     schema do
       attributes :id,
@@ -32,7 +34,7 @@ module Paleolog
   end
 
   class Researcher
-    include Entity
+    include Entitainer
 
     schema do
       attributes :id,
@@ -47,7 +49,7 @@ module Paleolog
   end
 
   class Counting
-    include Entity
+    include Entitainer
 
     schema do
       attributes :id,
@@ -62,7 +64,7 @@ module Paleolog
   end
 
   class Section
-    include Entity
+    include Entitainer
 
     schema do
       attributes :id,
@@ -77,7 +79,7 @@ module Paleolog
   end
 
   class Sample
-    include Entity
+    include Entitainer
 
     schema do
       attributes :id,
@@ -96,7 +98,7 @@ module Paleolog
   end
 
   class Group
-    include Entity
+    include Entitainer
 
     schema do
       attributes :id, :name
@@ -104,7 +106,7 @@ module Paleolog
   end
 
   class Field
-    include Entity
+    include Entitainer
 
     schema do
       attributes :id, :name, :group_id
@@ -113,7 +115,7 @@ module Paleolog
   end
 
   class Choice
-    include Entity
+    include Entitainer
 
     schema do
       attributes :id, :name, :field_id
@@ -122,7 +124,7 @@ module Paleolog
   end
 
   class Feature
-    include Entity
+    include Entitainer
 
     schema do
       attributes :id, :choice_id, :species_id
@@ -131,7 +133,7 @@ module Paleolog
   end
 
   class Image
-    include Entity
+    include Entitainer
 
     schema do
       attributes :id,
@@ -149,7 +151,7 @@ module Paleolog
   end
 
   class Species
-    include Entity
+    include Entitainer
 
     schema do
       attributes :id,
@@ -167,7 +169,7 @@ module Paleolog
   end
 
   class Occurrence
-    include Entity
+    include Entitainer
 
     NORMAL = 0
     OUTSIDE_COUNT = 1

@@ -124,7 +124,7 @@ describe Paleolog::Operation::Counting do
       end
 
       it 'complains when project_id is none' do
-        result = operation.create(name: 'Name', project_id: ParamParam::Option.None)
+        result = operation.create(name: 'Name', project_id: Optiomist.none)
         assert_predicate result, :failure?
         assert_equal ParamParam::MISSING, result.error[:project_id]
       end

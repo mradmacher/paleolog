@@ -33,7 +33,7 @@ describe Paleolog::Operation::Field do
       assert_predicate result, :failure?
       assert_equal ParamParam::NON_INTEGER, result.error[:group_id]
 
-      result = operation.create(name: 'Name', group_id: ParamParam::Option.None)
+      result = operation.create(name: 'Name', group_id: Optiomist.none)
       assert_predicate result, :failure?
       assert_equal ParamParam::MISSING, result.error[:group_id]
     end

@@ -42,7 +42,7 @@ describe Paleolog::Operation::Species do
       end
 
       it 'complains when group_id none' do
-        result = operation.create(name: 'Name', group_id: ParamParam::Option.None)
+        result = operation.create(name: 'Name', group_id: Optiomist.none)
         assert_predicate result, :failure?
         assert_equal ParamParam::MISSING, result.error[:group_id]
       end

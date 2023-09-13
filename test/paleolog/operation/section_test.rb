@@ -137,7 +137,7 @@ describe Paleolog::Operation::Section do
 
       it 'complains when project_id is none' do
         result = operation.create(
-          { name: 'Name', project_id: ParamParam::Option.None },
+          { name: 'Name', project_id: Optiomist.none },
         )
         assert_predicate result, :failure?
         assert_equal ParamParam::MISSING, result.error[:project_id]

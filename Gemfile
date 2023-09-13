@@ -3,7 +3,9 @@
 source 'https://rubygems.org'
 
 gem 'bcrypt'
-gem 'param-param', git: 'https://github.com/mradmacher/param-param.git', tag: 'v0.0.1'
+gem 'optiomist', '~> 0.0.3'
+gem 'param_param', git: 'https://github.com/mradmacher/param_param.git', tag: 'v0.0.2'
+gem 'entitainer', git: 'https://github.com/mradmacher/entitainer.git', tag: '4da8473'
 gem 'pdfkit'
 gem 'pg'
 gem 'puma', '~> 5.6.7'
