@@ -12,6 +12,16 @@ module Paleolog
           end
         end
 
+        def find(id)
+          result = ds.where(id: id).first
+          return nil unless result
+
+          Paleolog::Counting.new(**result) do |counting|
+            counting.group = Paleolog::Repo::Group.find(counting.group_id) unless counting.group_id.nil?
+            counting.marker = Paleolog::Repo::Species.find(counting.marker_id) unless counting.marker_id.nil?
+          end
+        end
+
         def find_for_project(id, project_id)
           result = ds.where(project_id: project_id, id: id).first
           return nil unless result

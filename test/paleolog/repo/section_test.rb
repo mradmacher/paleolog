@@ -55,13 +55,23 @@ describe Paleolog::Repo::Section do
       @section = Paleolog::Repo.save(Paleolog::Section.new(name: 'Some section', project: @project))
     end
 
-    it 'loads samples' do
-      assert_empty Paleolog::Repo.find(Paleolog::Section, @section.id).samples
+    it 'returns section with given id' do
+      result = repo.find(@section.id)
+      assert_equal(@section, result)
+    end
+
+    it 'returns nil when section with given id does not exist' do
+      result = repo.find(@section.id + 1)
+      assert_nil result
+    end
+
+    it 'loads samples when with_samples option provided' do
+      assert_empty repo.find(@section.id, repo.with_samples).samples
 
       Paleolog::Repo.save(Paleolog::Sample.new(name: 'Sample1', section: @section))
       Paleolog::Repo.save(Paleolog::Sample.new(name: 'Sample2', section: @section))
 
-      result = Paleolog::Repo.find(Paleolog::Section, @section.id)
+      result = repo.find(@section.id, repo.with_samples)
       assert_equal 2, result.samples.size
       assert_equal %w[Sample1 Sample2], result.samples.map(&:name)
     end

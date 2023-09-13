@@ -22,7 +22,7 @@ module Web
         Paleolog::Repo::Project.with_sections,
         Paleolog::Repo::Project.with_researchers,
       )
-      @counting = Paleolog::Repo::Counting.find_for_project(params[:id].to_i, @project.id)
+      @counting_id = params[:id].to_i
       using_project_layout { display 'countings/show.html' }
     end
   end

@@ -2,12 +2,10 @@
   <div class="content">
     <div class="header">
       <div class="ui ribbon label">section</div>
-      <h2 class="ui header">
-        <%= @section.name %>
-      </h2>
+      <h2 class="ui header section-name"></h2>
       <div class="ui fluid horizontal menu">
-        <a class="item" href="<%= occurrences_path(@project, section: @section) %>">Occurrences</a>
-        <a class="item" href="<%= reports_path(@project, section: @section) %>">Report</a>
+        <a class="item occurrences-link" href="#">Section Occurrences</a>
+        <a class="item reports-link" href="#">Section Report</a>
         <div class="ui right mini secondary menu">
           <div class="item">
             <button class="ui secondary button edit-section action">Edit Section</button>
@@ -18,6 +16,16 @@
     <div class="ui description grid">
     </div>
 
+    <template id="section-sample-template">
+      <tr>
+        <td class="sample-name"></td>
+        <td class="sample-description"></td>
+        <td class="sample-weight"></td>
+        <td>
+          <button class="ui mini secondary button edit-sample action" data-sample-id="#">Edit</button>
+        </td>
+      </tr>
+    </template>
     <h3>Samples</h3>
     <table class="ui striped celled table section-samples">
       <thead>
@@ -29,22 +37,6 @@
         </tr>
       </thead>
       <tbody>
-        <% @section.samples.sort_by(&:rank).each do |sample| %>
-          <tr>
-            <td>
-              <%= sample.name %>
-            </td>
-            <td>
-              <%= sample.description %>
-            </td>
-            <td>
-              <%= sample.weight ? Kernel.format('%.2f', sample.weight) : '' %>
-            </td>
-            <td>
-              <button class="ui mini secondary button edit-sample action" data-sample-id="<%= sample.id %>">Edit</button>
-            </td>
-          </tr>
-        <% end %>
       </tbody>
       <tfoot class="full-width">
         <tr>
@@ -58,44 +50,50 @@
 </div>
 <script type="text/javascript">
 $(function() {
-  const section = {
-    id: <%= @section.id %>,
-    project_id: <%= @section.project_id %>,
-    name: "<%= @section.name %>",
-  }
+  let projectId = <%= @project.id %>
+  let sectionId = <%= @section_id %>
+  let projectName = "<%= @project.name %>"
 
-  const sample = {
-    section_id: <%= @section.id %>,
+  const new_sample = {
+    section_id: <%= @section_id %>,
     name: null,
     description: null,
     weight: null,
   }
 
-  const samples = [
-  <% @section.samples.each do |sample| %>
-    {
-      id: <%= sample.id %>,
-      section_id: <%= sample.section_id %>,
-      name: "<%= sample.name %>",
-      description: "<%= sample.description %>",
-      weight: "<%= sample.weight ? Kernel.format('%.2f', sample.weight) : '' %>",
+  new SectionRequest().get(sectionId).then(
+    result => {
+      console.log(result)
+      let section = result.section
+
+      DomHelpers.setText('.section-name', section.name)
+      DomHelpers.setHref('.occurrences-link', UrlBuilder.projectOccurrences(projectId, { projectName: projectName, sectionId: section.id }))
+      DomHelpers.setHref('.reports-link', UrlBuilder.projectReports(projectId, { projectName: projectName, sectionId: section.id }))
+
+      let sectionSamplesElement = document.querySelector('.section-samples tbody')
+      section.samples.forEach((sample, i) => {
+        let template = DomHelpers.getTemplate('section-sample-template')
+        DomHelpers.setText('.sample-name', sample.name, template)
+        DomHelpers.setText('.sample-description', sample.description, template)
+        DomHelpers.setText('.sample-weight', sample.weight, template)
+
+        template.querySelector('.edit-sample.action').addEventListener('click', (event) => {
+          new SampleModalFormView(sample, (sample) => window.location.reload()).show()
+        })
+
+        sectionSamplesElement.append(template)
+      })
+
+      document.querySelector('.edit-section.action').addEventListener('click', (event) => {
+        new SectionModalFormView(section, (section) => window.location.reload()).show()
+      })
+      document.querySelector('.add-sample.action').addEventListener('click', (event) => {
+        new SampleModalFormView(new_sample, (sample) => window.location.reload()).show()
+      })
     },
-  <% end %>
-  ]
-
-  $('.edit-sample.action').click((event) => {
-    var sample_id = $(event.target).data('sample-id')
-    var sample = samples.find((element) => element.id == sample_id)
-    new SampleModalFormView(sample, (sample) => window.location.reload()).show()
-  })
-
-  $('.edit-section.action').click(() => {
-    new SectionModalFormView(section, (section) => window.location.reload()).show()
-  })
-
-  $('.add-sample.action').click(() => {
-    new SampleModalFormView(sample, (sample) => window.location.reload()).show()
-  })
-
+    errors => {
+      console.log(errors)
+    }
+  )
 });
 </script>

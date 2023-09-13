@@ -16,9 +16,7 @@ module Web
     end
 
     get '/projects/:project_id/occurrences' do
-      unless Paleolog::Repo::Researcher.can_view_project?(session[:user_id], params[:project_id].to_i)
-        redirect projects_path
-      end
+      redirect projects_path unless authorizer.can_view?(Paleolog::Project, params[:project_id].to_i)
 
       @project = Paleolog::Repo::Project.find(
         params[:project_id].to_i,

@@ -3,6 +3,10 @@
 module Paleolog
   module Operation
     class Section < BaseOperation
+      FIND_PARAMS_RULES = Pp.define.(
+        id: Pp.required.(IdRules),
+      )
+
       CREATE_PARAMS_RULES = Pp.define.(
         name: Pp.required.(NameRules),
         project_id: Pp.required.(IdRules),
@@ -12,6 +16,20 @@ module Paleolog
         id: Pp.required.(IdRules),
         name: Pp.required.(NameRules),
       )
+
+      def find(raw_params)
+        reduce(
+          raw_params,
+          authenticate(authorizer),
+          parameterize(FIND_PARAMS_RULES),
+          authorize_can_view(authorizer, Paleolog::Section, :id),
+          finalize(
+            lambda do |params|
+              repo.for(Paleolog::Section).find(params[:id], Paleolog::Repo::Section.with_samples)
+            end,
+          ),
+        )
+      end
 
       def create(raw_params)
         reduce(

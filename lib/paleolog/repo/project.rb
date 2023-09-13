@@ -31,7 +31,10 @@ module Paleolog
         end
 
         def find(id, *options)
-          Paleolog::Project.new(**ds.where(id: id).first) do |project|
+          result = ds.where(id: id).first
+          return nil unless result
+
+          Paleolog::Project.new(**result) do |project|
             options.each { |opt| opt.call(project) }
           end
         end

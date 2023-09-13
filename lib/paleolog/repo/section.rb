@@ -6,11 +6,20 @@ module Paleolog
       class << self
         include CommonQueries
 
-        def find(id)
-          Paleolog::Section.new(**ds.where(id: id).first).tap do |section|
+        def with_samples
+          lambda { |section|
             Paleolog::Repo::Sample.all_for_section(section.id).each do |sample|
               section.samples << sample
             end
+          }
+        end
+
+        def find(id, *options)
+          result = ds.where(id: id).first
+          return nil unless result
+
+          Paleolog::Section.new(**result).tap do |section|
+            options.each { |opt| opt.call(section) }
           end
         end
 
