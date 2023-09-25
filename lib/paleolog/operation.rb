@@ -5,6 +5,7 @@ module Paleolog
     UNAUTHORIZED = :unauthorized
     UNAUTHENTICATED = :unauthenticated
     TAKEN = :taken
+
     TOO_LONG = PaPa::TOO_LONG
     BLANK = PaPa::BLANK
     MISSING = PaPa::MISSING
@@ -22,7 +23,6 @@ module Paleolog
   end
 end
 
-require 'paleolog/operation/helpers'
 require 'paleolog/operation/base_operation'
 require 'paleolog/operation/choice'
 require 'paleolog/operation/counting'
