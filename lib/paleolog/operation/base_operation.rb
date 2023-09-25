@@ -41,11 +41,11 @@ module Paleolog
       end
 
       def can_manage(model, key)
-        lambda { |params| authorizer.can_manage?(model, params[key]) }
+        ->(params) { authorizer.can_manage?(model, params[key]) }
       end
 
       def can_view(model, key)
-        lambda { |params| authorizer.can_view?(model, params[key]) }
+        ->(params) { authorizer.can_view?(model, params[key]) }
       end
     end
   end

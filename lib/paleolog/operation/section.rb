@@ -29,7 +29,7 @@ module Paleolog
           .and_then { parameterize(raw_params, CREATE_RULES) }
           .and_then { authorize(_1, can_manage(Paleolog::Project, :project_id)) }
           .and_then { verify(_1, name_uniqueness) }
-          .and_then { carefully(_1, ->(params) { repo.for(Paleolog::Section).create(params) }) }
+          .and_then { carefully(_1, create_section) }
       end
 
       def update(raw_params)
@@ -37,10 +37,18 @@ module Paleolog
           .and_then { parameterize(raw_params, UPDATE_RULES) }
           .and_then { authorize(_1, can_manage(Paleolog::Section, :id)) }
           .and_then { verify(_1, name_uniqueness) }
-          .and_then { carefully(_1, ->(params) { repo.for(Paleolog::Section).update(params[:id], params.except(:id)) }) }
+          .and_then { carefully(_1, update_section) }
       end
 
       private
+
+      def create_section
+        ->(params) { repo.for(Paleolog::Section).create(params) }
+      end
+
+      def update_section
+        ->(params) { repo.for(Paleolog::Section).update(params[:id], params.except(:id)) }
+      end
 
       def find_section_with_samples
         lambda do |params|

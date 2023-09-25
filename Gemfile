@@ -3,15 +3,15 @@
 source 'https://rubygems.org'
 
 gem 'bcrypt'
+gem 'entitainer', git: 'https://github.com/mradmacher/entitainer.git', tag: '4da8473'
 gem 'optiomist', '~> 0.0.3'
 gem 'param_param', '~> 0.1.0'
-gem 'entitainer', git: 'https://github.com/mradmacher/entitainer.git', tag: '4da8473'
-gem 'resonad'
 gem 'pdfkit'
 gem 'pg'
 gem 'puma', '~> 5.6.7'
 gem 'rake'
 gem 'redcarpet'
+gem 'resonad'
 gem 'sequel'
 gem 'sinatra'
 

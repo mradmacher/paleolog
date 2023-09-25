@@ -11,7 +11,7 @@ module Paleolog
       def create(name:, field_id:)
         parameterize({ name: name, field_id: field_id }, CREATE_RULES)
           .and_then { verify(_1, name_uniqueness) }
-          .and_then { carefully(_1, ->(params) { repo.for(Paleolog::Choice).create(params) } ) }
+          .and_then { carefully(_1, ->(params) { repo.for(Paleolog::Choice).create(params) }) }
       end
 
       private
@@ -20,7 +20,7 @@ module Paleolog
         lambda do |params|
           if repo.for(Paleolog::Choice).name_exists_within_field?(
             params[:name],
-            params[:field_id]
+            params[:field_id],
           )
             { name: :taken }
           end

@@ -49,7 +49,7 @@ module Paleolog
       end
 
       def default_status
-        lambda do |params|
+        lambda do |_|
           { status: Paleolog::Occurrence::NORMAL }
         end
       end
@@ -57,8 +57,8 @@ module Paleolog
       def next_rank
         lambda do |params|
           max_rank = repo.for(Paleolog::Occurrence)
-              .all_for_sample(params[:counting_id], params[:sample_id])
-              .max_by(&:rank)&.rank || 0
+                         .all_for_sample(params[:counting_id], params[:sample_id])
+                         .max_by(&:rank)&.rank || 0
           { rank: max_rank + 1 }
         end
       end
