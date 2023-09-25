@@ -120,25 +120,25 @@ describe Paleolog::Operation::Counting do
       it 'complains when project_id is nil' do
         result = operation.create(name: 'Name', project_id: nil)
         assert_predicate result, :failure?
-        assert_equal ParamParam::NON_INTEGER, result.error[:project_id]
+        assert_equal PaPa::NON_INTEGER, result.error[:project_id]
       end
 
       it 'complains when project_id is none' do
         result = operation.create(name: 'Name', project_id: Optiomist.none)
         assert_predicate result, :failure?
-        assert_equal ParamParam::MISSING, result.error[:project_id]
+        assert_equal PaPa::MISSING, result.error[:project_id]
       end
 
       it 'complains when name is nil' do
         result = operation.create(name: nil, project_id: project.id)
         assert_predicate result, :failure?
-        assert_equal ParamParam::BLANK, result.error[:name]
+        assert_equal PaPa::BLANK, result.error[:name]
       end
 
       it 'complains when name is blank' do
         result = operation.create(name: '  ', project_id: project.id)
         assert_predicate result, :failure?
-        assert_equal ParamParam::BLANK, result.error[:name]
+        assert_equal PaPa::BLANK, result.error[:name]
       end
 
       it 'complains when name already exists' do
@@ -154,7 +154,7 @@ describe Paleolog::Operation::Counting do
         name = 'a' * (255 + 1)
         result = operation.create(name: name, project_id: project.id)
         assert_predicate result, :failure?
-        assert_equal ParamParam::TOO_LONG, result.error[:name]
+        assert_equal PaPa::TOO_LONG, result.error[:name]
       end
 
       it 'accepts name with max length' do
@@ -281,7 +281,7 @@ describe Paleolog::Operation::Counting do
           { id: existing_counting.id, name: name },
         )
         assert_predicate result, :failure?
-        assert_equal ParamParam::TOO_LONG, result.error[:name]
+        assert_equal PaPa::TOO_LONG, result.error[:name]
       end
 
       it 'accepts max length name' do

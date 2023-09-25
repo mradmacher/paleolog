@@ -38,13 +38,13 @@ describe Paleolog::Operation::Species do
       it 'complains when group_id blank' do
         result = operation.create(name: 'Name', group_id: nil)
         assert_predicate result, :failure?
-        assert_equal ParamParam::NON_INTEGER, result.error[:group_id]
+        assert_equal PaPa::NON_INTEGER, result.error[:group_id]
       end
 
       it 'complains when group_id none' do
         result = operation.create(name: 'Name', group_id: Optiomist.none)
         assert_predicate result, :failure?
-        assert_equal ParamParam::MISSING, result.error[:group_id]
+        assert_equal PaPa::MISSING, result.error[:group_id]
       end
 
       it 'complains when name is nil' do
@@ -74,7 +74,7 @@ describe Paleolog::Operation::Species do
           { name: 'a' * (max + 1), group_id: group.id },
         )
         assert_predicate result, :failure?
-        assert_equal ParamParam::TOO_LONG, result.error[:name]
+        assert_equal PaPa::TOO_LONG, result.error[:name]
       end
 
       it 'does not complain when name is max length' do
@@ -102,7 +102,7 @@ describe Paleolog::Operation::Species do
           { group_id: group.id, name: 'Name', description: description },
         )
         assert_predicate result, :failure?
-        assert_equal ParamParam::TOO_LONG, result.error[:description]
+        assert_equal PaPa::TOO_LONG, result.error[:description]
       end
 
       it 'allows description length to be equal to 4096 characters' do
@@ -119,7 +119,7 @@ describe Paleolog::Operation::Species do
           { group_id: group.id, name: 'Name', environmental_preferences: environmental_preferences },
         )
         assert_predicate result, :failure?
-        assert_equal ParamParam::TOO_LONG, result.error[:environmental_preferences]
+        assert_equal PaPa::TOO_LONG, result.error[:environmental_preferences]
       end
 
       it 'allows environmental preferences length to be equal to 4096 characters' do

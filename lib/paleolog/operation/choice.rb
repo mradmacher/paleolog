@@ -3,9 +3,9 @@
 module Paleolog
   module Operation
     class Choice < BaseOperation
-      CREATE_RULES = Pp.define.(
-        name: Pp.required.(NameRules),
-        field_id: Pp.required.(IdRules),
+      CREATE_RULES = PaPa.define.(
+        name: PaPa.required.(NameRules),
+        field_id: PaPa.required.(IdRules),
       )
 
       def create(name:, field_id:)

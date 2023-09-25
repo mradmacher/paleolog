@@ -3,18 +3,18 @@
 module Paleolog
   module Operation
     class Sample < BaseOperation
-      CREATE_RULES = Pp.define.(
-        name: Pp.required.(NameRules),
-        section_id: Pp.required.(IdRules),
-        description: Pp.optional.(DescriptionRules),
-        weight: Pp.optional.(Pp.blank_to_nil_or.(Pp.decimal.(Pp.gt.(0.0)))),
+      CREATE_RULES = PaPa.define.(
+        name: PaPa.required.(NameRules),
+        section_id: PaPa.required.(IdRules),
+        description: PaPa.optional.(DescriptionRules),
+        weight: PaPa.optional.(PaPa.blank_to_nil_or.(PaPa.decimal.(PaPa.gt.(0.0)))),
       )
 
-      UPDATE_RULES = Pp.define.(
-        id: Pp.required.(IdRules),
-        name: Pp.optional.(NameRules),
-        description: Pp.optional.(DescriptionRules),
-        weight: Pp.optional.(Pp.blank_to_nil_or.(Pp.decimal.(Pp.gt.(0.0)))),
+      UPDATE_RULES = PaPa.define.(
+        id: PaPa.required.(IdRules),
+        name: PaPa.optional.(NameRules),
+        description: PaPa.optional.(DescriptionRules),
+        weight: PaPa.optional.(PaPa.blank_to_nil_or.(PaPa.decimal.(PaPa.gt.(0.0)))),
       )
 
       def create(raw_params)

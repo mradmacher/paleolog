@@ -3,18 +3,18 @@
 module Paleolog
   module Operation
     class Counting < BaseOperation
-      FIND_RULES = Pp.define.(
-        id: Pp.required.(IdRules),
+      FIND_RULES = PaPa.define.(
+        id: PaPa.required.(IdRules),
       )
 
-      CREATE_RULES = Pp.define.(
-        name: Pp.required.(NameRules),
-        project_id: Pp.required.(IdRules),
+      CREATE_RULES = PaPa.define.(
+        name: PaPa.required.(NameRules),
+        project_id: PaPa.required.(IdRules),
       )
 
-      UPDATE_RULES = Pp.define.(
-        id: Pp.required.(IdRules),
-        name: Pp.required.(NameRules),
+      UPDATE_RULES = PaPa.define.(
+        id: PaPa.required.(IdRules),
+        name: PaPa.required.(NameRules),
       )
 
       def find(raw_params)

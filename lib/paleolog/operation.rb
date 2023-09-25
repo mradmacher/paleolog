@@ -5,20 +5,20 @@ module Paleolog
     UNAUTHORIZED = :unauthorized
     UNAUTHENTICATED = :unauthenticated
     TAKEN = :taken
-    TOO_LONG = ParamParam::TOO_LONG
-    BLANK = ParamParam::BLANK
-    MISSING = ParamParam::MISSING
-    NON_DECIMAL = ParamParam::NON_DECIMAL
-    NON_INTEGER = ParamParam::NON_INTEGER
-    NOT_GT = ParamParam::NOT_GT
+    TOO_LONG = PaPa::TOO_LONG
+    BLANK = PaPa::BLANK
+    MISSING = PaPa::MISSING
+    NON_DECIMAL = PaPa::NON_DECIMAL
+    NON_INTEGER = PaPa::NON_INTEGER
+    NOT_GT = PaPa::NOT_GT
     UNAUTHENTICATED_RESULT = { general: UNAUTHENTICATED }.freeze
     UNAUTHORIZED_RESULT = { general: UNAUTHORIZED }.freeze
 
-    IdRules = Pp.integer.(Pp.gt.(0))
-    NameRules = Pp.string.(
-      Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)]),
+    IdRules = PaPa.integer.(PaPa.gt.(0))
+    NameRules = PaPa.string.(
+      PaPa.all_of.([PaPa.stripped, PaPa.not_blank, PaPa.max_size.(255)]),
     )
-    DescriptionRules = Pp.blank_to_nil_or.(Pp.string.(Pp.max_size.(4096)))
+    DescriptionRules = PaPa.blank_to_nil_or.(PaPa.string.(PaPa.max_size.(4096)))
   end
 end
 

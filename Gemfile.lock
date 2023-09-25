@@ -6,14 +6,6 @@ GIT
     entitainer (0.0.1)
       optiomist (~> 0.0.3)
 
-GIT
-  remote: https://github.com/mradmacher/param_param.git
-  revision: a6b5380f4a189382a48ea7d8d67688cb9cdde069
-  tag: v0.0.2
-  specs:
-    param_param (0.0.2)
-      optiomist (~> 0.0.3)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -51,6 +43,8 @@ GEM
       racc (~> 1.4)
     optiomist (0.0.3)
     parallel (1.22.1)
+    param_param (0.1.0)
+      optiomist (~> 0.0.3)
     parser (3.1.2.1)
       ast (~> 2.4.1)
     pdfkit (0.8.7.2)
@@ -126,7 +120,7 @@ DEPENDENCIES
   minitest-hooks
   minitest-rg
   optiomist (~> 0.0.3)
-  param_param!
+  param_param (~> 0.1.0)
   pdfkit
   pg
   puma (~> 5.6.7)

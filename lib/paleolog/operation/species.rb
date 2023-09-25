@@ -3,11 +3,11 @@
 module Paleolog
   module Operation
     class Species < BaseOperation
-      CREATE_RULES = Pp.define.(
-        name: Pp.required.(NameRules),
-        group_id: Pp.required.(IdRules),
-        description: Pp.optional.(DescriptionRules),
-        environmental_preferences: Pp.optional.(DescriptionRules),
+      CREATE_RULES = PaPa.define.(
+        name: PaPa.required.(NameRules),
+        group_id: PaPa.required.(IdRules),
+        description: PaPa.optional.(DescriptionRules),
+        environmental_preferences: PaPa.optional.(DescriptionRules),
       )
 
       def create(raw_params)

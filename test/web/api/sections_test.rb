@@ -22,6 +22,7 @@ describe 'Sections' do
   after do
     repo.for(Paleolog::Researcher).delete_all
     repo.for(Paleolog::User).delete_all
+    repo.for(Paleolog::Sample).delete_all
     repo.for(Paleolog::Section).delete_all
     repo.for(Paleolog::Project).delete_all
   end

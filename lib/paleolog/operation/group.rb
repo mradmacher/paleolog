@@ -3,8 +3,8 @@
 module Paleolog
   module Operation
     class Group < BaseOperation
-      CREATE_RULES = Pp.define.(
-        name: Pp.required.(NameRules),
+      CREATE_RULES = PaPa.define.(
+        name: PaPa.required.(NameRules),
       )
 
       def create(name:)

@@ -3,16 +3,16 @@
 module Paleolog
   module Operation
     class Occurrence < BaseOperation
-      CREATE_RULES = Pp.define.(
-        counting_id: Pp.required.(IdRules),
-        sample_id: Pp.required.(IdRules),
-        species_id: Pp.required.(IdRules),
+      CREATE_RULES = PaPa.define.(
+        counting_id: PaPa.required.(IdRules),
+        sample_id: PaPa.required.(IdRules),
+        species_id: PaPa.required.(IdRules),
       )
 
-      UPDATE_RULES = Pp.define.(
-        quantity: Pp.optional.(Pp.blank_to_nil_or.(Pp.integer.(Pp.gte.(0)))),
-        status: Pp.optional.((Pp.integer.(Pp.included_in.(Paleolog::Occurrence::STATUSES)))),
-        uncertain: Pp.optional.(Pp.bool.(Pp.any)),
+      UPDATE_RULES = PaPa.define.(
+        quantity: PaPa.optional.(PaPa.blank_to_nil_or.(PaPa.integer.(PaPa.gte.(0)))),
+        status: PaPa.optional.((PaPa.integer.(PaPa.included_in.(Paleolog::Occurrence::STATUSES)))),
+        uncertain: PaPa.optional.(PaPa.bool.(PaPa.any)),
       )
 
       def create(raw_params)

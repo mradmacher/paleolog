@@ -3,14 +3,14 @@
 module Paleolog
   module Operation
     class Project < BaseOperation
-      CREATE_RULES = Pp.define.(
-        name: Pp.required.(NameRules),
-        user_id: Pp.required.(IdRules),
+      CREATE_RULES = PaPa.define.(
+        name: PaPa.required.(NameRules),
+        user_id: PaPa.required.(IdRules),
       )
 
-      UPDATE_RULES = Pp.define.(
-        id: Pp.required.(IdRules),
-        name: Pp.required.(NameRules),
+      UPDATE_RULES = PaPa.define.(
+        id: PaPa.required.(IdRules),
+        name: PaPa.required.(NameRules),
       )
 
       def find_all_for_user(user_id)
