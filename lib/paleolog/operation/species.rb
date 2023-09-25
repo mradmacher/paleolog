@@ -3,24 +3,25 @@
 module Paleolog
   module Operation
     class Species < BaseOperation
-      CREATE_PARAMS_RULES = Pp.define.(
-        name: Pp.required.(Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)]))),
-        group_id: Pp.required.(Pp.integer.(Pp.gt.(0))),
-        description: Pp.optional.(DescriptionRules),
-        environmental_preferences: Pp.optional.(DescriptionRules),
+      CREATE_RULES = PaPa.define.(
+        name: PaPa.required.(NameRules),
+        group_id: PaPa.required.(IdRules),
+        description: PaPa.optional.(DescriptionRules),
+        environmental_preferences: PaPa.optional.(DescriptionRules),
       )
 
       def create(raw_params)
-        reduce(
-          raw_params,
-          authenticate(authorizer),
-          parameterize(CREATE_PARAMS_RULES),
-          verify(name_uniqueness),
-          finalize(->(params) { repo.for(Paleolog::Species).create(params) }),
-        )
+        authenticate
+          .and_then { parameterize(raw_params, CREATE_RULES) }
+          .and_then { verify(_1, name_uniqueness) }
+          .and_then { carefully(_1, create_species) }
       end
 
       private
+
+      def create_species
+        ->(params) { repo.for(Paleolog::Species).create(params) }
+      end
 
       def name_uniqueness
         lambda do |params|

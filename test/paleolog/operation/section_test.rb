@@ -132,15 +132,15 @@ describe Paleolog::Operation::Section do
           { name: 'Name', project_id: nil },
         )
         assert_predicate result, :failure?
-        assert_equal ParamParam::NON_INTEGER, result.error[:project_id]
+        assert_equal PaPa::NON_INTEGER, result.error[:project_id]
       end
 
       it 'complains when project_id is none' do
         result = operation.create(
-          { name: 'Name', project_id: ParamParam::Option.None },
+          { name: 'Name', project_id: Optiomist.none },
         )
         assert_predicate result, :failure?
-        assert_equal ParamParam::MISSING, result.error[:project_id]
+        assert_equal PaPa::MISSING, result.error[:project_id]
       end
 
       it 'complains when name is nil' do
@@ -174,7 +174,7 @@ describe Paleolog::Operation::Section do
           { name: 'a' * (max + 1), project_id: project.id },
         )
         assert_predicate result, :failure?
-        assert_equal ParamParam::TOO_LONG, result.error[:name]
+        assert_equal PaPa::TOO_LONG, result.error[:name]
       end
 
       it 'allows name lenght to be of max size' do
@@ -324,7 +324,7 @@ describe Paleolog::Operation::Section do
           { id: existing_section.id, name: 'a' * (max + 1) },
         )
         assert_predicate result, :failure?
-        assert_equal ParamParam::TOO_LONG, result.error[:name]
+        assert_equal PaPa::TOO_LONG, result.error[:name]
       end
 
       it 'allows name to be of max length' do

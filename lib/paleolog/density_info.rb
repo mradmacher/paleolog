@@ -2,12 +2,12 @@
 
 module Paleolog
   class DensityInfo
-    Params = ParamParam.define.(
-      sample_weight: ParamParam.required.(ParamParam.decimal.(ParamParam.gt.(0))),
-      counted_group: ParamParam.required.(ParamParam.any),
-      marker: ParamParam.required.(ParamParam.any),
-      marker_quantity: ParamParam.required.(ParamParam.integer.(ParamParam.gt.(0))),
-      occurrences: ParamParam.required.(ParamParam.any),
+    Params = PaPa.define.(
+      sample_weight: PaPa.required.(PaPa.decimal.(PaPa.gt.(0))),
+      counted_group: PaPa.required.(PaPa.any),
+      marker: PaPa.required.(PaPa.any),
+      marker_quantity: PaPa.required.(PaPa.integer.(PaPa.gt.(0))),
+      occurrences: PaPa.required.(PaPa.any),
     )
 
     attr_reader :counted_group,

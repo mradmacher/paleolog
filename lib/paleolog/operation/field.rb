@@ -3,20 +3,23 @@
 module Paleolog
   module Operation
     class Field < BaseOperation
-      FieldRules = Pp.define.(
-        name: Pp.required.(
-          Pp.string.(Pp.all_of.([Pp.stripped, Pp.not_blank, Pp.max_size.(255)])),
-        ),
-        group_id: Pp.required.(Pp.integer.(Pp.gt.(0))),
+      CREATE_RULES = PaPa.define.(
+        name: PaPa.required.(NameRules),
+        group_id: PaPa.required.(IdRules),
       )
 
       def create(name:, group_id:)
-        params, errors = FieldRules.(name: name, group_id: group_id)
-        return Failure.new(errors) unless errors.empty?
+        parameterize({ name: name, group_id: group_id }, CREATE_RULES)
+          .and_then { verify(_1, name_uniqueness) }
+          .and_then { carefully(_1, ->(params) { repo.for(Paleolog::Field).create(params) }) }
+      end
 
-        return Failure.new({ name: :taken }) if repo.for(Paleolog::Field).name_exists?(params[:name])
+      private
 
-        Success.new(repo.for(Paleolog::Field).create(params))
+      def name_uniqueness
+        lambda do |params|
+          { name: :taken } if repo.for(Paleolog::Field).name_exists?(params[:name])
+        end
       end
     end
   end

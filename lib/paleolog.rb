@@ -1,14 +1,13 @@
 # frozen_string_literal: true
 
 require 'param_param'
+require 'param_param/std'
 
-# just some shortcuts
-Failure = ParamParam::Failure
-Success = ParamParam::Success
-Option = ParamParam::Option
-Pp = ParamParam
+module PaPa
+  include ParamParam
+  include ParamParam::Std
+end
 
-require 'paleolog/entity'
 require 'paleolog/entities'
 require 'paleolog/authorizer'
 require 'paleolog/repo'

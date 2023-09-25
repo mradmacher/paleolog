@@ -37,9 +37,9 @@ describe Paleolog::Operation::Choice do
     it 'complains when field_id blank' do
       result = operation.create(name: 'Name', field_id: nil)
       assert_predicate result, :failure?
-      assert_equal ParamParam::NON_INTEGER, result.error[:field_id]
+      assert_equal PaPa::NON_INTEGER, result.error[:field_id]
 
-      result = operation.create(name: 'Name', field_id: ParamParam::Option.None)
+      result = operation.create(name: 'Name', field_id: Optiomist.none)
       assert_predicate result, :failure?
       assert_equal :missing, result.error[:field_id]
     end
