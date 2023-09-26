@@ -77,7 +77,7 @@ describe 'Sections' do
         assert_predicate result, :success?
         sample1 = result.value
 
-        result = Paleolog::Operation::Sample.new(repo, HappyAuthorizer.new).create(
+        result = Paleolog::Operation::Sample.new(repo, HappyAuthorizer.new(user)).create(
           section_id: section.id,
           name: 'sample 2 for section',
           description: 'sample 2 description',
