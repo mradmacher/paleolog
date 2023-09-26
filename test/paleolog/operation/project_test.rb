@@ -110,7 +110,7 @@ describe Paleolog::Operation::Project do
       it 'complains when user missing' do
         result = operation.create({ name: 'Some Name', user_id: nil })
         assert_predicate result, :failure?
-        assert_equal PaPa::NON_INTEGER, result.error[:user_id]
+        assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:user_id]
       end
 
       it 'does not complain when name not taken yet' do

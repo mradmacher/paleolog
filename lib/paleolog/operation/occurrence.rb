@@ -3,20 +3,20 @@
 module Paleolog
   module Operation
     class Occurrence < BaseOperation
-      CREATE_RULES = PaPa.define.(
-        counting_id: PaPa.required.(IdRules),
-        sample_id: PaPa.required.(IdRules),
-        species_id: PaPa.required.(IdRules),
+      CREATE_PARAMS = Params.define.(
+        counting_id: Params.required.(Params::IdRules),
+        sample_id: Params.required.(Params::IdRules),
+        species_id: Params.required.(Params::IdRules),
       )
 
-      UPDATE_RULES = PaPa.define.(
-        quantity: PaPa.optional.(PaPa.blank_to_nil_or.(PaPa.integer.(PaPa.gte.(0)))),
-        status: PaPa.optional.((PaPa.integer.(PaPa.included_in.(Paleolog::Occurrence::STATUSES)))),
-        uncertain: PaPa.optional.(PaPa.bool.(PaPa.any)),
+      UPDATE_PARAMS = Params.define.(
+        quantity: Params.optional.(Params.blank_to_nil_or.(Params.integer.(Params.gte.(0)))),
+        status: Params.optional.((Params.integer.(Params.included_in.(Paleolog::Occurrence::STATUSES)))),
+        uncertain: Params.optional.(Params.bool.(Params.any)),
       )
 
       def create(raw_params)
-        parameterize(raw_params, CREATE_RULES)
+        parameterize(raw_params, CREATE_PARAMS)
           .and_then { verify(_1, species_uniqueness) }
           .and_then { merge(_1, default_status) }
           .and_then { merge(_1, next_rank) }
@@ -24,7 +24,7 @@ module Paleolog
       end
 
       def update(occurrence_id, **raw_params)
-        parameterize(raw_params, UPDATE_RULES)
+        parameterize(raw_params, UPDATE_PARAMS)
           .and_then { carefully(_1, ->(params) { repo.for(Paleolog::Occurrence).update(occurrence_id, params) }) }
       end
 
@@ -43,7 +43,7 @@ module Paleolog
             params[:counting_id],
             params[:sample_id],
           )
-            { species_id: :taken }
+            { species_id: TAKEN }
           end
         end
       end

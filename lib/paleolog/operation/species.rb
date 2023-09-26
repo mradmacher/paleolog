@@ -3,16 +3,16 @@
 module Paleolog
   module Operation
     class Species < BaseOperation
-      CREATE_RULES = PaPa.define.(
-        name: PaPa.required.(NameRules),
-        group_id: PaPa.required.(IdRules),
-        description: PaPa.optional.(DescriptionRules),
-        environmental_preferences: PaPa.optional.(DescriptionRules),
+      CREATE_PARAMS = Params.define.(
+        name: Params.required.(Params::NameRules),
+        group_id: Params.required.(Params::IdRules),
+        description: Params.optional.(Params::DescriptionRules),
+        environmental_preferences: Params.optional.(Params::DescriptionRules),
       )
 
       def create(raw_params)
         authenticate
-          .and_then { parameterize(raw_params, CREATE_RULES) }
+          .and_then { parameterize(raw_params, CREATE_PARAMS) }
           .and_then { verify(_1, name_uniqueness) }
           .and_then { carefully(_1, create_species) }
       end
@@ -32,7 +32,7 @@ module Paleolog
             params[:group_id],
             exclude_id: params[:id],
           )
-            { name: :taken }
+            { name: TAKEN }
           end
         end
       end

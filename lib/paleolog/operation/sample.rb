@@ -3,23 +3,23 @@
 module Paleolog
   module Operation
     class Sample < BaseOperation
-      CREATE_RULES = PaPa.define.(
-        name: PaPa.required.(NameRules),
-        section_id: PaPa.required.(IdRules),
-        description: PaPa.optional.(DescriptionRules),
-        weight: PaPa.optional.(PaPa.blank_to_nil_or.(PaPa.decimal.(PaPa.gt.(0.0)))),
+      CREATE_PARAMS = Params.define.(
+        name: Params.required.(Params::NameRules),
+        section_id: Params.required.(Params::IdRules),
+        description: Params.optional.(Params::DescriptionRules),
+        weight: Params.optional.(Params.blank_to_nil_or.(Params.decimal.(Params.gt.(0.0)))),
       )
 
-      UPDATE_RULES = PaPa.define.(
-        id: PaPa.required.(IdRules),
-        name: PaPa.optional.(NameRules),
-        description: PaPa.optional.(DescriptionRules),
-        weight: PaPa.optional.(PaPa.blank_to_nil_or.(PaPa.decimal.(PaPa.gt.(0.0)))),
+      UPDATE_PARAMS = Params.define.(
+        id: Params.required.(Params::IdRules),
+        name: Params.optional.(Params::NameRules),
+        description: Params.optional.(Params::DescriptionRules),
+        weight: Params.optional.(Params.blank_to_nil_or.(Params.decimal.(Params.gt.(0.0)))),
       )
 
       def create(raw_params)
         authenticate
-          .and_then { parameterize(raw_params, CREATE_RULES) }
+          .and_then { parameterize(raw_params, CREATE_PARAMS) }
           .and_then { authorize(_1, can_manage(Paleolog::Section, :section_id)) }
           .and_then { verify(_1, name_uniqueness) }
           .and_then { merge(_1, next_rank) }
@@ -28,7 +28,7 @@ module Paleolog
 
       def update(raw_params)
         authenticate
-          .and_then { parameterize(raw_params, UPDATE_RULES) }
+          .and_then { parameterize(raw_params, UPDATE_PARAMS) }
           .and_then { authorize(_1, can_manage(Paleolog::Sample, :id)) }
           .and_then { verify(_1, name_uniqueness) }
           .and_then { carefully(_1, update_sample) }
