@@ -6,11 +6,11 @@ describe Paleolog::Operation::Section do
   let(:repo) { Paleolog::Repo }
   let(:authorizer) { Minitest::Mock.new }
   let(:operation) { Paleolog::Operation::Section.new(repo, authorizer) }
-  let(:happy_operation) { Paleolog::Operation::Section.new(repo, HappyAuthorizer.new) }
+  let(:happy_operation) { Paleolog::Operation::Section.new(repo, HappyAuthorizer.new(user)) }
   let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
   let(:project) do
-    result = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new).create(
-      { name: 'Project for Section', user_id: user.id },
+    result = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user)).create(
+      name: 'Project for Section',
     )
     assert_predicate result, :success?
     result.value
@@ -132,7 +132,7 @@ describe Paleolog::Operation::Section do
           { name: 'Name', project_id: nil },
         )
         assert_predicate result, :failure?
-        assert_equal PaPa::NON_INTEGER, result.error[:project_id]
+        assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:project_id]
       end
 
       it 'complains when project_id is none' do
@@ -140,7 +140,7 @@ describe Paleolog::Operation::Section do
           { name: 'Name', project_id: Optiomist.none },
         )
         assert_predicate result, :failure?
-        assert_equal PaPa::MISSING, result.error[:project_id]
+        assert_equal Paleolog::Operation::Params::MISSING, result.error[:project_id]
       end
 
       it 'complains when name is nil' do
@@ -174,7 +174,7 @@ describe Paleolog::Operation::Section do
           { name: 'a' * (max + 1), project_id: project.id },
         )
         assert_predicate result, :failure?
-        assert_equal PaPa::TOO_LONG, result.error[:name]
+        assert_equal Paleolog::Operation::Params::TOO_LONG, result.error[:name]
       end
 
       it 'allows name lenght to be of max size' do
@@ -296,8 +296,8 @@ describe Paleolog::Operation::Section do
       end
 
       it 'does not complain when name exists but in other project' do
-        other_project = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new).create(
-          name: 'Other Project for Section', user_id: user.id,
+        other_project = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user)).create(
+          name: 'Other Project for Section',
         ).value
         result = happy_operation.create(
           { name: 'Another Name', project_id: other_project.id },
@@ -324,7 +324,7 @@ describe Paleolog::Operation::Section do
           { id: existing_section.id, name: 'a' * (max + 1) },
         )
         assert_predicate result, :failure?
-        assert_equal PaPa::TOO_LONG, result.error[:name]
+        assert_equal Paleolog::Operation::Params::TOO_LONG, result.error[:name]
       end
 
       it 'allows name to be of max length' do

@@ -3,30 +3,30 @@
 module Paleolog
   module Operation
     class Section < BaseOperation
-      FIND_RULES = PaPa.define.(
-        id: PaPa.required.(IdRules),
+      FIND_PARAMS = Params.define.(
+        id: Params.required.(Params::IdRules),
       )
 
-      CREATE_RULES = PaPa.define.(
-        name: PaPa.required.(NameRules),
-        project_id: PaPa.required.(IdRules),
+      CREATE_PARAMS = Params.define.(
+        name: Params.required.(Params::NameRules),
+        project_id: Params.required.(Params::IdRules),
       )
 
-      UPDATE_RULES = PaPa.define.(
-        id: PaPa.required.(IdRules),
-        name: PaPa.required.(NameRules),
+      UPDATE_PARAMS = Params.define.(
+        id: Params.required.(Params::IdRules),
+        name: Params.required.(Params::NameRules),
       )
 
       def find(raw_params)
         authenticate
-          .and_then { parameterize(raw_params, FIND_RULES) }
+          .and_then { parameterize(raw_params, FIND_PARAMS) }
           .and_then { authorize(_1, can_view(Paleolog::Section, :id)) }
           .and_then { carefully(_1, find_section_with_samples) }
       end
 
       def create(raw_params)
         authenticate
-          .and_then { parameterize(raw_params, CREATE_RULES) }
+          .and_then { parameterize(raw_params, CREATE_PARAMS) }
           .and_then { authorize(_1, can_manage(Paleolog::Project, :project_id)) }
           .and_then { verify(_1, name_uniqueness) }
           .and_then { carefully(_1, create_section) }
@@ -34,7 +34,7 @@ module Paleolog
 
       def update(raw_params)
         authenticate
-          .and_then { parameterize(raw_params, UPDATE_RULES) }
+          .and_then { parameterize(raw_params, UPDATE_PARAMS) }
           .and_then { authorize(_1, can_manage(Paleolog::Section, :id)) }
           .and_then { verify(_1, name_uniqueness) }
           .and_then { carefully(_1, update_section) }
@@ -68,7 +68,7 @@ module Paleolog
             project_id: params[:project_id],
             exclude_id: params[:id],
           )
-            { name: :taken }
+            { name: TAKEN }
           end
         end
       end

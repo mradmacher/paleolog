@@ -3,12 +3,12 @@
 module Paleolog
   module Operation
     class Group < BaseOperation
-      CREATE_RULES = PaPa.define.(
-        name: PaPa.required.(NameRules),
+      CREATE_PARAMS = Params.define.(
+        name: Params.required.(Params::NameRules),
       )
 
       def create(name:)
-        parameterize({ name: name }, CREATE_RULES)
+        parameterize({ name: name }, CREATE_PARAMS)
           .and_then { verify(_1, name_uniqueness) }
           .and_then { carefully(_1, ->(params) { repo.for(Paleolog::Group).create(params) }) }
       end
@@ -17,7 +17,7 @@ module Paleolog
 
       def name_uniqueness
         lambda do |params|
-          { name: :taken } if repo.for(Paleolog::Group).name_exists?(params[:name])
+          { name: TAKEN } if repo.for(Paleolog::Group).name_exists?(params[:name])
         end
       end
     end

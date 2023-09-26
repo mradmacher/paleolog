@@ -6,8 +6,9 @@ describe Paleolog::Operation::Species do
   let(:repo) { Paleolog::Repo }
   let(:authorizer) { Minitest::Mock.new }
   let(:operation) { Paleolog::Operation::Species.new(repo, authorizer) }
-  let(:happy_operation) { Paleolog::Operation::Species.new(repo, HappyAuthorizer.new) }
-  let(:group) { Paleolog::Operation::Group.new(repo, HappyAuthorizer.new).create(name: 'A Group').value }
+  let(:happy_operation) { Paleolog::Operation::Species.new(repo, HappyAuthorizer.new(user)) }
+  let(:group) { Paleolog::Operation::Group.new(repo, HappyAuthorizer.new(user)).create(name: 'A Group').value }
+  let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
 
   after do
     repo.for(Paleolog::Species).delete_all
@@ -38,13 +39,13 @@ describe Paleolog::Operation::Species do
       it 'complains when group_id blank' do
         result = operation.create(name: 'Name', group_id: nil)
         assert_predicate result, :failure?
-        assert_equal PaPa::NON_INTEGER, result.error[:group_id]
+        assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:group_id]
       end
 
       it 'complains when group_id none' do
         result = operation.create(name: 'Name', group_id: Optiomist.none)
         assert_predicate result, :failure?
-        assert_equal PaPa::MISSING, result.error[:group_id]
+        assert_equal Paleolog::Operation::Params::MISSING, result.error[:group_id]
       end
 
       it 'complains when name is nil' do
@@ -74,7 +75,7 @@ describe Paleolog::Operation::Species do
           { name: 'a' * (max + 1), group_id: group.id },
         )
         assert_predicate result, :failure?
-        assert_equal PaPa::TOO_LONG, result.error[:name]
+        assert_equal Paleolog::Operation::Params::TOO_LONG, result.error[:name]
       end
 
       it 'does not complain when name is max length' do
@@ -102,7 +103,7 @@ describe Paleolog::Operation::Species do
           { group_id: group.id, name: 'Name', description: description },
         )
         assert_predicate result, :failure?
-        assert_equal PaPa::TOO_LONG, result.error[:description]
+        assert_equal Paleolog::Operation::Params::TOO_LONG, result.error[:description]
       end
 
       it 'allows description length to be equal to 4096 characters' do
@@ -119,7 +120,7 @@ describe Paleolog::Operation::Species do
           { group_id: group.id, name: 'Name', environmental_preferences: environmental_preferences },
         )
         assert_predicate result, :failure?
-        assert_equal PaPa::TOO_LONG, result.error[:environmental_preferences]
+        assert_equal Paleolog::Operation::Params::TOO_LONG, result.error[:environmental_preferences]
       end
 
       it 'allows environmental preferences length to be equal to 4096 characters' do

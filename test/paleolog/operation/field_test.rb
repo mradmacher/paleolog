@@ -9,10 +9,11 @@ describe Paleolog::Operation::Field do
     Paleolog::Operation::Field.new(repo, authorizer)
   end
   let(:group) do
-    Paleolog::Operation::Group.new(repo, HappyAuthorizer.new).create(
+    Paleolog::Operation::Group.new(repo, HappyAuthorizer.new(user)).create(
       name: 'Group for Field',
     ).value
   end
+  let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
 
   after do
     repo.for(Paleolog::Group).delete_all
@@ -31,11 +32,11 @@ describe Paleolog::Operation::Field do
     it 'complains when group_id blank' do
       result = operation.create(name: 'Name', group_id: nil)
       assert_predicate result, :failure?
-      assert_equal PaPa::NON_INTEGER, result.error[:group_id]
+      assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:group_id]
 
       result = operation.create(name: 'Name', group_id: Optiomist.none)
       assert_predicate result, :failure?
-      assert_equal PaPa::MISSING, result.error[:group_id]
+      assert_equal Paleolog::Operation::Params::MISSING, result.error[:group_id]
     end
 
     it 'complains when name is blank' do
@@ -61,7 +62,7 @@ describe Paleolog::Operation::Field do
       max = 255
       result = operation.create(name: 'a' * (max + 1), group_id: group.id)
       assert_predicate result, :failure?
-      assert_equal PaPa::TOO_LONG, result.error[:name]
+      assert_equal Paleolog::Operation::Params::TOO_LONG, result.error[:name]
 
       result = operation.create(name: 'a' * max, group_id: group.id)
       assert_predicate result, :success?

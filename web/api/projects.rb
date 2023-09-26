@@ -14,18 +14,11 @@ module Web
       end
 
       get '/api/projects' do
-        model_or_errors(
-          @operation.find_all_for_user(authorizer.user_id),
-          serializer,
-          :projects,
-        )
+        model_or_errors(@operation.find_all, serializer, :projects)
       end
 
       post '/api/projects' do
-        model_or_errors(
-          @operation.create(params.merge(user_id: authorizer.user_id)),
-          serializer,
-        )
+        model_or_errors(@operation.create(params), serializer)
       end
 
       patch '/api/projects/:id' do

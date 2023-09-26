@@ -1,14 +1,26 @@
 # frozen_string_literal: true
 
+require 'param_param'
+require 'param_param/std'
+
 module Paleolog
   class DensityInfo
-    Params = PaPa.define.(
-      sample_weight: PaPa.required.(PaPa.decimal.(PaPa.gt.(0))),
-      counted_group: PaPa.required.(PaPa.any),
-      marker: PaPa.required.(PaPa.any),
-      marker_quantity: PaPa.required.(PaPa.integer.(PaPa.gt.(0))),
-      occurrences: PaPa.required.(PaPa.any),
-    )
+    class DensityParams
+      include ParamParam
+      include ParamParam::Std
+
+      RULES = define.(
+        sample_weight: required.(decimal.(gt.(0))),
+        counted_group: required.(any),
+        marker: required.(any),
+        marker_quantity: required.(integer.(gt.(0))),
+        occurrences: required.(any),
+      )
+
+      def self.verify(params)
+        RULES.(params)
+      end
+    end
 
     attr_reader :counted_group,
                 :marker,
@@ -77,7 +89,7 @@ module Paleolog
     private
 
     def can_compute_density?(params)
-      params, errors = Params.(params)
+      params, errors = DensityParams.verify(params)
 
       return false unless errors.empty?
 

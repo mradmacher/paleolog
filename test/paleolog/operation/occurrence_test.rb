@@ -56,9 +56,9 @@ describe Paleolog::Operation::Occurrence do
     it 'requires counting, sample and species id' do
       result = operation.create(counting_id: nil, species_id: nil, sample_id: nil)
       assert_predicate result, :failure?
-      assert_equal PaPa::NON_INTEGER, result.error[:counting_id]
-      assert_equal PaPa::NON_INTEGER, result.error[:sample_id]
-      assert_equal PaPa::NON_INTEGER, result.error[:species_id]
+      assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:counting_id]
+      assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:sample_id]
+      assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:species_id]
     end
 
     # it 'ensures counting and sample are from same project' do
@@ -95,7 +95,7 @@ describe Paleolog::Operation::Occurrence do
       [-100, -1, 4, 5, 100].each do |value|
         result = operation.update(occurrence.id, status: value)
         assert_predicate result, :failure?
-        assert_equal PaPa::NOT_INCLUDED, result.error[:status]
+        assert_equal Paleolog::Operation::Params::NOT_INCLUDED, result.error[:status]
       end
     end
 
@@ -138,7 +138,7 @@ describe Paleolog::Operation::Occurrence do
     it 'rejects negative quantity' do
       result = operation.update(occurrence.id, quantity: -1)
       assert_predicate result, :failure?
-      assert_equal PaPa::NOT_GTE, result.error[:quantity]
+      assert_equal Paleolog::Operation::Params::NOT_GTE, result.error[:quantity]
     end
 
     it 'accepts integer quantity passed as string' do
@@ -150,13 +150,13 @@ describe Paleolog::Operation::Occurrence do
     it 'rejects string quantity' do
       result = operation.update(occurrence.id, quantity: 'five')
       assert_predicate result, :failure?
-      assert_equal PaPa::NON_INTEGER, result.error[:quantity]
+      assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:quantity]
     end
 
     it 'rejects double quantity' do
       result = operation.update(occurrence.id, quantity: '1.1')
       assert_predicate result, :failure?
-      assert_equal PaPa::NON_INTEGER, result.error[:quantity]
+      assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:quantity]
     end
   end
 end

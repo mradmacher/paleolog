@@ -9,15 +9,16 @@ describe Paleolog::Operation::Choice do
     Paleolog::Operation::Choice.new(repo, authorizer)
   end
   let(:group) do
-    Paleolog::Operation::Group.new(repo, HappyAuthorizer.new).create(
+    Paleolog::Operation::Group.new(repo, HappyAuthorizer.new(user)).create(
       name: 'Group for Field',
     ).value
   end
   let(:field) do
-    Paleolog::Operation::Field.new(repo, HappyAuthorizer.new).create(
+    Paleolog::Operation::Field.new(repo, HappyAuthorizer.new(user)).create(
       name: 'Field for Choice', group_id: group.id,
     ).value
   end
+  let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
 
   after do
     repo.for(Paleolog::Group).delete_all
@@ -37,7 +38,7 @@ describe Paleolog::Operation::Choice do
     it 'complains when field_id blank' do
       result = operation.create(name: 'Name', field_id: nil)
       assert_predicate result, :failure?
-      assert_equal PaPa::NON_INTEGER, result.error[:field_id]
+      assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:field_id]
 
       result = operation.create(name: 'Name', field_id: Optiomist.none)
       assert_predicate result, :failure?

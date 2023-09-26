@@ -6,7 +6,7 @@ describe Paleolog::Operation::Project do
   let(:repo) { Paleolog::Repo }
   let(:authorizer) { Minitest::Mock.new }
   let(:operation) { Paleolog::Operation::Project.new(repo, authorizer) }
-  let(:happy_operation) { Paleolog::Operation::Project.new(repo, HappyAuthorizer.new) }
+  let(:happy_operation) { Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user)) }
   let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
 
   after do
@@ -15,11 +15,11 @@ describe Paleolog::Operation::Project do
     repo.for(Paleolog::User).delete_all
   end
 
-  describe '#find_all_for_user' do
+  describe '#find_all' do
     it 'returns unauthenticated error when not authenticated' do
       authorizer.expect :authenticated?, false
 
-      result = operation.find_all_for_user(user.id)
+      result = operation.find_all
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
 
@@ -29,10 +29,11 @@ describe Paleolog::Operation::Project do
     describe 'for authorized user' do
       before do
         authorizer.expect :authenticated?, true
+        authorizer.expect :user_id, user.id
       end
 
       it 'returns empty collection when there are no projects' do
-        result = operation.find_all_for_user(user.id)
+        result = operation.find_all
         assert_predicate result, :success?
         assert_empty result.value
       end
@@ -45,7 +46,7 @@ describe Paleolog::Operation::Project do
         project = repo.save(Paleolog::Project.new(name: 'some project'))
         repo.save(Paleolog::Researcher.new(user: user, project: project))
 
-        result = operation.find_all_for_user(user.id)
+        result = operation.find_all
         assert_equal 1, result.value.size
         assert_equal project.id, result.value.first.id
       end
@@ -53,7 +54,7 @@ describe Paleolog::Operation::Project do
       it 'returns all necessary attributes' do
         project = repo.save(Paleolog::Project.new(name: 'some project'))
         repo.save(Paleolog::Researcher.new(user: user, project: project))
-        result = operation.find_all_for_user(user.id)
+        result = operation.find_all
 
         projects = result.value
         assert_equal 1, projects.size
@@ -68,7 +69,7 @@ describe Paleolog::Operation::Project do
     it 'returns unauthenticated error when not authenticated' do
       authorizer.expect :authenticated?, false
 
-      result = operation.create({ name: 'Just a Name', user_id: user.id })
+      result = operation.create({ name: 'Just a Name' })
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
 
@@ -78,10 +79,11 @@ describe Paleolog::Operation::Project do
     describe 'for authorized user' do
       before do
         authorizer.expect :authenticated?, true
+        authorizer.expect :user_id, user.id
       end
 
       it 'adds new project' do
-        result = operation.create({ name: 'Some Name', user_id: user.id })
+        result = operation.create({ name: 'Some Name' })
         assert_predicate result, :success?
         project = result.value
         refute_nil project.id
@@ -89,7 +91,7 @@ describe Paleolog::Operation::Project do
       end
 
       it 'adds user as project manager' do
-        result = operation.create({ name: 'Some Name', user_id: user.id })
+        result = operation.create({ name: 'Some Name' })
         assert_predicate result, :success?
 
         project = result.value
@@ -102,59 +104,61 @@ describe Paleolog::Operation::Project do
       end
 
       it 'adds created_at timestamp' do
-        result = operation.create({ name: 'Some Name', user_id: user.id })
+        result = operation.create({ name: 'Some Name' })
         assert_predicate result, :success?
         refute_nil result.value.created_at
       end
 
       it 'complains when user missing' do
-        result = operation.create({ name: 'Some Name', user_id: nil })
+        authorizer.user_id # let's clear previously defined expectation
+        authorizer.expect :user_id, nil
+        result = operation.create({ name: 'Some Name' })
         assert_predicate result, :failure?
-        assert_equal PaPa::NON_INTEGER, result.error[:user_id]
+        assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:user_id]
       end
 
       it 'does not complain when name not taken yet' do
-        result = happy_operation.create({ name: 'Some Name', user_id: user.id })
+        result = happy_operation.create({ name: 'Some Name' })
         assert_predicate result, :success?
         assert_equal 'Some Name', result.value.name
 
-        result = operation.create({ name: 'Other Name', user_id: user.id })
+        result = operation.create({ name: 'Other Name' })
         assert_predicate result, :success?
         assert_equal 'Other Name', result.value.name
       end
 
       it 'complains when name is nil' do
-        result = operation.create({ name: nil, user_id: user.id })
+        result = operation.create({ name: nil })
         assert_predicate result, :failure?
         assert_equal :blank, result.error[:name]
       end
 
       it 'complains when name is blank' do
-        result = operation.create({ name: '  ', user_id: user.id })
+        result = operation.create({ name: '  ' })
         assert_predicate result, :failure?
         assert_equal :blank, result.error[:name]
       end
 
       it 'complains when name already exists' do
-        result = happy_operation.create({ name: 'Some Name', user_id: user.id })
+        result = happy_operation.create({ name: 'Some Name' })
         assert_predicate result, :success?
         refute_nil result.value
 
-        result = operation.create({ name: 'Some Name', user_id: user.id })
+        result = operation.create({ name: 'Some Name' })
         assert_predicate result, :failure?
         assert_equal :taken, result.error[:name]
       end
 
       it 'complains when name is too long' do
         max = 255
-        result = operation.create({ name: 'a' * (max + 1), user_id: user.id })
+        result = operation.create({ name: 'a' * (max + 1) })
         assert_predicate result, :failure?
         assert_equal :too_long, result.error[:name]
       end
 
       it 'accepts name of max length' do
         name = 'a' * 255
-        result = operation.create({ name: name, user_id: user.id })
+        result = operation.create({ name: name })
         assert_predicate result, :success?
         assert_equal name, result.value.name
       end

@@ -3,31 +3,31 @@
 module Paleolog
   module Operation
     class Project < BaseOperation
-      CREATE_RULES = PaPa.define.(
-        name: PaPa.required.(NameRules),
-        user_id: PaPa.required.(IdRules),
+      CREATE_PARAMS = Params.define.(
+        name: Params.required.(Params::NameRules),
+        user_id: Params.required.(Params::IdRules),
       )
 
-      UPDATE_RULES = PaPa.define.(
-        id: PaPa.required.(IdRules),
-        name: PaPa.required.(NameRules),
+      UPDATE_PARAMS = Params.define.(
+        id: Params.required.(Params::IdRules),
+        name: Params.required.(Params::NameRules),
       )
 
-      def find_all_for_user(user_id)
+      def find_all
         authenticate
-          .and_then { carefully(_1, find_projects(user_id)) }
+          .and_then { carefully(_1, find_projects(authorizer.user_id)) }
       end
 
       def create(raw_params)
         authenticate
-          .and_then { parameterize(raw_params, CREATE_RULES) }
+          .and_then { parameterize(raw_params.merge(user_id: authorizer.user_id), CREATE_PARAMS) }
           .and_then { verify(_1, name_uniqueness) }
           .and_then { carefully(_1, create_project) }
       end
 
       def rename(raw_params)
         authenticate
-          .and_then { parameterize(raw_params, UPDATE_RULES) }
+          .and_then { parameterize(raw_params, UPDATE_PARAMS) }
           .and_then { authorize(_1, can_manage(Paleolog::Project, :id)) }
           .and_then { verify(_1, name_uniqueness) }
           .and_then { carefully(_1, update_project) }
@@ -70,7 +70,7 @@ module Paleolog
             params[:name],
             exclude_id: params[:id],
           )
-            { name: :taken }
+            { name: TAKEN }
           end
         end
       end
