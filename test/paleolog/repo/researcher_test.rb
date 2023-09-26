@@ -41,7 +41,7 @@ describe Paleolog::Repo::Researcher do
   describe '#section_role' do
     let(:section) do
       result = Paleolog::Operation::Section.new(
-        Paleolog::Repo, HappyAuthorizer.new,
+        Paleolog::Repo, HappyAuthorizer.new(user),
       ).create(
         { name: 'Some Name', project_id: project.id },
       )
@@ -70,7 +70,7 @@ describe Paleolog::Repo::Researcher do
   describe '#sample_role' do
     let(:section) do
       result = Paleolog::Operation::Section.new(
-        Paleolog::Repo, HappyAuthorizer.new,
+        Paleolog::Repo, HappyAuthorizer.new(user),
       ).create(
         { name: 'Some Name', project_id: project.id },
       )
@@ -80,7 +80,7 @@ describe Paleolog::Repo::Researcher do
 
     let(:sample) do
       result = Paleolog::Operation::Sample.new(
-        Paleolog::Repo, HappyAuthorizer.new,
+        Paleolog::Repo, HappyAuthorizer.new(user),
       ).create(
         { name: 'Some Name', section_id: section.id },
       )
@@ -109,7 +109,7 @@ describe Paleolog::Repo::Researcher do
   describe '#counting_role' do
     let(:counting) do
       result = Paleolog::Operation::Counting.new(
-        Paleolog::Repo, HappyAuthorizer.new,
+        Paleolog::Repo, HappyAuthorizer.new(user),
       ).create(
         { name: 'Some Name', project_id: project.id },
       )

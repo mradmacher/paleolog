@@ -6,8 +6,9 @@ describe Paleolog::Operation::Species do
   let(:repo) { Paleolog::Repo }
   let(:authorizer) { Minitest::Mock.new }
   let(:operation) { Paleolog::Operation::Species.new(repo, authorizer) }
-  let(:happy_operation) { Paleolog::Operation::Species.new(repo, HappyAuthorizer.new) }
-  let(:group) { Paleolog::Operation::Group.new(repo, HappyAuthorizer.new).create(name: 'A Group').value }
+  let(:happy_operation) { Paleolog::Operation::Species.new(repo, HappyAuthorizer.new(user)) }
+  let(:group) { Paleolog::Operation::Group.new(repo, HappyAuthorizer.new(user)).create(name: 'A Group').value }
+  let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
 
   after do
     repo.for(Paleolog::Species).delete_all

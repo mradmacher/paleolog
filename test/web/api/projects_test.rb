@@ -7,7 +7,7 @@ describe 'Projects' do
 
   let(:repo) { Paleolog::Repo }
   let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
-  let(:happy_operation) { Paleolog::Operation::Project.new(repo, HappyAuthorizer.new) }
+  let(:happy_operation) { Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user)) }
   let(:project) do
     result = happy_operation.create(name: 'some test project', user_id: user.id)
     assert_predicate result, :success?

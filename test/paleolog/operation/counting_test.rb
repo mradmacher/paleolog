@@ -9,10 +9,10 @@ describe Paleolog::Operation::Counting do
     Paleolog::Operation::Counting.new(repo, authorizer)
   end
   let(:happy_operation) do
-    Paleolog::Operation::Counting.new(repo, HappyAuthorizer.new)
+    Paleolog::Operation::Counting.new(repo, HappyAuthorizer.new(user))
   end
   let(:happy_project_operation) do
-    Paleolog::Operation::Project.new(repo, HappyAuthorizer.new)
+    Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user))
   end
   let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
   let(:project) do

@@ -6,11 +6,11 @@ describe Paleolog::Operation::Section do
   let(:repo) { Paleolog::Repo }
   let(:authorizer) { Minitest::Mock.new }
   let(:operation) { Paleolog::Operation::Section.new(repo, authorizer) }
-  let(:happy_operation) { Paleolog::Operation::Section.new(repo, HappyAuthorizer.new) }
+  let(:happy_operation) { Paleolog::Operation::Section.new(repo, HappyAuthorizer.new(user)) }
   let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
   let(:project) do
-    result = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new).create(
-      { name: 'Project for Section', user_id: user.id },
+    result = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user)).create(
+      name: 'Project for Section',
     )
     assert_predicate result, :success?
     result.value
@@ -296,8 +296,8 @@ describe Paleolog::Operation::Section do
       end
 
       it 'does not complain when name exists but in other project' do
-        other_project = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new).create(
-          name: 'Other Project for Section', user_id: user.id,
+        other_project = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user)).create(
+          name: 'Other Project for Section',
         ).value
         result = happy_operation.create(
           { name: 'Another Name', project_id: other_project.id },

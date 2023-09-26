@@ -7,7 +7,7 @@ describe 'Sections' do
   before do
     use_javascript_driver
     user = repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
-    project = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new).create(
+    project = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user)).create(
       name: 'test', user_id: user.id,
     ).value
 

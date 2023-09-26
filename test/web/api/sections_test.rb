@@ -9,8 +9,8 @@ describe 'Sections' do
   let(:repo) { Paleolog::Repo }
   let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
   let(:project) do
-    result = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new).create(
-      name: 'project for section', user_id: user.id,
+    result = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user)).create(
+      name: 'project for section',
     )
     assert_predicate result, :success?
     result.value
@@ -29,7 +29,7 @@ describe 'Sections' do
 
   describe 'GET /api/sections/:id' do
     let(:section) do
-      Paleolog::Operation::Section.new(repo, HappyAuthorizer.new).create(
+      Paleolog::Operation::Section.new(repo, HappyAuthorizer.new(user)).create(
         name: 'some project', project_id: project.id,
       ).value
     end
@@ -68,7 +68,7 @@ describe 'Sections' do
       end
 
       it 'returns section samples' do
-        result = Paleolog::Operation::Sample.new(repo, HappyAuthorizer.new).create(
+        result = Paleolog::Operation::Sample.new(repo, HappyAuthorizer.new(user)).create(
           section_id: section.id,
           name: 'sample 1 for section',
           description: 'sample 1 description',
@@ -165,7 +165,7 @@ describe 'Sections' do
 
     describe 'with user' do
       let(:section) do
-        Paleolog::Operation::Section.new(repo, HappyAuthorizer.new).create(
+        Paleolog::Operation::Section.new(repo, HappyAuthorizer.new(user)).create(
           name: 'some project', project_id: project.id,
         ).value
       end

@@ -13,14 +13,14 @@ module Paleolog
         name: Params.required.(Params::NameRules),
       )
 
-      def find_all_for_user(user_id)
+      def find_all
         authenticate
-          .and_then { carefully(_1, find_projects(user_id)) }
+          .and_then { carefully(_1, find_projects(authorizer.user_id)) }
       end
 
       def create(raw_params)
         authenticate
-          .and_then { parameterize(raw_params, CREATE_PARAMS) }
+          .and_then { parameterize(raw_params.merge(user_id: authorizer.user_id), CREATE_PARAMS) }
           .and_then { verify(_1, name_uniqueness) }
           .and_then { carefully(_1, create_project) }
       end

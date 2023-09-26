@@ -6,15 +6,15 @@ describe Paleolog::Operation::Sample do
   let(:repo) { Paleolog::Repo }
   let(:authorizer) { Minitest::Mock.new }
   let(:operation) { Paleolog::Operation::Sample.new(repo, authorizer) }
-  let(:happy_operation) { Paleolog::Operation::Sample.new(repo, HappyAuthorizer.new) }
+  let(:happy_operation) { Paleolog::Operation::Sample.new(repo, HappyAuthorizer.new(user)) }
   let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
   let(:project) do
-    Paleolog::Operation::Project.new(repo, HappyAuthorizer.new).create(
-      name: 'Project for Section', user_id: user.id,
+    Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user)).create(
+      name: 'Project for Section',
     ).value
   end
   let(:section) do
-    Paleolog::Operation::Section.new(repo, HappyAuthorizer.new).create(
+    Paleolog::Operation::Section.new(repo, HappyAuthorizer.new(user)).create(
       name: 'Section for Sample', project_id: project.id,
     ).value
   end
@@ -67,7 +67,7 @@ describe Paleolog::Operation::Sample do
 
       it 'increases rank in the scope of a section' do
         other_section =
-          Paleolog::Operation::Section.new(repo, HappyAuthorizer.new).create(
+          Paleolog::Operation::Section.new(repo, HappyAuthorizer.new(user)).create(
             name: 'Other Section for Sample', project_id: project.id,
           ).value
 
@@ -81,31 +81,31 @@ describe Paleolog::Operation::Sample do
       it 'complains when section_id nil' do
         result = operation.create(name: 'Name', section_id: nil)
         assert_predicate result, :failure?
-        assert_equal Paleolog::Operation::NON_INTEGER, result.error[:section_id]
+        assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:section_id]
       end
 
       it 'complains when section_id missing' do
         result = operation.create(name: 'Name')
         assert_predicate result, :failure?
-        assert_equal Paleolog::Operation::MISSING, result.error[:section_id]
+        assert_equal Paleolog::Operation::Params::MISSING, result.error[:section_id]
       end
 
       it 'complains when name is nil' do
         result = operation.create(name: nil, section_id: section.id)
         assert_predicate result, :failure?
-        assert_equal Paleolog::Operation::BLANK, result.error[:name]
+        assert_equal Paleolog::Operation::Params::BLANK, result.error[:name]
       end
 
       it 'complains when name is blank' do
         result = operation.create(name: '  ', section_id: section.id)
         assert_predicate result, :failure?
-        assert_equal Paleolog::Operation::BLANK, result.error[:name]
+        assert_equal Paleolog::Operation::Params::BLANK, result.error[:name]
       end
 
       it 'complains when name is missing' do
         result = operation.create(section_id: section.id)
         assert_predicate result, :failure?
-        assert_equal Paleolog::Operation::MISSING, result.error[:name]
+        assert_equal Paleolog::Operation::Params::MISSING, result.error[:name]
       end
 
       it 'complains when name already exists' do
@@ -130,7 +130,7 @@ describe Paleolog::Operation::Sample do
         max = 255
         result = operation.create(name: 'a' * (max + 1), section_id: section.id)
         assert_predicate result, :failure?
-        assert_equal Paleolog::Operation::TOO_LONG, result.error[:name]
+        assert_equal Paleolog::Operation::Params::TOO_LONG, result.error[:name]
       end
 
       it 'accepts max length name' do
@@ -144,7 +144,7 @@ describe Paleolog::Operation::Sample do
         ['a', '#', '34a', 'a34'].each do |value|
           result = happy_operation.create(section_id: section.id, weight: value)
           assert_predicate result, :failure?
-          assert_equal Paleolog::Operation::NON_DECIMAL, result.error[:weight]
+          assert_equal Paleolog::Operation::Params::NON_DECIMAL, result.error[:weight]
         end
       end
 
@@ -174,19 +174,19 @@ describe Paleolog::Operation::Sample do
       it 'requires weight greater than 0' do
         result = operation.create(name: 'Name', section_id: section.id, weight: 0)
         assert_predicate result, :failure?
-        assert_equal Paleolog::Operation::NOT_GT, result.error[:weight]
+        assert_equal Paleolog::Operation::Params::NOT_GT, result.error[:weight]
       end
 
       it 'requires weight greater than 0.0' do
         result = operation.create(name: 'Name', section_id: section.id, weight: 0.0)
         assert_predicate result, :failure?
-        assert_equal Paleolog::Operation::NOT_GT, result.error[:weight]
+        assert_equal Paleolog::Operation::Params::NOT_GT, result.error[:weight]
       end
 
       it 'requires weight greater than something just below 0' do
         result = operation.create(name: 'Name', section_id: section.id, weight: -0.0001)
         assert_predicate result, :failure?
-        assert_equal Paleolog::Operation::NOT_GT, result.error[:weight]
+        assert_equal Paleolog::Operation::Params::NOT_GT, result.error[:weight]
       end
 
       it 'requires weight just something above 0' do
@@ -270,13 +270,13 @@ describe Paleolog::Operation::Sample do
       it 'complains when name is nil' do
         result = operation.update(id: existing_sample.id, name: nil)
         assert_predicate result, :failure?
-        assert_equal Paleolog::Operation::BLANK, result.error[:name]
+        assert_equal Paleolog::Operation::Params::BLANK, result.error[:name]
       end
 
       it 'complains when name is blank' do
         result = operation.update(id: existing_sample.id, name: '   ')
         assert_predicate result, :failure?
-        assert_equal Paleolog::Operation::BLANK, result.error[:name]
+        assert_equal Paleolog::Operation::Params::BLANK, result.error[:name]
       end
 
       it 'complains when name already exists' do
@@ -311,7 +311,7 @@ describe Paleolog::Operation::Sample do
           { id: existing_sample.id, name: 'a' * (max + 1) },
         )
         assert_predicate result, :failure?
-        assert_equal Paleolog::Operation::TOO_LONG, result.error[:name]
+        assert_equal Paleolog::Operation::Params::TOO_LONG, result.error[:name]
       end
 
       it 'accepts max length name' do
@@ -327,7 +327,7 @@ describe Paleolog::Operation::Sample do
             { id: existing_sample.id, weight: value },
           )
           assert_predicate result, :failure?
-          assert_equal Paleolog::Operation::NON_DECIMAL, result.error[:weight]
+          assert_equal Paleolog::Operation::Params::NON_DECIMAL, result.error[:weight]
         end
       end
 
@@ -344,7 +344,7 @@ describe Paleolog::Operation::Sample do
           { id: existing_sample.id, weight: 0 },
         )
         assert_predicate result, :failure?
-        assert_equal Paleolog::Operation::NOT_GT, result.error[:weight]
+        assert_equal Paleolog::Operation::Params::NOT_GT, result.error[:weight]
       end
     end
   end

@@ -8,12 +8,6 @@ module Paleolog
     UNAUTHENTICATED = :unauthenticated
     TAKEN = :taken
 
-    TOO_LONG = Params::TOO_LONG
-    BLANK = Params::BLANK
-    MISSING = Params::MISSING
-    NON_DECIMAL = Params::NON_DECIMAL
-    NON_INTEGER = Params::NON_INTEGER
-    NOT_GT = Params::NOT_GT
     UNAUTHENTICATED_RESULT = { general: UNAUTHENTICATED }.freeze
     UNAUTHORIZED_RESULT = { general: UNAUTHORIZED }.freeze
   end
