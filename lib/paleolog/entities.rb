@@ -7,8 +7,7 @@ module Paleolog
     include Entitainer
 
     schema do
-      attributes :id,
-                 :name,
+      attributes :name,
                  :login,
                  :email,
                  :password,
@@ -22,8 +21,7 @@ module Paleolog
     include Entitainer
 
     schema do
-      attributes :id,
-                 :name,
+      attributes :name,
                  :created_at,
                  :updated_at
 
@@ -37,10 +35,7 @@ module Paleolog
     include Entitainer
 
     schema do
-      attributes :id,
-                 :project_id,
-                 :user_id,
-                 :manager,
+      attributes :manager,
                  :created_at,
                  :updated_at
 
@@ -52,12 +47,8 @@ module Paleolog
     include Entitainer
 
     schema do
-      attributes :id,
-                 :name,
-                 :group_id,
-                 :marker_id,
-                 :marker_count,
-                 :project_id
+      attributes :name,
+                 :marker_count
 
       belongs_to :project, :group, :marker
     end
@@ -67,9 +58,7 @@ module Paleolog
     include Entitainer
 
     schema do
-      attributes :id,
-                 :name,
-                 :project_id,
+      attributes :name,
                  :created_at,
                  :updated_at
 
@@ -82,9 +71,7 @@ module Paleolog
     include Entitainer
 
     schema do
-      attributes :id,
-                 :name,
-                 :section_id,
+      attributes :name,
                  :created_at,
                  :updated_at,
                  :bottom_depth,
@@ -101,7 +88,7 @@ module Paleolog
     include Entitainer
 
     schema do
-      attributes :id, :name
+      attributes :name
     end
   end
 
@@ -109,7 +96,7 @@ module Paleolog
     include Entitainer
 
     schema do
-      attributes :id, :name, :group_id
+      attributes :name, :group_id
       has_many :choices
     end
   end
@@ -118,7 +105,7 @@ module Paleolog
     include Entitainer
 
     schema do
-      attributes :id, :name, :field_id
+      attributes :name
       belongs_to :field
     end
   end
@@ -127,7 +114,7 @@ module Paleolog
     include Entitainer
 
     schema do
-      attributes :id, :choice_id, :species_id
+      attributes :id
       belongs_to :choice, :species
     end
   end
@@ -136,12 +123,9 @@ module Paleolog
     include Entitainer
 
     schema do
-      attributes :id,
-                 :species_id,
-                 :image_file_name,
+      attributes :image_file_name,
                  :image_content_type,
                  :image_file_size,
-                 :sample_id,
                  :ef,
                  :created_at,
                  :updated_at
@@ -154,9 +138,7 @@ module Paleolog
     include Entitainer
 
     schema do
-      attributes :id,
-                 :group_id,
-                 :name,
+      attributes :name,
                  :description,
                  :environmental_preferences,
                  :verified,
@@ -178,11 +160,7 @@ module Paleolog
     STATUSES = [NORMAL, OUTSIDE_COUNT, CARVING, REWORKING].freeze
 
     schema do
-      attributes :id,
-                 :species_id,
-                 :counting_id,
-                 :sample_id,
-                 :quantity,
+      attributes :quantity,
                  :rank,
                  :status,
                  :uncertain

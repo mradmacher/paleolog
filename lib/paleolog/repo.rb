@@ -80,10 +80,10 @@ module Paleolog
     }.freeze
 
     def self.save(obj)
-      if obj.id.nil? || obj.id.is_a?(Option::None)
-        self.for(obj.class).create(obj.defined_attributes)
+      if obj.id.nil?
+        self.for(obj.class).create(obj.defined_attributes_with_values)
       else
-        self.for(obj.class).update(obj.id, obj.defined_attributes)
+        self.for(obj.class).update(obj.id, obj.defined_attributes_with_values)
       end
     end
 

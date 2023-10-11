@@ -37,10 +37,10 @@ module Web
           }.tap do |h|
             h[:marker_count] = counting.marker_count if counting.marker_count
             h[:marker_id] = counting.marker_id if counting.marker_id
-            h[:marker_name] = counting.marker.name unless counting.marker.is_a?(Optiomist::None)
-            h[:marker_group_name] = counting.marker.group.name unless counting.marker.is_a?(Optiomist::None)
+            h[:marker_name] = counting.marker.name unless counting.marker.nil?
+            h[:marker_group_name] = counting.marker.group.name unless counting.marker.nil?
             h[:group_id] = counting.group_id if counting.group_id
-            h[:group_name] = counting.group.name unless counting.group.is_a?(Optiomist::None)
+            h[:group_name] = counting.group.name unless counting.group.nil?
           end
         end
       end
