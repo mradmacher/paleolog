@@ -219,5 +219,20 @@ $(function() {
   });
 
   loadOccurrences();
+
+  const species = {
+    name: null,
+    group_id: null,
+    //description: null,
+    //environmental_preferences: null,
+    //verified: false,
+  }
+
+  $('.add-species.action').click(() => {
+    new SpeciesModalFormView(species, (result) => {
+      addOccurrence(result.species.id, countingId, sampleId)
+    }).show()
+
+  });
 })
 </script>

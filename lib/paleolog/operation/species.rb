@@ -9,6 +9,13 @@ module Paleolog
         description: Params.optional.(Params::DescriptionRules),
         environmental_preferences: Params.optional.(Params::DescriptionRules),
       )
+      UPDATE_PARAMS = Params.define.(
+        id: Params.required.(Params::IdRules),
+        name: Params.optional.(Params::NameRules),
+        group_id: Params.optional.(Params::IdRules),
+        description: Params.optional.(Params::DescriptionRules),
+        environmental_preferences: Params.optional.(Params::DescriptionRules),
+      )
 
       def create(raw_params)
         authenticate
@@ -17,10 +24,21 @@ module Paleolog
           .and_then { carefully(_1, create_species) }
       end
 
+      def update(raw_params)
+        authenticate
+          .and_then { parameterize(raw_params, UPDATE_PARAMS) }
+          .and_then { verify(_1, name_uniqueness) }
+          .and_then { carefully(_1, update_species) }
+      end
+
       private
 
       def create_species
         ->(params) { repo.for(Paleolog::Species).create(params) }
+      end
+
+      def update_species
+        ->(params) { repo.for(Paleolog::Species).update(params[:id], params.except(:id)) }
       end
 
       def name_uniqueness

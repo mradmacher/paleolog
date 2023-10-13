@@ -14,6 +14,10 @@ module Web
       erb :'species_layout.html', layout: :'application.html', &block
     end
 
+    def using_project_species_layout(&block)
+      erb :'species_layout.html', layout: nil, &block
+    end
+
     def using_project_layout(&block)
       erb :'project_layout.html', layout: :'application.html', &block
     end
