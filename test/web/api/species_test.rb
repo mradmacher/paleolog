@@ -74,25 +74,25 @@ describe 'Projects' do
         login(user)
       end
 
-      it 'updates project name and returns its attributes' do
+      it 'updates species name and returns its attributes' do
         params = { name: 'some other name' }
         patch "/api/species/#{species.id}", params
 
         result = JSON.parse(last_response.body)['species']
 
-        assert_equal project.id, result['id']
+        assert_equal species.id, result['id']
         assert_equal 'some other name', result['name']
-        assert_equal project.created_at.to_s, result['created_at']
+        assert_equal species.created_at.to_s, result['created_at']
       end
 
       it 'returns errors in case of failure' do
-        params = {}
+        params = { name: '' }
         patch '/api/species/1', params
 
         result = JSON.parse(last_response.body)
         assert result.key?('errors')
 
-        assert_equal 'missing', result['errors']['name']
+        assert_equal 'blank', result['errors']['name']
       end
     end
   end

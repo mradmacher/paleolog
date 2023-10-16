@@ -22,8 +22,8 @@ module Paleolog
         func.call(params) ? Resonad.success(params) : Resonad.failure(UNAUTHORIZED_RESULT)
       end
 
-      def parameterize(params, rules)
-        params, errors = rules.(params)
+      def parameterize(raw_params, rules)
+        params, errors = rules.(raw_params)
         errors.empty? ? Resonad.success(params) : Resonad.failure(errors)
       end
 

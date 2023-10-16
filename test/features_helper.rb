@@ -24,3 +24,7 @@ module Minitest
     end
   end
 end
+
+def click_action_to(name)
+  click_button(class: name.split.join('-'))
+end
