@@ -1,9 +1,50 @@
-<%= erb :'species/_search.html', layout: false %>
+<div class="ui grid">
+  <div class="sixteen wide column">
+    <fieldset class="ui grid">
+      <div class="fourteen wide column">
+        <h1 class="ui header">Species list (<span id="search-species-size"></span>)</h1>
+      </div>
+    </fieldset>
+  </div>
+
+  <div class="three wide column">
+    <%= erb :'species/_search.html', layout: false %>
+  </div>
+
+  <div class="thirteen wide column scrolling content">
+    <template id="search-species-template">
+      <tr class="species">
+        <td><a href="" class="species-name species-link"></a></td>
+        <td class="species-group-name"></td>
+      </tr>
+    </template>
+    <table id="species-list" class="ui celled table">
+      <thead>
+        <tr>
+          <th>Species</th>
+          <th>Group</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+
+</div>
 <script type="text/javascript">
 $(function() {
   new SpeciesSearch({
-    onSpeciesSelected: function(speciesId) {
-      window.location.href = '/species/' + speciesId;
+    onSpeciesSearched: function(result) {
+      $('#species-list tbody').empty();
+      $('#search-species-size').text(result.result.length);
+      var that = this;
+      result.result.forEach(species => {
+        var element = $($('#search-species-template').html());
+        element.find('.species-name').text(species.name);
+        element.find('.species-group-name').text(species.group_name);
+        element.find('.species-link').attr("href", '/species/' + species.id)
+        $('#species-list tbody').append(element);
+      })
     },
     updatePath: true,
     initialFilter: <%= (@filters.empty? ? { verified: true } : @filters).to_json %>,
