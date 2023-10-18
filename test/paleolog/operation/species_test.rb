@@ -31,6 +31,7 @@ describe Paleolog::Operation::Species do
 
       authorizer.verify
     end
+
     describe 'for authorized user' do
       before do
         authorizer.expect :authenticated?, true
@@ -91,7 +92,7 @@ describe Paleolog::Operation::Species do
         result = happy_operation.create(name: 'Some Other Name', group_id: group.id)
         assert_predicate result, :success?
 
-        result = operation.update(id: species_id, name: ' some name ')
+        result = operation.update(id: species_id, name: ' some OTHER name ')
         assert_predicate result, :failure?
         assert_equal :taken, result.error[:name]
       end
@@ -151,8 +152,8 @@ describe Paleolog::Operation::Species do
         assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:group_id]
       end
 
-      it 'complains when group_id none' do
-        result = operation.create(name: 'Name', group_id: Optiomist.none)
+      it 'complains when group_id missing' do
+        result = operation.create(name: 'Name')
         assert_predicate result, :failure?
         assert_equal Paleolog::Operation::Params::MISSING, result.error[:group_id]
       end

@@ -45,9 +45,8 @@ module Paleolog
         lambda do |params|
           break unless params.key?(:name)
 
-          if repo.for(Paleolog::Species).name_exists_within_group?(
+          if repo.for(Paleolog::Species).name_exists?(
             params[:name],
-            params[:group_id],
             exclude_id: params[:id],
           )
             { name: TAKEN }
