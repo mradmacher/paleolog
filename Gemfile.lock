@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/mradmacher/entitainer.git
-  revision: 4da847319d34c18739f39c786e589233f4a3d9f2
-  tag: 4da8473
+  revision: adef45ac3da5b3f33187974e92d71abb416d6812
+  tag: adef45a
   specs:
     entitainer (0.0.1)
       optiomist (~> 0.0.3)

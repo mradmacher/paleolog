@@ -18,7 +18,7 @@ module Paleolog
           result = ds.where(id: id).first
           return nil unless result
 
-          Paleolog::Section.new(**result).tap do |section|
+          Paleolog::Section.new(**result) do |section|
             options.each { |opt| opt.call(section) }
           end
         end

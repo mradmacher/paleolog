@@ -7,6 +7,10 @@ describe 'Occurrences' do
   let(:project) { repo.save(Paleolog::Project.new(name: 'some project')) }
   let(:counting) { repo.save(Paleolog::Counting.new(name: 'some counting', project: project)) }
 
+  def click_to_select_species(name)
+    find(:xpath, "//td[text()='#{name}']/following::button[contains(@class, 'select-species-action')]").click
+  end
+
   before do
     use_javascript_driver
     group1 = repo.save(Paleolog::Group.new(name: 'Dinoflagellate'))
@@ -46,11 +50,11 @@ describe 'Occurrences' do
     repo.save(Paleolog::Species.new(group: counted_group, name: 'Counted Group Species'))
     repo.for(Paleolog::Counting).update(counting.id, group_id: counted_group.id)
     visit "/projects/#{project.id}/occurrences"
-    click_button(class: 'add-occurrence')
+    click_action_to('add occurrence')
     within page.find('#species-list') do
       assert_text('Counted Group Species')
     end
-    click_on('Counted Group Species')
+    click_to_select_species('Counted Group Species')
     within page.find('#occurrences-collection') do
       assert_text('Counted Group Species')
     end
@@ -66,11 +70,11 @@ describe 'Occurrences' do
     assert_match(/Cerodinium diabelli/, table_rows[2].text)
 
     within page.find(:table_row, ['Odontochitina costata']) do
-      click_button(class: 'increase-quantity')
+      click_action_to('increase quantity')
       select('r', from: 'occurrence-status')
     end
     within page.find(:table_row, ['Cerodinium diabelli']) do
-      click_button(class: 'increase-quantity')
+      click_action_to('increase quantity')
     end
     within('#occurrences-countable-sum') do
       page.must_have_content('1')
@@ -87,7 +91,7 @@ describe 'Occurrences' do
     select('Other', from: 'Group')
     click_on('Search')
     assert_current_path(url_before) # searching should not update query string
-    click_on('Diabella diabelli')
+    click_to_select_species('Diabella diabelli')
 
     table_rows = page.all('#occurrences-collection .occurrence')
     assert_match(/Odontochitina costata/, table_rows[0].text)
@@ -126,13 +130,13 @@ describe 'Occurrences' do
     end
 
     within page.find(:table_row, ['Odontochitina costata']) do
-      click_button(class: 'increase-quantity')
-      click_button(class: 'increase-quantity')
-      click_button(class: 'increase-quantity')
-      click_button(class: 'decrease-quantity')
+      click_action_to('increase quantity')
+      click_action_to('increase quantity')
+      click_action_to('increase quantity')
+      click_action_to('decrease quantity')
     end
     within page.find(:table_row, ['Cerodinium diabelli']) do
-      click_button(class: 'increase-quantity')
+      click_action_to('increase quantity')
     end
 
     assert page.find(:table_row, ['Odontochitina costata']).has_content?('2')
@@ -175,8 +179,8 @@ describe 'Occurrences' do
     end
 
     within page.find(:table_row, ['Odontochitina costata']) do
-      click_button(class: 'increase-quantity')
-      click_button(class: 'increase-quantity')
+      click_action_to('increase quantity')
+      click_action_to('increase quantity')
       select('r', from: 'occurrence-status')
     end
 
@@ -192,7 +196,7 @@ describe 'Occurrences' do
     end
 
     within page.find(:table_row, ['Cerodinium diabelli']) do
-      click_button(class: 'increase-quantity')
+      click_action_to('increase quantity')
     end
 
     assert page.find(:table_row, ['Odontochitina costata']).has_content?('2')
@@ -235,8 +239,8 @@ describe 'Occurrences' do
     end
 
     within page.find(:table_row, ['Odontochitina costata']) do
-      click_button(class: 'increase-quantity')
-      click_button(class: 'increase-quantity')
+      click_action_to('increase quantity')
+      click_action_to('increase quantity')
       check('occurrence-uncertain')
     end
 
@@ -270,13 +274,13 @@ describe 'Occurrences' do
     visit "/projects/#{project.id}/occurrences"
 
     within page.find(:table_row, ['Odontochitina costata']) do
-      click_button(class: 'increase-quantity')
-      click_button(class: 'increase-quantity')
+      click_action_to('increase quantity')
+      click_action_to('increase quantity')
       select('r', from: 'occurrence-status')
     end
 
     within page.find(:table_row, ['Cerodinium diabelli']) do
-      click_button(class: 'increase-quantity')
+      click_action_to('increase quantity')
     end
 
     within('#occurrences-countable-sum') do
@@ -323,9 +327,7 @@ describe 'Occurrences' do
     end
 
     within page.find(:table_row, ['Odontochitina costata']) do
-      accept_confirm do
-        click_button(class: 'delete-occurrence')
-      end
+      accept_confirm { click_action_to('delete occurrence') }
     end
     assert_no_text('Odontochitina costata')
 

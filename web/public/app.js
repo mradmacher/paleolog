@@ -150,6 +150,12 @@ class ModelRequest {
   }
 }
 
+class SpeciesRequest extends ModelRequest {
+  constructor() {
+    super('/api/species');
+  }
+}
+
 class ProjectRequest extends ModelRequest {
   constructor() {
     super('/api/projects');
@@ -214,6 +220,8 @@ class ModalFormView {
     })
   }
 
+  loadFormData(form) {}
+
   show() {
     this.hideErrors()
     var form = this.modal.find('form')
@@ -221,6 +229,7 @@ class ModalFormView {
     for (const field in this.attrs) {
       form.find(`[name=${field}]`).val(this.attrs[field]);
     }
+    this.loadFormData(form)
     var that = this;
     this.modal.modal({
       closable: false,
@@ -230,8 +239,10 @@ class ModalFormView {
         for (const field in that.attrs) {
           attrs[field] = form.find(`[name=${field}]`).val()
         }
+        console.log(attrs)
         that.requestService.save(attrs).then(
           result => {
+            console.log(result)
             that.callback(result)
           },
           errors => {
@@ -248,6 +259,30 @@ class ModalFormView {
 class ProjectModalFormView extends ModalFormView {
   constructor(attrs, callback) {
     super('project', attrs, new ProjectRequest, callback)
+  }
+}
+
+class SpeciesModalFormView extends ModalFormView {
+  constructor(attrs, callback) {
+    super('species', attrs, new SpeciesRequest, callback)
+  }
+
+  loadFormData(form) {
+    $.ajax({
+      url: '/species/search-filters',
+      type: "GET",
+      dataType: "json",
+    })
+    .done(function(json) {
+      json.groups.forEach(function(group) {
+        var option = $($('#species-group-option-template').html());
+        option.val(group.id);
+        option.text(group.name);
+        form.find('#species-group-id').append(option);
+      });
+    }).fail(function(xhr, status, error) {
+      reject(error)
+    })
   }
 }
 

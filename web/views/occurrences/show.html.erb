@@ -62,7 +62,46 @@
 <div class="ui modal add-occurrence">
   <div class="header">Add Species</div>
   <div class="content">
-    <%= erb :'species/_search.html', layout: false %>
+    <div class="ui grid">
+      <div class="sixteen wide column">
+        <fieldset class="ui grid">
+          <div class="fourteen wide column">
+            <h1 class="ui header">Species list (<span id="search-species-size"></span>)</h1>
+          </div>
+          <div class="two wide column">
+            <button class="ui mini secondary button add-species action">Add</button>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="three wide column">
+        <%= erb :'species/_search.html', layout: false %>
+      </div>
+
+      <div class="thirteen wide column scrolling content">
+        <template id="search-species-template">
+          <tr class="species">
+            <td class="species-name"></td>
+            <td class="species-group-name"></td>
+            <td>
+              <button class="ui button select-species-action"><i class="right arrow icon"></i></button>
+            </td>
+          </tr>
+        </template>
+        <table id="species-list" class="ui celled table">
+          <thead>
+            <tr>
+              <th>Species</th>
+              <th>Group</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
   </div>
   <div class="actions">
     <div class="ui cancel button">Cancel</div>
@@ -204,6 +243,21 @@ $(function() {
     return $(".occurrence[data-occurrence-id='" + id + "']");
   }
 
+  showSearchResult = function(result) {
+    $('#species-list tbody').empty();
+    $('#search-species-size').text(result.result.length);
+    var that = this;
+    result.result.forEach(species => {
+      var element = $($('#search-species-template').html());
+      element.find('.species-name').text(species.name);
+      element.find('.species-group-name').text(species.group_name);
+      element.find('.select-species-action').click(function(event) {
+        addOccurrence(species.id, countingId, sampleId)
+      });
+      $('#species-list tbody').append(element);
+    });
+  }
+
   $('.button.add-occurrence').click(function() {
     $('.modal.add-occurrence').modal('show');
     // TODO: exclude already present in counting
@@ -212,6 +266,9 @@ $(function() {
         onSpeciesSelected: function(speciesId) {
           addOccurrence(speciesId, countingId, sampleId)
         },
+        onSpeciesSearched: function(result) {
+          showSearchResult(result)
+        },
         updatePath: false,
         initialFilter: countingGroupId ? { group_id: countingGroupId } : {},
       });
@@ -219,5 +276,20 @@ $(function() {
   });
 
   loadOccurrences();
+
+  const species = {
+    name: null,
+    group_id: null,
+    //description: null,
+    //environmental_preferences: null,
+    //verified: false,
+  }
+
+  $('.add-species.action').click(() => {
+    new SpeciesModalFormView(species, (result) => {
+      addOccurrence(result.species.id, countingId, sampleId)
+    }).show()
+
+  });
 })
 </script>

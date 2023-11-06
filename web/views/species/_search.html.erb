@@ -1,73 +1,42 @@
-<div class="ui grid">
-  <div class="sixteen wide column">
-    <h1 class="ui header">Species list (<span id="search-species-size"></span>)</h1>
-  </div>
-
-  <div class="three wide column">
-    <div class="ui fluid card">
-      <div class="content">
-        <div class="header">Find species</div>
-        <div class="description">
-          <form id="species-search" class="ui form">
-            <div class="field">
-              <label for="search-group-id">Group</label>
-              <template id="search-group-option-template">
-                <option value=""></option>
-              </template>
-              <select id="search-group-id" name="group_id">
-              </select>
-            </div>
-            <div class="field">
-              <label for="search-name">Name</label>
-              <input id="search-name" type="text" name="name" />
-            </div>
-            <div class="field">
-              <label for="search-verified">Verified</label>
-              <input id="search-verified" type="checkbox" name="verified" />
-            </div>
-            <button class="ui button" type="submit">Search</button>
-          </form>
+<div class="ui fluid card">
+  <div class="content">
+    <div class="header">Find species</div>
+    <div class="description">
+      <form id="species-search" class="ui form">
+        <div class="field">
+          <label for="search-group-id">Group</label>
+          <template id="search-group-option-template">
+            <option value=""></option>
+          </template>
+          <select id="search-group-id" name="group_id">
+          </select>
         </div>
-      </div>
+        <div class="field">
+          <label for="search-name">Name</label>
+          <input id="search-name" type="text" name="name" />
+        </div>
+        <div class="field">
+          <label for="search-verified">Verified</label>
+          <input id="search-verified" type="checkbox" name="verified" />
+        </div>
+        <button class="ui button" type="submit">Search</button>
+      </form>
     </div>
   </div>
-
-  <div class="thirteen wide column scrolling content">
-    <template id="search-species-template">
-      <tr class="species">
-        <td>
-          <a href="" class="species-name species-link"></a>
-        </td>
-        <td class="species-group-name">
-        </td>
-      </tr>
-    </template>
-    <table id="species-list" class="ui celled table">
-      <thead>
-        <tr>
-          <th>Species</th>
-          <th>Group</th>
-        </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    </table>
-  </div>
-
 </div>
 
 <script type="text/javascript">
   class SpeciesSearch {
     constructor({
-      onSpeciesSelected = null,
       updatePath = false,
       initialFilter = {},
       defaultFilter = {},
+      onSpeciesSearched = null,
     }) {
-      if(onSpeciesSelected) {
-        this.onSpeciesSelectedEvent = onSpeciesSelected;
+      if(onSpeciesSearched) {
+        this.onSpeciesSearchedEvent= onSpeciesSearched;
       } else {
-        this.onSpeciesSelectedEvent = function(speciesId) {
+        this.onSpeciesSearchedEvent = function(speciesId) {
           // do nothing
         };
       };
@@ -78,8 +47,9 @@
         this.showAvailableSearchFilters(filters);
         if(Object.keys(initialFilter).length > 0 || Object.keys(defaultFilter).length > 0) {
           this.fetchSearchResult({ ...initialFilter, ...defaultFilter }).then(result => {
-            this.showSearchResult(result);
             this.showFilters(initialFilter);
+            this.onSpeciesSearchedEvent(result);
+            //this.showSearchResult(result);
           })
         };
       });
@@ -94,7 +64,9 @@
         if(this.updatePath) {
           this.updateSearchParams(attrs);
         }
-        this.fetchSearchResult({ ...attrs, ...this.defaultFilter }).then(result => this.showSearchResult(result));
+        this.fetchSearchResult({ ...attrs, ...this.defaultFilter }).then(result => {
+          this.onSpeciesSearchedEvent(result)
+        })
       });
     }
 
@@ -171,22 +143,6 @@
         }).fail(function(xhr, status, error) {
           reject(error);
         })
-      });
-    }
-
-    showSearchResult(result) {
-      $('#species-list tbody').empty();
-      $('#search-species-size').text(result.result.length);
-      var that = this;
-      result.result.forEach(species => {
-        var element = $($('#search-species-template').html());
-        element.find('.species-name').text(species.name);
-        element.find('.species-group-name').text(species.group_name);
-        element.find('.species-link').click(function(event) {
-          event.preventDefault();
-          that.onSpeciesSelectedEvent(species.id);
-        });
-        $('#species-list tbody').append(element);
       });
     }
   }

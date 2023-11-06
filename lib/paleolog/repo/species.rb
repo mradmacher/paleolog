@@ -8,7 +8,10 @@ module Paleolog
 
         # rubocop:disable Metrics/AbcSize
         def find(id)
-          Paleolog::Species.new(**ds.where(id: id).first) do |species|
+          result = ds.where(id: id).first
+          return nil unless result
+
+          Paleolog::Species.new(**result) do |species|
             species.group = Paleolog::Repo::Group.find(species.group_id)
             Paleolog::Repo::Feature.all_for_species(species.id).each do |feature|
               species.features << feature
@@ -50,15 +53,6 @@ module Paleolog
         def search_in_project(_project, filters = {})
           query = search_query(filters)
 
-          # @project = Project.find(params[:project_id])
-          # @project_id = @project.id
-          # occurrence_specimen_ids =
-          #   Occurrence.joins(:counting).where('countings.project_id' => @project_id)
-          #   .select(:specimen_id).distinct.map(&:specimen_id)
-          # image_specimen_ids = Image.joins(sample: :section).where('sections.project_id' => @project_id)
-          #   .select(:specimen_id).distinct.map(&:specimen_id)
-          # specimen_ids = occurrence_specimen_ids + image_specimen_ids
-          # @specimens = @specimens.where(id: specimen_ids)
           groups = Paleolog::Repo::Group.all
           query.all.map do |result|
             Paleolog::Species.new(**result) do |species|
@@ -67,9 +61,9 @@ module Paleolog
           end
         end
 
-        def name_exists_within_group?(name, group_id, exclude_id: nil)
+        def name_exists?(name, exclude_id: nil)
           (exclude_id ? ds.exclude(id: exclude_id) : ds)
-            .where(group_id: group_id).where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
+            .where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
         end
 
         def entity_class
@@ -83,12 +77,12 @@ module Paleolog
         private
 
         def project_filter(query, project_id)
-          query
-            .where(Sequel[:sections][:project_id] => project_id)
-            .join(:occurrences, Sequel[:occurrences][:species_id] => :id)
-            .join(:samples, Sequel[:samples][:id] => :sample_id)
-            .join(:sections, Sequel[:sections][:id] => :section_id)
-            .select_all(:species)
+          occurrences_refs =
+            Config.db[:occurrences]
+                  .where(Sequel[:sections][:project_id] => project_id)
+                  .join(:samples, Sequel[:samples][:id] => :sample_id)
+                  .join(:sections, Sequel[:sections][:id] => :section_id)
+          query.where(id: occurrences_refs.select(:species_id))
         end
 
         def search_query(filters = {})

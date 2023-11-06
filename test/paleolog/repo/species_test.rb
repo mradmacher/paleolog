@@ -95,22 +95,36 @@ describe Paleolog::Repo::Species do
     end
   end
 
-  describe '#name_exists_within_group?' do
+  describe '#name_exists?' do
     before do
       @group = Paleolog::Repo.save(Paleolog::Group.new(name: 'Some group'))
     end
 
-    it 'checks name uniqueness within group scope' do
+    it 'checks name uniqueness within same group' do
       Paleolog::Repo.save(Paleolog::Species.new(name: 'Some species', group: @group))
 
-      assert(repo.name_exists_within_group?('Some species', @group.id))
-      refute(repo.name_exists_within_group?('Other species', @group.id))
+      assert(repo.name_exists?('Some species'))
+      refute(repo.name_exists?('Other species'))
+    end
+
+    it 'checks name uniqueness within other group' do
+      other_group = Paleolog::Repo.save(Paleolog::Group.new(name: 'Some other group'))
+      Paleolog::Repo.save(Paleolog::Species.new(name: 'Some species', group: other_group))
+
+      assert(repo.name_exists?('Some species'))
+      refute(repo.name_exists?('Other species'))
     end
 
     it 'is case insensitive' do
       Paleolog::Repo.save(Paleolog::Species.new(name: 'Some species', group: @group))
 
-      assert(repo.name_exists_within_group?('soMe sPeCies', @group.id))
+      assert(repo.name_exists?('soMe sPeCies'))
+    end
+
+    it 'does not verify with itself' do
+      species = Paleolog::Repo.save(Paleolog::Species.new(name: 'Some species', group: @group))
+
+      refute(repo.name_exists?('Other species', exclude_id: species.id))
     end
   end
 end
