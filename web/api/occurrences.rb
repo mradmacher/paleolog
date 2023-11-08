@@ -115,6 +115,8 @@ module Web
         if params.key?(:shift)
           attributes[:quantity] = (occurrence.quantity || 0) + params[:shift].to_i
           attributes[:quantity] = nil if attributes[:quantity].negative?
+        elsif params.key?(:quantity)
+          attributes[:quantity] = params[:quantity]
         end
         attributes[:status] = params[:status] if params.key?(:status)
         attributes[:uncertain] = params[:uncertain] if params.key?(:uncertain)
