@@ -15,30 +15,7 @@
   </tbody>
 </table>
 
-<template id="occurrence-template">
-  <tr class="occurrence" data-occurrence-id="">
-    <td class="occurrence-group-name"></td>
-    <td class="occurrence-species-name"></td>
-    <td class="occurrence-quantity"></td>
-    <td>
-      <div class="ui horizontal icon buttons">
-        <button class="ui button increase-quantity" data-shift="1"><i class="plus icon"></i></button>
-        <button class="ui button set-quantity"><i class="edit icon"></i></button>
-      </div>
-    </td>
-    <td class="ui form field">
-      <select class="occurrence-status update-status" name="occurrence-status">
-        <% Paleolog::CountingSummary::STATUSES.each do |value, symbol| %>
-          <option value="<%= value %>"><%= symbol %></option>
-        <% end %>
-      </select>
-    </td>
-    <td class="ui form field">
-      <input class="occurrence-uncertain update-uncertain" name="occurrence-uncertain" type="checkbox" />
-    </td>
-    <td><button class="ui negative mini icon button delete-occurrence"><i class="trash icon"></i></button>
-  </tr>
-</template>
+<%= erb :'occurrences/_occurrence.html', layout: false %>
 
 <table class="ui striped celled table">
   <thead>
@@ -59,20 +36,6 @@
     </tr>
   </tbody>
 </table>
-
-<div class="ui modal set-quantity">
-  <div class="header">Set Quantity</div>
-  <div class="content">
-    <div class="ui form field">
-      <label for="occurrence-quantity"><span class="species-name"></span> - <span class="group-name"></span></label>
-      <input class="occurrence-quantity" name="occurrence-quantity" type="number" min="0" />
-    </div>
-  </div>
-  <div class="actions">
-    <button class="ui approve button">Save</button>
-    <button class="ui cancel button">Cancel</button>
-  </div>
-</div>
 
 <div class="ui modal add-occurrence">
   <div class="header">Add Species</div>
@@ -138,84 +101,23 @@ $(function() {
       section_id: sectionId,
       sample_id: sampleId,
     };
-    new OccurrenceRequest(projectId).index(attrs).then(
-      result => {
-        result.occurrences.reverse().forEach(occurrence => {
-          var element = $($("#occurrence-template").html());
-          element.attr("data-occurrence-id", occurrence.id);
 
-          element.find(".occurrence-group-name").text(occurrence.group_name);
-          element.find(".occurrence-species-name").text(occurrence.species_name);
-          element.find(".occurrence-quantity").text(occurrence.quantity);
-          element.find(".occurrence-status").val(occurrence.status);
-          element.find(".occurrence-uncertain").prop('checked', occurrence.uncertain);
-
-          element.find(".increase-quantity").click(function() {
-            updateOccurrence(occurrenceIdFor($(this)), { shift: 1 });
-          });
-          element.find(".decrease-quantity").click(function() {
-            updateOccurrence(occurrenceIdFor($(this)), { shift: -1 });
-          });
-          element.find('.set-quantity').click(function() {
-            const modal = $('.modal.set-quantity');
-            modal.find('.species-name').text(occurrence.species_name);
-            modal.find('.group-name').text(occurrence.group_name);
-            const quantityElement = modal.find('.occurrence-quantity')
-            quantityElement.val(element.find(".occurrence-quantity").text());
-            modal.modal({
-              onApprove: function() {
-                if (Number.isInteger(parseInt(quantityElement.val()))) {
-                  updateOccurrence(occurrence.id, { quantity: quantityElement.val() });
-                } else {
-                  alert("Please enter a number.");
-                  return false
-                }
-              }
-            })
-            modal.modal('show');
-          });
-          element.find(".update-status").change(function() {
-            var status = $(this).val();
-            updateOccurrence(occurrenceIdFor($(this)), { status: status });
-          });
-          element.find(".update-uncertain").change(function() {
-            var uncertain;
-            if($(this).prop("checked")) {
-              uncertain = true
-            } else {
-              uncertain = false
-            };
-            updateOccurrence(occurrenceIdFor($(this)), { uncertain: uncertain });
-          });
-          element.find('.delete-occurrence').click(function() {
-            text = 'Do you confirm removing this occurrence?'
-            if (confirm(text) == true) {
-              removeOccurrence(occurrenceIdFor($(this)));
-            }
-          });
-
-
-          $('#occurrences-collection').prepend(element);
-        });
-        updateSummary(result.summary);
-      },
-      errors => {
-        console.log(errors)
-        alert('Please refresh the page and try again.')
-      }
-    )
-  }
-
-  removeOccurrence = function(occurrenceId) {
-    new OccurrenceRequest(projectId).remove(occurrenceId).then(
-      result => {
-        occurrenceElementFor(result.occurrence.id).remove();
-        updateSummary(result.summary);
-      },
-      errors => {
-        alert('Please refresh the page and try again.')
-      }
-    )
+    new OccurrenceRequest(projectId).index(attrs).then(result => {
+      result.occurrences.reverse().forEach(occurrence => {
+        $('#occurrences-collection').prepend(
+          buildOccurrenceRow(occurrence, {
+            onUpdate: (occurrence, summary) => {
+              updateSummary(summary)
+            },
+            onRemove: (occurrence, summary) => {
+              occurrenceElementFor(occurrence.id).remove();
+              updateSummary(summary);
+            },
+          })
+        );
+      })
+      updateSummary(result.summary)
+    });
   }
 
   addOccurrence = function(speciesId, countingId, sampleId) {
@@ -230,18 +132,6 @@ $(function() {
         $('.modal.add-occurrence').modal('hide');
         // TODO: add it to the displayed collection instead of reloading
         window.location.reload();
-      },
-      errors => {
-        alert('Please refresh the page and try again.')
-      }
-    )
-  }
-
-  updateOccurrence = function(occurrenceId, attrs) {
-    new OccurrenceRequest(projectId).save({ ...attrs, ...{ id: occurrenceId }}).then(
-      result => {
-        occurrenceElementFor(result.occurrence.id).find(".occurrence-quantity").text(result.occurrence.quantity);
-        updateSummary(result.summary);
       },
       errors => {
         alert('Please refresh the page and try again.')
@@ -309,7 +199,6 @@ $(function() {
     new SpeciesModalFormView(species, (result) => {
       addOccurrence(result.species.id, countingId, sampleId)
     }).show()
-
   });
 })
 </script>
