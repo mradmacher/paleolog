@@ -218,7 +218,7 @@ $(function() {
         this.updateOccurrence(occurrence.id, { uncertain: uncertain });
       });
       element.find('.delete-occurrence').click(() => {
-        text = 'Do you confirm removing this occurrence?'
+        const text = 'Do you confirm removing this occurrence?'
         if (confirm(text) == true) {
           this.removeOccurrence(occurrence.id);
         }
