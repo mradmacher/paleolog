@@ -21,9 +21,9 @@
     <td class="occurrence-species-name"></td>
     <td class="occurrence-quantity"></td>
     <td>
-      <div class="ui vertical mini icon buttons">
+      <div class="ui horizontal icon buttons">
         <button class="ui button increase-quantity" data-shift="1"><i class="plus icon"></i></button>
-        <button class="ui button decrease-quantity" data-shift="-1"><i class="minus icon"></i></button>
+        <button class="ui button set-quantity"><i class="edit icon"></i></button>
       </div>
     </td>
     <td class="ui form field">
@@ -39,6 +39,20 @@
     <td><button class="ui negative mini icon button delete-occurrence"><i class="trash icon"></i></button>
   </tr>
 </template>
+
+<div class="ui modal set-quantity">
+  <div class="header">Set Quantity</div>
+  <div class="content">
+    <div class="ui form field">
+      <label for="occurrence-quantity"><span class="species-name"></span> - <span class="group-name"></span></label>
+      <input class="occurrence-quantity" name="occurrence-quantity" type="number" min="0" />
+    </div>
+  </div>
+  <div class="actions">
+    <button class="ui approve button">Save</button>
+    <button class="ui cancel button">Cancel</button>
+  </div>
+</div>
 
 <table class="ui striped celled table">
   <thead>
@@ -59,6 +73,7 @@
     </tr>
   </tbody>
 </table>
+
 <div class="ui modal add-occurrence">
   <div class="header">Add Species</div>
   <div class="content">
@@ -117,130 +132,128 @@ $(function() {
   const countingGroupId = <%= @counting.group_id.to_json %>;
   var speciesSearch = null;
 
-  loadOccurrences = function() {
-    var actionUrl = "/api/projects/" + projectId + "/occurrences";
-    attrs = {
-      counting_id: countingId,
-      section_id: sectionId,
-      sample_id: sampleId,
-    };
-    $.ajax({
-      url: actionUrl,
-      data: attrs,
-      type: "GET",
-      dataType: "json",
-    })
-    .done(function(json) {
-      json.occurrences.reverse().forEach(occurrence => {
-        var element = $($("#occurrence-template").html());
-        element.attr("data-occurrence-id", occurrence.id);
+  class OccurrencesComponent {
+    constructor(selector, onChange) {
+      this.selector = selector
+      this.onChange = onChange
+    }
 
-        element.find(".occurrence-group-name").text(occurrence.group_name);
-        element.find(".occurrence-species-name").text(occurrence.species_name);
-        element.find(".occurrence-quantity").text(occurrence.quantity);
-        element.find(".occurrence-status").val(occurrence.status);
-        element.find(".occurrence-uncertain").prop('checked', occurrence.uncertain);
+    loadOccurrences() {
+      var attrs = {
+        counting_id: countingId,
+        section_id: sectionId,
+        sample_id: sampleId,
+      };
 
-        element.find(".increase-quantity").click(function() {
-          updateOccurrence(occurrenceIdFor($(this)), { shift: 1 });
-        });
-        element.find(".decrease-quantity").click(function() {
-          updateOccurrence(occurrenceIdFor($(this)), { shift: -1 });
-        });
-        element.find(".update-status").change(function() {
-          var status = $(this).val();
-          updateOccurrence(occurrenceIdFor($(this)), { status: status });
-        });
-        element.find(".update-uncertain").change(function() {
-          var uncertain;
-          if($(this).prop("checked")) {
-            uncertain = true
-          } else {
-            uncertain = false
-          };
-          updateOccurrence(occurrenceIdFor($(this)), { uncertain: uncertain });
-        });
-        element.find('.delete-occurrence').click(function() {
-          text = 'Do you confirm removing this occurrence?'
-          if (confirm(text) == true) {
-            removeOccurrence(occurrenceIdFor($(this)));
-          }
-        });
-
-        $('#occurrences-collection').prepend(element);
+      new OccurrenceRequest(projectId).index(attrs).then(result => {
+        result.occurrences.reverse().forEach(occurrence => {
+          $(this.selector).prepend(
+            this.buildOccurrenceRow(occurrence)
+          );
+        })
+        this.onChange(result.summary)
       });
-      updateSummary(json.summary);
-    }).fail(function(xhr, status, error) {
-      alert('Please refresh the page and try again.')
-    })
+    }
 
-  }
+    updateOccurrence(occurrenceId, attrs) {
+      new OccurrenceRequest(projectId).save({ ...attrs, ...{ id: occurrenceId }}).then(result => {
+        this.occurrenceElementFor(result.occurrence.id).find(".occurrence-quantity").text(result.occurrence.quantity);
+        this.onChange(result.summary)
+      }).catch(errors => {
+        alert('Please refresh the page and try again.')
+      })
+    }
 
-  removeOccurrence = function(occurrenceId) {
-    var actionUrl = "/api/projects/" + projectId + "/occurrences/" + occurrenceId;
-    $.ajax({
-      url: actionUrl,
-      type: "DELETE",
-      dataType: "json",
-    })
-    .done(function(json) {
-      occurrenceElementFor(json.occurrence.id).remove();
-      updateSummary(json.summary);
-    }).fail(function(xhr, status, error) {
-      alert('Please refresh the page and try again.')
-    })
+    removeOccurrence(occurrenceId) {
+      new OccurrenceRequest(projectId).remove(occurrenceId).then(result => {
+        this.occurrenceElementFor(result.occurrence.id).remove();
+        this.onChange(result.summary)
+      }).catch(errors => {
+        alert('Please refresh the page and try again.')
+      })
+    }
+
+    buildOccurrenceRow(occurrence) {
+      var element = $($("#occurrence-template").html());
+      element.attr("data-occurrence-id", occurrence.id);
+
+      element.find(".occurrence-group-name").text(occurrence.group_name);
+      element.find(".occurrence-species-name").text(occurrence.species_name);
+      element.find(".occurrence-quantity").text(occurrence.quantity);
+      element.find(".occurrence-status").val(occurrence.status);
+      element.find(".occurrence-uncertain").prop('checked', occurrence.uncertain);
+
+      element.find(".increase-quantity").click(() => {
+        this.updateOccurrence(occurrence.id, { shift: 1 });
+      });
+      element.find('.set-quantity').click(() => {
+        const modal = $('.modal.set-quantity');
+        modal.find('.species-name').text(occurrence.species_name);
+        modal.find('.group-name').text(occurrence.group_name);
+        const quantityElement = modal.find('.occurrence-quantity')
+        quantityElement.val(element.find(".occurrence-quantity").text());
+        modal.modal({
+          onApprove: () => {
+            if (Number.isInteger(parseInt(quantityElement.val()))) {
+              this.updateOccurrence(occurrence.id, { quantity: quantityElement.val() });
+            } else {
+              alert("Please enter a number.");
+              return false
+            }
+          }
+        })
+        modal.modal('show');
+      });
+      element.find(".update-status").change((event) => {
+        var status = $(event.target).val();
+        this.updateOccurrence(occurrence.id, { status: status });
+      });
+      element.find(".update-uncertain").change((event) => {
+        var uncertain;
+        if($(event.target).prop("checked")) {
+          uncertain = true
+        } else {
+          uncertain = false
+        };
+        this.updateOccurrence(occurrence.id, { uncertain: uncertain });
+      });
+      element.find('.delete-occurrence').click(() => {
+        const text = 'Do you confirm removing this occurrence?'
+        if (confirm(text) == true) {
+          this.removeOccurrence(occurrence.id);
+        }
+      });
+
+      return element;
+    }
+
+    occurrenceElementFor(id) {
+      return $(".occurrence[data-occurrence-id='" + id + "']");
+    }
   }
 
   addOccurrence = function(speciesId, countingId, sampleId) {
-    var actionUrl = "/api/projects/" + projectId + "/occurrences";
     attrs = {
       species_id: speciesId,
       counting_id: countingId,
       sample_id: sampleId,
     };
-    $.ajax({
-      url: actionUrl,
-      data: attrs,
-      type: "POST",
-      dataType: "json",
-    })
-    .done(function(json) {
-      $('.modal.add-occurrence').modal('hide');
-      // TODO: add it to the displayed collection instead of reloading
-      window.location.reload();
-    }).fail(function(xhr, status, error) {
-      alert('Please refresh the page and try again.')
-    })
-  }
-
-  updateOccurrence = function(occurrence_id, attrs) {
-    var actionUrl = "/api/projects/" + projectId + "/occurrences/" + occurrence_id;
-    $.ajax({
-      url: actionUrl,
-      data: attrs,
-      type: "PATCH",
-      dataType: "json",
-    })
-    .done(function(json) {
-      occurrenceElementFor(json.occurrence.id).find(".occurrence-quantity").text(json.occurrence.quantity);
-      updateSummary(json.summary);
-    }).fail(function(xhr, status, error) {
-      alert('Please refresh the page and try again.')
-    })
+    new OccurrenceRequest(projectId).save(attrs).then(
+      result => {
+        $('.modal.add-occurrence').modal('hide');
+        // TODO: add it to the displayed collection instead of reloading
+        window.location.reload();
+      },
+      errors => {
+        alert('Please refresh the page and try again.')
+      }
+    )
   }
 
   updateSummary = function(summary) {
     $("#occurrences-uncountable-sum").text(summary.uncountable);
     $("#occurrences-countable-sum").text(summary.countable);
     $("#occurrences-total-sum").text(summary.total);
-  }
-
-  occurrenceIdFor = function(element) {
-    return element.parents(".occurrence").attr("data-occurrence-id");
-  }
-
-  occurrenceElementFor = function(id) {
-    return $(".occurrence[data-occurrence-id='" + id + "']");
   }
 
   showSearchResult = function(result) {
@@ -275,7 +288,7 @@ $(function() {
     }
   });
 
-  loadOccurrences();
+  new OccurrencesComponent('#occurrences-collection', updateSummary).loadOccurrences();
 
   const species = {
     name: null,
@@ -289,7 +302,6 @@ $(function() {
     new SpeciesModalFormView(species, (result) => {
       addOccurrence(result.species.id, countingId, sampleId)
     }).show()
-
   });
 })
 </script>

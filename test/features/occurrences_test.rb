@@ -116,6 +116,43 @@ describe 'Occurrences' do
     assert_match(/Diabella diabelli/, table_rows[3].text)
   end
 
+  it 'sets quantity' do
+    visit "/projects/#{project.id}/occurrences"
+
+    within page.find(:table_row, ['Odontochitina costata']) do
+      click_action_to('set quantity')
+    end
+    within('.modal.set-quantity') do
+      fill_in('occurrence-quantity', with: '100')
+      click_on('Save')
+    end
+
+    assert page.find(:table_row, ['Odontochitina costata']).has_content?('100')
+
+    visit "/projects/#{project.id}/occurrences"
+    assert page.find(:table_row, ['Odontochitina costata']).has_content?('100')
+  end
+
+  it 'increases quantity' do
+    visit "/projects/#{project.id}/occurrences"
+
+    within page.find(:table_row, ['Odontochitina costata']) do
+      click_action_to('increase quantity')
+      click_action_to('increase quantity')
+      click_action_to('increase quantity')
+    end
+    within page.find(:table_row, ['Cerodinium diabelli']) do
+      click_action_to('increase quantity')
+    end
+
+    assert page.find(:table_row, ['Odontochitina costata']).has_content?('3')
+    assert page.find(:table_row, ['Cerodinium diabelli']).has_content?('1')
+
+    visit "/projects/#{project.id}/occurrences"
+    assert page.find(:table_row, ['Odontochitina costata']).has_content?('3')
+    assert page.find(:table_row, ['Cerodinium diabelli']).has_content?('1')
+  end
+
   it 'counts countable' do
     visit "/projects/#{project.id}/occurrences"
 
@@ -131,37 +168,33 @@ describe 'Occurrences' do
 
     within page.find(:table_row, ['Odontochitina costata']) do
       click_action_to('increase quantity')
-      click_action_to('increase quantity')
-      click_action_to('increase quantity')
-      click_action_to('decrease quantity')
     end
     within page.find(:table_row, ['Cerodinium diabelli']) do
       click_action_to('increase quantity')
     end
 
-    assert page.find(:table_row, ['Odontochitina costata']).has_content?('2')
+    assert page.find(:table_row, ['Odontochitina costata']).has_content?('1')
     assert page.find(:table_row, ['Cerodinium diabelli']).has_content?('1')
     within('#occurrences-countable-sum') do
-      page.must_have_content('3')
+      page.must_have_content('2')
     end
     within('#occurrences-uncountable-sum') do
       page.must_have_content('0')
     end
     within('#occurrences-total-sum') do
-      page.must_have_content('3')
+      page.must_have_content('2')
     end
 
     visit "/projects/#{project.id}/occurrences"
-    assert page.find(:table_row, ['Odontochitina costata']).has_content?('2')
-    assert page.find(:table_row, ['Cerodinium diabelli']).has_content?('1')
+
     within('#occurrences-countable-sum') do
-      page.must_have_content('3')
+      page.must_have_content('2')
     end
     within('#occurrences-uncountable-sum') do
       page.must_have_content('0')
     end
     within('#occurrences-total-sum') do
-      page.must_have_content('3')
+      page.must_have_content('2')
     end
   end
 
@@ -180,48 +213,45 @@ describe 'Occurrences' do
 
     within page.find(:table_row, ['Odontochitina costata']) do
       click_action_to('increase quantity')
-      click_action_to('increase quantity')
       select('r', from: 'occurrence-status')
     end
 
-    assert page.find(:table_row, ['Odontochitina costata']).has_content?('2')
+    assert page.find(:table_row, ['Odontochitina costata']).has_content?('1')
     within('#occurrences-countable-sum') do
       page.must_have_content('0')
     end
     within('#occurrences-uncountable-sum') do
-      page.must_have_content('2')
+      page.must_have_content('1')
     end
     within('#occurrences-total-sum') do
-      page.must_have_content('2')
+      page.must_have_content('1')
     end
 
     within page.find(:table_row, ['Cerodinium diabelli']) do
       click_action_to('increase quantity')
     end
 
-    assert page.find(:table_row, ['Odontochitina costata']).has_content?('2')
+    assert page.find(:table_row, ['Odontochitina costata']).has_content?('1')
     assert page.find(:table_row, ['Cerodinium diabelli']).has_content?('1')
     within('#occurrences-countable-sum') do
       page.must_have_content('1')
     end
     within('#occurrences-uncountable-sum') do
-      page.must_have_content('2')
+      page.must_have_content('1')
     end
     within('#occurrences-total-sum') do
-      page.must_have_content('3')
+      page.must_have_content('2')
     end
 
     visit "/projects/#{project.id}/occurrences"
-    assert page.find(:table_row, ['Odontochitina costata']).has_content?('2')
-    assert page.find(:table_row, ['Cerodinium diabelli']).has_content?('1')
     within('#occurrences-countable-sum') do
       page.must_have_content('1')
     end
     within('#occurrences-uncountable-sum') do
-      page.must_have_content('2')
+      page.must_have_content('1')
     end
     within('#occurrences-total-sum') do
-      page.must_have_content('3')
+      page.must_have_content('2')
     end
   end
 
@@ -240,33 +270,31 @@ describe 'Occurrences' do
 
     within page.find(:table_row, ['Odontochitina costata']) do
       click_action_to('increase quantity')
-      click_action_to('increase quantity')
       check('occurrence-uncertain')
     end
 
-    assert page.find(:table_row, ['Odontochitina costata']).has_content?('2')
+    assert page.find(:table_row, ['Odontochitina costata']).has_content?('1')
     assert page.find(:table_row, ['Odontochitina costata']).has_checked_field?('occurrence-uncertain')
     within('#occurrences-countable-sum') do
-      page.must_have_content('2')
+      page.must_have_content('1')
     end
     within('#occurrences-uncountable-sum') do
       page.must_have_content('0')
     end
     within('#occurrences-total-sum') do
-      page.must_have_content('2')
+      page.must_have_content('1')
     end
 
     visit "/projects/#{project.id}/occurrences"
-    assert page.find(:table_row, ['Odontochitina costata']).has_content?('2')
     assert page.find(:table_row, ['Odontochitina costata']).has_checked_field?('occurrence-uncertain')
     within('#occurrences-countable-sum') do
-      page.must_have_content('2')
+      page.must_have_content('1')
     end
     within('#occurrences-uncountable-sum') do
       page.must_have_content('0')
     end
     within('#occurrences-total-sum') do
-      page.must_have_content('2')
+      page.must_have_content('1')
     end
   end
 
@@ -274,7 +302,6 @@ describe 'Occurrences' do
     visit "/projects/#{project.id}/occurrences"
 
     within page.find(:table_row, ['Odontochitina costata']) do
-      click_action_to('increase quantity')
       click_action_to('increase quantity')
       select('r', from: 'occurrence-status')
     end
@@ -287,10 +314,10 @@ describe 'Occurrences' do
       page.must_have_content('1')
     end
     within('#occurrences-uncountable-sum') do
-      page.must_have_content('2')
+      page.must_have_content('1')
     end
     within('#occurrences-total-sum') do
-      page.must_have_content('3')
+      page.must_have_content('2')
     end
 
     within page.find(:table_row, ['Cerodinium diabelli']) do
@@ -304,10 +331,10 @@ describe 'Occurrences' do
       page.must_have_content('0')
     end
     within('#occurrences-uncountable-sum') do
-      page.must_have_content('2')
+      page.must_have_content('1')
     end
     within('#occurrences-total-sum') do
-      page.must_have_content('2')
+      page.must_have_content('1')
     end
 
     within page.find(:table_row, ['Odontochitina costata']) do
@@ -320,10 +347,10 @@ describe 'Occurrences' do
       page.must_have_content('0')
     end
     within('#occurrences-uncountable-sum') do
-      page.must_have_content('2')
+      page.must_have_content('1')
     end
     within('#occurrences-total-sum') do
-      page.must_have_content('2')
+      page.must_have_content('1')
     end
 
     within page.find(:table_row, ['Odontochitina costata']) do

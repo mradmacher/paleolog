@@ -105,14 +105,47 @@ class ModelRequest {
     this.path = path;
   }
 
-  get(id) {
-    var url = `${this.path}/${id}`;
+  pathWithId(id) {
+    return `${this.path}/${id}`;
+  }
 
+  get(id) {
     return new Promise((resolve, reject) => {
       $.ajax({
-        url: url,
+        url: this.pathWithId(id),
         type: 'GET',
-        dataType: "json",
+        dataType: 'json',
+      })
+      .done(function(json) {
+        resolve(json);
+      }).fail(function(xhr, status, error) {
+        reject(xhr.responseJSON.errors);
+      })
+    })
+  }
+
+  remove(id) {
+    return new Promise((resolve, reject) => {
+      $.ajax({
+        url: this.pathWithId(id),
+        type: 'DELETE',
+        dataType: 'json',
+      })
+      .done(function(json) {
+        resolve(json);
+      }).fail(function(xhr, status, error) {
+        reject(xhr.responseJSON.errors);
+      })
+    })
+  }
+
+  index(attrs) {
+    return new Promise((resolve, reject) => {
+      $.ajax({
+        url: this.path,
+        data: attrs,
+        type: 'GET',
+        dataType: 'json',
       })
       .done(function(json) {
         resolve(json);
@@ -127,11 +160,11 @@ class ModelRequest {
     var url;
     var type;
     if (id) {
-      url = `${this.path}/${id}`;
+      url = this.pathWithId(id)
       type = 'PATCH'
     } else {
-      url = this.path;
-      type = 'POST';
+      url = this.path
+      type = 'POST'
     }
 
     return new Promise((resolve, reject) => {
@@ -164,19 +197,25 @@ class ProjectRequest extends ModelRequest {
 
 class SectionRequest extends ModelRequest {
   constructor() {
-    super(`/api/sections`);
+    super('/api/sections');
   }
 }
 
 class CountingRequest extends ModelRequest {
   constructor() {
-    super(`/api/countings`);
+    super('/api/countings');
   }
 }
 
 class SampleRequest extends ModelRequest {
   constructor() {
-    super(`/api/samples`);
+    super('/api/samples');
+  }
+}
+
+class OccurrenceRequest extends ModelRequest {
+  constructor(projectId) {
+    super(`/api/projects/${projectId}/occurrences`);
   }
 }
 
@@ -239,10 +278,8 @@ class ModalFormView {
         for (const field in that.attrs) {
           attrs[field] = form.find(`[name=${field}]`).val()
         }
-        console.log(attrs)
         that.requestService.save(attrs).then(
           result => {
-            console.log(result)
             that.callback(result)
           },
           errors => {
