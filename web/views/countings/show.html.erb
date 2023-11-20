@@ -25,41 +25,46 @@
     </div>
   </div>
 </div>
-<script type="text/javascript">
-$(function() {
-  let projectId = <%= @project.id %>
-  let countingId = <%= @counting_id %>
-  let projectName = "<%= @project.name %>"
+<script type="module">
+  import { CountingModalFormView } from "/js/modal_form_views.js";
+  import { CountingRequest } from "/js/requests.js";
+  import { DomHelpers } from "/js/dom_helpers.js";
+  import { UrlBuilder } from "/js/url_builder.js";
 
-  new CountingRequest().get(countingId).then(
-    result => {
-      let counting = result.counting
-      DomHelpers.setHref('.occurrences-link', UrlBuilder.projectOccurrences(projectId, { projectName: projectName, countingId: counting.id }))
-      DomHelpers.setHref('.reports-link', UrlBuilder.projectReports(projectId, { projectName: projectName, countingId: counting.id }))
-      DomHelpers.setText('.counting-name', counting.name)
-      if(counting.marker_count) {
-        DomHelpers.setText('.marker-count', counting.marker_count)
-      } else {
-        DomHelpers.hideAll('.marker-count-wrapper')
+  $(function() {
+    let projectId = <%= @project.id %>
+    let countingId = <%= @counting_id %>
+    let projectName = "<%= @project.name %>"
+
+    new CountingRequest().get(countingId).then(
+      result => {
+        let counting = result.counting
+        DomHelpers.setHref('.occurrences-link', UrlBuilder.projectOccurrences(projectId, { projectName: projectName, countingId: counting.id }))
+        DomHelpers.setHref('.reports-link', UrlBuilder.projectReports(projectId, { projectName: projectName, countingId: counting.id }))
+        DomHelpers.setText('.counting-name', counting.name)
+        if(counting.marker_count) {
+          DomHelpers.setText('.marker-count', counting.marker_count)
+        } else {
+          DomHelpers.hideAll('.marker-count-wrapper')
+        }
+        if(counting.group_name) {
+          DomHelpers.setText('.group-name', counting.group_name)
+        } else {
+          DomHelpers.hideAll('.group-name-wrapper')
+        }
+        if(counting.marker_name) {
+          DomHelpers.setText('.marker-name', counting.marker_name)
+          DomHelpers.setText('.marker-group-name', counting.marker_group_name)
+        } else {
+          DomHelpers.hideAll('.marker-name-wrapper')
+        }
+        $('.edit-counting.action').click(() => {
+          new CountingModalFormView(counting, (counting) => window.location.reload()).show()
+        });
+      },
+      errors => {
+        console.log(errors)
       }
-      if(counting.group_name) {
-        DomHelpers.setText('.group-name', counting.group_name)
-      } else {
-        DomHelpers.hideAll('.group-name-wrapper')
-      }
-      if(counting.marker_name) {
-        DomHelpers.setText('.marker-name', counting.marker_name)
-        DomHelpers.setText('.marker-group-name', counting.marker_group_name)
-      } else {
-        DomHelpers.hideAll('.marker-name-wrapper')
-      }
-      $('.edit-counting.action').click(() => {
-        new CountingModalFormView(counting, (counting) => window.location.reload()).show()
-      });
-    },
-    errors => {
-      console.log(errors)
-    }
-  )
-});
+    )
+  });
 </script>

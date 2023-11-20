@@ -123,185 +123,187 @@
   </div>
 </div>
 
-<script type="text/javascript">
-$(function() {
-  const projectId = <%= @project.id %>;
-  const sectionId = <%= @section.id %>;
-  const countingId = <%= @counting.id %>;
-  const sampleId = <%= @sample.id %>;
-  const countingGroupId = <%= @counting.group_id.to_json %>;
-  var speciesSearch = null;
+<script type="module">
+  import { OccurrenceRequest } from '/js/requests.js';
 
-  class OccurrencesComponent {
-    constructor(selector, onChange) {
-      this.selector = selector
-      this.onChange = onChange
+  $(function() {
+    const projectId = <%= @project.id %>;
+    const sectionId = <%= @section.id %>;
+    const countingId = <%= @counting.id %>;
+    const sampleId = <%= @sample.id %>;
+    const countingGroupId = <%= @counting.group_id.to_json %>;
+    var speciesSearch = null;
+
+    class OccurrencesComponent {
+      constructor(selector, onChange) {
+        this.selector = selector
+        this.onChange = onChange
+      }
+
+      loadOccurrences() {
+        var attrs = {
+          counting_id: countingId,
+          section_id: sectionId,
+          sample_id: sampleId,
+        };
+
+        new OccurrenceRequest(projectId).index(attrs).then(result => {
+          result.occurrences.reverse().forEach(occurrence => {
+            $(this.selector).prepend(
+              this.buildOccurrenceRow(occurrence)
+            );
+          })
+          this.onChange(result.summary)
+        });
+      }
+
+      updateOccurrence(occurrenceId, attrs) {
+        new OccurrenceRequest(projectId).save({ ...attrs, ...{ id: occurrenceId }}).then(result => {
+          this.occurrenceElementFor(result.occurrence.id).find(".occurrence-quantity").text(result.occurrence.quantity);
+          this.onChange(result.summary)
+        }).catch(errors => {
+          alert('Please refresh the page and try again.')
+        })
+      }
+
+      removeOccurrence(occurrenceId) {
+        new OccurrenceRequest(projectId).remove(occurrenceId).then(result => {
+          this.occurrenceElementFor(result.occurrence.id).remove();
+          this.onChange(result.summary)
+        }).catch(errors => {
+          alert('Please refresh the page and try again.')
+        })
+      }
+
+      buildOccurrenceRow(occurrence) {
+        var element = $($("#occurrence-template").html());
+        element.attr("data-occurrence-id", occurrence.id);
+
+        element.find(".occurrence-group-name").text(occurrence.group_name);
+        element.find(".occurrence-species-name").text(occurrence.species_name);
+        element.find(".occurrence-quantity").text(occurrence.quantity);
+        element.find(".occurrence-status").val(occurrence.status);
+        element.find(".occurrence-uncertain").prop('checked', occurrence.uncertain);
+
+        element.find(".increase-quantity").click(() => {
+          this.updateOccurrence(occurrence.id, { shift: 1 });
+        });
+        element.find('.set-quantity').click(() => {
+          const modal = $('.modal.set-quantity');
+          modal.find('.species-name').text(occurrence.species_name);
+          modal.find('.group-name').text(occurrence.group_name);
+          const quantityElement = modal.find('.occurrence-quantity')
+          quantityElement.val(element.find(".occurrence-quantity").text());
+          modal.modal({
+            onApprove: () => {
+              if (Number.isInteger(parseInt(quantityElement.val()))) {
+                this.updateOccurrence(occurrence.id, { quantity: quantityElement.val() });
+              } else {
+                alert("Please enter a number.");
+                return false
+              }
+            }
+          })
+          modal.modal('show');
+        });
+        element.find(".update-status").change((event) => {
+          var status = $(event.target).val();
+          this.updateOccurrence(occurrence.id, { status: status });
+        });
+        element.find(".update-uncertain").change((event) => {
+          var uncertain;
+          if($(event.target).prop("checked")) {
+            uncertain = true
+          } else {
+            uncertain = false
+          };
+          this.updateOccurrence(occurrence.id, { uncertain: uncertain });
+        });
+        element.find('.delete-occurrence').click(() => {
+          const text = 'Do you confirm removing this occurrence?'
+          if (confirm(text) == true) {
+            this.removeOccurrence(occurrence.id);
+          }
+        });
+
+        return element;
+      }
+
+      occurrenceElementFor(id) {
+        return $(".occurrence[data-occurrence-id='" + id + "']");
+      }
     }
 
-    loadOccurrences() {
-      var attrs = {
+    const addOccurrence = function(speciesId, countingId, sampleId) {
+      const attrs = {
+        species_id: speciesId,
         counting_id: countingId,
-        section_id: sectionId,
         sample_id: sampleId,
       };
-
-      new OccurrenceRequest(projectId).index(attrs).then(result => {
-        result.occurrences.reverse().forEach(occurrence => {
-          $(this.selector).prepend(
-            this.buildOccurrenceRow(occurrence)
-          );
-        })
-        this.onChange(result.summary)
-      });
-    }
-
-    updateOccurrence(occurrenceId, attrs) {
-      new OccurrenceRequest(projectId).save({ ...attrs, ...{ id: occurrenceId }}).then(result => {
-        this.occurrenceElementFor(result.occurrence.id).find(".occurrence-quantity").text(result.occurrence.quantity);
-        this.onChange(result.summary)
-      }).catch(errors => {
-        alert('Please refresh the page and try again.')
-      })
-    }
-
-    removeOccurrence(occurrenceId) {
-      new OccurrenceRequest(projectId).remove(occurrenceId).then(result => {
-        this.occurrenceElementFor(result.occurrence.id).remove();
-        this.onChange(result.summary)
-      }).catch(errors => {
-        alert('Please refresh the page and try again.')
-      })
-    }
-
-    buildOccurrenceRow(occurrence) {
-      var element = $($("#occurrence-template").html());
-      element.attr("data-occurrence-id", occurrence.id);
-
-      element.find(".occurrence-group-name").text(occurrence.group_name);
-      element.find(".occurrence-species-name").text(occurrence.species_name);
-      element.find(".occurrence-quantity").text(occurrence.quantity);
-      element.find(".occurrence-status").val(occurrence.status);
-      element.find(".occurrence-uncertain").prop('checked', occurrence.uncertain);
-
-      element.find(".increase-quantity").click(() => {
-        this.updateOccurrence(occurrence.id, { shift: 1 });
-      });
-      element.find('.set-quantity').click(() => {
-        const modal = $('.modal.set-quantity');
-        modal.find('.species-name').text(occurrence.species_name);
-        modal.find('.group-name').text(occurrence.group_name);
-        const quantityElement = modal.find('.occurrence-quantity')
-        quantityElement.val(element.find(".occurrence-quantity").text());
-        modal.modal({
-          onApprove: () => {
-            if (Number.isInteger(parseInt(quantityElement.val()))) {
-              this.updateOccurrence(occurrence.id, { quantity: quantityElement.val() });
-            } else {
-              alert("Please enter a number.");
-              return false
-            }
-          }
-        })
-        modal.modal('show');
-      });
-      element.find(".update-status").change((event) => {
-        var status = $(event.target).val();
-        this.updateOccurrence(occurrence.id, { status: status });
-      });
-      element.find(".update-uncertain").change((event) => {
-        var uncertain;
-        if($(event.target).prop("checked")) {
-          uncertain = true
-        } else {
-          uncertain = false
-        };
-        this.updateOccurrence(occurrence.id, { uncertain: uncertain });
-      });
-      element.find('.delete-occurrence').click(() => {
-        const text = 'Do you confirm removing this occurrence?'
-        if (confirm(text) == true) {
-          this.removeOccurrence(occurrence.id);
+      new OccurrenceRequest(projectId).save(attrs).then(
+        result => {
+          $('.modal.add-occurrence').modal('hide');
+          // TODO: add it to the displayed collection instead of reloading
+          window.location.reload();
+        },
+        errors => {
+          alert('Please refresh the page and try again.')
         }
+      )
+    }
+
+    const updateSummary = function(summary) {
+      $("#occurrences-uncountable-sum").text(summary.uncountable);
+      $("#occurrences-countable-sum").text(summary.countable);
+      $("#occurrences-total-sum").text(summary.total);
+    }
+
+    const showSearchResult = function(result) {
+      $('#species-list tbody').empty();
+      $('#search-species-size').text(result.result.length);
+      var that = this;
+      result.result.forEach(species => {
+        var element = $($('#search-species-template').html());
+        element.find('.species-name').text(species.name);
+        element.find('.species-group-name').text(species.group_name);
+        element.find('.select-species-action').click(function(event) {
+          addOccurrence(species.id, countingId, sampleId)
+        });
+        $('#species-list tbody').append(element);
       });
-
-      return element;
     }
 
-    occurrenceElementFor(id) {
-      return $(".occurrence[data-occurrence-id='" + id + "']");
-    }
-  }
-
-  addOccurrence = function(speciesId, countingId, sampleId) {
-    attrs = {
-      species_id: speciesId,
-      counting_id: countingId,
-      sample_id: sampleId,
-    };
-    new OccurrenceRequest(projectId).save(attrs).then(
-      result => {
-        $('.modal.add-occurrence').modal('hide');
-        // TODO: add it to the displayed collection instead of reloading
-        window.location.reload();
-      },
-      errors => {
-        alert('Please refresh the page and try again.')
+    $('.button.add-occurrence').click(function() {
+      $('.modal.add-occurrence').modal('show');
+      // TODO: exclude already present in counting
+      if(!speciesSearch) {
+        speciesSearch = new SpeciesSearch({
+          onSpeciesSelected: function(speciesId) {
+            addOccurrence(speciesId, countingId, sampleId)
+          },
+          onSpeciesSearched: function(result) {
+            showSearchResult(result)
+          },
+          updatePath: false,
+          initialFilter: countingGroupId ? { group_id: countingGroupId } : {},
+        });
       }
-    )
-  }
-
-  updateSummary = function(summary) {
-    $("#occurrences-uncountable-sum").text(summary.uncountable);
-    $("#occurrences-countable-sum").text(summary.countable);
-    $("#occurrences-total-sum").text(summary.total);
-  }
-
-  showSearchResult = function(result) {
-    $('#species-list tbody').empty();
-    $('#search-species-size').text(result.result.length);
-    var that = this;
-    result.result.forEach(species => {
-      var element = $($('#search-species-template').html());
-      element.find('.species-name').text(species.name);
-      element.find('.species-group-name').text(species.group_name);
-      element.find('.select-species-action').click(function(event) {
-        addOccurrence(species.id, countingId, sampleId)
-      });
-      $('#species-list tbody').append(element);
     });
-  }
 
-  $('.button.add-occurrence').click(function() {
-    $('.modal.add-occurrence').modal('show');
-    // TODO: exclude already present in counting
-    if(!speciesSearch) {
-      speciesSearch = new SpeciesSearch({
-        onSpeciesSelected: function(speciesId) {
-          addOccurrence(speciesId, countingId, sampleId)
-        },
-        onSpeciesSearched: function(result) {
-          showSearchResult(result)
-        },
-        updatePath: false,
-        initialFilter: countingGroupId ? { group_id: countingGroupId } : {},
-      });
+    new OccurrencesComponent('#occurrences-collection', updateSummary).loadOccurrences();
+
+    const species = {
+      name: null,
+      group_id: null,
+      //description: null,
+      //environmental_preferences: null,
+      //verified: false,
     }
-  });
 
-  new OccurrencesComponent('#occurrences-collection', updateSummary).loadOccurrences();
-
-  const species = {
-    name: null,
-    group_id: null,
-    //description: null,
-    //environmental_preferences: null,
-    //verified: false,
-  }
-
-  $('.add-species.action').click(() => {
-    new SpeciesModalFormView(species, (result) => {
-      addOccurrence(result.species.id, countingId, sampleId)
-    }).show()
-  });
-})
+    $('.add-species.action').click(() => {
+      new SpeciesModalFormView(species, (result) => {
+        addOccurrence(result.species.id, countingId, sampleId)
+      }).show()
+    });
+  })
 </script>
