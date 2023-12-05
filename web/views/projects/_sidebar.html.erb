@@ -42,24 +42,26 @@
   </div>
 </div>
 
-<script type="text/javascript">
-$(function() {
-  const section = {
-    project_id: <%= @project.id %>,
-    name: null,
-  }
+<script type="module">
+  import { SectionModalFormView, CountingModalFormView } from '/js/modal_form_views.js';
 
-  const counting = {
-    project_id: <%= @project.id %>,
-    name: null,
-  }
+  $(function() {
+    const section = {
+      project_id: <%= @project.id %>,
+      name: null,
+    }
 
-  $('.add-section.action').click(() => {
-    new SectionModalFormView(section, (section) => window.location.reload()).show()
-  })
+    const counting = {
+      project_id: <%= @project.id %>,
+      name: null,
+    }
 
-  $('.add-counting.action').click(() => {
-    new CountingModalFormView(counting, (counting) => window.location.reload()).show()
-  })
-});
+    $('.add-section.action').click(() => {
+      new SectionModalFormView(section, (section) => window.location.reload()).show()
+    })
+
+    $('.add-counting.action').click(() => {
+      new CountingModalFormView(counting, (counting) => window.location.reload()).show()
+    })
+  });
 </script>

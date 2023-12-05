@@ -48,14 +48,16 @@
 
 </div>
 
-<script type="text/javascript">
-$(function() {
-  const project = {
-    name: null,
-  }
+<script type="module">
+  import { ProjectModalFormView } from "/js/modal_form_views.js";
 
-  $('.add-project.action').click(() => {
-    new ProjectModalFormView(project, (project) => window.location.reload()).show()
+  $(function() {
+    const project = {
+      name: null,
+    }
+
+    $('.add-project.action').click(() => {
+      new ProjectModalFormView(project, (project) => window.location.reload()).show()
+    });
   });
-});
 </script>
