@@ -11,11 +11,14 @@
 /tmp/
 /db/postgres
 /db/test_postgres
+/node_modules
 *.sqlite
 *.swp
 *.swo
 .cache
 .bash_history
+.irb_history
+.nvmrc
 
 /web/public/images/*
 # Used by dotenv library to load environment variables.

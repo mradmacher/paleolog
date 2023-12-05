@@ -1,0 +1,17 @@
+{
+  "type": "module",
+  "name": "paleolog",
+  "version": "0.0.1",
+  "scripts": {
+    "test": "ava"
+  },
+  "ava": {
+    "files": [
+      "test/web/js/**/*"
+    ]
+  },
+  "devDependencies": {
+    "ava": "^6.0.0",
+    "jsdom": "^23.0.1"
+  }
+}
