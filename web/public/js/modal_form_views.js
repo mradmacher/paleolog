@@ -1,5 +1,6 @@
 import { errorMessages } from "./error_messages.js"
 import * as requests from "./requests.js"
+import { DomHelpers } from "./dom_helpers.js"
 
 export class ModalFormView {
   constructor(model, attrs, requestService, callback) {
@@ -8,32 +9,33 @@ export class ModalFormView {
     this.requestService = requestService
     this.callback = callback
 
-    this.modal = $($('#form-window-template').html())
-    var form = $($(`#${model}-form-template`).html())
-    var modelTitle = model.charAt(0).toUpperCase() + model.slice(1)
-    var actionTitle = ''
+    this.jqmodal = $($('#form-window-template').html())
+    this.modal = this.jqmodal[0]
+    const form = DomHelpers.buildFromTemplate(`${model}-form-template`)
+    const modelTitle = model.charAt(0).toUpperCase() + model.slice(1)
+    let actionTitle = ''
     if ('id' in attrs) {
       actionTitle = 'Edit'
     } else {
       actionTitle = 'Add'
     }
-    this.modal.find('>.header').text(`${actionTitle} ${modelTitle}`)
-    this.modal.find('form').append(form)
+    DomHelpers.setText('.header', `${actionTitle} ${modelTitle}`, this.modal)
+    this.modal.querySelector('form').append(form)
   }
 
   clearErrors() {
-    this.modal.find('.validation-messages .content').text('')
+    DomHelpers.setText('.validation-messages .content', '', this.modal)
   }
 
   hideErrors() {
-    this.modal.find('.validation-messages').hide()
+    DomHelpers.hideAll('.validation-messages', this.modal)
     this.clearErrors()
   }
 
   showErrors(errors) {
     this.clearErrors()
-    this.modal.find('.validation-messages').show()
-    var errorsContent = this.modal.find('.validation-messages .content')
+    DomHelpers.showAll('.validation-messages', this.modal)
+    var errorsContent = this.modal.querySelector('.validation-messages .content')
     var that = this
     jQuery.each(errors, function(field, message) {
       errorsContent.append(errorMessages[that.model][field][message])
@@ -45,20 +47,26 @@ export class ModalFormView {
 
   show() {
     this.hideErrors()
-    var form = this.modal.find('form')
-    form.trigger('reset');
+    let form = this.modal.querySelector('form')
+    form.reset()
     for (const field in this.attrs) {
-      form.find(`[name=${field}]`).val(this.attrs[field]);
+      let element = form.querySelector(`[name=${field}]`)
+      if (element) {
+        element.value = this.attrs[field]
+      }
     }
     this.loadFormData(form)
     var that = this;
-    this.modal.modal({
+    this.jqmodal.modal({
       closable: false,
       onApprove: function() {
         var attrs = {}
-        var form = that.modal.find('form')
+        var form = that.modal.querySelector('form')
         for (const field in that.attrs) {
-          attrs[field] = form.find(`[name=${field}]`).val()
+          let element = form.querySelector(`[name=${field}]`)
+          if (element) {
+            attrs[field] = element.value
+          }
         }
         that.requestService.save(attrs).then(
           result => {
@@ -94,10 +102,10 @@ export class SpeciesModalFormView extends ModalFormView {
     })
     .done(function(json) {
       json.groups.forEach(function(group) {
-        var option = $($('#species-group-option-template').html());
-        option.val(group.id);
-        option.text(group.name);
-        form.find('#species-group-id').append(option);
+        let option = DomHelpers.buildFromTemplate('species-group-option-template');
+        option.value = group.id;
+        option.textContent = group.name;
+        form.querySelector('#species-group-id').append(option);
       });
     }).fail(function(xhr, status, error) {
       reject(error)
