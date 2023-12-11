@@ -1,15 +1,33 @@
-<p>
+<div class="panel">
+  <div class="panel-block">
   <% @species.images.each do |image| %>
     <% id = image.id.to_s.rjust(9, '0') %>
     <img src="/<%=File.join('images', id[0..2], id[3..5], id[6..8], 'thumb.jpg') %>" />
   <% end %>
-</p>
+  </div>
+</div>
 <% if @species.description && !@species.description.empty? %>
-  <h2>Description</h2>
+<div class="panel">
+  <div class="panel-heading">
+    Description
+  </div>
   <% markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(hard_wrap: true)) %>
-  <p><%= markdown.render(@species.description) %></p>
+  <div class="panel-block">
+    <div class="content">
+      <%= markdown.render(@species.description) %>
+    </div>
+  </div>
+</div>
 <% end %>
 <% if @species.environmental_preferences && !@species.environmental_preferences.empty? %>
-  <h2>Environmental Preferences</h2>
-  <p><%= markdown.render(@species.environmental_preferences) %></p>
+<div class="panel">
+  <div class="panel-heading">
+  Environmental Preferences
+  </div>
+  <div class="panel-block">
+    <div class="content">
+      <%= markdown.render(@species.environmental_preferences) %>
+    </div>
+  </div>
+</div>
 <% end %>

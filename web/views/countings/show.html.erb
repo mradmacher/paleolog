@@ -1,30 +1,42 @@
-<div class="ui fluid card">
-  <div class="content">
-    <div class="header">
-      <div class="ui ribbon label">counting</div>
-      <h2 class="ui header counting-name"></h2>
-      <div class="ui fluid horizontal menu">
-        <a class="item occurrences-link" href="#">Counting Occurrences</a>
-        <a class="item reports-link" href="#">Counting Report</a>
-        <div class="ui right mini secondary menu">
-          <div class="item">
-            <button class="ui secondary button edit-counting action">Edit Counting</button>
-          </div>
+<div class="panel">
+  <div class="panel-heading">
+    <span class="tag">counting</span>
+    <h2 class="title counting-name"></h2>
+  </div>
+  <nav class="navbar">
+    <div class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item occurrences-link" href="#">Counting Occurrences</a>
+        <a class="navbar-item reports-link" href="#">Counting Report</a>
+      </div>
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <button class="button is-black is-small edit-counting action">Edit Counting</button>
         </div>
       </div>
     </div>
-    <div class="description">
-      <dl>
-        <dt class="group-name-wrapper">Counting's Group</dt>
-        <dd class="group-name-wrapper group-name"></dd>
-        <dt class="marker-name-wrapper">Marker</dt>
-        <dd class="marker-name-wrapper"><span class="marker-name"></span> (<span class="marker-group-name"></span>)</dd>
-        <dt class="marker-count-wrapper">Marker Count</dt>
-        <dd class="marker-count-wrapper marker-count"></dd>
-      </dl>
-    </div>
+  </nav>
+</div>
+<div class="panel">
+  <div class="panel-block">
+    <table class="table is-striped is-bordered">
+      <thead>
+        <tr>
+          <th>Counting's Group</th>
+          <th>Marker</th>
+          <th>Marker Count</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="group-name"></td>
+          <td><span class="marker-name"></span> <span class="marker-group-name"></span></td>
+          <td class="marker-count"></td>
+      </tbody>
+    </table>
   </div>
 </div>
+
 <script type="module">
   import { CountingModalFormView } from "/js/modal_form_views.js";
   import { CountingRequest } from "/js/requests.js";

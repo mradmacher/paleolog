@@ -1,32 +1,46 @@
-<div class="ui grid">
-  <div class="sixteen wide column">
-    <fieldset>
-      <legend>Species</legend>
-      <h1><%= @species.name %></h1>
-    </fieldset>
+<section class="section">
+  <div class="panel">
+    <div class="panel-heading">
+      <span class="tag">species</span>
+      <h1 class="title"><%= @species.name %></h1>
+    </div>
   </div>
-
-  <div class="three wide column">
-    <fieldset>
-      <legend>Details</legend>
+  <div class="panel-block">
+    <div class="columns">
+      <div class="column is-one-quarter">
         <% unless @species.verified %>
-          <div class="ui red label">UNVERIFIED</div>
+        <div class="panel">
+          <div class="panel-block">
+            <div class="tag is-danger">UNVERIFIED</div>
+          </div>
+        </div>
         <% end %>
-        <h2>Group</h2>
-        <p><%= @species.group.name %></p>
-        <h2>Features</h2>
-        <p>
-          <dl>
-          <% @species.features.each do |feature| %>
-            <dt><%= feature.choice.field.name %></dt>
-            <dd><%= feature.choice.name %></dd>
-          <% end %>
-         </dl>
-       </p>
-    </fieldset>
-  </div>
+        <div class="panel">
+          <div class="panel-heading">
+            Group
+          </div>
+          <div class="panel-block">
+            <%= @species.group.name %>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-heading">
+            Features
+          </div>
+          <div class="panel-block">
+            <dl>
+            <% @species.features.each do |feature| %>
+              <dt><%= feature.choice.field.name %></dt>
+              <dd><%= feature.choice.name %></dd>
+            <% end %>
+            </dl>
+          </div>
+        </div>
+      </div>
 
-  <div class="thirteen wide column">
-    <%= yield %>
+      <div class="column">
+        <%= yield %>
+      </div>
+    </div>
   </div>
-</div>
+</section>

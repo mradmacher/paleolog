@@ -1,36 +1,37 @@
-<div class="ui grid">
-  <div class="sixteen wide column">
-    <fieldset class="ui grid">
-      <div class="fourteen wide column">
-        <h1 class="ui header">Species list (<span id="search-species-size"></span>)</h1>
+<section class="section">
+  <div class="columns">
+    <div class="column is-one-quarter">
+      <%= erb :'species/_search.html', layout: false %>
+    </div>
+
+    <div class="column">
+      <div class="panel">
+        <div class="panel-heading">
+          <h1 class="title">Species list (<span id="search-species-size"></span>)</h1>
+        </div>
+        <div class="panel-block">
+          <template id="search-species-template">
+            <tr class="species">
+              <td><a href="" class="species-name species-link"></a></td>
+              <td class="species-group-name"></td>
+            </tr>
+          </template>
+          <table id="species-list" class="table is-striped is-fullwidth">
+            <thead>
+              <tr>
+                <th>Species</th>
+                <th>Group</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </fieldset>
+    </div>
   </div>
+</section>
 
-  <div class="three wide column">
-    <%= erb :'species/_search.html', layout: false %>
-  </div>
-
-  <div class="thirteen wide column scrolling content">
-    <template id="search-species-template">
-      <tr class="species">
-        <td><a href="" class="species-name species-link"></a></td>
-        <td class="species-group-name"></td>
-      </tr>
-    </template>
-    <table id="species-list" class="ui celled table">
-      <thead>
-        <tr>
-          <th>Species</th>
-          <th>Group</th>
-        </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    </table>
-  </div>
-
-</div>
 <script type="text/javascript">
 $(function() {
   new SpeciesSearch({

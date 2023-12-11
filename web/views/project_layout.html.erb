@@ -1,11 +1,11 @@
-<div class="ui grid">
-  <div class="sixteen wide column">
-    <%= erb :'projects/_header.html', layout: false %>
+<%= erb :'projects/_header.html', layout: false %>
+<section class="section">
+  <div class="columns">
+    <div class="column is-one-quarter">
+      <%= erb :'projects/_sidebar.html', layout: false %>
+    </div>
+    <div class="column">
+      <%= yield %>
+    </div>
   </div>
-  <div class="three wide column">
-    <%= erb :'projects/_sidebar.html', layout: false %>
-  </div>
-  <div class="thirteen wide column">
-    <%= yield %>
-  </div>
-</div>
+</section>

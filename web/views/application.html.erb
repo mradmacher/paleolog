@@ -7,26 +7,35 @@
     <title>PaleoLog</title>
 
     <script src="/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="/Semantic-UI-CSS-master/semantic.min.css">
-    <script src="/Semantic-UI-CSS-master/semantic.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
   </head>
 
   <body>
     <%= erb :'templates/form.html', layout: false %>
-    <div class="ui grid container">
-      <div class="sixteen wide column">
-        <div class="ui menu">
-          <% if logged_in? %>
-            <a class="ui item" href="/catalog">Catalog</a>
-            <a class="ui item" href="/projects">Projects</a>
-            <a class="ui item floated right" href="/logout">Logout</a>
-          <% else %>
-            <a class="ui item" href="/">Home</a>
-            <a class="ui item floated right" href="/login">Login</a>
-          <% end %>
+    <div class="container">
+      <nav class="navbar box">
+        <div class="navbar-brand">
+          <a class="navbar-item" href="/"><strong>PaleoLog</strong></a>
         </div>
-      </div>
-      <div class="sixteen wide column">
+        <div class="navbar-menu">
+          <div class="navbar-start">
+          <% if logged_in? %>
+            <a class="navbar-item" href="/catalog">Catalog</a>
+            <a class="navbar-item" href="/projects">Projects</a>
+          <% end %>
+          </div>
+          <div class="navbar-end">
+          <% if logged_in? %>
+            <a class="navbar-item" href="/logout">Logout</a>
+          <% else %>
+            <a class="navbar-item" href="/login">Login</a>
+          <% end %>
+          </div>
+        </div>
+      </nav>
+    </div>
+    <div class="columns">
+      <div class="column">
         <%= yield %>
       </div>
     </div>

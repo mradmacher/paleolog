@@ -1,9 +1,10 @@
-<form class="ui form" id="new_report" method="post" target="_blank">
+<section class="section">
+<form class="form" id="new_report" method="post" target="_blank">
   <input type="hidden" name="section_id" value="<%= @section&.id %>" />
   <input type="hidden" name="counting_id" value="<%= @counting&.id %>" />
 
   <button class="ui primary button <%= @section&.id && @counting&.id ? '' : 'disabled' %>" type="submit">Generate</button>
-  <table class="ui celled table">
+  <table class="table is-striped is-fullwidth">
     <thead>
       <tr>
         <th><label for="type">Data</label></th>
@@ -38,7 +39,7 @@
     </tbody>
   </table>
 
-  <table class="ui celled table">
+  <table class="table is-bordered is-fullwidth">
     <thead>
       <tr>
         <th>Samples</th>
@@ -223,6 +224,7 @@
     </tbody>
   </table>
 </form>
+</section>
 
 <script src="/jquery-3.6.0.min.js"></script>
 <script>

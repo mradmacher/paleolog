@@ -1,26 +1,26 @@
-<div class="ui fluid card">
-  <div class="content">
-    <div class="header">
-      <div class="ui ribbon label">project</div>
-      <h1 class="ui header">
+<section class="section">
+  <div class="panel">
+    <div class="panel-heading">
+      <span class="tag">project</span>
+      <h1 class="title">
         <a href="<%= project_path(@project) %>"><%= @project.name %></a>
       </h1>
     </div>
-    <div class="description">
-      <div class="ui menu">
-        <a class="item" href="<%= project_path(@project) %>">Summary</a>
-        <a class="item" href="<%= project_species_path(@project) %>">Species</a>
-        <a class="item" href="<%= occurrences_path(@project) %>">Occurrences</a>
-        <a class="item" href="<%= reports_path(@project) %>">Reports</a>
-        <div class="ui right mini secondary menu">
-          <div class="item">
-            <button class="ui secondary button edit-project action">Edit Project</button>
-          </div>
+    <nav class="navbar">
+      <div class="navbar-menu">
+        <a class="navbar-item" href="<%= project_path(@project) %>">Home</a>
+        <a class="navbar-item" href="<%= project_species_path(@project) %>">Species</a>
+        <a class="navbar-item" href="<%= occurrences_path(@project) %>">Occurrences</a>
+        <a class="navbar-item" href="<%= reports_path(@project) %>">Reports</a>
+      </div>
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <button class="button is-small is-black edit-project action">Edit Project</button>
         </div>
       </div>
-    </div>
+    </nav>
   </div>
-</div>
+</section>
 
 <script type="module">
   import { ProjectModalFormView } from '/js/modal_form_views.js?a=1'

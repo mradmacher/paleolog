@@ -1,4 +1,4 @@
-<table class="ui collapsing compact celled table occurrences-summary">
+<table class="table is-striped is-bordered occurrences-summary">
   <thead>
     <tr>
       <th>Counted</th>
@@ -10,7 +10,7 @@
     <tr>
       <td><span id="occurrences-countable-sum"></span></td>
       <td><span id="occurrences-uncountable-sum"></span></td>
-      <td class="active"><span id="occurrences-total-sum"></span></td>
+      <td class="is-selected"><span id="occurrences-total-sum"></span></td>
     </tr>
   </tbody>
 </table>
@@ -21,22 +21,22 @@
     <td class="occurrence-species-name"></td>
     <td class="occurrence-quantity"></td>
     <td>
-      <div class="ui horizontal icon buttons">
-        <button class="ui button increase-quantity" data-shift="1"><i class="plus icon"></i></button>
-        <button class="ui button set-quantity"><i class="edit icon"></i></button>
+      <div class="field has-addons">
+        <button class="button increase-quantity" data-shift="1">+</button>
+        <button class="button set-quantity">=</i></button>
       </div>
     </td>
-    <td class="ui form field">
+    <td class="field">
       <select class="occurrence-status update-status" name="occurrence-status">
         <% Paleolog::CountingSummary::STATUSES.each do |value, symbol| %>
           <option value="<%= value %>"><%= symbol %></option>
         <% end %>
       </select>
     </td>
-    <td class="ui form field">
+    <td class="field">
       <input class="occurrence-uncertain update-uncertain" name="occurrence-uncertain" type="checkbox" />
     </td>
-    <td><button class="ui negative mini icon button delete-occurrence"><i class="trash icon"></i></button>
+    <td><button class="button is-small is-danger delete-occurrence">Remove</button>
   </tr>
 </template>
 
@@ -54,7 +54,7 @@
   </div>
 </div>
 
-<table class="ui striped celled table">
+<table class="table is-striped is-bordered is-fullwidth">
   <thead>
     <tr align="center">
       <th>Group</th>
@@ -68,7 +68,7 @@
   <tbody id="occurrences-collection">
     <tr>
       <td colspan="7">
-        <button class="ui fluid mini icon secondary button add-occurrence"><i class="plus icon"></i></button>
+        <button class="button is-small is-black is-fullwidth add-occurrence">Add</button>
       </td>
     </tr>
   </tbody>

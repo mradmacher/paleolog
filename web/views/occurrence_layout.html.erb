@@ -1,35 +1,36 @@
-<div class="ui fluid card">
-  <div class="content">
-    <div class="header">
-      <div class="ui ribbon label">occurrences</div>
-      <h2 class="header">
-          <% if @counting %>
-            <%= @counting.name %>
-          <% else %>
-            [select]
-          <% end %>
-          <span class="ui left pointing label">counting</span>
-          <% if @section %>
-            <%= @section.name %>
-          <% else %>
-            [select]
-          <% end %>
-          <span class="ui left pointing label">section</span>
-          <% if @sample %>
-            <%= @sample.name %>
-          <% else %>
-            [select]
-          <% end %>
-          <span class="ui left pointing label">sample</span>
-        </h2>
+<div class="section">
+  <div class="panel">
+    <div class="panel-heading">
+      <span class="tag">occurrences</span>
+      <h2 class="title">
+        <% if @counting %>
+          <%= @counting.name %>
+        <% else %>
+          [select]
+        <% end %>
+        <span class="tag">counting</span>
+        <% if @section %>
+          <%= @section.name %>
+        <% else %>
+          [select]
+        <% end %>
+        <span class="tag">section</span>
+        <% if @sample %>
+          <%= @sample.name %>
+        <% else %>
+          [select]
+        <% end %>
+        <span class="tag">sample</span>
+      </h2>
     </div>
-    <div class="ui description grid">
-      <div class="twelve wide column" %>
+  </div>
+    <div class="columns">
+      <div class="column is-three-quarters" %>
         <%= yield %>
       </div>
 
-      <div class="two wide column">
-        <table class="ui celled table">
+      <div class="column">
+        <table class="table is-striped is-bordered is-narrow">
           <thead>
             <tr>
               <th>Counting</th>
@@ -39,8 +40,7 @@
             <% @project.countings.each do |counting| %>
               <tr>
                 <% if counting.id == @counting&.id %>
-                  <td class="positive">
-                    <i class="icon checkmark"></i>
+                  <td class="is-selected">
                     <%= counting.name %>
                   </td>
                 <% else %>
@@ -53,7 +53,7 @@
           </tbody>
         </table>
 
-        <table class="ui celled table">
+        <table class="table is-striped is-bordered is-narrow">
           <thead>
             <tr>
               <th>Section</th>
@@ -63,8 +63,7 @@
             <% @project.sections.each do |section| %>
               <tr>
                 <% if section.id == @section&.id %>
-                  <td class="positive">
-                    <i class="icon checkmark"></i>
+                  <td class="is-selected">
                     <%= section.name %>
                   </td>
                 <% else %>
@@ -77,8 +76,8 @@
           </tbody>
         </table>
       </div>
-      <div class="two wide column" %>
-        <table class="ui celled table">
+      <div class="column" %>
+        <table class="table is-striped is-bordered is-narrow">
           <thead>
             <tr>
               <th>Sample</th>
@@ -89,8 +88,7 @@
               <% @section.samples.each do |sample| %>
                 <tr>
                   <% if sample.id == @sample&.id %>
-                    <td class="positive">
-                      <i class="icon checkmark"></i>
+                    <td class="is-selected">
                       <%= sample.name %>
                     </td>
                   <% else %>
@@ -104,7 +102,6 @@
           </tbody>
         </table>
       </div>
-
     </div>
   </div>
 </div>
