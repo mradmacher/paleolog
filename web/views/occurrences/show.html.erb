@@ -22,8 +22,8 @@
     <td class="occurrence-quantity"></td>
     <td>
       <div class="field has-addons">
-        <button class="button increase-quantity" data-shift="1">+</button>
-        <button class="button set-quantity">=</i></button>
+        <button class="button is-small increase-quantity" data-shift="1">+</button>
+        <button class="button is-small set-quantity">=</i></button>
       </div>
     </td>
     <td class="field">
@@ -39,22 +39,9 @@
     <td><button class="button is-small is-danger delete-occurrence">Remove</button>
   </tr>
 </template>
+<%= erb :'occurrences/_set_quantity_dialog.html', layout: false %>
 
-<div class="ui modal set-quantity">
-  <div class="header">Set Quantity</div>
-  <div class="content">
-    <div class="ui form field">
-      <label for="occurrence-quantity"><span class="species-name"></span> - <span class="group-name"></span></label>
-      <input class="occurrence-quantity" name="occurrence-quantity" type="number" min="0" />
-    </div>
-  </div>
-  <div class="actions">
-    <button class="ui approve button">Save</button>
-    <button class="ui cancel button">Cancel</button>
-  </div>
-</div>
-
-<table class="table is-striped is-bordered is-fullwidth">
+<table class="table is-striped is-bordered is-narrow is-fullwidth">
   <thead>
     <tr align="center">
       <th>Group</th>
@@ -73,58 +60,11 @@
     </tr>
   </tbody>
 </table>
-
-<div class="ui modal add-occurrence">
-  <div class="header">Add Species</div>
-  <div class="content">
-    <div class="ui grid">
-      <div class="sixteen wide column">
-        <fieldset class="ui grid">
-          <div class="fourteen wide column">
-            <h1 class="ui header">Species list (<span id="search-species-size"></span>)</h1>
-          </div>
-          <div class="two wide column">
-            <button class="ui mini secondary button add-species action">Add</button>
-          </div>
-        </fieldset>
-      </div>
-
-      <div class="three wide column">
-        <%= erb :'species/_search.html', layout: false %>
-      </div>
-
-      <div class="thirteen wide column scrolling content">
-        <template id="search-species-template">
-          <tr class="species">
-            <td class="species-name"></td>
-            <td class="species-group-name"></td>
-            <td>
-              <button class="ui button select-species-action"><i class="right arrow icon"></i></button>
-            </td>
-          </tr>
-        </template>
-        <table id="species-list" class="ui celled table">
-          <thead>
-            <tr>
-              <th>Species</th>
-              <th>Group</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
-      </div>
-
-    </div>
-  </div>
-  <div class="actions">
-    <div class="ui cancel button">Cancel</div>
-  </div>
-</div>
+<%= erb :'occurrences/_add_occurrence_dialog.html', layout: false %>
 
 <script type="module">
   import { OccurrenceRequest } from '/js/requests.js';
+  import { DomHelpers } from '/js/dom_helpers.js';
 
   $(function() {
     const projectId = <%= @project.id %>;
@@ -189,22 +129,23 @@
           this.updateOccurrence(occurrence.id, { shift: 1 });
         });
         element.find('.set-quantity').click(() => {
-          const modal = $('.modal.set-quantity');
-          modal.find('.species-name').text(occurrence.species_name);
-          modal.find('.group-name').text(occurrence.group_name);
-          const quantityElement = modal.find('.occurrence-quantity')
-          quantityElement.val(element.find(".occurrence-quantity").text());
-          modal.modal({
-            onApprove: () => {
-              if (Number.isInteger(parseInt(quantityElement.val()))) {
-                this.updateOccurrence(occurrence.id, { quantity: quantityElement.val() });
-              } else {
-                alert("Please enter a number.");
-                return false
-              }
+          const modal = document.querySelector('.modal.set-quantity');
+          DomHelpers.setText('.species-name', occurrence.species_name, modal);
+          DomHelpers.setText('.group-name', occurrence.group_name, modal);
+          const quantityElement = modal.querySelector('.occurrence-quantity');
+          quantityElement.value = element.find(".occurrence-quantity").text();
+          modal.classList.add('is-active');
+          modal.querySelector('.button.cancel').addEventListener('click', () => {
+            modal.classList.remove('is-active');
+          })
+          modal.querySelector('.button.confirm').addEventListener('click', () => {
+            if (Number.isInteger(parseInt(quantityElement.value))) {
+              this.updateOccurrence(occurrence.id, { quantity: quantityElement.value });
+              modal.classList.remove('is-active');
+            } else {
+              alert("Please enter a number.");
             }
           })
-          modal.modal('show');
         });
         element.find(".update-status").change((event) => {
           var status = $(event.target).val();
@@ -242,7 +183,8 @@
       };
       new OccurrenceRequest(projectId).save(attrs).then(
         result => {
-          $('.modal.add-occurrence').modal('hide');
+          const modal = document.querySelector('.modal.add-occurrence');
+          modal.classList.remove('is-active');
           // TODO: add it to the displayed collection instead of reloading
           window.location.reload();
         },
@@ -274,7 +216,11 @@
     }
 
     $('.button.add-occurrence').click(function() {
-      $('.modal.add-occurrence').modal('show');
+      const modal = document.querySelector('.modal.add-occurrence');
+      modal.querySelector('.button.cancel').addEventListener('click', () => {
+        modal.classList.remove('is-active');
+      })
+      modal.classList.add('is-active');
       // TODO: exclude already present in counting
       if(!speciesSearch) {
         speciesSearch = new SpeciesSearch({

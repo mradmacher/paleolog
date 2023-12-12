@@ -9,8 +9,8 @@ export class ModalFormView {
     this.requestService = requestService
     this.callback = callback
 
-    this.jqmodal = $($('#form-window-template').html())
-    this.modal = this.jqmodal[0]
+    this.modal = DomHelpers.buildFromTemplate('form-window-template').children[0];
+    document.body.appendChild(this.modal);
     const form = DomHelpers.buildFromTemplate(`${model}-form-template`)
     const modelTitle = model.charAt(0).toUpperCase() + model.slice(1)
     let actionTitle = ''
@@ -24,7 +24,7 @@ export class ModalFormView {
   }
 
   clearErrors() {
-    DomHelpers.setText('.validation-messages .content', '', this.modal)
+    DomHelpers.setText('.validation-messages .errors', '', this.modal)
   }
 
   hideErrors() {
@@ -35,11 +35,11 @@ export class ModalFormView {
   showErrors(errors) {
     this.clearErrors()
     DomHelpers.showAll('.validation-messages', this.modal)
-    var errorsContent = this.modal.querySelector('.validation-messages .content')
+    var errorsContent = this.modal.querySelector('.validation-messages .errors')
     var that = this
     jQuery.each(errors, function(field, message) {
       errorsContent.append(errorMessages[that.model][field][message])
-      errorsContent.append('<br />')
+      errorsContent.append(document.createElement("br"))
     })
   }
 
@@ -57,29 +57,29 @@ export class ModalFormView {
     }
     this.loadFormData(form)
     var that = this;
-    this.jqmodal.modal({
-      closable: false,
-      onApprove: function() {
-        var attrs = {}
-        var form = that.modal.querySelector('form')
-        for (const field in that.attrs) {
-          let element = form.querySelector(`[name=${field}]`)
-          if (element) {
-            attrs[field] = element.value
-          }
-        }
-        that.requestService.save(attrs).then(
-          result => {
-            that.callback(result)
-          },
-          errors => {
-            that.showErrors(errors)
-          }
-        )
-        return false
-      }
+    this.modal.classList.add('is-active');
+    this.modal.querySelector('.button.is-cancel').addEventListener('click', () => {
+      this.modal.classList.remove('is-active');
     })
-    .modal('show')
+    this.modal.querySelector('.button.is-success').addEventListener('click', () => {
+      let attrs = {}
+      const form = this.modal.querySelector('form')
+      for (const field in this.attrs) {
+        let element = form.querySelector(`[name=${field}]`)
+        if (element) {
+          attrs[field] = element.value
+        }
+      }
+      this.requestService.save(attrs).then(
+        result => {
+          this.callback(result)
+          this.modal.classList.remove('is-active');
+        },
+        errors => {
+          this.showErrors(errors)
+        }
+      )
+    });
   }
 }
 

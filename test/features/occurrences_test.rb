@@ -30,7 +30,7 @@ describe 'Occurrences' do
     visit '/login'
     fill_in('login-field', with: 'test')
     fill_in('password-field', with: 'test123')
-    within('.ui.form') { click_on('Login') }
+    within('.form') { click_on('Login') }
     assert_link('Logout')
   end
 

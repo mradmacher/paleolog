@@ -16,7 +16,10 @@ export class DomHelpers {
   }
 
   static setText(selector, text, scope = document) {
-    scope.querySelector(selector).textContent = text;
+    const element = scope.querySelector(selector);
+    if (element) {
+      element.textContent = text;
+    }
   }
 
   static buildFromTemplate(templateId, scope = document) {
