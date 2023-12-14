@@ -12,7 +12,10 @@ export class DomHelpers {
   }
 
   static setHref(selector, href, scope = document) {
-    scope.querySelector(selector).setAttribute('href', href);
+    const element = scope.querySelector(selector);
+    if (element) {
+      element.setAttribute('href', href);
+    }
   }
 
   static setText(selector, text, scope = document) {

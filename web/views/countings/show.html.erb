@@ -5,10 +5,6 @@
   </div>
   <nav class="navbar">
     <div class="navbar-menu">
-      <div class="navbar-start">
-        <a class="navbar-item occurrences-link" href="#">Counting Occurrences</a>
-        <a class="navbar-item reports-link" href="#">Counting Report</a>
-      </div>
       <div class="navbar-end">
         <div class="navbar-item">
           <button class="button is-black is-small edit-counting action">Edit Counting</button>
@@ -16,8 +12,6 @@
       </div>
     </div>
   </nav>
-</div>
-<div class="panel">
   <div class="panel-block">
     <table class="table is-striped is-bordered">
       <thead>
@@ -36,6 +30,7 @@
     </table>
   </div>
 </div>
+<%= erb :'countings/_occurrences_section.html', layout: false %>
 
 <script type="module">
   import { CountingModalFormView } from "/js/modal_form_views.js";

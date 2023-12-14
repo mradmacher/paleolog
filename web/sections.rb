@@ -23,7 +23,7 @@ module Web
         Paleolog::Repo::Project.with_researchers,
       )
       @section_id = params[:id].to_i
-      using_project_layout { display 'sections/show.html' }
+      using_project_layout { using_section_layout { display 'sections/show.html' } }
     end
   end
 end

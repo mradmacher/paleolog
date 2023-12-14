@@ -1,11 +1,4 @@
 <%= erb :'projects/_header.html', layout: false %>
 <section class="section">
-  <div class="columns">
-    <div class="column is-one-quarter">
-      <%= erb :'projects/_sidebar.html', layout: false %>
-    </div>
-    <div class="column">
-      <%= yield %>
-    </div>
-  </div>
+  <%= yield %>
 </section>

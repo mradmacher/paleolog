@@ -1,0 +1,34 @@
+<div class="panel project-sections">
+  <div class="panel-heading">Sections</div>
+  <div class="panel-block">
+    <table class="table is-striped is-fullwidth">
+      <tbody>
+      <% @project.sections.each do |section| %>
+        <tr>
+          <td class="<%= section.id == @section&.id ? 'is-selected' : '' %>">
+            <a href="<%= section_path(@project, section) %>"><%= section.name %></a>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+  <div class="panel-block">
+    <button class="button is-small is-black is-fullwidth add-section action"><i class="add icon"></i>Add</button>
+  </div>
+</div>
+
+<script type="module">
+import { SectionModalFormView } from '/js/modal_form_views.js'
+
+const section = {
+  project_id: <%= @project.id %>,
+  name: null,
+}
+
+$(function() {
+  $('.add-section.action').click(() => {
+    new SectionModalFormView(section, (section) => window.location.reload()).show()
+  })
+});
+</script>

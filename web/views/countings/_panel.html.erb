@@ -1,0 +1,34 @@
+<div class="panel project-countings">
+  <div class="panel-heading">Countings</div>
+  <div class="panel-block">
+    <table class="table is-striped is-fullwidth">
+      <tbody>
+      <% @project.countings.each do |counting| %>
+        <tr>
+          <td class="<%= counting.id == @counting&.id ? 'is-selected' : '' %>">
+            <a href="<%= counting_path(@project, counting) %>"><%= counting.name %></a>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+  <div class="panel-block">
+    <button class="button is-small is-black is-fullwidth add-counting action"><i class="add icon"></i>Add</button>
+  </div>
+</div>
+
+<script type="module">
+import { CountingModalFormView } from '/js/modal_form_views.js'
+
+$(function() {
+  const counting = {
+    project_id: <%= @project.id %>,
+    name: null,
+  }
+
+  $('.add-counting.action').click(() => {
+    new CountingModalFormView(counting, (counting) => window.location.reload()).show()
+  })
+});
+</script>

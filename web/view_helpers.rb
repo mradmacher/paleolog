@@ -30,6 +30,14 @@ module Web
       erb :'occurrence_layout.html', layout: nil, &block
     end
 
+    def using_section_layout(&block)
+      erb :'section_layout.html', layout: nil, &block
+    end
+
+    def using_counting_layout(&block)
+      erb :'counting_layout.html', layout: nil, &block
+    end
+
     def using_reports_layout(&block)
       erb :'report_layout.html', layout: nil, &block
     end

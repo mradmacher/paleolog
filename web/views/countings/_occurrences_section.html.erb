@@ -1,0 +1,58 @@
+<div class="columns">
+  <div class="column is-three-quarters" %>
+    <% if @section && @sample %>
+    <%= erb :'countings/_occurrences.html', layout: false %>
+    <% end %>
+  </div>
+
+  <div class="column">
+    <table class="table is-striped is-bordered is-narrow">
+      <thead>
+        <tr>
+          <th>Section</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @project.sections.each do |section| %>
+          <tr>
+            <% if section.id == @section&.id %>
+              <td class="is-selected">
+                <%= section.name %>
+              </td>
+            <% else %>
+              <td>
+                <a href="<%= counting_path(@project, @counting, section: section, sample: nil) %>"><%= section.name %></a>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <div class="column" %>
+    <table class="table is-striped is-bordered is-narrow">
+      <thead>
+        <tr>
+          <th>Sample</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @section %>
+          <% @section.samples.each do |sample| %>
+            <tr>
+              <% if sample.id == @sample&.id %>
+                <td class="is-selected">
+                  <%= sample.name %>
+                </td>
+              <% else %>
+                <td>
+                  <a href="<%= counting_path(@project, @counting, section: @section, sample: sample) %>"><%= sample.name %></a>
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

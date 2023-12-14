@@ -23,7 +23,16 @@ module Web
         Paleolog::Repo::Project.with_researchers,
       )
       @counting_id = params[:id].to_i
-      using_project_layout { display 'countings/show.html' }
+      @counting = Paleolog::Repo::Counting.find_for_project(
+        params[:id].to_i, @project.id
+      )
+      if params[:section]
+        @section = Paleolog::Repo::Section.find_for_project(params[:section].to_i, @project.id)
+      end
+      if @section && params[:sample]
+        @sample = Paleolog::Repo::Sample.find_for_section(params[:sample].to_i, @section.id)
+      end
+      using_project_layout { using_counting_layout { display 'countings/show.html' } }
     end
   end
 end
