@@ -5,7 +5,7 @@
       <tbody>
       <% @project.sections.each do |section| %>
         <tr>
-          <td class="<%= section.id == @section&.id ? 'is-selected' : '' %>">
+          <td class="<%= section.id == @section_id ? 'is-selected' : '' %>">
             <a href="<%= section_path(@project, section) %>"><%= section.name %></a>
           </td>
         </tr>

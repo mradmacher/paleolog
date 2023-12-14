@@ -5,9 +5,13 @@
       <tbody>
       <% @project.countings.each do |counting| %>
         <tr>
-          <td class="<%= counting.id == @counting&.id ? 'is-selected' : '' %>">
-            <a href="<%= counting_path(@project, counting) %>"><%= counting.name %></a>
-          </td>
+          <% if counting.id == @counting&.id  %>
+            <td class="is-selected"><%= counting.name %></td>
+          <% else %>
+            <td>
+              <a href="<%= counting_path(@project, counting) %>"><%= counting.name %></a>
+            </td>
+          <% end %>
         </tr>
       <% end %>
       </tbody>
