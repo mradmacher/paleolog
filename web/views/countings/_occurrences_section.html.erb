@@ -10,6 +10,7 @@
 
 <script type="module">
   import { OccurrenceRequest, SectionRequest } from '/js/requests.js';
+  import { OccurrencesComponent } from '/js/occurrences_component.js';
   import { DomHelpers } from '/js/dom_helpers.js';
 
   $(function() {
@@ -26,106 +27,15 @@
     const countingGroupId = <%= @counting.group_id.to_json %>;
     var speciesSearch = null;
 
-    class OccurrencesComponent {
-      constructor(selector, onChange) {
-        this.selector = selector
-        this.onChange = onChange
-      }
+    const occurrencesComponent = new OccurrencesComponent(
+      projectId,
+      '#occurrences-collection',
+      '#occurrences-summary'
+    );
 
-      loadOccurrences(sectionId, sampleId) {
-        var attrs = {
-          counting_id: countingId,
-          section_id: sectionId,
-          sample_id: sampleId,
-        };
-
-        new OccurrenceRequest(projectId).index(attrs).then(result => {
-          document.querySelector(this.selector).innerHTML = '';
-          result.occurrences.reverse().forEach(occurrence => {
-            $(this.selector).prepend(
-              this.buildOccurrenceRow(occurrence)
-            );
-          })
-          this.onChange(result.summary)
-        });
-      }
-
-      updateOccurrence(occurrenceId, attrs) {
-        new OccurrenceRequest(projectId).save({ ...attrs, ...{ id: occurrenceId }}).then(result => {
-          this.occurrenceElementFor(result.occurrence.id).find(".occurrence-quantity").text(result.occurrence.quantity);
-          this.onChange(result.summary)
-        }).catch(errors => {
-          alert('Please refresh the page and try again.')
-        })
-      }
-
-      removeOccurrence(occurrenceId) {
-        new OccurrenceRequest(projectId).remove(occurrenceId).then(result => {
-          this.occurrenceElementFor(result.occurrence.id).remove();
-          this.onChange(result.summary)
-        }).catch(errors => {
-          alert('Please refresh the page and try again.')
-        })
-      }
-
-      buildOccurrenceRow(occurrence) {
-        var element = $($("#occurrence-template").html());
-        element.attr("data-occurrence-id", occurrence.id);
-
-        element.find(".occurrence-group-name").text(occurrence.group_name);
-        element.find(".occurrence-species-name").text(occurrence.species_name);
-        element.find(".occurrence-quantity").text(occurrence.quantity);
-        element.find(".occurrence-status").val(occurrence.status);
-        element.find(".occurrence-uncertain").prop('checked', occurrence.uncertain);
-
-        element.find(".increase-quantity").click(() => {
-          this.updateOccurrence(occurrence.id, { shift: 1 });
-        });
-        element.find('.set-quantity').click(() => {
-          const modal = document.querySelector('.modal.set-quantity');
-          DomHelpers.setText('.species-name', occurrence.species_name, modal);
-          DomHelpers.setText('.group-name', occurrence.group_name, modal);
-          const quantityElement = modal.querySelector('.occurrence-quantity');
-          quantityElement.value = element.find(".occurrence-quantity").text();
-          modal.classList.add('is-active');
-          modal.querySelector('.button.cancel').addEventListener('click', () => {
-            modal.classList.remove('is-active');
-          })
-          modal.querySelector('.button.confirm').addEventListener('click', () => {
-            if (Number.isInteger(parseInt(quantityElement.value))) {
-              this.updateOccurrence(occurrence.id, { quantity: quantityElement.value });
-              modal.classList.remove('is-active');
-            } else {
-              alert("Please enter a number.");
-            }
-          })
-        });
-        element.find(".update-status").change((event) => {
-          var status = $(event.target).val();
-          this.updateOccurrence(occurrence.id, { status: status });
-        });
-        element.find(".update-uncertain").change((event) => {
-          var uncertain;
-          if($(event.target).prop("checked")) {
-            uncertain = true
-          } else {
-            uncertain = false
-          };
-          this.updateOccurrence(occurrence.id, { uncertain: uncertain });
-        });
-        element.find('.delete-occurrence').click(() => {
-          const text = 'Do you confirm removing this occurrence?'
-          if (confirm(text) == true) {
-            this.removeOccurrence(occurrence.id);
-          }
-        });
-
-        return element;
-      }
-
-      occurrenceElementFor(id) {
-        return $(".occurrence[data-occurrence-id='" + id + "']");
-      }
+    if (sectionId && sampleId) {
+      occurrencesComponent.show();
+      occurrencesComponent.loadOccurrences(countingId, sectionId, sampleId);
     }
 
     const addOccurrence = function(speciesId, countingId, sampleId) {
@@ -145,12 +55,6 @@
           alert('Please refresh the page and try again.')
         }
       )
-    }
-
-    const updateSummary = function(summary) {
-      $("#occurrences-uncountable-sum").text(summary.uncountable);
-      $("#occurrences-countable-sum").text(summary.countable);
-      $("#occurrences-total-sum").text(summary.total);
     }
 
     const showSearchResult = function(result) {
@@ -189,13 +93,6 @@
       }
     });
 
-    const occurrencesComponent = new OccurrencesComponent('#occurrences-collection', updateSummary)
-    if (sectionId && sampleId) {
-      document.querySelector('.occurrences-summary').classList.remove('is-hidden');
-      document.querySelector('.occurrences-list').classList.remove('is-hidden');
-      occurrencesComponent.loadOccurrences(sectionId, sampleId);
-    }
-
     // Selecting section and sample
     document.querySelectorAll('.select-section.action').forEach((element) => {
       element.addEventListener('click', (event) => {
@@ -216,6 +113,7 @@
             let section = result.section
 
             let sectionSamplesElement = document.querySelector('.samples-list tbody')
+            sectionSamplesElement.innerHTML = '';
             section.samples.forEach((sample, i) => {
               let template = DomHelpers.getTemplate('section-sample-template')
               DomHelpers.setText('.select-sample', sample.name, template)
@@ -234,9 +132,8 @@
                 });
                 event.target.parentElement.classList.add('is-selected');
 
-                document.querySelector('.occurrences-summary').classList.remove('is-hidden');
-                document.querySelector('.occurrences-list').classList.remove('is-hidden');
-                occurrencesComponent.loadOccurrences(section.id, sample.id)
+                occurrencesComponent.show();
+                occurrencesComponent.loadOccurrences(countingId, section.id, sample.id)
               })
 
               sectionSamplesElement.append(template)

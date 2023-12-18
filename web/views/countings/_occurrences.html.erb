@@ -1,4 +1,4 @@
-<table class="table is-striped is-bordered occurrences-summary is-hidden">
+<table id="occurrences-summary" class="table is-striped is-bordered is-hidden">
   <thead>
     <tr>
       <th>Counted</th>
@@ -41,7 +41,7 @@
 </template>
 <%= erb :'countings/_set_quantity_dialog.html', layout: false %>
 
-<table class="table is-striped is-bordered is-narrow is-fullwidth occurrences-list is-hidden">
+<table id="occurrences-collection" class="table is-striped is-bordered is-narrow is-fullwidth is-hidden">
   <thead>
     <tr align="center">
       <th>Group</th>
@@ -52,12 +52,14 @@
       <th></th>
     </tr>
   </thead>
-  <tbody id="occurrences-collection">
+  <tbody class="occurrences-slot">
+  </tbody>
+  <tfoot>
     <tr>
       <td colspan="7">
         <button class="button is-small is-black is-fullwidth add-occurrence">Add</button>
       </td>
     </tr>
-  </tbody>
+  </tfoot>
 </table>
 <%= erb :'countings/_add_occurrence_dialog.html', layout: false %>
