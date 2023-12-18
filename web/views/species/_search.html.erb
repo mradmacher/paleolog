@@ -71,15 +71,15 @@
 
     updateSearchParams(attrs) {
       if ('URLSearchParams' in window) {
-        var searchParams = new URLSearchParams();
-        var searchParamsProvided = false;
-        for(var attr in attrs) {
+        let searchParams = new URLSearchParams();
+        let searchParamsProvided = false;
+        for(let attr in attrs) {
           if(attrs[attr]) {
             searchParams.set(attr, attrs[attr]);
             searchParamsProvided = true;
           }
         }
-        var newRelativePathQuery = window.location.pathname;
+        let newRelativePathQuery = window.location.pathname;
         if(searchParamsProvided) {
           newRelativePathQuery = newRelativePathQuery + '?' + searchParams.toString();
         }

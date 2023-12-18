@@ -18,6 +18,13 @@ export class DomHelpers {
     }
   }
 
+  static setAttr(selector, attr, value, scope = document) {
+    const element = scope.querySelector(selector);
+    if (element) {
+      element.setAttribute(attr, value);
+    }
+  }
+
   static setText(selector, text, scope = document) {
     const element = scope.querySelector(selector);
     if (element) {

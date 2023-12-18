@@ -1,8 +1,6 @@
 <div class="columns">
   <div class="column is-four-fifths" %>
-    <% if @section && @sample %>
     <%= erb :'countings/_occurrences.html', layout: false %>
-    <% end %>
   </div>
 
   <div class="column">
@@ -11,7 +9,7 @@
 </div>
 
 <script type="module">
-  import { OccurrenceRequest } from '/js/requests.js';
+  import { OccurrenceRequest, SectionRequest } from '/js/requests.js';
   import { DomHelpers } from '/js/dom_helpers.js';
 
   $(function() {
@@ -34,7 +32,7 @@
         this.onChange = onChange
       }
 
-      loadOccurrences() {
+      loadOccurrences(sectionId, sampleId) {
         var attrs = {
           counting_id: countingId,
           section_id: sectionId,
@@ -42,6 +40,7 @@
         };
 
         new OccurrenceRequest(projectId).index(attrs).then(result => {
+          document.querySelector(this.selector).innerHTML = '';
           result.occurrences.reverse().forEach(occurrence => {
             $(this.selector).prepend(
               this.buildOccurrenceRow(occurrence)
@@ -190,7 +189,66 @@
       }
     });
 
-    new OccurrencesComponent('#occurrences-collection', updateSummary).loadOccurrences();
+    const occurrencesComponent = new OccurrencesComponent('#occurrences-collection', updateSummary)
+    if (sectionId && sampleId) {
+      document.querySelector('.occurrences-summary').classList.remove('is-hidden');
+      document.querySelector('.occurrences-list').classList.remove('is-hidden');
+      occurrencesComponent.loadOccurrences(sectionId, sampleId);
+    }
+
+    // Selecting section and sample
+    document.querySelectorAll('.select-section.action').forEach((element) => {
+      element.addEventListener('click', (event) => {
+        let sectionId = event.target.getAttribute('data-section-id');
+        event.preventDefault();
+        let searchParams = new URLSearchParams();
+        searchParams.set('section', sectionId);
+        let newRelativePathQuery = window.location.pathname;
+        newRelativePathQuery = newRelativePathQuery + '?' + searchParams.toString();
+        history.pushState(null, '', newRelativePathQuery);
+        document.querySelectorAll('.sections-list .section').forEach((element) => {
+          element.classList.remove('is-selected')
+        });
+        event.target.parentElement.classList.add('is-selected');
+
+        new SectionRequest().get(sectionId).then(
+          result => {
+            let section = result.section
+
+            let sectionSamplesElement = document.querySelector('.samples-list tbody')
+            section.samples.forEach((sample, i) => {
+              let template = DomHelpers.getTemplate('section-sample-template')
+              DomHelpers.setText('.select-sample', sample.name, template)
+              DomHelpers.setAttr('.select-sample', 'data-sample-id', sample.id, template)
+
+              template.querySelector('.select-sample.action').addEventListener('click', (event) => {
+                event.preventDefault();
+                let searchParams = new URLSearchParams();
+                searchParams.set('section', section.id);
+                searchParams.set('sample', sample.id);
+                let newRelativePathQuery = window.location.pathname;
+                newRelativePathQuery = newRelativePathQuery + '?' + searchParams.toString();
+                history.pushState(null, '', newRelativePathQuery);
+                document.querySelectorAll('.samples-list .sample').forEach((element) => {
+                  element.classList.remove('is-selected')
+                });
+                event.target.parentElement.classList.add('is-selected');
+
+                document.querySelector('.occurrences-summary').classList.remove('is-hidden');
+                document.querySelector('.occurrences-list').classList.remove('is-hidden');
+                occurrencesComponent.loadOccurrences(section.id, sample.id)
+              })
+
+              sectionSamplesElement.append(template)
+            })
+          },
+          errors => {
+            console.log(errors)
+          }
+        )
+      });
+    });
+
 
     const species = {
       name: null,
