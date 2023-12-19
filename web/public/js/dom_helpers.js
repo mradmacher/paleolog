@@ -32,6 +32,13 @@ export class DomHelpers {
     }
   }
 
+  static setValue(selector, value, scope = document) {
+    const element = scope.querySelector(selector);
+    if (element) {
+      element.value = value;
+    }
+  }
+
   static buildFromTemplate(templateId, scope = document) {
     return scope.getElementById(templateId).content.cloneNode(true);
   }

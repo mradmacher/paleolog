@@ -1,11 +1,51 @@
 import { OccurrenceRequest } from '/js/requests.js';
 import { DomHelpers } from '/js/dom_helpers.js';
 
+class SetQuantityDialog {
+  constructor(selector, scope = document) {
+    this.element = scope.querySelector(selector);
+  }
+
+  show(initialQuantity, speciesName, groupName) {
+    DomHelpers.setText('.species-name', speciesName, this.element);
+    DomHelpers.setText('.group-name', groupName, this.element);
+
+    const quantityElement = this.element.querySelector('[name="occurrence-quantity"]');
+    quantityElement.value = initialQuantity;
+    this.element.classList.add('is-active');
+
+    return new Promise((resolve) => {
+      const cancelListener = (event) => {
+        event.target.removeEventListener('click', cancelListener);
+        this.hide();
+      }
+
+      const confirmListener = (event) => {
+        if (Number.isInteger(parseInt(quantityElement.value))) {
+          event.target.removeEventListener('click', confirmListener);
+          this.hide();
+          resolve(quantityElement.value);
+        } else {
+          alert("Please enter a number.");
+        }
+
+      }
+      this.element.querySelector('.button.cancel').addEventListener('click', cancelListener);
+      this.element.querySelector('.button.confirm').addEventListener('click', confirmListener);
+    });
+  }
+
+  hide() {
+    this.element.classList.remove('is-active');
+  }
+}
+
 export class OccurrencesComponent {
   constructor(projectId, collectionSelector, summarySelector, scope = document) {
     this.projectId = projectId;
     this.summaryElement = scope.querySelector(summarySelector);
     this.collectionElement = scope.querySelector(collectionSelector);
+    this.setQuantityDialog = new SetQuantityDialog('.modal.set-quantity');
   }
 
   show() {
@@ -42,63 +82,54 @@ export class OccurrencesComponent {
   }
 
   buildOccurrenceRow(occurrence) {
-    let element = $($("#occurrence-template").html());
-    element.attr("data-occurrence-id", occurrence.id);
+    const element = DomHelpers.buildFromTemplate('occurrence-template');
+    element.querySelector('.occurrence').setAttribute("data-occurrence-id", occurrence.id);
 
-    element.find(".occurrence-group-name").text(occurrence.group_name);
-    element.find(".occurrence-species-name").text(occurrence.species_name);
-    element.find(".occurrence-quantity").text(occurrence.quantity);
-    element.find(".occurrence-status").val(occurrence.status);
-    element.find(".occurrence-uncertain").prop('checked', occurrence.uncertain);
+    element.querySelector('.occurrence-group-name').textContent = occurrence.group_name;
+    element.querySelector('.occurrence-species-name').textContent = occurrence.species_name;
+    element.querySelector('.occurrence-quantity').textContent = occurrence.quantity;
+    element.querySelector('.occurrence-status').value = occurrence.status;
+    element.querySelector('.occurrence-uncertain').checked = occurrence.uncertain;
 
-    element.find(".increase-quantity").click(() => {
+    element.querySelector('.increase-quantity').addEventListener('click', () => {
       this.updateOccurrence(occurrence.id, { shift: 1 });
     });
-    element.find('.set-quantity').click(() => {
-      const modal = document.querySelector('.modal.set-quantity');
-      DomHelpers.setText('.species-name', occurrence.species_name, modal);
-      DomHelpers.setText('.group-name', occurrence.group_name, modal);
-      const quantityElement = modal.querySelector('.occurrence-quantity');
-      quantityElement.value = element.find(".occurrence-quantity").text();
-      modal.classList.add('is-active');
-      modal.querySelector('.button.cancel').addEventListener('click', () => {
-        modal.classList.remove('is-active');
-      })
-      modal.querySelector('.button.confirm').addEventListener('click', () => {
-        if (Number.isInteger(parseInt(quantityElement.value))) {
-          this.updateOccurrence(occurrence.id, { quantity: quantityElement.value });
-          modal.classList.remove('is-active');
-        } else {
-          alert("Please enter a number.");
-        }
+
+    element.querySelector('.set-quantity').addEventListener('click', () => {
+      const currentQuantity = this.occurrenceElementFor(occurrence.id).querySelector('.occurrence-quantity').textContent;
+      this.setQuantityDialog.show(currentQuantity, occurrence.species_name, occurrence.group_name).then(value => {
+        this.updateOccurrence(occurrence.id, { quantity: value });
       })
     });
-    element.find(".update-status").change((event) => {
-      var status = $(event.target).val();
-        this.updateOccurrence(occurrence.id, { status: status });
+
+    element.querySelector('.update-status').addEventListener('change', (event) => {
+      let status = event.target.value;
+      this.updateOccurrence(occurrence.id, { status: status });
     });
-    element.find(".update-uncertain").change((event) => {
+
+    element.querySelector('.update-uncertain').addEventListener('change', (event) => {
       var uncertain;
-      if($(event.target).prop("checked")) {
+      if (event.target.checked) {
         uncertain = true
       } else {
         uncertain = false
       };
       this.updateOccurrence(occurrence.id, { uncertain: uncertain });
     });
-    element.find('.delete-occurrence').click(() => {
+
+    element.querySelector('.delete-occurrence').addEventListener('click', () => {
       const text = 'Do you confirm removing this occurrence?'
       if (confirm(text) == true) {
         this.removeOccurrence(occurrence.id);
       }
     });
 
-    return element[0];
+    return element;
   }
 
   updateOccurrence(occurrenceId, attrs) {
     new OccurrenceRequest(this.projectId).save({ ...attrs, ...{ id: occurrenceId }}).then(result => {
-      this.occurrenceElementFor(result.occurrence.id).find(".occurrence-quantity").text(result.occurrence.quantity);
+      this.occurrenceElementFor(result.occurrence.id).querySelector('.occurrence-quantity').textContent = result.occurrence.quantity;
       this.updateSummary(result.summary)
     }).catch(errors => {
       alert('Please refresh the page and try again.')
@@ -115,6 +146,6 @@ export class OccurrencesComponent {
   }
 
   occurrenceElementFor(id) {
-    return $(".occurrence[data-occurrence-id='" + id + "']");
+    return this.collectionElement.querySelector(`.occurrence[data-occurrence-id="${id}"]`);
   }
 }
