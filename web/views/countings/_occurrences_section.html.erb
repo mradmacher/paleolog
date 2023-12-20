@@ -10,10 +10,10 @@
 
 <script type="module">
   import { DomHelpers } from '/js/dom_helpers.js';
+  import { OccurrenceSpeciesSelector } from '/js/occurrence_species_selector.js';
   import { OccurrenceRequest, SectionRequest } from '/js/requests.js';
   import { OccurrencesComponent } from '/js/occurrences_component.js';
   import { SpeciesModalFormView } from '/js/modal_form_views.js';
-  import { SpeciesSearch } from '/js/species_search.js';
   import { UrlParamsUpdater } from '/js/url_params_updater.js';
 
   $(function() {
@@ -41,49 +41,6 @@
       occurrencesComponent.loadOccurrences(countingId, sectionId, sampleId);
     }
 
-    class AddOccurrenceDialog {
-      constructor(selector, scope = document) {
-        this.element = scope.querySelector(selector);
-      }
-
-      show() {
-        this.element.classList.add('is-active');
-
-        const cancelListener = (event) => {
-          event.target.removeEventListener('click', cancelListener);
-          this.element.classList.remove('is-active');
-        }
-
-        this.element.querySelector('.button.cancel').addEventListener('click', cancelListener);
-        return new Promise((resolve) => {
-          new SpeciesSearch({
-            onSpeciesSearched: (result) => {
-              this.showSearchResult(result, (speciesId) => {
-                this.element.classList.remove('is-active');
-                resolve(speciesId);
-              });
-            },
-            updatePath: false,
-            initialFilter: countingGroupId ? { group_id: countingGroupId } : {},
-          });
-        });
-      }
-
-      showSearchResult(result, callback) {
-        $('#species-list tbody').empty();
-        $('#search-species-size').text(result.result.length);
-        result.result.forEach(species => {
-          let element = $($('#search-species-template').html());
-          element.find('.species-name').text(species.name);
-          element.find('.species-group-name').text(species.group_name);
-          element.find('.select-species-action').click(() => {
-            callback(species.id);
-          });
-          $('#species-list tbody').append(element);
-        });
-      }
-    }
-
     const addOccurrence = function(speciesId, countingId, sampleId) {
       const attrs = {
         species_id: speciesId,
@@ -101,9 +58,9 @@
       )
     }
 
-    $('.button.add-occurrence').click(function() {
-      const dialog = new AddOccurrenceDialog('.modal.add-occurrence');
-      dialog.show().then((speciesId) => {
+    document.querySelector('.button.add-occurrence').addEventListener('click', () => {
+      const dialog = new OccurrenceSpeciesSelector('.modal.add-occurrence');
+      dialog.show({ countingGroupId: countingGroupId }).then((speciesId) => {
         console.log(`${speciesId}:${countingId}:${sampleId}`);
         addOccurrence(speciesId, countingId, sampleId);
       })
@@ -127,7 +84,7 @@
             let sectionSamplesElement = document.querySelector('.samples-list tbody')
             sectionSamplesElement.innerHTML = '';
             section.samples.forEach((sample, i) => {
-              let template = DomHelpers.getTemplate('section-sample-template')
+              let template = DomHelpers.buildFromTemplate('section-sample-template')
               DomHelpers.setText(sample.name, '.select-sample', template)
               DomHelpers.setAttr('data-sample-id', sample.id, '.select-sample', template)
 

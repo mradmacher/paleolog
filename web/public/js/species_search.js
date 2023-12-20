@@ -3,20 +3,15 @@ import { UrlParamsUpdater } from '/js/url_params_updater.js';
 
 export class SpeciesSearch {
   constructor({
+    selector = null,
+    scope = document,
     updatePath = false,
     initialFilter = {},
     defaultFilter = {},
-    onSpeciesSearched = null,
+    onSpeciesSearched = (speciesId) => {},
   }) {
-    if(onSpeciesSearched) {
-      this.onSpeciesSearchedEvent= onSpeciesSearched;
-    } else {
-      this.onSpeciesSearchedEvent = (speciesId) => {
-        // do nothing
-      };
-    };
-
-    this.element = document.querySelector('#species-search');
+    this.element = scope.querySelector(selector);
+    this.onSpeciesSearchedEvent= onSpeciesSearched;
     this.updatePath = updatePath;
     this.defaultFilter = defaultFilter;
     this.fetchAvailableSearchFilters().then(filters => {

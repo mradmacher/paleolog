@@ -37,6 +37,7 @@ import { SpeciesSearch } from '/js/species_search.js';
 
 $(function() {
   new SpeciesSearch({
+    selector: '#species-search',
     onSpeciesSearched: function(result) {
       $('#species-list tbody').empty();
       $('#search-species-size').text(result.result.length);
