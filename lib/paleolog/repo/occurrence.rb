@@ -6,6 +6,21 @@ module Paleolog
       class << self
         include CommonQueries
 
+        def with_species_and_group
+          lambda { |occurrence|
+            occurrence.species = Paleolog::Repo::Species.find(occurrence.species_id)
+          }
+        end
+
+        def find(id, *options)
+          result = ds.where(id: id).first
+          return nil unless result
+
+          Paleolog::Occurrence.new(**result) do |occurrence|
+            options.each { |opt| opt.call(occurrence) }
+          end
+        end
+
         # rubocop:disable Metrics/AbcSize
         def find_in_project(id, project_id)
           result = ds.where(Sequel[:occurrences][:id] => id, Sequel[:projects][:id] => project_id)

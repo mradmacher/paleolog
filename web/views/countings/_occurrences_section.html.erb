@@ -9,9 +9,11 @@
 </div>
 
 <script type="module">
+  import { DomHelpers } from '/js/dom_helpers.js';
   import { OccurrenceRequest, SectionRequest } from '/js/requests.js';
   import { OccurrencesComponent } from '/js/occurrences_component.js';
-  import { DomHelpers } from '/js/dom_helpers.js';
+  import { SpeciesModalFormView } from '/js/modal_form_views.js';
+  import { SpeciesSearch } from '/js/species_search.js';
 
   $(function() {
     const projectId = <%= @project.id %>;
@@ -38,6 +40,49 @@
       occurrencesComponent.loadOccurrences(countingId, sectionId, sampleId);
     }
 
+    class AddOccurrenceDialog {
+      constructor(selector, scope = document) {
+        this.element = scope.querySelector(selector);
+      }
+
+      show() {
+        this.element.classList.add('is-active');
+
+        const cancelListener = (event) => {
+          event.target.removeEventListener('click', cancelListener);
+          this.element.classList.remove('is-active');
+        }
+
+        this.element.querySelector('.button.cancel').addEventListener('click', cancelListener);
+        return new Promise((resolve) => {
+          new SpeciesSearch({
+            onSpeciesSearched: (result) => {
+              this.showSearchResult(result, (speciesId) => {
+                this.element.classList.remove('is-active');
+                resolve(speciesId);
+              });
+            },
+            updatePath: false,
+            initialFilter: countingGroupId ? { group_id: countingGroupId } : {},
+          });
+        });
+      }
+
+      showSearchResult(result, callback) {
+        $('#species-list tbody').empty();
+        $('#search-species-size').text(result.result.length);
+        result.result.forEach(species => {
+          let element = $($('#search-species-template').html());
+          element.find('.species-name').text(species.name);
+          element.find('.species-group-name').text(species.group_name);
+          element.find('.select-species-action').click(() => {
+            callback(species.id);
+          });
+          $('#species-list tbody').append(element);
+        });
+      }
+    }
+
     const addOccurrence = function(speciesId, countingId, sampleId) {
       const attrs = {
         species_id: speciesId,
@@ -46,51 +91,20 @@
       };
       new OccurrenceRequest(projectId).save(attrs).then(
         result => {
-          const modal = document.querySelector('.modal.add-occurrence');
-          modal.classList.remove('is-active');
-          // TODO: add it to the displayed collection instead of reloading
-          window.location.reload();
+          occurrencesComponent.addOccurrence(result.occurrence);
         },
         errors => {
-          alert('Please refresh the page and try again.')
+          window.location.reload();
         }
       )
     }
 
-    const showSearchResult = function(result) {
-      $('#species-list tbody').empty();
-      $('#search-species-size').text(result.result.length);
-      var that = this;
-      result.result.forEach(species => {
-        var element = $($('#search-species-template').html());
-        element.find('.species-name').text(species.name);
-        element.find('.species-group-name').text(species.group_name);
-        element.find('.select-species-action').click(function(event) {
-          addOccurrence(species.id, countingId, sampleId)
-        });
-        $('#species-list tbody').append(element);
-      });
-    }
-
     $('.button.add-occurrence').click(function() {
-      const modal = document.querySelector('.modal.add-occurrence');
-      modal.querySelector('.button.cancel').addEventListener('click', () => {
-        modal.classList.remove('is-active');
+      const dialog = new AddOccurrenceDialog('.modal.add-occurrence');
+      dialog.show().then((speciesId) => {
+        console.log(`${speciesId}:${countingId}:${sampleId}`);
+        addOccurrence(speciesId, countingId, sampleId);
       })
-      modal.classList.add('is-active');
-      // TODO: exclude already present in counting
-      if(!speciesSearch) {
-        speciesSearch = new SpeciesSearch({
-          onSpeciesSelected: function(speciesId) {
-            addOccurrence(speciesId, countingId, sampleId)
-          },
-          onSpeciesSearched: function(result) {
-            showSearchResult(result)
-          },
-          updatePath: false,
-          initialFilter: countingGroupId ? { group_id: countingGroupId } : {},
-        });
-      }
     });
 
     // Selecting section and sample
@@ -116,8 +130,8 @@
             sectionSamplesElement.innerHTML = '';
             section.samples.forEach((sample, i) => {
               let template = DomHelpers.getTemplate('section-sample-template')
-              DomHelpers.setText('.select-sample', sample.name, template)
-              DomHelpers.setAttr('.select-sample', 'data-sample-id', sample.id, template)
+              DomHelpers.setText(sample.name, '.select-sample', template)
+              DomHelpers.setAttr('data-sample-id', sample.id, '.select-sample', template)
 
               template.querySelector('.select-sample.action').addEventListener('click', (event) => {
                 event.preventDefault();

@@ -7,8 +7,8 @@ class SetQuantityDialog {
   }
 
   show(initialQuantity, speciesName, groupName) {
-    DomHelpers.setText('.species-name', speciesName, this.element);
-    DomHelpers.setText('.group-name', groupName, this.element);
+    DomHelpers.setText(speciesName, '.species-name', this.element);
+    DomHelpers.setText(groupName, '.group-name', this.element);
 
     const quantityElement = this.element.querySelector('[name="occurrence-quantity"]');
     quantityElement.value = initialQuantity;
@@ -45,6 +45,7 @@ export class OccurrencesComponent {
     this.projectId = projectId;
     this.summaryElement = scope.querySelector(summarySelector);
     this.collectionElement = scope.querySelector(collectionSelector);
+    this.collectionSlotElement = this.collectionElement.querySelector('.occurrences-slot');
     this.setQuantityDialog = new SetQuantityDialog('.modal.set-quantity');
   }
 
@@ -66,19 +67,22 @@ export class OccurrencesComponent {
     };
 
     new OccurrenceRequest(this.projectId).index(attrs).then(result => {
-      let collectionSlotElement = this.collectionElement.querySelector('.occurrences-slot');
-      collectionSlotElement.innerHTML = '';
-      result.occurrences.reverse().forEach(occurrence => {
-        collectionSlotElement.prepend(this.buildOccurrenceRow(occurrence));
+      this.collectionSlotElement.innerHTML = '';
+      result.occurrences.forEach(occurrence => {
+        this.addOccurrence(occurrence);
       })
       this.updateSummary(result.summary);
     });
   }
 
+  addOccurrence(occurrence) {
+    this.collectionSlotElement.append(this.buildOccurrenceRow(occurrence));
+  }
+
   updateSummary(summary) {
-    DomHelpers.setText('.occurrences-uncountable-sum', summary.uncountable, this.summaryElement);
-    DomHelpers.setText('.occurrences-countable-sum', summary.countable, this.summaryElement);
-    DomHelpers.setText('.occurrences-total-sum', summary.total, this.summaryElement);
+    DomHelpers.setText(summary.uncountable, '.occurrences-uncountable-sum', this.summaryElement);
+    DomHelpers.setText(summary.countable, '.occurrences-countable-sum', this.summaryElement);
+    DomHelpers.setText(summary.total, '.occurrences-total-sum', this.summaryElement);
   }
 
   buildOccurrenceRow(occurrence) {

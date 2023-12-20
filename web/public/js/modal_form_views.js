@@ -19,12 +19,12 @@ export class ModalFormView {
     } else {
       actionTitle = 'Add'
     }
-    DomHelpers.setText('.header', `${actionTitle} ${modelTitle}`, this.modal)
+    DomHelpers.setText(`${actionTitle} ${modelTitle}`, '.header', this.modal)
     this.modal.querySelector('form').append(form)
   }
 
   clearErrors() {
-    DomHelpers.setText('.validation-messages .errors', '', this.modal)
+    DomHelpers.setText('', '.validation-messages .errors', this.modal)
   }
 
   hideErrors() {

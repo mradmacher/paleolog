@@ -79,16 +79,16 @@
       result => {
         let section = result.section
 
-        DomHelpers.setText('.section-name', section.name)
-        DomHelpers.setHref('.occurrences-link', UrlBuilder.projectOccurrences(projectId, { projectName: projectName, sectionId: section.id }))
-        DomHelpers.setHref('.reports-link', UrlBuilder.projectReports(projectId, { projectName: projectName, sectionId: section.id }))
+        DomHelpers.setText(section.name, '.section-name')
+        DomHelpers.setHref(UrlBuilder.projectOccurrences(projectId, { projectName: projectName, sectionId: section.id }), '.occurrences-link')
+        DomHelpers.setHref(UrlBuilder.projectReports(projectId, { projectName: projectName, sectionId: section.id }), '.reports-link')
 
         let sectionSamplesElement = document.querySelector('.section-samples tbody')
         section.samples.forEach((sample, i) => {
           let template = DomHelpers.getTemplate('section-sample-template')
-          DomHelpers.setText('.sample-name', sample.name, template)
-          DomHelpers.setText('.sample-description', sample.description, template)
-          DomHelpers.setText('.sample-weight', sample.weight, template)
+          DomHelpers.setText(sample.name, '.sample-name', template)
+          DomHelpers.setText(sample.description, '.sample-description', template)
+          DomHelpers.setText(sample.weight, '.sample-weight', template)
 
           template.querySelector('.edit-sample.action').addEventListener('click', (event) => {
             new SampleModalFormView(sample, (sample) => window.location.reload()).show()

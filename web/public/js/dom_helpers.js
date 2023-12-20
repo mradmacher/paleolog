@@ -11,28 +11,28 @@ export class DomHelpers {
     })
   }
 
-  static setHref(selector, href, scope = document) {
+  static setHref(href, selector, scope = document) {
     const element = scope.querySelector(selector);
     if (element) {
       element.setAttribute('href', href);
     }
   }
 
-  static setAttr(selector, attr, value, scope = document) {
+  static setAttr(attr, value, selector, scope = document) {
     const element = scope.querySelector(selector);
     if (element) {
       element.setAttribute(attr, value);
     }
   }
 
-  static setText(selector, text, scope = document) {
+  static setText(text, selector, scope = document) {
     const element = scope.querySelector(selector);
     if (element) {
       element.textContent = text;
     }
   }
 
-  static setValue(selector, value, scope = document) {
+  static setValue(value, selector, scope = document) {
     const element = scope.querySelector(selector);
     if (element) {
       element.value = value;

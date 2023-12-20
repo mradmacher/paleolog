@@ -69,10 +69,14 @@ module Web
         )
         halt 400, result.error.to_json if result.failure?
 
-        occurrence = result.value
+        occurrence = Paleolog::Repo::Occurrence.find(
+          result.value.id, Paleolog::Repo::Occurrence.with_species_and_group
+        )
         {
           occurrence: {
             id: occurrence.id,
+            group_name: occurrence.species.group.name,
+            species_name: occurrence.species.name,
             quantity: occurrence.quantity,
             status: occurrence.status,
             status_symbol: Paleolog::CountingSummary.status_symbol(occurrence.status) +
