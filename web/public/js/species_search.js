@@ -1,4 +1,5 @@
 import { DomHelpers } from '/js/dom_helpers.js';
+import { UrlParamsUpdater } from '/js/url_params_updater.js';
 
 export class SpeciesSearch {
   constructor({
@@ -24,7 +25,6 @@ export class SpeciesSearch {
         this.fetchSearchResult({ ...initialFilter, ...defaultFilter }).then(result => {
           this.showFilters(initialFilter);
           this.onSpeciesSearchedEvent(result);
-          //this.showSearchResult(result);
         })
       };
     });
@@ -37,30 +37,12 @@ export class SpeciesSearch {
         verified: this.element.querySelector('[name="verified"]').checked,
       };
       if(this.updatePath) {
-        this.updateSearchParams(attrs);
+        new UrlParamsUpdater().setParams(attrs);
       }
       this.fetchSearchResult({ ...attrs, ...this.defaultFilter }).then(result => {
         this.onSpeciesSearchedEvent(result)
       })
     });
-  }
-
-  updateSearchParams(attrs) {
-    if ('URLSearchParams' in window) {
-      let searchParams = new URLSearchParams();
-      let searchParamsProvided = false;
-      for(let attr in attrs) {
-        if(attrs[attr]) {
-          searchParams.set(attr, attrs[attr]);
-          searchParamsProvided = true;
-        }
-      }
-      let newRelativePathQuery = window.location.pathname;
-      if(searchParamsProvided) {
-        newRelativePathQuery = newRelativePathQuery + '?' + searchParams.toString();
-      }
-      history.pushState(null, '', newRelativePathQuery);
-    }
   }
 
   fetchAvailableSearchFilters() {
@@ -80,7 +62,6 @@ export class SpeciesSearch {
 
   showAvailableSearchFilters(filters) {
     return new Promise((resolve, reject) => {
-      //$('#search-species-size').text(0);
       let template = DomHelpers.buildFromTemplate('search-group-option-template')
       template.querySelector('option').value = '';
       template.querySelector('option').textContent = '';
@@ -96,7 +77,7 @@ export class SpeciesSearch {
   }
 
   showFilters(attrs) {
-    for(var attr in attrs) {
+    for(let attr in attrs) {
       if(attr == 'verified') {
         this.element.querySelector(`[name="${attr}"]`).checked = true;
       } else {

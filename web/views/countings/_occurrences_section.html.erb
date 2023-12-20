@@ -14,6 +14,7 @@
   import { OccurrencesComponent } from '/js/occurrences_component.js';
   import { SpeciesModalFormView } from '/js/modal_form_views.js';
   import { SpeciesSearch } from '/js/species_search.js';
+  import { UrlParamsUpdater } from '/js/url_params_updater.js';
 
   $(function() {
     const projectId = <%= @project.id %>;
@@ -94,7 +95,8 @@
           occurrencesComponent.addOccurrence(result.occurrence);
         },
         errors => {
-          window.location.reload();
+          console.log(errors);
+          //window.location.reload();
         }
       )
     }
@@ -112,11 +114,7 @@
       element.addEventListener('click', (event) => {
         let sectionId = event.target.getAttribute('data-section-id');
         event.preventDefault();
-        let searchParams = new URLSearchParams();
-        searchParams.set('section', sectionId);
-        let newRelativePathQuery = window.location.pathname;
-        newRelativePathQuery = newRelativePathQuery + '?' + searchParams.toString();
-        history.pushState(null, '', newRelativePathQuery);
+        new UrlParamsUpdater().setParams({ section: sectionId });
         document.querySelectorAll('.sections-list .section').forEach((element) => {
           element.classList.remove('is-selected')
         });
@@ -135,12 +133,10 @@
 
               template.querySelector('.select-sample.action').addEventListener('click', (event) => {
                 event.preventDefault();
-                let searchParams = new URLSearchParams();
-                searchParams.set('section', section.id);
-                searchParams.set('sample', sample.id);
-                let newRelativePathQuery = window.location.pathname;
-                newRelativePathQuery = newRelativePathQuery + '?' + searchParams.toString();
-                history.pushState(null, '', newRelativePathQuery);
+                new UrlParamsUpdater().setParams({
+                  section: section.id,
+                  sample: sample.id,
+                });
                 document.querySelectorAll('.samples-list .sample').forEach((element) => {
                   element.classList.remove('is-selected')
                 });
