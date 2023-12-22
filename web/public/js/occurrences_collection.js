@@ -40,7 +40,7 @@ class SetQuantityDialog {
   }
 }
 
-export class OccurrencesComponent {
+export class OccurrencesCollection {
   constructor(projectId, collectionSelector, summarySelector, scope = document) {
     this.projectId = projectId;
     this.summaryElement = scope.querySelector(summarySelector);

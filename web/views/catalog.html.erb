@@ -5,9 +5,9 @@
     </div>
 
     <div class="column">
-      <div class="panel">
+      <div class="panel species-collection">
         <div class="panel-heading">
-          <h1 class="title">Species list (<span id="search-species-size"></span>)</h1>
+          <h1 class="title">Species list (<span class="search-species-size"></span>)</h1>
         </div>
         <div class="panel-block">
           <template id="search-species-template">
@@ -16,7 +16,7 @@
               <td class="species-group-name"></td>
             </tr>
           </template>
-          <table id="species-list" class="table is-striped is-fullwidth">
+          <table class="table is-striped is-fullwidth species-slot">
             <thead>
               <tr>
                 <th>Species</th>
@@ -34,21 +34,16 @@
 
 <script type="module">
 import { SpeciesSearch } from '/js/species_search.js';
+import { SpeciesCollection } from '/js/species_collection.js';
+import { DomHelpers } from '/js/dom_helpers.js';
 
-$(function() {
+DomHelpers.onDOMContentLoaded(document, () => {
+  const speciesCollection = new SpeciesCollection('.species-collection');
+
   new SpeciesSearch({
     selector: '#species-search',
-    onSpeciesSearched: function(result) {
-      $('#species-list tbody').empty();
-      $('#search-species-size').text(result.result.length);
-      var that = this;
-      result.result.forEach(species => {
-        var element = $($('#search-species-template').html());
-        element.find('.species-name').text(species.name);
-        element.find('.species-group-name').text(species.group_name);
-        element.find('.species-link').attr("href", '/species/' + species.id)
-        $('#species-list tbody').append(element);
-      })
+    onSpeciesSearched: (result) => {
+      speciesCollection.replaceAll(result.result);
     },
     updatePath: true,
     initialFilter: <%= (@filters.empty? ? { verified: true } : @filters).to_json %>,

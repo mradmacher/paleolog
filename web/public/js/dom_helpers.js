@@ -46,4 +46,8 @@ export class DomHelpers {
   static getTemplate(templateId, scope = document) {
     return scope.getElementById(templateId).content.cloneNode(true);
   }
+
+  static onDOMContentLoaded(scope, callback) {
+    document.addEventListener("DOMContentLoaded", callback);
+  }
 }

@@ -1,7 +1,7 @@
 import { SpeciesSearch } from '/js/species_search.js';
 import { DomHelpers } from '/js/dom_helpers.js';
 
-export class OccurrenceSpeciesSelector {
+export class OccurrenceSpeciesDialog {
   constructor(selector, scope = document) {
     this.element = scope.querySelector(selector);
   }

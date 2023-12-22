@@ -10,9 +10,9 @@
 
 <script type="module">
   import { DomHelpers } from '/js/dom_helpers.js';
-  import { OccurrenceSpeciesSelector } from '/js/occurrence_species_selector.js';
+  import { OccurrenceSpeciesDialog } from '/js/occurrence_species_dialog.js';
   import { OccurrenceRequest, SectionRequest } from '/js/requests.js';
-  import { OccurrencesComponent } from '/js/occurrences_component.js';
+  import { OccurrencesCollection } from '/js/occurrences_collection.js';
   import { SpeciesModalFormView } from '/js/modal_form_views.js';
   import { UrlParamsUpdater } from '/js/url_params_updater.js';
 
@@ -30,15 +30,15 @@
     const countingGroupId = <%= @counting.group_id.to_json %>;
     var speciesSearch = null;
 
-    const occurrencesComponent = new OccurrencesComponent(
+    const occurrencesCollection = new OccurrencesCollection(
       projectId,
       '#occurrences-collection',
       '#occurrences-summary'
     );
 
     if (sectionId && sampleId) {
-      occurrencesComponent.show();
-      occurrencesComponent.loadOccurrences(countingId, sectionId, sampleId);
+      occurrencesCollection.show();
+      occurrencesCollection.loadOccurrences(countingId, sectionId, sampleId);
     }
 
     const addOccurrence = function(speciesId, countingId, sampleId) {
@@ -49,7 +49,7 @@
       };
       new OccurrenceRequest(projectId).save(attrs).then(
         result => {
-          occurrencesComponent.addOccurrence(result.occurrence);
+          occurrencesCollection.addOccurrence(result.occurrence);
         },
         errors => {
           console.log(errors);
@@ -59,7 +59,7 @@
     }
 
     document.querySelector('.button.add-occurrence').addEventListener('click', () => {
-      const dialog = new OccurrenceSpeciesSelector('.modal.add-occurrence');
+      const dialog = new OccurrenceSpeciesDialog('.modal.add-occurrence');
       dialog.show({ countingGroupId: countingGroupId }).then((speciesId) => {
         console.log(`${speciesId}:${countingId}:${sampleId}`);
         addOccurrence(speciesId, countingId, sampleId);
@@ -99,8 +99,8 @@
                 });
                 event.target.parentElement.classList.add('is-selected');
 
-                occurrencesComponent.show();
-                occurrencesComponent.loadOccurrences(countingId, section.id, sample.id)
+                occurrencesCollection.show();
+                occurrencesCollection.loadOccurrences(countingId, section.id, sample.id)
               })
 
               sectionSamplesElement.append(template)
