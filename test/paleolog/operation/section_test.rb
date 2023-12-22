@@ -23,6 +23,59 @@ describe Paleolog::Operation::Section do
     repo.for(Paleolog::User).delete_all
   end
 
+  describe '#all_for_project' do
+    it 'returns unauthenticated error when not authenticated' do
+      authorizer.expect :authenticated?, false
+
+      result = operation.all_for_project(project_id: project.id)
+      assert_predicate result, :failure?
+      assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
+
+      authorizer.verify
+    end
+
+    it 'returns unauthorized error when not authorized' do
+      authorizer.expect :authenticated?, true
+      authorizer.expect :can_view?, false, [Paleolog::Project, project.id]
+
+      result = operation.all_for_project(project_id: project.id)
+      assert_predicate result, :failure?
+      assert_equal Paleolog::Operation::UNAUTHORIZED, result.error[:general]
+
+      authorizer.verify
+    end
+
+    describe 'for authorized user' do
+      before do
+        authorizer.expect :authenticated?, true
+        authorizer.expect :can_view?, true, [Paleolog::Project, project.id]
+      end
+
+      it 'requires project_id param' do
+        result = operation.all_for_project({})
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::Params::MISSING, result.error[:project_id]
+      end
+
+      it 'returns all project sections' do
+        result = happy_operation.create(name: 'Test111', project_id: project.id)
+        assert_predicate result, :success?
+        section1 = result.value
+
+        result = happy_operation.create(name: 'Test222', project_id: project.id)
+        assert_predicate result, :success?
+        section2 = result.value
+
+        result = operation.all_for_project(project_id: project.id)
+        assert_predicate result, :success?
+        sections = result.value
+
+        assert_equal 2, sections.size
+        assert_equal [section1.id, section2.id], sections.map(&:id)
+      end
+    end
+  end
+
   describe '#find' do
     let(:section) do
       result = happy_operation.create(name: 'Test123', project_id: project.id)

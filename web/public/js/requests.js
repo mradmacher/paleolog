@@ -91,6 +91,21 @@ export class ProjectRequest extends ModelRequest {
   constructor() {
     super('/api/projects');
   }
+
+  sections(projectId) {
+    return new Promise((resolve, reject) => {
+      $.ajax({
+        url: `${this.pathWithId(projectId)}/sections`,
+        type: 'GET',
+        dataType: 'json',
+      })
+      .done(function(json) {
+        resolve(json);
+      }).fail(function(xhr, status, error) {
+        reject(xhr.responseJSON.errors);
+      })
+    })
+  }
 }
 
 export class SectionRequest extends ModelRequest {

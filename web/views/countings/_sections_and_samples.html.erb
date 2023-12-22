@@ -1,25 +1,19 @@
-<div class="columns">
+<div class="columns section-sample-selection">
   <div class="column">
+    <template id="section-template">
+      <tr>
+        <td class="section">
+          <a class="select-section action" data-section-id=""></a>
+        </td>
+      </tr>
+    </template>
     <table class="table is-striped is-bordered is-narrow sections-list">
       <thead>
         <tr>
           <th>Section</th>
         </tr>
       </thead>
-      <tbody>
-        <% @project.sections.each do |section| %>
-          <tr>
-            <% if section.id == @section&.id %>
-              <td class="section is-selected">
-                <%= section.name %>
-              </td>
-            <% else %>
-              <td class="section">
-                <a class="select-section action" data-section-id="<%= section.id %>" href="<%= counting_path(@project, @counting, section: section, sample: nil) %>"><%= section.name %></a>
-              </td>
-            <% end %>
-          </tr>
-        <% end %>
+      <tbody class="slot">
       </tbody>
     </table>
   </div>
@@ -37,22 +31,7 @@
           <th>Sample</th>
         </tr>
       </thead>
-      <tbody>
-        <% if @section %>
-          <% @section.samples.each do |sample| %>
-            <tr>
-              <% if sample.id == @sample&.id %>
-                <td class="sample is-selected">
-                  <%= sample.name %>
-                </td>
-              <% else %>
-                <td class="sample">
-                  <a href="<%= counting_path(@project, @counting, section: @section, sample: sample) %>"><%= sample.name %></a>
-                </td>
-              <% end %>
-            </tr>
-          <% end %>
-        <% end %>
+      <tbody class="slot">
       </tbody>
     </table>
   </div>

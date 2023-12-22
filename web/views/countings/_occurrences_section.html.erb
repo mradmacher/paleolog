@@ -14,6 +14,7 @@
   import { OccurrenceRequest, SectionRequest } from '/js/requests.js';
   import { OccurrencesCollection } from '/js/occurrences_collection.js';
   import { SpeciesModalFormView } from '/js/modal_form_views.js';
+  import { SectionSampleSelection } from '/js/section_sample_selection.js';
   import { UrlParamsUpdater } from '/js/url_params_updater.js';
 
   $(function() {
@@ -52,8 +53,8 @@
           occurrencesCollection.addOccurrence(result.occurrence);
         },
         errors => {
-          console.log(errors);
-          //window.location.reload();
+          alert(errors);
+          window.location.reload();
         }
       )
     }
@@ -67,51 +68,20 @@
     });
 
     // Selecting section and sample
-    document.querySelectorAll('.select-section.action').forEach((element) => {
-      element.addEventListener('click', (event) => {
-        let sectionId = event.target.getAttribute('data-section-id');
-        event.preventDefault();
-        new UrlParamsUpdater().setParams({ section: sectionId });
-        document.querySelectorAll('.sections-list .section').forEach((element) => {
-          element.classList.remove('is-selected')
-        });
-        event.target.parentElement.classList.add('is-selected');
-
-        new SectionRequest().get(sectionId).then(
-          result => {
-            let section = result.section
-
-            let sectionSamplesElement = document.querySelector('.samples-list tbody')
-            sectionSamplesElement.innerHTML = '';
-            section.samples.forEach((sample, i) => {
-              let template = DomHelpers.buildFromTemplate('section-sample-template')
-              DomHelpers.setText(sample.name, '.select-sample', template)
-              DomHelpers.setAttr('data-sample-id', sample.id, '.select-sample', template)
-
-              template.querySelector('.select-sample.action').addEventListener('click', (event) => {
-                event.preventDefault();
-                new UrlParamsUpdater().setParams({
-                  section: section.id,
-                  sample: sample.id,
-                });
-                document.querySelectorAll('.samples-list .sample').forEach((element) => {
-                  element.classList.remove('is-selected')
-                });
-                event.target.parentElement.classList.add('is-selected');
-
-                occurrencesCollection.show();
-                occurrencesCollection.loadOccurrences(countingId, section.id, sample.id)
-              })
-
-              sectionSamplesElement.append(template)
-            })
-          },
-          errors => {
-            console.log(errors)
-          }
-        )
+    new SectionSampleSelection('.section-sample-selection').activate(projectId, (selected) => {
+      const { sectionId, sampleId } = selected;
+      new UrlParamsUpdater().setParams({
+        section: sectionId,
+        sample: sampleId,
       });
-    });
+
+      if (sectionId && sampleId) {
+        occurrencesCollection.show();
+        occurrencesCollection.loadOccurrences(countingId, sectionId, sampleId)
+      } else {
+        occurrencesCollection.hide();
+      }
+    })
 
     const species = {
       name: null,

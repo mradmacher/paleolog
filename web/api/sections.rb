@@ -13,6 +13,10 @@ module Web
         @operation = Paleolog::Operation::Section.new(Paleolog::Repo, authorizer)
       end
 
+      get '/api/projects/:project_id/sections' do
+        model_or_errors(@operation.all_for_project(params), serializer, :sections)
+      end
+
       get '/api/sections/:id' do
         model_or_errors(@operation.find(params), serializer)
       end

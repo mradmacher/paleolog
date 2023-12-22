@@ -47,6 +47,26 @@ export class DomHelpers {
     return scope.getElementById(templateId).content.cloneNode(true);
   }
 
+  static select(element) {
+    element.classList.add('is-selected');
+  }
+
+  static unselect(element) {
+    element.classList.remove('is-selected');
+  }
+
+  static selectAll(selector, scope = document) {
+    scope.querySelectorAll(selector).forEach((element) => {
+      element.classList.add('is-selected')
+    });
+  }
+
+  static unselectAll(selector, scope = document) {
+    scope.querySelectorAll(selector).forEach((element) => {
+      element.classList.remove('is-selected')
+    });
+  }
+
   static onDOMContentLoaded(scope, callback) {
     document.addEventListener("DOMContentLoaded", callback);
   }
