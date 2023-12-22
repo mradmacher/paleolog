@@ -55,7 +55,7 @@ describe 'Project Catalog' do
     visit "/projects/#{project.id}/species"
 
     assert_text('Species list (2)')
-    within('#species-list') do
+    within('.species-collection') do
       assert_css('.species', count: 2)
       assert_text('Odontochitina costata')
       assert_text('Cerodinium costata')
@@ -83,7 +83,7 @@ describe 'Project Catalog' do
       click_on('Search')
     end
     assert_text('Species list (1)')
-    within('#species-list') do
+    within('.species-collection') do
       assert_css('.species', count: 1)
     end
     assert_text('Cerodinium costata')
@@ -107,7 +107,7 @@ describe 'Project Catalog' do
     visit "/catalog?group_id=#{group1.id}&name=cero&verified=true"
 
     assert_text('Species list (1)')
-    within('#species-list') do
+    within('.species-collection') do
       assert_css('.species', count: 1)
     end
     assert_text('Cerodinium costata')
