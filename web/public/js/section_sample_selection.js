@@ -32,6 +32,10 @@ export class SectionSampleSelection {
 
         if (sampleId) {
           this.selectSample(sectionId, sampleId, onSelection);
+        } else {
+          if (section.samples[0]) {
+            this.selectSample(sectionId, section.samples[0].id, onSelection);
+          }
         }
       },
       errors => {
@@ -58,6 +62,10 @@ export class SectionSampleSelection {
         })
         if (sectionId) {
           this.selectSection(sectionId, sampleId, onSelection);
+        } else {
+          if (result.sections[0]) {
+            this.selectSection(result.sections[0].id, null, onSelection);
+          }
         }
       }
     )
