@@ -22,11 +22,11 @@
     const countingId = <%= @counting.id %>;
     let sectionId = null;
     let sampleId = null;
-    <% if @section %>
-      sectionId = <%= @section.id %>;
+    <% if @section_id %>
+      sectionId = <%= @section_id %>;
     <% end %>
-    <% if @sample %>
-      sampleId = <%= @sample.id %>;
+    <% if @sample_id %>
+      sampleId = <%= @sample_id %>;
     <% end %>
     const countingGroupId = <%= @counting.group_id.to_json %>;
     var speciesSearch = null;
@@ -68,7 +68,7 @@
     });
 
     // Selecting section and sample
-    new SectionSampleSelection('.section-sample-selection').activate(projectId, (selected) => {
+    new SectionSampleSelection('.section-sample-selection').activate(projectId, sectionId, sampleId, (selected) => {
       const { sectionId, sampleId } = selected;
       new UrlParamsUpdater().setParams({
         section: sectionId,

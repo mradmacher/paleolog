@@ -47,12 +47,12 @@ export class DomHelpers {
     return scope.getElementById(templateId).content.cloneNode(true);
   }
 
-  static select(element) {
-    element.classList.add('is-selected');
+  static select(selector, scope = document) {
+    scope.querySelector(element).classList.add('is-selected');
   }
 
-  static unselect(element) {
-    element.classList.remove('is-selected');
+  static unselect(element, scope = document) {
+    scope.querySelector(element).classList.remove('is-selected');
   }
 
   static selectAll(selector, scope = document) {

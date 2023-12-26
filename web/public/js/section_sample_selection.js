@@ -6,11 +6,11 @@ export class SectionSampleSelection {
     this.element = scope.querySelector(selector)
   }
 
-  activate(projectId, onSelection) {
-    this.loadSections(projectId, onSelection);
+  activate(projectId, sectionId, sampleId, onSelection) {
+    this.loadSections(projectId, sectionId, sampleId, onSelection);
   }
 
-  loadSamples(sectionId, onSelection) {
+  loadSamples(sectionId, sampleId, onSelection) {
     new SectionRequest().get(sectionId).then(
       result => {
         let section = result.section
@@ -19,18 +19,20 @@ export class SectionSampleSelection {
         sectionSamplesElement.innerHTML = '';
         section.samples.forEach((sample, i) => {
           let template = DomHelpers.buildFromTemplate('section-sample-template')
-          DomHelpers.setText(sample.name, '.select-sample', template)
-          DomHelpers.setAttr('data-sample-id', sample.id, '.select-sample', template)
+          DomHelpers.setText(sample.name, '.sample-name', template)
+          DomHelpers.setAttr('data-sample-id', sample.id, '.sample', template)
 
           template.querySelector('.select-sample.action').addEventListener('click', (event) => {
             event.preventDefault();
-            DomHelpers.unselectAll('.samples-list .sample', this.element);
-            DomHelpers.select(event.target.parentElement);
-            onSelection({ sectionId, sampleId: sample.id });
+            this.selectSample(sectionId, sample.id, onSelection);
           })
 
           sectionSamplesElement.append(template)
         })
+
+        if (sampleId) {
+          this.selectSample(sectionId, sampleId, onSelection);
+        }
       },
       errors => {
         console.log(errors)
@@ -38,26 +40,39 @@ export class SectionSampleSelection {
     )
   }
 
-  loadSections(projectId, onSelection) {
+  loadSections(projectId, sectionId, sampleId, onSelection) {
     new ProjectRequest().sections(projectId).then(
       result => {
         let sectionsElement = this.element.querySelector('.sections-list .slot')
         sectionsElement.innerHTML = '';
         result.sections.forEach((section, i) => {
           let template = DomHelpers.buildFromTemplate('section-template')
-          DomHelpers.setText(section.name, '.select-section', template)
-          DomHelpers.setAttr('data-section-id', section.id, '.select-section', template)
+          DomHelpers.setText(section.name, '.section-name', template)
+          DomHelpers.setAttr('data-section-id', section.id, '.section', template)
 
           template.querySelector('.select-section.action').addEventListener('click', (event) => {
             event.preventDefault();
-            DomHelpers.unselectAll('.sections-list .section', this.element);
-            DomHelpers.select(event.target.parentElement);
-            this.loadSamples(section.id, onSelection);
-            onSelection({ sectionId: section.id });
+            this.selectSection(section.id, null, onSelection);
           })
           sectionsElement.append(template)
         })
+        if (sectionId) {
+          this.selectSection(sectionId, sampleId, onSelection);
+        }
       }
     )
+  }
+
+  selectSection(sectionId, sampleId, onSelection) {
+    DomHelpers.unselectAll('.sections-list .section', this.element);
+    DomHelpers.selectAll(`.section[data-section-id="${sectionId}"]`, this.element);
+    this.loadSamples(sectionId, sampleId, onSelection);
+    onSelection({ sectionId });
+  }
+
+  selectSample(sectionId, sampleId, onSelection) {
+    DomHelpers.unselectAll('.samples-list .sample', this.element);
+    DomHelpers.selectAll(`.sample[data-sample-id="${sampleId}"]`, this.element);
+    onSelection({ sectionId, sampleId });
   }
 }
