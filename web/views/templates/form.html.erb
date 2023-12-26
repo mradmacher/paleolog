@@ -58,21 +58,26 @@
 </template>
 
 <template id=form-window-template>
-  <div class="ui modal form-window">
-    <div class="header"></div>
-    <div class="content">
-      <div class="ui negative hidden message validation-messages">
-        <div class="header">
-          There are some errors:
+  <div class="modal form-window">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <div class="modal-card-title header"></div>
+      </header>
+      <section class="modal-card-body">
+        <div class="notification is-danger validation-messages">
+          <div class="header">
+            There are some errors:
+          </div>
+          <p class="errors"></p>
         </div>
-        <p class="content"></p>
-      </div>
-      <form class="ui form">
-      </form>
-    </div>
-    <div class="actions">
-      <button class="ui cancel negative button">Cancel</button>
-      <button class="ui approve positive button">Save</button>
+        <form class="form">
+        </form>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-cancel">Cancel</button>
+        <button class="button is-success">Save</button>
+      </footer>
     </div>
   </div>
 </template>

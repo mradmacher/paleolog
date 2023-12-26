@@ -3,6 +3,10 @@
 module Paleolog
   module Operation
     class Section < BaseOperation
+      ALL_FOR_PROJECT_PARAMS = Params.define.(
+        project_id: Params.required.(Params::IdRules),
+      )
+
       FIND_PARAMS = Params.define.(
         id: Params.required.(Params::IdRules),
       )
@@ -16,6 +20,13 @@ module Paleolog
         id: Params.required.(Params::IdRules),
         name: Params.required.(Params::NameRules),
       )
+
+      def all_for_project(raw_params)
+        authenticate
+          .and_then { parameterize(raw_params, ALL_FOR_PROJECT_PARAMS) }
+          .and_then { authorize(_1, can_view(Paleolog::Project, :project_id)) }
+          .and_then { carefully(_1, find_project_sections) }
+      end
 
       def find(raw_params)
         authenticate
@@ -48,6 +59,12 @@ module Paleolog
 
       def update_section
         ->(params) { repo.for(Paleolog::Section).update(params[:id], params.except(:id)) }
+      end
+
+      def find_project_sections
+        lambda do |params|
+          repo.for(Paleolog::Section).all_for_project(params[:project_id])
+        end
       end
 
       def find_section_with_samples

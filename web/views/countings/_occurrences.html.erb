@@ -1,0 +1,65 @@
+<table id="occurrences-summary" class="table is-striped is-bordered is-hidden">
+  <thead>
+    <tr>
+      <th>Counted</th>
+      <th>Other</th>
+      <th>Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="occurrences-countable-sum"></span></td>
+      <td><span class="occurrences-uncountable-sum"></span></td>
+      <td class="is-selected"><span class="occurrences-total-sum"></span></td>
+    </tr>
+  </tbody>
+</table>
+
+<template id="occurrence-template">
+  <tr class="occurrence" data-occurrence-id="">
+    <td class="occurrence-group-name"></td>
+    <td class="occurrence-species-name"></td>
+    <td class="occurrence-quantity"></td>
+    <td>
+      <div class="field has-addons">
+        <button class="button is-small increase-quantity" data-shift="1">+</button>
+        <button class="button is-small set-quantity">=</i></button>
+      </div>
+    </td>
+    <td class="field">
+      <select class="occurrence-status update-status" name="occurrence-status">
+        <% Paleolog::CountingSummary::STATUSES.each do |value, symbol| %>
+          <option value="<%= value %>"><%= symbol %></option>
+        <% end %>
+      </select>
+    </td>
+    <td class="field">
+      <input class="occurrence-uncertain update-uncertain" name="occurrence-uncertain" type="checkbox" />
+    </td>
+    <td><button class="button is-small is-danger delete-occurrence">Remove</button>
+  </tr>
+</template>
+<%= erb :'countings/_set_quantity_dialog.html', layout: false %>
+
+<table id="occurrences-collection" class="table is-striped is-bordered is-narrow is-fullwidth is-hidden">
+  <thead>
+    <tr align="center">
+      <th>Group</th>
+      <th>Species</th>
+      <th colspan="2">Quantity</th>
+      <th>Status</th>
+      <th>Uncertain</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody class="occurrences-slot">
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="7">
+        <button class="button is-small is-black is-fullwidth add-occurrence">Add</button>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+<%= erb :'countings/_occurrence_species_selector.html', layout: false %>

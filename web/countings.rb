@@ -16,14 +16,19 @@ module Web
     end
 
     get '/projects/:project_id/countings/:id' do
+      redirect projects_path unless authorizer.can_view?(Paleolog::Project, params[:project_id].to_i)
+
       @project = Paleolog::Repo::Project.find(
         params[:project_id].to_i,
         Paleolog::Repo::Project.with_countings,
-        Paleolog::Repo::Project.with_sections,
-        Paleolog::Repo::Project.with_researchers,
       )
       @counting_id = params[:id].to_i
-      using_project_layout { display 'countings/show.html' }
+      @counting = Paleolog::Repo::Counting.find_for_project(
+        params[:id].to_i, @project.id,
+      )
+      @section_id = params[:section]
+      @sample_id = params[:sample]
+      using_project_layout { using_counting_layout { display 'countings/show.html' } }
     end
   end
 end

@@ -17,7 +17,7 @@ describe 'Catalog' do
     visit '/login'
     fill_in('login-field', with: 'test')
     fill_in('password-field', with: 'test123')
-    within('.ui.form') { click_on('Login') }
+    within('.form') { click_on('Login') }
   end
 
   after do
@@ -30,7 +30,7 @@ describe 'Catalog' do
     visit '/catalog'
 
     page.must_have_content('Species list (2)')
-    within('#species-list') do
+    within('.species-collection') do
       page.must_have_css('.species', count: 2)
       page.must_have_content('Odontochitina costata')
       page.must_have_content('Cerodinium diabelli')
@@ -60,7 +60,7 @@ describe 'Catalog' do
       click_on('Search')
     end
     page.must_have_content('Species list (1)')
-    within('#species-list') do
+    within('.species-collection') do
       page.must_have_css('.species', count: 1)
     end
     page.must_have_content('Odontochitina costata')
@@ -84,7 +84,7 @@ describe 'Catalog' do
     visit "/catalog?group_id=#{group1.id}&name=odonto&verified=true"
 
     page.must_have_content('Species list (1)')
-    within('#species-list') do
+    within('.species-collection') do
       page.must_have_css('.species', count: 1)
     end
     page.must_have_content('Odontochitina costata')

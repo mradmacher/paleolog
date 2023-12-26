@@ -1,0 +1,16 @@
+<%= erb :'countings/_panel.html', layout: false %>
+<%= erb :'sections/_panel.html', layout: false %>
+
+<div class="panel">
+  <div class="panel-heading">Researchers</div>
+  <div class="panel-block">
+    <ul>
+    <% @project.researchers.each do |researcher| %>
+      <li><%= researcher.user.name %>
+    <% end %>
+    </ul>
+  </div>
+  <div class="panel-block">
+    <button class="button is-small is-black is-fullwidth add-researcher action" disabled><i class="add icon"></i>Add</button>
+  </div>
+</div>

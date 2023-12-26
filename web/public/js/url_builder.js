@@ -11,6 +11,15 @@ export class UrlBuilder {
     return `/projects/${this.superId(projectId, projectName)}`
   }
 
+  static species(speciesId, { projectId = null } = {}) {
+    const speciesPath = `/species/${speciesId}`;
+    if (projectId) {
+      return `/projects/${projectId}/${speciesPath}`;
+    } else {
+      return speciesPath;
+    }
+  }
+
   static projectOccurrences(projectId, { projectName = null, sectionId = null, sampleId = null, countingId = null } = {}) {
     let details = []
     if(countingId) {

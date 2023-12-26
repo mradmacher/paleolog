@@ -1,49 +1,47 @@
-<div class="ui cards">
-  <div class="ui fluid card">
-    <div class="content">
-      <div class="header">Researchers</div>
-      <div class="description">
-        <ul>
-        <% @project.researchers.each do |researcher| %>
-          <li><%= researcher.user.name %>
-        <% end %>
-        </ul>
-      </div>
+  <div class="panel">
+    <div class="panel-heading">Researchers</div>
+    <div class="panel-block">
+      <ul>
+      <% @project.researchers.each do |researcher| %>
+        <li><%= researcher.user.name %>
+      <% end %>
+      </ul>
     </div>
-    <button class="ui mini secondary bottom attached button disabled add-researcher.action"><i class="add icon"></i>Add</button>
+    <div class="panel-block">
+      <button class="button is-small is-black is-fullwidth add-researcher action" disabled><i class="add icon"></i>Add</button>
+    </div>
   </div>
 
-  <div class="ui fluid card">
-    <div class="content project-countings">
-      <div class="header">Countings</div>
-      <div class="description">
-        <ul>
-        <% @project.countings.each do |counting| %>
-          <li><a href="<%= counting_path(@project, counting) %>"><%= counting.name %></a></li>
-        <% end %>
-        </ul>
-      </div>
+  <div class="panel project-countings">
+    <div class="panel-heading">Countings</div>
+    <div class="panel-block">
+      <ul>
+      <% @project.countings.each do |counting| %>
+        <li><a href="<%= counting_path(@project, counting) %>"><%= counting.name %></a></li>
+      <% end %>
+      </ul>
     </div>
-    <button class="ui mini secondary bottom attached button add-counting action"><i class="add icon"></i>Add</button>
+    <div class="panel-block">
+      <button class="button is-small is-black is-fullwidth add-counting action"><i class="add icon"></i>Add</button>
+    </div>
   </div>
 
-  <div class="ui fluid card">
-    <div class="content project-sections">
-      <div class="header">Sections</div>
-      <div class="description">
-        <ul>
-        <% @project.sections.each do |section| %>
-          <li><a href="<%= section_path(@project, section) %>"><%= section.name %></a></li>
-        <% end %>
-        </ul>
-      </div>
+  <div class="panel project-sections">
+    <div class="panel-heading">Sections</div>
+    <div class="panel-block">
+      <ul>
+      <% @project.sections.each do |section| %>
+        <li><a href="<%= section_path(@project, section) %>"><%= section.name %></a></li>
+      <% end %>
+      </ul>
     </div>
-    <button class="ui mini secondary bottom attached button add-section action"><i class="add icon"></i>Add</button>
+    <div class="panel-block">
+      <button class="button is-small is-black is-fullwidth add-section action"><i class="add icon"></i>Add</button>
+    </div>
   </div>
-</div>
 
 <script type="module">
-  import { SectionModalFormView, CountingModalFormView } from '/js/modal_form_views.js';
+  import { ProjectModalFormView, CountingModalFormView, SectionModalFormView } from '/js/modal_form_views.js'
 
   $(function() {
     const section = {

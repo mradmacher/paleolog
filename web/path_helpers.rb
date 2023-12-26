@@ -31,16 +31,19 @@ module Web
       end
     end
 
-    def counting_path(project, counting)
-      "/projects/#{super_id(project)}/countings/#{super_id(counting)}"
-    end
-
     def project_species_path(project)
       "/projects/#{super_id(project)}/species"
     end
 
     def counting_section_path(project, counting, section)
       "/projects/#{super_id(project)}/countings/#{super_id(counting)}/sections/#{super_id(section)}"
+    end
+
+    def counting_path(project, counting, sample: nil, section: nil)
+      details = []
+      details << "sample=#{super_id(sample)}" if sample
+      details << "section=#{super_id(section)}" if section
+      "/projects/#{super_id(project)}/countings/#{super_id(counting)}#{details.empty? ? '' : '?'}#{details.join('&')}"
     end
 
     def occurrences_path(project, counting: nil, sample: nil, section: nil)

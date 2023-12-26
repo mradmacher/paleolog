@@ -1,0 +1,101 @@
+<div class="columns">
+  <div class="column is-four-fifths" %>
+    <%= erb :'countings/_occurrences.html', layout: false %>
+  </div>
+
+  <div class="column">
+    <%= erb :'countings/_sections_and_samples.html', layout: false %>
+  </div>
+</div>
+
+<script type="module">
+  import { DomHelpers } from '/js/dom_helpers.js';
+  import { OccurrenceSpeciesDialog } from '/js/occurrence_species_dialog.js';
+  import { OccurrenceRequest, SectionRequest } from '/js/requests.js';
+  import { OccurrencesCollection } from '/js/occurrences_collection.js';
+  import { SpeciesModalFormView } from '/js/modal_form_views.js';
+  import { SectionSampleSelection } from '/js/section_sample_selection.js';
+  import { UrlParamsUpdater } from '/js/url_params_updater.js';
+
+  $(function() {
+    const projectId = <%= @project.id %>;
+    const countingId = <%= @counting.id %>;
+    let selectedSectionId = null;
+    let selectedSampleId = null;
+    <% if @section_id %>
+      selectedSectionId = <%= @section_id %>;
+    <% end %>
+    <% if @sample_id %>
+      selectedSampleId = <%= @sample_id %>;
+    <% end %>
+    const countingGroupId = <%= @counting.group_id.to_json %>;
+    var speciesSearch = null;
+
+    const occurrencesCollection = new OccurrencesCollection(
+      projectId,
+      '#occurrences-collection',
+      '#occurrences-summary'
+    );
+    const occurrenceSpeciesDialog = new OccurrenceSpeciesDialog({
+     selector: '.modal.add-occurrence',
+     countingGroupId: countingGroupId,
+     callback: (speciesId) => {
+       addOccurrence(speciesId, countingId, selectedSampleId);
+     }
+    });
+
+    const addOccurrence = function(speciesId, countingId, sampleId) {
+      const attrs = {
+        species_id: speciesId,
+        counting_id: countingId,
+        sample_id: sampleId,
+      };
+      new OccurrenceRequest(projectId).save(attrs).then(
+        result => {
+          occurrencesCollection.addOccurrence(result.occurrence);
+        },
+        errors => {
+          alert(errors);
+          window.location.reload();
+        }
+      )
+    }
+
+    document.querySelector('.button.add-occurrence').addEventListener('click', () => {
+      occurrenceSpeciesDialog.show();
+    });
+
+    // Selecting section and sample
+    new SectionSampleSelection('.section-sample-selection').activate(
+      projectId, selectedSectionId, selectedSampleId, (selected) => {
+
+      selectedSectionId = selected.sectionId;
+      selectedSampleId = selected.sampleId;
+      new UrlParamsUpdater().setParams({
+        section: selectedSectionId,
+        sample: selectedSampleId,
+      });
+
+      if (selectedSectionId && selectedSampleId) {
+        occurrencesCollection.show();
+        occurrencesCollection.loadOccurrences(countingId, selectedSectionId, selectedSampleId)
+      } else {
+        occurrencesCollection.hide();
+      }
+    })
+
+    const species = {
+      name: null,
+      group_id: null,
+      //description: null,
+      //environmental_preferences: null,
+      //verified: false,
+    }
+
+    $('.add-species.action').click(() => {
+      new SpeciesModalFormView(species, (result) => {
+        addOccurrence(result.species.id, countingId, sampleId)
+      }).show()
+    });
+  })
+</script>

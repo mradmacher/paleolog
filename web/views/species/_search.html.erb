@@ -1,149 +1,25 @@
-<div class="ui fluid card">
-  <div class="content">
-    <div class="header">Find species</div>
-    <div class="description">
-      <form id="species-search" class="ui form">
-        <div class="field">
-          <label for="search-group-id">Group</label>
-          <template id="search-group-option-template">
-            <option value=""></option>
-          </template>
-          <select id="search-group-id" name="group_id">
-          </select>
-        </div>
-        <div class="field">
-          <label for="search-name">Name</label>
-          <input id="search-name" type="text" name="name" />
-        </div>
-        <div class="field">
-          <label for="search-verified">Verified</label>
-          <input id="search-verified" type="checkbox" name="verified" />
-        </div>
-        <button class="ui button" type="submit">Search</button>
-      </form>
-    </div>
+<div class="panel">
+  <div class="panel-heading">Find species
+  </div>
+  <div class="panel-block">
+    <form id="species-search" class="form">
+      <div class="field">
+        <label for="search-group-id">Group</label>
+        <template id="search-group-option-template">
+          <option value=""></option>
+        </template>
+        <select id="search-group-id" name="group_id">
+        </select>
+      </div>
+      <div class="field">
+        <label for="search-name">Name</label>
+        <input id="search-name" type="text" name="name" />
+      </div>
+      <div class="field">
+        <label for="search-verified">Verified</label>
+        <input id="search-verified" type="checkbox" name="verified" />
+      </div>
+      <button class="button" type="submit">Search</button>
+    </form>
   </div>
 </div>
-
-<script type="text/javascript">
-  class SpeciesSearch {
-    constructor({
-      updatePath = false,
-      initialFilter = {},
-      defaultFilter = {},
-      onSpeciesSearched = null,
-    }) {
-      if(onSpeciesSearched) {
-        this.onSpeciesSearchedEvent= onSpeciesSearched;
-      } else {
-        this.onSpeciesSearchedEvent = function(speciesId) {
-          // do nothing
-        };
-      };
-
-      this.updatePath = updatePath;
-      this.defaultFilter = defaultFilter;
-      this.fetchAvailableSearchFilters().then(filters => {
-        this.showAvailableSearchFilters(filters);
-        if(Object.keys(initialFilter).length > 0 || Object.keys(defaultFilter).length > 0) {
-          this.fetchSearchResult({ ...initialFilter, ...defaultFilter }).then(result => {
-            this.showFilters(initialFilter);
-            this.onSpeciesSearchedEvent(result);
-            //this.showSearchResult(result);
-          })
-        };
-      });
-
-      $('#species-search .button').click(event => {
-        event.preventDefault();
-        const attrs = {
-          group_id: $('#search-group-id').val(),
-          name: $('#search-name').val(),
-          verified: $('#search-verified').is(':checked'),
-        };
-        if(this.updatePath) {
-          this.updateSearchParams(attrs);
-        }
-        this.fetchSearchResult({ ...attrs, ...this.defaultFilter }).then(result => {
-          this.onSpeciesSearchedEvent(result)
-        })
-      });
-    }
-
-    updateSearchParams(attrs) {
-      if ('URLSearchParams' in window) {
-        var searchParams = new URLSearchParams();
-        var searchParamsProvided = false;
-        for(var attr in attrs) {
-          if(attrs[attr]) {
-            searchParams.set(attr, attrs[attr]);
-            searchParamsProvided = true;
-          }
-        }
-        var newRelativePathQuery = window.location.pathname;
-        if(searchParamsProvided) {
-          newRelativePathQuery = newRelativePathQuery + '?' + searchParams.toString();
-        }
-        history.pushState(null, '', newRelativePathQuery);
-      }
-    }
-
-    fetchAvailableSearchFilters() {
-      return new Promise((resolve, reject) => {
-        $.ajax({
-          url: '/species/search-filters',
-          type: "GET",
-          dataType: "json",
-        })
-        .done(function(json) {
-          resolve(json);
-        }).fail(function(xhr, status, error) {
-          reject(error)
-        })
-      })
-    }
-
-    showAvailableSearchFilters(filters) {
-      return new Promise((resolve, reject) => {
-        $('#search-species-size').text(0);
-        var option = $($('#search-group-option-template').html());
-        option.val('');
-        option.text('');
-        $('#search-group-id').append(option);
-        var that = this;
-        filters.groups.forEach(function(group) {
-          var option = $($('#search-group-option-template').html());
-          option.val(group.id);
-          option.text(group.name);
-          $('#search-group-id').append(option);
-        });
-      });
-    }
-
-    showFilters(attrs) {
-      for(var attr in attrs) {
-        if(attr == 'verified') {
-          $('#species-search').find('[name=' + attr + ']').attr("checked", true);
-        } else {
-          $('#species-search').find('[name=' + attr + ']').val(attrs[attr]);
-        }
-      }
-    }
-
-    fetchSearchResult(attrs) {
-      return new Promise((resolve, reject) => {
-        $.ajax({
-          url: '/species',
-          data: attrs,
-          type: "GET",
-          dataType: "json",
-        })
-        .done(function(json) {
-          resolve(json);
-        }).fail(function(xhr, status, error) {
-          reject(error);
-        })
-      });
-    }
-  }
-</script>

@@ -1,0 +1,51 @@
+<div class="ui modal add-occurrence">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <div class="modal-card-title">Add Species</div>
+    </header>
+    <section class="modal-card-body">
+      <%= erb :'species/_search.html', layout: false %>
+
+      <div class="panel">
+        <div class="panel-heading">
+          <h1 class="title">Species list (<span class="search-species-size">0</span>)</h1>
+        </div>
+        <nav class="navbar">
+          <div class="navbar-end">
+            <div class="navbar-item">
+              <button class="button is-small is-black add-species action">Add new species</button>
+            </div>
+          </div>
+        </nav>
+
+        <div class="panel-block">
+          <template id="search-species-template">
+            <tr class="species">
+              <td class="species-name"></td>
+              <td class="species-group-name"></td>
+              <td>
+                <button class="button select-species-action">Add</button>
+              </td>
+            </tr>
+          </template>
+          <table class="table is-striped is-fullwidth">
+            <thead>
+              <tr>
+                <th>Species</th>
+                <th>Group</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody class="species-collection">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+    <footer class="modal-card-foot">
+      <div class="button cancel">Cancel</div>
+    </footer>
+  </div>
+</div>

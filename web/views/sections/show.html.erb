@@ -1,53 +1,62 @@
-<div class="ui fluid card">
-  <div class="content">
-    <div class="header">
-      <div class="ui ribbon label">section</div>
-      <h2 class="ui header section-name"></h2>
-      <div class="ui fluid horizontal menu">
-        <a class="item occurrences-link" href="#">Section Occurrences</a>
-        <a class="item reports-link" href="#">Section Report</a>
-        <div class="ui right mini secondary menu">
-          <div class="item">
-            <button class="ui secondary button edit-section action">Edit Section</button>
-          </div>
+<div class="panel">
+  <div class="panel-heading">
+    <span class="tag">section</span>
+    <h2 class="title section-name"></h2>
+  </div>
+  <nav class="navbar">
+    <div class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item reports-link" href="#">Section Report</a>
+      </div>
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <button class="button is-black is-small edit-section action">Edit Section</button>
         </div>
       </div>
     </div>
-    <div class="ui description grid">
-    </div>
+  </nav>
+</div>
 
-    <template id="section-sample-template">
-      <tr>
-        <td class="sample-name"></td>
-        <td class="sample-description"></td>
-        <td class="sample-weight"></td>
-        <td>
-          <button class="ui mini secondary button edit-sample action" data-sample-id="#">Edit</button>
-        </td>
-      </tr>
-    </template>
+<template id="section-sample-template">
+  <tr>
+    <td class="sample-name"></td>
+    <td class="sample-description"></td>
+    <td class="sample-weight"></td>
+    <td>
+      <div class="buttons is-right">
+        <button class="button is-black is-small edit-sample action" data-sample-id="#">Edit sample</button>
+      </div>
+    </td>
+  </tr>
+</template>
+
+<div class="panel">
+  <div class="panel-heading">
     <h3>Samples</h3>
-    <table class="ui striped celled table section-samples">
+  </div>
+  <div class="panel-block">
+    <table class="table is-striped is-narrow is-fullwidth section-samples">
       <thead>
         <tr>
           <th>Name</th>
           <th>Description</th>
           <th>Weight</th>
-          <th class="one wide"></th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
       </tbody>
-      <tfoot class="full-width">
+      <tfoot>
         <tr>
           <th colspan="4">
-            <button class="ui fluid icon mini secondary button add-sample action"><i class="add icon"></i></button>
+            <button class="button is-small is-black is-fullwidth add-sample action">Add</button>
           </th>
         </tr>
       </tfoot>
     </table>
   </div>
 </div>
+
 <script type="module">
   import { SectionRequest } from "/js/requests.js";
   import { SampleModalFormView, SectionModalFormView } from "/js/modal_form_views.js";
@@ -70,16 +79,16 @@
       result => {
         let section = result.section
 
-        DomHelpers.setText('.section-name', section.name)
-        DomHelpers.setHref('.occurrences-link', UrlBuilder.projectOccurrences(projectId, { projectName: projectName, sectionId: section.id }))
-        DomHelpers.setHref('.reports-link', UrlBuilder.projectReports(projectId, { projectName: projectName, sectionId: section.id }))
+        DomHelpers.setText(section.name, '.section-name')
+        DomHelpers.setHref(UrlBuilder.projectOccurrences(projectId, { projectName: projectName, sectionId: section.id }), '.occurrences-link')
+        DomHelpers.setHref(UrlBuilder.projectReports(projectId, { projectName: projectName, sectionId: section.id }), '.reports-link')
 
         let sectionSamplesElement = document.querySelector('.section-samples tbody')
         section.samples.forEach((sample, i) => {
           let template = DomHelpers.getTemplate('section-sample-template')
-          DomHelpers.setText('.sample-name', sample.name, template)
-          DomHelpers.setText('.sample-description', sample.description, template)
-          DomHelpers.setText('.sample-weight', sample.weight, template)
+          DomHelpers.setText(sample.name, '.sample-name', template)
+          DomHelpers.setText(sample.description, '.sample-description', template)
+          DomHelpers.setText(sample.weight, '.sample-weight', template)
 
           template.querySelector('.edit-sample.action').addEventListener('click', (event) => {
             new SampleModalFormView(sample, (sample) => window.location.reload()).show()
