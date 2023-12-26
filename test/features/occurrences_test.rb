@@ -56,7 +56,7 @@ describe 'Occurrences' do
       assert_text('Counted Group Species')
     end
     click_to_select_species('Counted Group Species')
-    within page.find('.occurrences-collection') do
+    within page.find('#occurrences-collection') do
       assert_text('Counted Group Species')
     end
   end
@@ -87,7 +87,7 @@ describe 'Occurrences' do
       page.must_have_content('2')
     end
 
-    click_button(class: 'add-occurrence')
+    click_action_to('add occurrence')
     url_before = current_url
     select('Other', from: 'Group')
     click_on('Search')
@@ -109,7 +109,7 @@ describe 'Occurrences' do
       page.must_have_content('2')
     end
 
-    visit "/projects/#{project.id}/occurrences"
+    visit "/projects/#{project.id}/countings/#{counting.id}"
     table_rows = page.all('#occurrences-collection .occurrence')
     assert_match(/Odontochitina costata/, table_rows[0].text)
     assert_match(/Cerodinium costata/, table_rows[1].text)

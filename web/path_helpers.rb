@@ -31,10 +31,6 @@ module Web
       end
     end
 
-    def counting_path(project, counting)
-      "/projects/#{super_id(project)}/countings/#{super_id(counting)}"
-    end
-
     def project_species_path(project)
       "/projects/#{super_id(project)}/species"
     end

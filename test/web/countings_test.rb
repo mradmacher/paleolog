@@ -39,11 +39,11 @@ describe 'Occurrences' do
     Paleolog::Repo::Project.delete_all
   end
 
-  describe 'GET /projects/project_id/occurrences' do
+  describe 'GET /projects/:project_id/countings/:id' do
     it 'requires user participating in the project as observer' do
       assert_requires_observer(
         lambda {
-          get "/projects/#{project.id}/occurrences?counting=#{counting.id}&section=#{section.id}&sample=#{sample.id}"
+          get "/projects/#{project.id}/countings/#{counting.id}"
         },
         project,
       )
@@ -55,13 +55,8 @@ describe 'Occurrences' do
         login(user)
       end
 
-      it 'redirects if sections, sample and counting are missing' do
-        get "/projects/#{project.id}/occurrences"
-        assert_predicate last_response, :redirect?, "Expected 302 but got #{last_response.status}"
-      end
-
-      it 'returns 200 if counting, section and sample provided' do
-        get "/projects/#{project.id}/occurrences?counting=#{counting.id}&section=#{section.id}&sample=#{sample.id}"
+      it 'returns 200' do
+        get "/projects/#{project.id}/countings/#{counting.id}"
         assert_predicate last_response, :ok?, "Expected 200, but got #{last_response.status}"
       end
     end

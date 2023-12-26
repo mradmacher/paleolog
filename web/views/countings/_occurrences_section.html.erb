@@ -20,13 +20,13 @@
   $(function() {
     const projectId = <%= @project.id %>;
     const countingId = <%= @counting.id %>;
-    let sectionId = null;
-    let sampleId = null;
+    let selectedSectionId = null;
+    let selectedSampleId = null;
     <% if @section_id %>
-      sectionId = <%= @section_id %>;
+      selectedSectionId = <%= @section_id %>;
     <% end %>
     <% if @sample_id %>
-      sampleId = <%= @sample_id %>;
+      selectedSampleId = <%= @sample_id %>;
     <% end %>
     const countingGroupId = <%= @counting.group_id.to_json %>;
     var speciesSearch = null;
@@ -36,11 +36,13 @@
       '#occurrences-collection',
       '#occurrences-summary'
     );
-
-    if (sectionId && sampleId) {
-      occurrencesCollection.show();
-      occurrencesCollection.loadOccurrences(countingId, sectionId, sampleId);
-    }
+    const occurrenceSpeciesDialog = new OccurrenceSpeciesDialog({
+     selector: '.modal.add-occurrence',
+     countingGroupId: countingGroupId,
+     callback: (speciesId) => {
+       addOccurrence(speciesId, countingId, selectedSampleId);
+     }
+    });
 
     const addOccurrence = function(speciesId, countingId, sampleId) {
       const attrs = {
@@ -60,24 +62,23 @@
     }
 
     document.querySelector('.button.add-occurrence').addEventListener('click', () => {
-      const dialog = new OccurrenceSpeciesDialog('.modal.add-occurrence');
-      dialog.show({ countingGroupId: countingGroupId }).then((speciesId) => {
-        console.log(`${speciesId}:${countingId}:${sampleId}`);
-        addOccurrence(speciesId, countingId, sampleId);
-      })
+      occurrenceSpeciesDialog.show();
     });
 
     // Selecting section and sample
-    new SectionSampleSelection('.section-sample-selection').activate(projectId, sectionId, sampleId, (selected) => {
-      const { sectionId, sampleId } = selected;
+    new SectionSampleSelection('.section-sample-selection').activate(
+      projectId, selectedSectionId, selectedSampleId, (selected) => {
+
+      selectedSectionId = selected.sectionId;
+      selectedSampleId = selected.sampleId;
       new UrlParamsUpdater().setParams({
-        section: sectionId,
-        sample: sampleId,
+        section: selectedSectionId,
+        sample: selectedSampleId,
       });
 
-      if (sectionId && sampleId) {
+      if (selectedSectionId && selectedSampleId) {
         occurrencesCollection.show();
-        occurrencesCollection.loadOccurrences(countingId, sectionId, sampleId)
+        occurrencesCollection.loadOccurrences(countingId, selectedSectionId, selectedSampleId)
       } else {
         occurrencesCollection.hide();
       }

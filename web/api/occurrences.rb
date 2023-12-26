@@ -53,6 +53,7 @@ module Web
       end
       # rubocop:enable Metrics/BlockLength
 
+      # rubocop:disable Metrics/BlockLength
       post '/api/projects/:project_id/occurrences' do
         halt 403 unless authorizer.can_manage?(Paleolog::Project, params[:project_id])
 
@@ -70,7 +71,7 @@ module Web
         halt 400, result.error.to_json if result.failure?
 
         occurrence = Paleolog::Repo::Occurrence.find(
-          result.value.id, Paleolog::Repo::Occurrence.with_species_and_group
+          result.value.id, Paleolog::Repo::Occurrence.with_species_and_group,
         )
         {
           occurrence: {
@@ -85,6 +86,7 @@ module Web
           },
         }.to_json
       end
+      # rubocop:enable Metrics/BlockLength
 
       delete '/api/projects/:project_id/occurrences/:id' do
         halt 403 unless authorizer.can_manage?(Paleolog::Project, params[:project_id])
