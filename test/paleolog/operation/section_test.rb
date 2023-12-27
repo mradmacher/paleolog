@@ -6,14 +6,17 @@ describe Paleolog::Operation::Section do
   let(:repo) { Paleolog::Repo }
   let(:authorizer) { Minitest::Mock.new }
   let(:operation) { Paleolog::Operation::Section.new(repo, authorizer) }
-  let(:happy_operation) { Paleolog::Operation::Section.new(repo, HappyAuthorizer.new(user)) }
-  let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
-  let(:project) do
-    result = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user)).create(
-      name: 'Project for Section',
+  let(:happy_operation) { happy_operation_for(Paleolog::Operation::Section, user) }
+  let(:user) do
+    repo.find(
+      Paleolog::User,
+      repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
     )
-    assert_predicate result, :success?
-    result.value
+  end
+  let(:project_id) do
+    happy_operation_for(Paleolog::Operation::Project, user).create(
+      name: 'Project for Section',
+    ).value
   end
 
   after do
@@ -27,7 +30,7 @@ describe Paleolog::Operation::Section do
     it 'returns unauthenticated error when not authenticated' do
       authorizer.expect :authenticated?, false
 
-      result = operation.all_for_project(project_id: project.id)
+      result = operation.all_for_project(project_id: project_id)
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
 
@@ -36,9 +39,9 @@ describe Paleolog::Operation::Section do
 
     it 'returns unauthorized error when not authorized' do
       authorizer.expect :authenticated?, true
-      authorizer.expect :can_view?, false, [Paleolog::Project, project.id]
+      authorizer.expect :can_view?, false, [Paleolog::Project, project_id]
 
-      result = operation.all_for_project(project_id: project.id)
+      result = operation.all_for_project(project_id: project_id)
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHORIZED, result.error[:general]
 
@@ -48,7 +51,7 @@ describe Paleolog::Operation::Section do
     describe 'for authorized user' do
       before do
         authorizer.expect :authenticated?, true
-        authorizer.expect :can_view?, true, [Paleolog::Project, project.id]
+        authorizer.expect :can_view?, true, [Paleolog::Project, project_id]
       end
 
       it 'requires project_id param' do
@@ -58,15 +61,15 @@ describe Paleolog::Operation::Section do
       end
 
       it 'returns all project sections' do
-        result = happy_operation.create(name: 'Test111', project_id: project.id)
+        result = happy_operation.create(name: 'Test111', project_id: project_id)
         assert_predicate result, :success?
-        section1 = result.value
+        section1 = repo.find(Paleolog::Section, result.value)
 
-        result = happy_operation.create(name: 'Test222', project_id: project.id)
+        result = happy_operation.create(name: 'Test222', project_id: project_id)
         assert_predicate result, :success?
-        section2 = result.value
+        section2 = repo.find(Paleolog::Section, result.value)
 
-        result = operation.all_for_project(project_id: project.id)
+        result = operation.all_for_project(project_id: project_id)
         assert_predicate result, :success?
         sections = result.value
 
@@ -78,9 +81,10 @@ describe Paleolog::Operation::Section do
 
   describe '#find' do
     let(:section) do
-      result = happy_operation.create(name: 'Test123', project_id: project.id)
-      assert_predicate result, :success?
-      result.value
+      repo.find(
+        Paleolog::Section,
+        happy_operation.create(name: 'Test123', project_id: project_id).value,
+      )
     end
 
     it 'returns unauthenticated error when not authenticated' do
@@ -130,7 +134,7 @@ describe Paleolog::Operation::Section do
       authorizer.expect :authenticated?, false
 
       result = operation.create(
-        { name: 'Just a Name', project_id: project.id },
+        { name: 'Just a Name', project_id: project_id },
       )
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
@@ -140,10 +144,10 @@ describe Paleolog::Operation::Section do
 
     it 'returns unauthorized error when not authorized' do
       authorizer.expect :authenticated?, true
-      authorizer.expect :can_manage?, false, [Paleolog::Project, project.id]
+      authorizer.expect :can_manage?, false, [Paleolog::Project, project_id]
 
       result = operation.create(
-        { name: 'Just a Name', project_id: project.id },
+        { name: 'Just a Name', project_id: project_id },
       )
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHORIZED, result.error[:general]
@@ -154,29 +158,28 @@ describe Paleolog::Operation::Section do
     describe 'for authorized user' do
       before do
         authorizer.expect :authenticated?, true
-        authorizer.expect :can_manage?, true, [Paleolog::Project, project.id]
+        authorizer.expect :can_manage?, true, [Paleolog::Project, project_id]
       end
 
       it 'creates and returns section' do
         result = operation.create(
-          { name: 'Just a Name', project_id: project.id },
+          { name: 'Just a Name', project_id: project_id },
         )
         assert_predicate result, :success?
-        section = result.value
+        section = repo.find(Paleolog::Section, result.value)
         refute_nil section
 
-        refute_nil section.id
         assert_equal 'Just a Name', section.name
-        assert_equal project.id, section.project_id
+        assert_equal project_id, section.project_id
       end
 
       it 'does not complain when name not taken yet' do
         result = happy_operation.create(
-          { name: 'Some Name', project_id: project.id },
+          { name: 'Some Name', project_id: project_id },
         )
         assert_predicate result, :success?
 
-        result = operation.create(name: 'Other Name', project_id: project.id)
+        result = operation.create(name: 'Other Name', project_id: project_id)
         assert_predicate result, :success?
       end
 
@@ -197,25 +200,25 @@ describe Paleolog::Operation::Section do
       end
 
       it 'complains when name is nil' do
-        result = operation.create(name: nil, project_id: project.id)
+        result = operation.create(name: nil, project_id: project_id)
         assert_predicate result, :failure?
         assert_equal :blank, result.error[:name]
       end
 
       it 'complains when name is blank' do
-        result = operation.create(name: '  ', project_id: project.id)
+        result = operation.create(name: '  ', project_id: project_id)
         assert_predicate result, :failure?
         assert_equal :blank, result.error[:name]
       end
 
       it 'complains when name already exists' do
         result = happy_operation.create(
-          { name: 'Some Name', project_id: project.id },
+          { name: 'Some Name', project_id: project_id },
         )
         assert_predicate result, :success?
 
         result = operation.create(
-          { name: 'Some Name', project_id: project.id },
+          { name: 'Some Name', project_id: project_id },
         )
         assert_predicate result, :failure?
         assert_equal :taken, result.error[:name]
@@ -224,7 +227,7 @@ describe Paleolog::Operation::Section do
       it 'complains when name is too long' do
         max = 255
         result = operation.create(
-          { name: 'a' * (max + 1), project_id: project.id },
+          { name: 'a' * (max + 1), project_id: project_id },
         )
         assert_predicate result, :failure?
         assert_equal Paleolog::Operation::Params::TOO_LONG, result.error[:name]
@@ -233,19 +236,19 @@ describe Paleolog::Operation::Section do
       it 'allows name lenght to be of max size' do
         max = 255
         result = operation.create(
-          { name: 'a' * max, project_id: project.id },
+          { name: 'a' * max, project_id: project_id },
         )
         assert_predicate result, :success?
       end
 
       it 'complains when name with different cases already exists' do
         result = happy_operation.create(
-          { name: 'Some Name', project_id: project.id },
+          { name: 'Some Name', project_id: project_id },
         )
         assert_predicate result, :success?
 
         result = operation.create(
-          { name: ' some name ', project_id: project.id },
+          { name: ' some name ', project_id: project_id },
         )
         assert_predicate result, :failure?
         assert_equal :taken, result.error[:name]
@@ -255,11 +258,12 @@ describe Paleolog::Operation::Section do
 
   describe '#update' do
     let(:existing_section) do
-      result = happy_operation.create(
-        { name: 'Some Name', project_id: project.id },
+      repo.find(
+        Paleolog::Section,
+        happy_operation.create(
+          { name: 'Some Name', project_id: project_id },
+        ).value
       )
-      assert_predicate result, :success?
-      result.value
     end
 
     it 'returns unauthenticated error when not authenticated' do
@@ -298,12 +302,12 @@ describe Paleolog::Operation::Section do
           { id: existing_section.id, name: 'Other Name' },
         )
         assert_predicate result, :success?
-        section = result.value
+        section = repo.find(Paleolog::Section, result.value)
         refute_nil section
 
         assert_equal existing_section.id, section.id
         assert_equal 'Other Name', section.name
-        assert_equal project.id, section.project_id
+        assert_equal project_id, section.project_id
       end
 
       it 'complains when name is nil' do
@@ -324,7 +328,7 @@ describe Paleolog::Operation::Section do
 
       it 'complains when name already exists' do
         result = happy_operation.create(
-          { name: 'Another Name', project_id: project.id },
+          { name: 'Another Name', project_id: project_id },
         )
         assert_predicate result, :success?
 
@@ -337,7 +341,7 @@ describe Paleolog::Operation::Section do
 
       it 'complains when name with different cases already exists' do
         result = happy_operation.create(
-          { name: 'Another Name', project_id: project.id },
+          { name: 'Another Name', project_id: project_id },
         )
         assert_predicate result, :success?
 
@@ -349,11 +353,11 @@ describe Paleolog::Operation::Section do
       end
 
       it 'does not complain when name exists but in other project' do
-        other_project = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user)).create(
+        other_project_id = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user)).create(
           name: 'Other Project for Section',
         ).value
         result = happy_operation.create(
-          { name: 'Another Name', project_id: other_project.id },
+          { name: 'Another Name', project_id: other_project_id },
         )
         assert_predicate result, :success?
 
@@ -368,7 +372,7 @@ describe Paleolog::Operation::Section do
           { id: existing_section.id, name: existing_section.name },
         )
         assert_predicate result, :success?
-        assert_equal existing_section.name, result.value.name
+        assert_equal existing_section.name, repo.find(Paleolog::Section, result.value).name
       end
 
       it 'complains when name is too long' do
@@ -386,7 +390,7 @@ describe Paleolog::Operation::Section do
           { id: existing_section.id, name: name },
         )
         assert_predicate result, :success?
-        assert_equal name, result.value.name
+        assert_equal name, repo.find(Paleolog::Section, result.value).name
       end
     end
   end

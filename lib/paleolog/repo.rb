@@ -3,11 +3,13 @@
 module Paleolog
   module Repo
     module CommonQueries
-      def find(id)
+      def find(id, *options)
         result = ds.where(id: id).first
         return nil unless result
 
-        entity_class.new(**result)
+        entity_class.new(**result) do |entity|
+          options.each { |opt| opt.call(entity) }
+        end
       end
 
       def delete(id)
@@ -15,12 +17,12 @@ module Paleolog
       end
 
       def create(attributes)
-        find(ds.insert(create_timestamps.merge(attributes)))
+        ds.insert(create_timestamps.merge(attributes))
       end
 
       def update(id, attributes)
         ds.where(id: id).update(update_timestamps.merge(attributes)) unless attributes.empty?
-        find(id)
+        id
       end
 
       def all

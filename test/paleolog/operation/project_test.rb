@@ -6,8 +6,8 @@ describe Paleolog::Operation::Project do
   let(:repo) { Paleolog::Repo }
   let(:authorizer) { Minitest::Mock.new }
   let(:operation) { Paleolog::Operation::Project.new(repo, authorizer) }
-  let(:happy_operation) { Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user)) }
-  let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
+  let(:happy_operation) { happy_operation_for(Paleolog::Operation::Project, user) }
+  let(:user) { repo.find(Paleolog::User, repo.save(Paleolog::User.new(login: 'test', password: 'test123'))) }
 
   after do
     repo.for(Paleolog::Project).delete_all
@@ -39,24 +39,24 @@ describe Paleolog::Operation::Project do
       end
 
       it 'returns only projects user participates in' do
-        project_with_different_user = repo.save(Paleolog::Project.new(name: 'project1'))
-        other_user = repo.save(Paleolog::User.new(login: 'other test', password: 'test123'))
+        project_with_different_user_id = repo.save(Paleolog::Project.new(name: 'project1'))
+        other_user_id = repo.save(Paleolog::User.new(login: 'other test', password: 'test123'))
         repo.save(Paleolog::Project.new(name: 'project2'))
-        repo.save(Paleolog::Researcher.new(user: other_user, project: project_with_different_user))
-        project = repo.save(Paleolog::Project.new(name: 'some project'))
-        repo.save(Paleolog::Researcher.new(user: user, project: project))
-
+        repo.save(Paleolog::Researcher.new(user_id: other_user_id, project_id: project_with_different_user_id))
+        project_id = repo.save(Paleolog::Project.new(name: 'some project'))
+        repo.save(Paleolog::Researcher.new(user: user, project_id: project_id))
         result = operation.find_all
+
         assert_equal 1, result.value.size
-        assert_equal project.id, result.value.first.id
+        assert_equal project_id, result.value.first.id
       end
 
       it 'returns all necessary attributes' do
-        project = repo.save(Paleolog::Project.new(name: 'some project'))
-        repo.save(Paleolog::Researcher.new(user: user, project: project))
+        project_id = happy_operation.create(name: 'some project').value
+        project = repo.find(Paleolog::Project, project_id)
         result = operation.find_all
-
         projects = result.value
+
         assert_equal 1, projects.size
         assert_equal(project.id, projects.first.id)
         assert_equal(project.name, projects.first.name)
@@ -85,18 +85,16 @@ describe Paleolog::Operation::Project do
       it 'adds new project' do
         result = operation.create({ name: 'Some Name' })
         assert_predicate result, :success?
-        project = result.value
-        refute_nil project.id
-        assert_equal 'Some Name', project.name
+        refute_nil repo.find(Paleolog::Project, result.value)
       end
 
       it 'adds user as project manager' do
         result = operation.create({ name: 'Some Name' })
         assert_predicate result, :success?
 
-        project = result.value
-        refute_nil project.id
-        researchers = repo.for(Paleolog::Researcher).all_for_project(project.id)
+        project_id = result.value
+        refute_nil project_id
+        researchers = repo.for(Paleolog::Researcher).all_for_project(project_id)
         assert_equal 1, researchers.size
         researcher = researchers.first
         assert_equal user.id, researcher.user_id
@@ -106,7 +104,7 @@ describe Paleolog::Operation::Project do
       it 'adds created_at timestamp' do
         result = operation.create({ name: 'Some Name' })
         assert_predicate result, :success?
-        refute_nil result.value.created_at
+        refute_nil repo.find(Paleolog::Project, result.value).created_at
       end
 
       it 'complains when user missing' do
@@ -120,11 +118,11 @@ describe Paleolog::Operation::Project do
       it 'does not complain when name not taken yet' do
         result = happy_operation.create({ name: 'Some Name' })
         assert_predicate result, :success?
-        assert_equal 'Some Name', result.value.name
+        assert_equal 'Some Name', repo.find(Paleolog::Project, result.value).name
 
         result = operation.create({ name: 'Other Name' })
         assert_predicate result, :success?
-        assert_equal 'Other Name', result.value.name
+        assert_equal 'Other Name', repo.find(Paleolog::Project, result.value).name
       end
 
       it 'complains when name is nil' do
@@ -160,7 +158,7 @@ describe Paleolog::Operation::Project do
         name = 'a' * 255
         result = operation.create({ name: name })
         assert_predicate result, :success?
-        assert_equal name, result.value.name
+        assert_equal name, repo.find(Paleolog::Project, result.value).name
       end
 
       it 'complains when name with different cases already exists' do
@@ -176,9 +174,7 @@ describe Paleolog::Operation::Project do
 
   describe '#rename' do
     let(:project_id) do
-      result = happy_operation.create({ name: 'Some Name', user_id: user.id })
-      assert_predicate result, :success?
-      result.value.id
+      happy_operation.create({ name: 'Some Name', user_id: user.id }).value
     end
 
     it 'returns unauthenticated error when not authenticated' do
@@ -211,13 +207,13 @@ describe Paleolog::Operation::Project do
       it 'renames project' do
         result = operation.rename({ id: project_id, name: 'Other Name' })
         assert_predicate result, :success?
-        assert_equal 'Other Name', result.value.name
+        assert_equal 'Other Name', repo.find(Paleolog::Project, result.value).name
       end
 
       it 'can set the same name' do
         result = operation.rename({ id: project_id, name: 'Some Name' })
         assert_predicate result, :success?
-        assert_equal 'Some Name', result.value.name
+        assert_equal 'Some Name', repo.find(Paleolog::Project, result.value).name
       end
 
       it 'complains when name is nil' do
@@ -252,7 +248,7 @@ describe Paleolog::Operation::Project do
         name = 'a' * 255
         result = operation.rename({ id: project_id, name: name })
         assert_predicate result, :success?
-        assert_equal name, result.value.name
+        assert_equal name, repo.find(Paleolog::Project, result.value).name
       end
 
       it 'complains when name with different cases already exists' do

@@ -18,4 +18,10 @@ class HappyAuthorizer
 
   def authenticated? = true
   def can_manage?(_, _) = true
+  def can_view?(_, _) = true
 end
+
+def happy_operation_for(operation_class, user)
+  operation_class.new(Paleolog::Repo, HappyAuthorizer.new(user))
+end
+

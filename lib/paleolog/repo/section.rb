@@ -14,15 +14,6 @@ module Paleolog
           }
         end
 
-        def find(id, *options)
-          result = ds.where(id: id).first
-          return nil unless result
-
-          Paleolog::Section.new(**result) do |section|
-            options.each { |opt| opt.call(section) }
-          end
-        end
-
         def all_for_project(project_id)
           ds.where(project_id: project_id).all.map do |result|
             Paleolog::Section.new(**result)

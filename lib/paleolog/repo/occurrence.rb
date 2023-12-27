@@ -12,15 +12,6 @@ module Paleolog
           }
         end
 
-        def find(id, *options)
-          result = ds.where(id: id).first
-          return nil unless result
-
-          Paleolog::Occurrence.new(**result) do |occurrence|
-            options.each { |opt| opt.call(occurrence) }
-          end
-        end
-
         # rubocop:disable Metrics/AbcSize
         def find_in_project(id, project_id)
           result = ds.where(Sequel[:occurrences][:id] => id, Sequel[:projects][:id] => project_id)

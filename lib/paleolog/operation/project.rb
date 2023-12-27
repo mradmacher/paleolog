@@ -49,18 +49,18 @@ module Paleolog
 
       def create_project
         lambda do |params|
-          project = nil
+          project_id = nil
           repo.with_transaction do
-            project = repo.save(Paleolog::Project.new(**params.except(:user_id)))
+            project_id = repo.save(Paleolog::Project.new(**params.except(:user_id)))
             repo.save(
               Paleolog::Researcher.new(
                 user_id: params[:user_id],
-                project_id: project.id,
+                project_id: project_id,
                 manager: true,
               ),
             )
           end
-          project
+          project_id
         end
       end
 

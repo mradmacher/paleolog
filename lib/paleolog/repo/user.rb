@@ -17,7 +17,7 @@ module Paleolog
           # TODO: move that code to some operation
           password_salt = BCrypt::Engine.generate_salt
           password = BCrypt::Password.create(password_salt + attributes[:password])
-          find(ds.insert(attributes.merge(password: password, password_salt: password_salt)))
+          ds.insert(attributes.merge(password: password, password_salt: password_salt))
         end
 
         def entity_class
