@@ -10,17 +10,17 @@ describe Paleolog::Repo::Image do
   end
 
   describe '#all_for_species' do
-    let(:group) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Group')) }
-    let(:species) { Paleolog::Repo.save(Paleolog::Species.new(name: 'Species', group: group)) }
-    let(:other_species) { Paleolog::Repo.save(Paleolog::Species.new(name: 'Other Species', group: group)) }
+    let(:group_id) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Group')) }
+    let(:species_id) { Paleolog::Repo.save(Paleolog::Species.new(name: 'Species', group_id: group_id)) }
+    let(:other_species_id) { Paleolog::Repo.save(Paleolog::Species.new(name: 'Other Species', group_id: group_id)) }
 
     it 'returns all features defined for a species' do
-      image1 = Paleolog::Repo.save(Paleolog::Image.new(image_file_name: 'img1.png', species: species))
-      image2 = Paleolog::Repo.save(Paleolog::Image.new(image_file_name: 'img2.png', species: species))
-      Paleolog::Repo.save(Paleolog::Image.new(image_file_name: 'img3.png', species: other_species))
+      image1_id = Paleolog::Repo.save(Paleolog::Image.new(image_file_name: 'img1.png', species_id: species_id))
+      image2_id = Paleolog::Repo.save(Paleolog::Image.new(image_file_name: 'img2.png', species_id: species_id))
+      Paleolog::Repo.save(Paleolog::Image.new(image_file_name: 'img3.png', species_id: other_species_id))
 
-      result = repo.all_for_species(species.id)
-      assert_equal([image1.id, image2.id], result.map(&:id))
+      result = repo.all_for_species(species_id)
+      assert_equal([image1_id, image2_id], result.map(&:id))
     end
   end
 end

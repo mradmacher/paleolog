@@ -97,6 +97,10 @@ module Paleolog
       self.for(type).delete(id)
     end
 
+    def self.delete_all(type)
+      self.for(type).delete_all
+    end
+
     def self.for(type)
       REPOS[type]
     end
