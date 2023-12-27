@@ -10,6 +10,7 @@ module Paleolog
       )
 
       UPDATE_PARAMS = Params.define.(
+        id: Params.required.(Params::IdRules),
         quantity: Params.optional.(Params.blank_to_nil_or.(Params.integer.(Params.gte.(0)))),
         status: Params.optional.((Params.integer.(Params.included_in.(Paleolog::Occurrence::STATUSES)))),
         uncertain: Params.optional.(Params.bool.(Params.any)),
@@ -20,20 +21,18 @@ module Paleolog
           .and_then { verify(_1, species_uniqueness) }
           .and_then { merge(_1, default_status) }
           .and_then { merge(_1, next_rank) }
-          .and_then { carefully(_1, create_occurrence) }
+          .and_then { carefully(_1, save_occurrence) }
       end
 
-      def update(occurrence_id, **raw_params)
+      def update(raw_params)
         parameterize(raw_params, UPDATE_PARAMS)
-          .and_then { carefully(_1, ->(params) { repo.for(Paleolog::Occurrence).update(occurrence_id, params) }) }
+          .and_then { carefully(_1, save_occurrence) }
       end
 
       private
 
-      def create_occurrence
-        lambda do |params|
-          repo.for(Paleolog::Occurrence).create(params)
-        end
+      def save_occurrence
+        ->(params) { repo.save(Paleolog::Occurrence.new(**params)) }
       end
 
       def species_uniqueness

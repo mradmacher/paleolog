@@ -85,7 +85,7 @@ describe Paleolog::Operation::Occurrence do
 
     it 'accepts valid statuses' do
       Paleolog::Occurrence::STATUSES.each do |value|
-        result = operation.update(occurrence.id, status: value)
+        result = operation.update(id: occurrence.id, status: value)
         assert_predicate result, :success?
         assert_equal value, result.value.status
       end
@@ -93,68 +93,68 @@ describe Paleolog::Operation::Occurrence do
 
     it 'refutes invalid statuses' do
       [-100, -1, 4, 5, 100].each do |value|
-        result = operation.update(occurrence.id, status: value)
+        result = operation.update(id: occurrence.id, status: value)
         assert_predicate result, :failure?
         assert_equal Paleolog::Operation::Params::NOT_INCLUDED, result.error[:status]
       end
     end
 
     it 'accepts uncertain flag' do
-      result = operation.update(occurrence.id, uncertain: true)
+      result = operation.update(id: occurrence.id, uncertain: true)
       assert_predicate result, :success?
       assert result.value.uncertain
 
-      result = operation.update(occurrence.id, uncertain: '1')
+      result = operation.update(id: occurrence.id, uncertain: '1')
       assert_predicate result, :success?
       assert result.value.uncertain
 
-      result = operation.update(occurrence.id, uncertain: false)
+      result = operation.update(id: occurrence.id, uncertain: false)
       assert_predicate result, :success?
       refute result.value.uncertain
 
-      result = operation.update(occurrence.id, uncertain: '0')
+      result = operation.update(id: occurrence.id, uncertain: '0')
       assert_predicate result, :success?
       refute result.value.uncertain
     end
 
     it 'accepts possitive quantity' do
-      result = operation.update(occurrence.id, quantity: 1)
+      result = operation.update(id: occurrence.id, quantity: 1)
       assert_predicate result, :success?
       assert_equal 1, result.value.quantity
     end
 
     it 'accepts 0 quantity' do
-      result = operation.update(occurrence.id, quantity: 0)
+      result = operation.update(id: occurrence.id, quantity: 0)
       assert_predicate result, :success?
       assert_equal 0, result.value.quantity
     end
 
     it 'accepts nil quantity' do
-      result = operation.update(occurrence.id, quantity: nil)
+      result = operation.update(id: occurrence.id, quantity: nil)
       assert_predicate result, :success?
       assert_nil result.value.quantity
     end
 
     it 'rejects negative quantity' do
-      result = operation.update(occurrence.id, quantity: -1)
+      result = operation.update(id: occurrence.id, quantity: -1)
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::Params::NOT_GTE, result.error[:quantity]
     end
 
     it 'accepts integer quantity passed as string' do
-      result = operation.update(occurrence.id, quantity: '1')
+      result = operation.update(id: occurrence.id, quantity: '1')
       assert_predicate result, :success?
       assert_equal 1, result.value.quantity
     end
 
     it 'rejects string quantity' do
-      result = operation.update(occurrence.id, quantity: 'five')
+      result = operation.update(id: occurrence.id, quantity: 'five')
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:quantity]
     end
 
     it 'rejects double quantity' do
-      result = operation.update(occurrence.id, quantity: '1.1')
+      result = operation.update(id: occurrence.id, quantity: '1.1')
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:quantity]
     end

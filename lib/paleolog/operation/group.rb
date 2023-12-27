@@ -10,7 +10,7 @@ module Paleolog
       def create(name:)
         parameterize({ name: name }, CREATE_PARAMS)
           .and_then { verify(_1, name_uniqueness) }
-          .and_then { carefully(_1, ->(params) { repo.for(Paleolog::Group).create(params) }) }
+          .and_then { carefully(_1, ->(params) { repo.save(Paleolog::Group.new(**params)) }) }
       end
 
       private

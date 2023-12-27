@@ -11,7 +11,7 @@ module Paleolog
       def create(name:, field_id:)
         parameterize({ name: name, field_id: field_id }, CREATE_PARAMS)
           .and_then { verify(_1, name_uniqueness) }
-          .and_then { carefully(_1, ->(params) { repo.for(Paleolog::Choice).create(params) }) }
+          .and_then { carefully(_1, ->(params) { repo.save(Paleolog::Choice.new(**params)) }) }
       end
 
       private

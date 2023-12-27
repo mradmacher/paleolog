@@ -43,7 +43,7 @@ module Paleolog
 
       def update_project
         lambda do |params|
-          repo.for(Paleolog::Project).update(params[:id], params.except(:id))
+          repo.save(Paleolog::Project.new(**params))
         end
       end
 
@@ -51,11 +51,13 @@ module Paleolog
         lambda do |params|
           project = nil
           repo.with_transaction do
-            project = repo.for(Paleolog::Project).create(params.except(:user_id))
-            repo.for(Paleolog::Researcher).create(
-              user_id: params[:user_id],
-              project_id: project.id,
-              manager: true,
+            project = repo.save(Paleolog::Project.new(**params.except(:user_id)))
+            repo.save(
+              Paleolog::Researcher.new(
+                user_id: params[:user_id],
+                project_id: project.id,
+                manager: true,
+              ),
             )
           end
           project
