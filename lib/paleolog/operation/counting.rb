@@ -43,7 +43,12 @@ module Paleolog
       private
 
       def save_counting
-        ->(params) { repo.save(Paleolog::Counting.new(**params)) }
+        lambda do |params|
+          repo.find(
+            Paleolog::Counting,
+            repo.save(Paleolog::Counting.new(**params)),
+          )
+        end
       end
 
       def name_uniqueness

@@ -12,28 +12,36 @@ describe Paleolog::Operation::Occurrence do
     id = repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
     repo.find(Paleolog::User, id)
   end
-  let(:project_id) do
+  let(:project) do
     happy_operation_for(Paleolog::Operation::Project, user)
       .create(name: 'some project')
       .value
   end
-  let(:counting_id) do
+  let(:counting) do
     happy_operation_for(Paleolog::Operation::Counting, user)
-      .create(name: 'some counting', project_id: project_id)
+      .create(name: 'some counting', project_id: project.id)
       .value
   end
-  let(:section_id) do
+  let(:section) do
     happy_operation_for(Paleolog::Operation::Section, user)
-      .create(name: 'some section', project_id: project_id)
+      .create(name: 'some section', project_id: project.id)
       .value
   end
-  let(:sample_id) do
+  let(:sample) do
     happy_operation_for(Paleolog::Operation::Sample, user)
-      .create(name: 'some sample', section_id: section_id)
+      .create(name: 'some sample', section_id: section.id)
       .value
   end
-  let(:group_id) { repo.save(Paleolog::Group.new(name: 'Dinoflagellate')) }
-  let(:species_id) { repo.save(Paleolog::Species.new(group_id: group_id, name: 'Odontochitina costata')) }
+  let(:group) do
+    happy_operation_for(Paleolog::Operation::Group, user)
+      .create(name: 'Dinoflagellate')
+      .value
+  end
+  let(:species) do
+    happy_operation_for(Paleolog::Operation::Species, user)
+      .create(group_id: group.id, name: 'Odontochitina costata')
+      .value
+  end
 
   after do
     repo.for(Paleolog::Sample).delete_all
@@ -42,43 +50,45 @@ describe Paleolog::Operation::Occurrence do
     repo.for(Paleolog::Researcher).delete_all
     repo.for(Paleolog::Project).delete_all
     repo.for(Paleolog::User).delete_all
+    repo.for(Paleolog::Species).delete_all
+    repo.for(Paleolog::Group).delete_all
   end
 
   describe '#create' do
     it 'creates new occurrence' do
-      result = operation.create(sample_id: sample_id, species_id: species_id, counting_id: counting_id)
+      result = operation.create(sample_id: sample.id, species_id: species.id, counting_id: counting.id)
       assert_predicate result, :success?
 
-      occurrence_id = result.value
-      refute_nil occurrence_id
-      refute_nil Paleolog::Repo::Occurrence.find(occurrence_id)
+      occurrence = result.value
+      refute_nil occurrence
+      refute_nil occurrence.id
     end
 
     it 'assigns new rank' do
-      result = operation.create(sample_id: sample_id, species_id: species_id, counting_id: counting_id)
+      result = operation.create(sample_id: sample.id, species_id: species.id, counting_id: counting.id)
       assert_predicate result, :success?
-      assert_equal 1, repo.find(Paleolog::Occurrence, result.value).rank
+      assert_equal 1, result.value.rank
     end
 
     it 'assigns rank greater than already existing' do
-      other_species_id = repo.save(Paleolog::Species.new(group_id: group_id, name: 'Other species'))
+      other_species = happy_operation_for(Paleolog::Operation::Species, user).create(group_id: group.id, name: 'Other species').value
       result = operation.create(
-        sample_id: sample_id,
-        species_id: other_species_id,
-        counting_id: counting_id,
+        sample_id: sample.id,
+        species_id: other_species.id,
+        counting_id: counting.id,
       )
       assert_predicate result, :success?
-      assert_equal 1, repo.find(Paleolog::Occurrence, result.value).rank
+      assert_equal 1, result.value.rank
 
-      result = operation.create(sample_id: sample_id, species_id: species_id, counting_id: counting_id)
+      result = operation.create(sample_id: sample.id, species_id: species.id, counting_id: counting.id)
       assert_predicate result, :success?
-      assert_equal 2, repo.find(Paleolog::Occurrence, result.value).rank
+      assert_equal 2, result.value.rank
     end
 
     it 'assigns normal status' do
-      result = operation.create(sample_id: sample_id, species_id: species_id, counting_id: counting_id)
+      result = operation.create(sample_id: sample.id, species_id: species.id, counting_id: counting.id)
       assert_predicate result, :success?
-      assert_equal Paleolog::Occurrence::NORMAL, repo.find(Paleolog::Occurrence, result.value).status
+      assert_equal Paleolog::Occurrence::NORMAL, result.value.status
     end
 
     it 'requires counting, sample and species id' do
@@ -100,89 +110,91 @@ describe Paleolog::Operation::Occurrence do
     # end
 
     it 'does not allow same species within a counting and sample' do
-      result = operation.create(sample_id: sample_id, species_id: species_id, counting_id: counting_id)
+      result = operation.create(sample_id: sample.id, species_id: species.id, counting_id: counting.id)
       assert_predicate result, :success?
-      result = operation.create(sample_id: sample_id, species_id: species_id, counting_id: counting_id)
+      result = operation.create(sample_id: sample.id, species_id: species.id, counting_id: counting.id)
       assert_predicate result, :failure?
       assert_equal :taken, result.error[:species_id]
     end
   end
 
   describe '#update' do
-    let(:occurrence_id) { operation.create(sample_id: sample_id, species_id: species_id, counting_id: counting_id).value }
+    let(:occurrence) do
+      operation.create(sample_id: sample.id, species_id: species.id, counting_id: counting.id).value
+    end
 
     it 'accepts valid statuses' do
       Paleolog::Occurrence::STATUSES.each do |value|
-        result = operation.update(id: occurrence_id, status: value)
+        result = operation.update(id: occurrence.id, status: value)
         assert_predicate result, :success?
-        assert_equal value, repo.find(Paleolog::Occurrence, result.value).status
+        assert_equal value, result.value.status
       end
     end
 
     it 'refutes invalid statuses' do
       [-100, -1, 4, 5, 100].each do |value|
-        result = operation.update(id: occurrence_id, status: value)
+        result = operation.update(id: occurrence.id, status: value)
         assert_predicate result, :failure?
         assert_equal Paleolog::Operation::Params::NOT_INCLUDED, result.error[:status]
       end
     end
 
     it 'accepts uncertain flag' do
-      result = operation.update(id: occurrence_id, uncertain: true)
+      result = operation.update(id: occurrence.id, uncertain: true)
       assert_predicate result, :success?
-      assert repo.find(Paleolog::Occurrence, result.value).uncertain
+      assert result.value.uncertain
 
-      result = operation.update(id: occurrence_id, uncertain: '1')
+      result = operation.update(id: occurrence.id, uncertain: '1')
       assert_predicate result, :success?
-      assert repo.find(Paleolog::Occurrence, result.value).uncertain
+      assert result.value.uncertain
 
-      result = operation.update(id: occurrence_id, uncertain: false)
+      result = operation.update(id: occurrence.id, uncertain: false)
       assert_predicate result, :success?
-      refute repo.find(Paleolog::Occurrence, result.value).uncertain
+      refute result.value.uncertain
 
-      result = operation.update(id: occurrence_id, uncertain: '0')
+      result = operation.update(id: occurrence.id, uncertain: '0')
       assert_predicate result, :success?
-      refute repo.find(Paleolog::Occurrence, result.value).uncertain
+      refute result.value.uncertain
     end
 
     it 'accepts possitive quantity' do
-      result = operation.update(id: occurrence_id, quantity: 1)
+      result = operation.update(id: occurrence.id, quantity: 1)
       assert_predicate result, :success?
-      assert_equal 1, repo.find(Paleolog::Occurrence, result.value).quantity
+      assert_equal 1, result.value.quantity
     end
 
     it 'accepts 0 quantity' do
-      result = operation.update(id: occurrence_id, quantity: 0)
+      result = operation.update(id: occurrence.id, quantity: 0)
       assert_predicate result, :success?
-      assert_equal 0, repo.find(Paleolog::Occurrence, result.value).quantity
+      assert_equal 0, result.value.quantity
     end
 
     it 'accepts nil quantity' do
-      result = operation.update(id: occurrence_id, quantity: nil)
+      result = operation.update(id: occurrence.id, quantity: nil)
       assert_predicate result, :success?
-      assert_nil repo.find(Paleolog::Occurrence, result.value).quantity
+      assert_nil result.value.quantity
     end
 
     it 'rejects negative quantity' do
-      result = operation.update(id: occurrence_id, quantity: -1)
+      result = operation.update(id: occurrence.id, quantity: -1)
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::Params::NOT_GTE, result.error[:quantity]
     end
 
     it 'accepts integer quantity passed as string' do
-      result = operation.update(id: occurrence_id, quantity: '1')
+      result = operation.update(id: occurrence.id, quantity: '1')
       assert_predicate result, :success?
-      assert_equal 1, repo.find(Paleolog::Occurrence, result.value).quantity
+      assert_equal 1, result.value.quantity
     end
 
     it 'rejects string quantity' do
-      result = operation.update(id: occurrence_id, quantity: 'five')
+      result = operation.update(id: occurrence.id, quantity: 'five')
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:quantity]
     end
 
     it 'rejects double quantity' do
-      result = operation.update(id: occurrence_id, quantity: '1.1')
+      result = operation.update(id: occurrence.id, quantity: '1.1')
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:quantity]
     end

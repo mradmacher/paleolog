@@ -37,7 +37,12 @@ module Paleolog
       private
 
       def save_sample
-        ->(params) { repo.save(Paleolog::Sample.new(**params)) }
+        lambda do |params|
+          repo.find(
+            Paleolog::Sample,
+            repo.save(Paleolog::Sample.new(**params)),
+          )
+        end
       end
 
       def name_uniqueness

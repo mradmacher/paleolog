@@ -54,7 +54,12 @@ module Paleolog
       private
 
       def save_section
-        ->(params) { repo.save(Paleolog::Section.new(**params)) }
+        lambda do |params|
+          repo.find(
+            Paleolog::Section,
+            repo.save(Paleolog::Section.new(**params)),
+          )
+        end
       end
 
       def find_project_sections

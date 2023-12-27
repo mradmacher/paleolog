@@ -32,7 +32,12 @@ module Paleolog
       private
 
       def save_occurrence
-        ->(params) { repo.save(Paleolog::Occurrence.new(**params)) }
+        lambda do |params|
+          repo.find(
+            Paleolog::Occurrence,
+            repo.save(Paleolog::Occurrence.new(**params)),
+          )
+        end
       end
 
       def species_uniqueness

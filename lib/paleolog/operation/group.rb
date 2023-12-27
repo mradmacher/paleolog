@@ -10,10 +10,19 @@ module Paleolog
       def create(name:)
         parameterize({ name: name }, CREATE_PARAMS)
           .and_then { verify(_1, name_uniqueness) }
-          .and_then { carefully(_1, ->(params) { repo.save(Paleolog::Group.new(**params)) }) }
+          .and_then { carefully(_1, save_group) }
       end
 
       private
+
+      def save_group
+        lambda do |params|
+          repo.find(
+            Paleolog::Group,
+            repo.save(Paleolog::Group.new(**params)),
+          )
+        end
+      end
 
       def name_uniqueness
         lambda do |params|

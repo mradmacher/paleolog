@@ -10,8 +10,8 @@ describe Paleolog::Operation::Project do
   let(:user) { repo.find(Paleolog::User, repo.save(Paleolog::User.new(login: 'test', password: 'test123'))) }
 
   after do
-    repo.for(Paleolog::Project).delete_all
     repo.for(Paleolog::Researcher).delete_all
+    repo.for(Paleolog::Project).delete_all
     repo.for(Paleolog::User).delete_all
   end
 
@@ -52,8 +52,7 @@ describe Paleolog::Operation::Project do
       end
 
       it 'returns all necessary attributes' do
-        project_id = happy_operation.create(name: 'some project').value
-        project = repo.find(Paleolog::Project, project_id)
+        project = happy_operation.create(name: 'some project').value
         result = operation.find_all
         projects = result.value
 
@@ -69,7 +68,7 @@ describe Paleolog::Operation::Project do
     it 'returns unauthenticated error when not authenticated' do
       authorizer.expect :authenticated?, false
 
-      result = operation.create({ name: 'Just a Name' })
+      result = operation.create(name: 'Just a Name')
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
 
@@ -83,18 +82,18 @@ describe Paleolog::Operation::Project do
       end
 
       it 'adds new project' do
-        result = operation.create({ name: 'Some Name' })
+        result = operation.create(name: 'Some Name')
         assert_predicate result, :success?
-        refute_nil repo.find(Paleolog::Project, result.value)
+        refute_nil result.value
       end
 
       it 'adds user as project manager' do
-        result = operation.create({ name: 'Some Name' })
+        result = operation.create(name: 'Some Name')
         assert_predicate result, :success?
+        project = result.value
 
-        project_id = result.value
-        refute_nil project_id
-        researchers = repo.for(Paleolog::Researcher).all_for_project(project_id)
+        refute_nil project
+        researchers = repo.for(Paleolog::Researcher).all_for_project(project.id)
         assert_equal 1, researchers.size
         researcher = researchers.first
         assert_equal user.id, researcher.user_id
@@ -104,7 +103,7 @@ describe Paleolog::Operation::Project do
       it 'adds created_at timestamp' do
         result = operation.create({ name: 'Some Name' })
         assert_predicate result, :success?
-        refute_nil repo.find(Paleolog::Project, result.value).created_at
+        refute_nil result.value.created_at
       end
 
       it 'complains when user missing' do
@@ -118,11 +117,11 @@ describe Paleolog::Operation::Project do
       it 'does not complain when name not taken yet' do
         result = happy_operation.create({ name: 'Some Name' })
         assert_predicate result, :success?
-        assert_equal 'Some Name', repo.find(Paleolog::Project, result.value).name
+        assert_equal 'Some Name', result.value.name
 
         result = operation.create({ name: 'Other Name' })
         assert_predicate result, :success?
-        assert_equal 'Other Name', repo.find(Paleolog::Project, result.value).name
+        assert_equal 'Other Name', result.value.name
       end
 
       it 'complains when name is nil' do
@@ -158,7 +157,7 @@ describe Paleolog::Operation::Project do
         name = 'a' * 255
         result = operation.create({ name: name })
         assert_predicate result, :success?
-        assert_equal name, repo.find(Paleolog::Project, result.value).name
+        assert_equal name, result.value.name
       end
 
       it 'complains when name with different cases already exists' do
@@ -173,14 +172,14 @@ describe Paleolog::Operation::Project do
   end
 
   describe '#rename' do
-    let(:project_id) do
+    let(:project) do
       happy_operation.create({ name: 'Some Name', user_id: user.id }).value
     end
 
     it 'returns unauthenticated error when not authenticated' do
       authorizer.expect :authenticated?, false
 
-      result = operation.rename({ id: project_id, name: 'Just Another Name' })
+      result = operation.rename({ id: project.id, name: 'Just Another Name' })
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
 
@@ -189,9 +188,9 @@ describe Paleolog::Operation::Project do
 
     it 'returns unauthorized error when not authorized' do
       authorizer.expect :authenticated?, true
-      authorizer.expect :can_manage?, false, [Paleolog::Project, project_id]
+      authorizer.expect :can_manage?, false, [Paleolog::Project, project.id]
 
-      result = operation.rename({ id: project_id, name: 'Just Another Name' })
+      result = operation.rename({ id: project.id, name: 'Just Another Name' })
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHORIZED, result.error[:general]
 
@@ -201,61 +200,61 @@ describe Paleolog::Operation::Project do
     describe 'for authorized user' do
       before do
         authorizer.expect :authenticated?, true
-        authorizer.expect :can_manage?, true, [Paleolog::Project, project_id]
+        authorizer.expect :can_manage?, true, [Paleolog::Project, project.id]
       end
 
       it 'renames project' do
-        result = operation.rename({ id: project_id, name: 'Other Name' })
+        result = operation.rename(id: project.id, name: 'Other Name')
         assert_predicate result, :success?
-        assert_equal 'Other Name', repo.find(Paleolog::Project, result.value).name
+        assert_equal 'Other Name', result.value.name
       end
 
       it 'can set the same name' do
-        result = operation.rename({ id: project_id, name: 'Some Name' })
+        result = operation.rename(id: project.id, name: 'Some Name')
         assert_predicate result, :success?
-        assert_equal 'Some Name', repo.find(Paleolog::Project, result.value).name
+        assert_equal 'Some Name', result.value.name
       end
 
       it 'complains when name is nil' do
-        result = operation.rename({ id: project_id, name: nil })
+        result = operation.rename(id: project.id, name: nil)
         assert_predicate result, :failure?
         assert_equal :blank, result.error[:name]
       end
 
       it 'complains when name is blank' do
-        result = operation.rename({ id: project_id, name: '   ' })
+        result = operation.rename(id: project.id, name: '   ')
         assert_predicate result, :failure?
         assert_equal :blank, result.error[:name]
       end
 
       it 'complains when name already exists' do
-        result = happy_operation.create({ name: 'Other Name', user_id: user.id })
+        result = happy_operation.create(name: 'Other Name', user_id: user.id)
         assert_predicate result, :success?
 
-        result = operation.rename({ id: project_id, name: 'Other Name' })
+        result = operation.rename(id: project.id, name: 'Other Name')
         assert_predicate result, :failure?
         assert_equal :taken, result.error[:name]
       end
 
       it 'complains when name is too long' do
         max = 255
-        result = operation.rename({ id: project_id, name: 'a' * (max + 1) })
+        result = operation.rename(id: project.id, name: 'a' * (max + 1))
         assert_predicate result, :failure?
         assert_equal :too_long, result.error[:name]
       end
 
       it 'accepts name of max length' do
         name = 'a' * 255
-        result = operation.rename({ id: project_id, name: name })
+        result = operation.rename(id: project.id, name: name)
         assert_predicate result, :success?
-        assert_equal name, repo.find(Paleolog::Project, result.value).name
+        assert_equal name, result.value.name
       end
 
       it 'complains when name with different cases already exists' do
-        result = happy_operation.create({ name: 'Other Name', user_id: user.id })
+        result = happy_operation.create(name: 'Other Name', user_id: user.id)
         assert_predicate result, :success?
 
-        result = operation.rename({ id: project_id, name: ' other name ' })
+        result = operation.rename(id: project.id, name: ' other name ')
         assert_predicate result, :failure?
         assert_equal :taken, result.error[:name]
       end

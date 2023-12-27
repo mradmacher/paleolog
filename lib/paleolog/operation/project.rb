@@ -43,7 +43,10 @@ module Paleolog
 
       def update_project
         lambda do |params|
-          repo.save(Paleolog::Project.new(**params))
+          repo.find(
+            Paleolog::Project,
+            repo.save(Paleolog::Project.new(**params)),
+          )
         end
       end
 
@@ -60,7 +63,7 @@ module Paleolog
               ),
             )
           end
-          project_id
+          repo.find(Paleolog::Project, project_id)
         end
       end
 
