@@ -28,9 +28,15 @@ describe Paleolog::Repo::Counting do
     end
 
     it 'loads counted group and marker' do
-      group_id = Paleolog::Repo.save(Paleolog::Group.new(name: 'Counted Group'))
-      marker_id = Paleolog::Repo.save(Paleolog::Species.new(name: 'Marker', group_id: group_id))
-      counting_id = Paleolog::Repo.save(Paleolog::Counting.new(name: 'C1', project_id: project_id, group_id: group_id, marker_id: marker_id))
+      group_id = Paleolog::Repo.save(
+        Paleolog::Group.new(name: 'Counted Group'),
+      )
+      marker_id = Paleolog::Repo.save(
+        Paleolog::Species.new(name: 'Marker', group_id: group_id),
+      )
+      counting_id = Paleolog::Repo.save(
+        Paleolog::Counting.new(name: 'C1', project_id: project_id, group_id: group_id, marker_id: marker_id),
+      )
 
       result = repo.find_for_project(counting_id, project_id)
       assert_equal(group_id, result.group.id)

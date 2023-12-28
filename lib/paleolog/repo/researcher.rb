@@ -41,6 +41,13 @@ module Paleolog
           )
         end
 
+        def find_for_project_and_user(project_id, user_id)
+          result = ds.where(user_id: user_id, project_id: project_id).first
+          return nil unless result
+
+          Paleolog::Researcher.new(**result)
+        end
+
         def all_for_user(user_id)
           ds.where(user_id: user_id).all.map do |result|
             Paleolog::Researcher.new(**result) do |participation|

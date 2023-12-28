@@ -6,10 +6,21 @@ describe 'Projects' do
   include Rack::Test::Methods
 
   let(:repo) { Paleolog::Repo }
-  let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
-  let(:happy_operation) { Paleolog::Operation::Species.new(repo, HappyAuthorizer.new(user)) }
-  let(:group1) { repo.save(Paleolog::Group.new(name: 'Dinoflagellate')) }
-  let(:group2) { repo.save(Paleolog::Group.new(name: 'Other')) }
+  let(:user) do
+    repo.find(
+      Paleolog::User,
+      repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
+    )
+  end
+  let(:happy_operation) { happy_operation_for(Paleolog::Operation::Species, user) }
+  let(:group1) do
+    happy_operation_for(Paleolog::Operation::Group, user)
+      .create(name: 'Dinoflagellate').value
+  end
+  let(:group2) do
+    happy_operation_for(Paleolog::Operation::Group, user)
+      .create(name: 'Other').value
+  end
   let(:app) { Web::Api::Species.new }
 
   after do

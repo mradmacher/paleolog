@@ -10,7 +10,7 @@ describe Paleolog::Operation::Sample do
   let(:user) do
     repo.find(
       Paleolog::User,
-      repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
+      repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
     )
   end
   let(:project) do

@@ -71,7 +71,9 @@ describe Paleolog::Operation::Occurrence do
     end
 
     it 'assigns rank greater than already existing' do
-      other_species = happy_operation_for(Paleolog::Operation::Species, user).create(group_id: group.id, name: 'Other species').value
+      other_species = happy_operation_for(Paleolog::Operation::Species, user)
+                      .create(group_id: group.id, name: 'Other species')
+                      .value
       result = operation.create(
         sample_id: sample.id,
         species_id: other_species.id,

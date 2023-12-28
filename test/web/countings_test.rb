@@ -5,38 +5,56 @@ require 'web_helper'
 describe 'Occurrences' do
   include Rack::Test::Methods
 
-  let(:project) { Paleolog::Repo.save(Paleolog::Project.new(name: 'some project')) }
-  let(:counting) { Paleolog::Repo.save(Paleolog::Counting.new(name: 'some counting', project: project)) }
-  let(:section) { Paleolog::Repo.save(Paleolog::Section.new(name: 'some section', project: project)) }
-  let(:sample) { Paleolog::Repo.save(Paleolog::Sample.new(name: 'some sample', section: section)) }
+  let(:user) do
+    Paleolog::Repo.find(
+      Paleolog::User,
+      Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
+    )
+  end
+  let(:project) do
+    happy_operation_for(Paleolog::Operation::Project, user)
+      .create(name: 'some project').value
+  end
+  let(:counting) do
+    happy_operation_for(Paleolog::Operation::Counting, user)
+      .create(name: 'some counting', project_id: project.id).value
+  end
+  let(:section) do
+    happy_operation_for(Paleolog::Operation::Section, user)
+      .create(name: 'some section', project_id: project.id).value
+  end
+  let(:sample) do
+    happy_operation_for(Paleolog::Operation::Sample, user)
+      .create(name: 'some sample', section_id: section.id).value
+  end
+  let(:researcher) do
+    Paleolog::Repo::Researcher.find_for_project_and_user(project.id, user.id)
+  end
 
-  let(:user) { Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
-
-  # rubocop:disable Metrics/AbcSize
-  def assert_requires_observer(action, project)
-    user = Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
-
+  def assert_requires_observer(action)
     action.call
     assert_predicate last_response, :redirect?, 'Expected redirect when no user'
 
-    login(user)
+    other_user = Paleolog::Repo.find(
+      Paleolog::User,
+      Paleolog::Repo.save(Paleolog::User.new(login: 'other test', password: 'test123')),
+    )
+    login(other_user)
     action.call
     assert_predicate last_response, :redirect?, 'Expected redirect when user not in project'
 
-    participation = Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project))
-    action.call
-    assert_predicate last_response, :ok?
-
-    Paleolog::Repo::Researcher.update(participation.id, manager: true)
+    login(user)
     action.call
     assert_predicate last_response, :ok?
   end
-  # rubocop:enable Metrics/AbcSize
 
   after do
     Paleolog::Repo::Researcher.delete_all
     Paleolog::Repo::User.delete_all
     Paleolog::Repo::Project.delete_all
+    Paleolog::Repo::Counting.delete_all
+    Paleolog::Repo::Sample.delete_all
+    Paleolog::Repo::Section.delete_all
   end
 
   describe 'GET /projects/:project_id/countings/:id' do
@@ -51,7 +69,7 @@ describe 'Occurrences' do
 
     describe 'with user' do
       before do
-        Paleolog::Repo.save(Paleolog::Researcher.new(user: user, project: project, manager: false))
+        Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: false))
         login(user)
       end
 

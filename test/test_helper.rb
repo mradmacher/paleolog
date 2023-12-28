@@ -24,4 +24,3 @@ end
 def happy_operation_for(operation_class, user)
   operation_class.new(Paleolog::Repo, HappyAuthorizer.new(user))
 end
-

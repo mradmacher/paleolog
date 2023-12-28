@@ -20,7 +20,7 @@ module Paleolog
         lambda do |params|
           repo.find(
             Paleolog::Choice,
-            repo.save(Paleolog::Choice.new(**params))
+            repo.save(Paleolog::Choice.new(**params)),
           )
         end
       end

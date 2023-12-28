@@ -16,6 +16,9 @@ describe Paleolog::Repo::Researcher do
   after do
     repo.delete_all
     Paleolog::Repo.delete_all(Paleolog::User)
+    Paleolog::Repo.delete_all(Paleolog::Sample)
+    Paleolog::Repo.delete_all(Paleolog::Section)
+    Paleolog::Repo.delete_all(Paleolog::Counting)
     Paleolog::Repo.delete_all(Paleolog::Project)
   end
 
@@ -48,9 +51,7 @@ describe Paleolog::Repo::Researcher do
 
   describe '#section_role' do
     let(:section_id) do
-      happy_operation_for(Paleolog::Operation::Section, user)
-        .create(name: 'Some Name', project_id: project_id)
-        .value
+      Paleolog::Repo.save(Paleolog::Section.new(name: 'Some Name', project_id: project_id))
     end
 
     it 'returns empty result when user does not participate in project' do
@@ -73,14 +74,10 @@ describe Paleolog::Repo::Researcher do
 
   describe '#sample_role' do
     let(:section_id) do
-      happy_operation_for(Paleolog::Operation::Section, user)
-        .create(name: 'Some Name', project_id: project_id)
-        .value
+      Paleolog::Repo.save(Paleolog::Section.new(name: 'Some Name', project_id: project_id))
     end
     let(:sample_id) do
-      happy_operation_for(Paleolog::Operation::Sample, user)
-        .create(name: 'Some Name', section_id: section_id)
-        .value
+      Paleolog::Repo.save(Paleolog::Sample.new(name: 'Some Name', section_id: section_id))
     end
 
     it 'returns empty result when user does not participate in project' do
@@ -103,9 +100,7 @@ describe Paleolog::Repo::Researcher do
 
   describe '#counting_role' do
     let(:counting_id) do
-      happy_operation_for(Paleolog::Operation::Counting, user)
-        .create(name: 'Some Name', project_id: project_id)
-        .value
+      Paleolog::Repo.save(Paleolog::Counting.new(name: 'Some Name', project_id: project_id))
     end
 
     it 'returns empty result when user does not participate in project' do

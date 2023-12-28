@@ -130,7 +130,7 @@ describe Paleolog::Repo::Occurrence do
         counting_id: counting_id,
         sample_id: sample1_id,
       )
-      occurrence2_id  = repo.create(
+      occurrence2_id = repo.create(
         rank: 2,
         species_id: species_id,
         counting_id: counting_id,
@@ -215,22 +215,44 @@ describe Paleolog::Repo::Occurrence do
 
     describe '#availabe_species_ids' do
       it 'returns not used species ids in given sample' do
-        species1_id = Paleolog::Repo.save(Paleolog::Species.new(group_id: group_id, name: 'Species1'))
-        species2_id = Paleolog::Repo.save(Paleolog::Species.new(group_id: group_id, name: 'Species2'))
-        species3_id = Paleolog::Repo.save(Paleolog::Species.new(group_id: group_id, name: 'Species3'))
-        Paleolog::Repo.save(Paleolog::Occurrence.new(counting_id: counting_id, sample_id: sample_id, species_id: species1_id))
-        Paleolog::Repo.save(Paleolog::Occurrence.new(counting_id: counting_id, sample_id: sample_id, species_id: species3_id))
+        species1_id = Paleolog::Repo.save(
+          Paleolog::Species.new(group_id: group_id, name: 'Species1'),
+        )
+        species2_id = Paleolog::Repo.save(
+          Paleolog::Species.new(group_id: group_id, name: 'Species2'),
+        )
+        species3_id = Paleolog::Repo.save(
+          Paleolog::Species.new(group_id: group_id, name: 'Species3'),
+        )
+        Paleolog::Repo.save(
+          Paleolog::Occurrence.new(counting_id: counting_id, sample_id: sample_id, species_id: species1_id),
+        )
+        Paleolog::Repo.save(
+          Paleolog::Occurrence.new(counting_id: counting_id, sample_id: sample_id, species_id: species3_id),
+        )
 
         assert_equal [species2_id], repo.available_species_ids(counting_id, sample_id, group_id)
       end
 
       it 'returns all species ids for other sample' do
-        species1_id = Paleolog::Repo.save(Paleolog::Species.new(group_id: group_id, name: 'Species1'))
-        species2_id = Paleolog::Repo.save(Paleolog::Species.new(group_id: group_id, name: 'Species2'))
-        species3_id = Paleolog::Repo.save(Paleolog::Species.new(group_id: group_id, name: 'Species3'))
-        other_sample_id = Paleolog::Repo.save(Paleolog::Sample.new(section_id: section_id, name: 'Sample2'))
-        Paleolog::Repo.save(Paleolog::Occurrence.new(counting_id: counting_id, sample_id: sample_id, species_id: species1_id))
-        Paleolog::Repo.save(Paleolog::Occurrence.new(counting_id: counting_id, sample_id: sample_id, species_id: species3_id))
+        species1_id = Paleolog::Repo.save(
+          Paleolog::Species.new(group_id: group_id, name: 'Species1'),
+        )
+        species2_id = Paleolog::Repo.save(
+          Paleolog::Species.new(group_id: group_id, name: 'Species2'),
+        )
+        species3_id = Paleolog::Repo.save(
+          Paleolog::Species.new(group_id: group_id, name: 'Species3'),
+        )
+        other_sample_id = Paleolog::Repo.save(
+          Paleolog::Sample.new(section_id: section_id, name: 'Sample2'),
+        )
+        Paleolog::Repo.save(
+          Paleolog::Occurrence.new(counting_id: counting_id, sample_id: sample_id, species_id: species1_id),
+        )
+        Paleolog::Repo.save(
+          Paleolog::Occurrence.new(counting_id: counting_id, sample_id: sample_id, species_id: species3_id),
+        )
 
         tested = repo.available_species_ids(counting_id, other_sample_id, group_id)
         assert_equal 3, tested.size

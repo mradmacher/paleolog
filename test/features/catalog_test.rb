@@ -3,16 +3,22 @@
 require 'features_helper'
 
 describe 'Catalog' do
-  let(:repo) { Paleolog::Repo }
-  let(:group1_id) { repo.save(Paleolog::Group.new(name: 'Dinoflagellate')) }
-  let(:group2_id) { repo.save(Paleolog::Group.new(name: 'Other')) }
+  let(:group1_id) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Dinoflagellate')) }
+  let(:group2_id) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Other')) }
+  let(:user) do
+    Paleolog::Repo.find(
+      Paleolog::User,
+      Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
+    )
+  end
 
   before do
     use_javascript_driver
-    repo.save(Paleolog::Species.new(group_id: group1_id, name: 'Odontochitina costata', verified: true))
-    repo.save(Paleolog::Species.new(group_id: group1_id, name: 'Cerodinium costata', verified: false))
-    repo.save(Paleolog::Species.new(group_id: group2_id, name: 'Cerodinium diabelli', verified: true))
-    repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
+    happy_operation_for(Paleolog::Operation::Species, user).tap do |operation|
+      operation.create(group_id: group1_id, name: 'Odontochitina costata', verified: true).value
+      operation.create(group_id: group1_id, name: 'Cerodinium costata', verified: false).value
+      operation.create(group_id: group2_id, name: 'Cerodinium diabelli', verified: true).value
+    end
 
     visit '/login'
     fill_in('login-field', with: 'test')
@@ -21,9 +27,9 @@ describe 'Catalog' do
   end
 
   after do
-    repo.for(Paleolog::Species).delete_all
-    repo.for(Paleolog::Group).delete_all
-    repo.for(Paleolog::User).delete_all
+    Paleolog::Repo.delete_all(Paleolog::Species)
+    Paleolog::Repo.delete_all(Paleolog::Group)
+    Paleolog::Repo.delete_all(Paleolog::User)
   end
 
   it 'at the beginning displays all verified species' do

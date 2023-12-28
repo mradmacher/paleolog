@@ -316,7 +316,8 @@ describe Paleolog::Operation::Section do
 
       it 'does not complain when name exists but in other project' do
         other_project = happy_operation_for(Paleolog::Operation::Project, user)
-          .create(name: 'Other Project for Section').value
+                        .create(name: 'Other Project for Section')
+                        .value
         result = happy_operation.create(
           name: 'Another Name', project_id: other_project.id,
         )
