@@ -35,12 +35,12 @@ export class ModalFormView {
   showErrors(errors) {
     this.clearErrors()
     DomHelpers.showAll('.validation-messages', this.modal)
-    var errorsContent = this.modal.querySelector('.validation-messages .errors')
-    var that = this
-    jQuery.each(errors, function(field, message) {
-      errorsContent.append(errorMessages[that.model][field][message])
+    let errorsContent = this.modal.querySelector('.validation-messages .errors')
+    for (const field in errors) {
+      const message = errors[field];
+      errorsContent.append(errorMessages[this.model][field][message])
       errorsContent.append(document.createElement("br"))
-    })
+    }
   }
 
   loadFormData(form) {}
@@ -95,20 +95,15 @@ export class SpeciesModalFormView extends ModalFormView {
   }
 
   loadFormData(form) {
-    $.ajax({
-      url: '/species/search-filters',
-      type: "GET",
-      dataType: "json",
-    })
-    .done(function(json) {
-      json.groups.forEach(function(group) {
-        let option = DomHelpers.buildFromTemplate('species-group-option-template');
-        option.value = group.id;
-        option.textContent = group.name;
-        form.querySelector('#species-group-id').append(option);
-      });
-    }).fail(function(xhr, status, error) {
-      reject(error)
+    fetch('/species/search-filters').then(response => {
+      response.json().then(json => {
+        json.groups.forEach(group => {
+          let template = DomHelpers.buildFromTemplate('species-group-option-template');
+          template.querySelector('option').value = group.id;
+          template.querySelector('option').textContent = group.name;
+          form.querySelector('#species-group-id').append(template);
+        });
+      })
     })
   }
 }

@@ -42,15 +42,14 @@ export class SpeciesSearch {
 
   fetchAvailableSearchFilters() {
     return new Promise((resolve, reject) => {
-      $.ajax({
-        url: '/species/search-filters',
-        type: "GET",
-        dataType: "json",
-      })
-      .done((json) => {
-        resolve(json);
-      }).fail((xhr, status, error) => {
-        reject(error)
+      fetch('/species/search-filters').then(response => {
+        response.json().then(json => {
+          if (response.ok) {
+            resolve(json);
+          } else {
+            reject(json.errors);
+          }
+        })
       })
     })
   }
@@ -82,18 +81,20 @@ export class SpeciesSearch {
   }
 
   fetchSearchResult(attrs) {
+    const searchParams = new URLSearchParams(attrs);
+
     return new Promise((resolve, reject) => {
-      $.ajax({
-        url: '/species',
-        data: attrs,
-        type: "GET",
-        dataType: "json",
+      fetch(`/species?${searchParams}`, {
+        method: 'GET',
+      }).then(response => {
+        response.json().then(json => {
+          if (response.ok) {
+            resolve(json);
+          } else {
+            reject(json.errors);
+          }
+        })
       })
-      .done(function(json) {
-        resolve(json);
-      }).fail(function(xhr, status, error) {
-        reject(error);
-      })
-    });
+    })
   }
 }

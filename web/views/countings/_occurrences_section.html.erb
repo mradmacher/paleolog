@@ -94,7 +94,7 @@
 
     $('.add-species.action').click(() => {
       new SpeciesModalFormView(species, (result) => {
-        addOccurrence(result.species.id, countingId, sampleId)
+        addOccurrence(result.species.id, countingId, selectedSampleId)
       }).show()
     });
   })

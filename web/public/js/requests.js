@@ -9,73 +9,82 @@ class ModelRequest {
 
   get(id) {
     return new Promise((resolve, reject) => {
-      $.ajax({
-        url: this.pathWithId(id),
-        type: 'GET',
-        dataType: 'json',
+      fetch(this.pathWithId(id), {
+        method: 'GET',
+      }).then(response => {
+        response.json().then(json => {
+          if (response.ok) {
+            resolve(json);
+          } else {
+            reject(json.errors);
+          }
+        })
       })
-      .done(function(json) {
-        resolve(json);
-      }).fail(function(xhr, status, error) {
-        reject(xhr.responseJSON.errors);
-      })
-    })
+    });
   }
 
   remove(id) {
     return new Promise((resolve, reject) => {
-      $.ajax({
-        url: this.pathWithId(id),
-        type: 'DELETE',
-        dataType: 'json',
-      })
-      .done(function(json) {
-        resolve(json);
-      }).fail(function(xhr, status, error) {
-        reject(xhr.responseJSON.errors);
+      fetch(this.pathWithId(id), {
+        method: 'DELETE',
+      }).then(response => {
+        response.json().then(json => {
+          if (response.ok) {
+            resolve(json);
+          } else {
+            reject(json.errors);
+          }
+        })
       })
     })
   }
 
   index(attrs) {
+    const searchParams = new URLSearchParams(attrs);
+
     return new Promise((resolve, reject) => {
-      $.ajax({
-        url: this.path,
-        data: attrs,
-        type: 'GET',
-        dataType: 'json',
-      })
-      .done(function(json) {
-        resolve(json);
-      }).fail(function(xhr, status, error) {
-        reject(xhr.responseJSON.errors);
+      fetch(`${this.path}?${searchParams}`, {
+        method: 'GET',
+      }).then(response => {
+        response.json().then(json => {
+          if (response.ok) {
+            resolve(json);
+          } else {
+            reject(json.errors);
+          }
+        })
       })
     })
   }
 
   save(attrs) {
     let {id, ...params} = attrs;
-    var url;
-    var type;
+    let url;
+    let method;
     if (id) {
       url = this.pathWithId(id)
-      type = 'PATCH'
+      method = 'PATCH'
     } else {
       url = this.path
-      type = 'POST'
+      method = 'POST'
+    }
+    const formData = new FormData();
+    for (const key in params) {
+      formData.append(key, params[key]);
     }
 
     return new Promise((resolve, reject) => {
-      $.ajax({
-        url: url,
-        data: params,
-        type: type,
-        dataType: "json",
-      })
-      .done(function(json) {
-        resolve(json);
-      }).fail(function(xhr, status, error) {
-        reject(xhr.responseJSON.errors);
+      fetch(url, {
+        method: method,
+        body: formData,
+      }).then(response => {
+        response.json().then((json) => {
+          if (response.ok) {
+            resolve(json);
+          } else {
+            reject(json.errors);
+          }
+        })
       })
     })
   }
@@ -94,17 +103,18 @@ export class ProjectRequest extends ModelRequest {
 
   sections(projectId) {
     return new Promise((resolve, reject) => {
-      $.ajax({
-        url: `${this.pathWithId(projectId)}/sections`,
-        type: 'GET',
-        dataType: 'json',
+      fetch(`${this.pathWithId(projectId)}/sections`, {
+        method: 'GET',
+      }).then(response => {
+        response.json().then(json => {
+          if (response.ok) {
+            resolve(json);
+          } else {
+            reject(json.errors);
+          }
+        })
       })
-      .done(function(json) {
-        resolve(json);
-      }).fail(function(xhr, status, error) {
-        reject(xhr.responseJSON.errors);
-      })
-    })
+    });
   }
 }
 
