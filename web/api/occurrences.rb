@@ -126,7 +126,8 @@ module Web
         end
         attributes[:status] = params[:status] if params.key?(:status)
         attributes[:uncertain] = params[:uncertain] if params.key?(:uncertain)
-        result = @operation.update(occurrence.id, **attributes)
+        attributes[:id] = occurrence.id
+        result = @operation.update(**attributes)
         halt 400, result.error.to_json if result.failure?
 
         occurrence = result.value

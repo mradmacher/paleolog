@@ -6,12 +6,18 @@ describe 'Projects' do
   include Rack::Test::Methods
 
   let(:repo) { Paleolog::Repo }
-  let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
-  let(:happy_operation) { Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user)) }
+  let(:user) do
+    repo.find(
+      Paleolog::User,
+      repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
+    )
+  end
+  let(:happy_operation) { happy_operation_for(Paleolog::Operation::Project, user) }
   let(:project) do
-    result = happy_operation.create(name: 'some test project', user_id: user.id)
-    assert_predicate result, :success?
-    result.value
+    happy_operation.create(name: 'some test project', user_id: user.id).value
+  end
+  let(:researcher) do
+    Paleolog::Repo::Researcher.find_for_project_and_user(project.id, user.id)
   end
   let(:app) { Web::Api::Projects.new }
 
@@ -20,9 +26,9 @@ describe 'Projects' do
   end
 
   after do
-    repo.for(Paleolog::Researcher).delete_all
-    repo.for(Paleolog::Project).delete_all
-    repo.for(Paleolog::User).delete_all
+    repo.delete_all(Paleolog::Researcher)
+    repo.delete_all(Paleolog::Project)
+    repo.delete_all(Paleolog::User)
   end
 
   describe 'GET /api/projects' do
@@ -41,8 +47,8 @@ describe 'Projects' do
       end
 
       it 'returns empty collection when user has no projects' do
-        repo.for(Paleolog::Researcher).delete_all
-        repo.for(Paleolog::Project).delete_all
+        repo.delete_all(Paleolog::Researcher)
+        repo.delete_all(Paleolog::Project)
         get '/api/projects'
         assert_predicate last_response, :ok?, "Expected 200, but got #{last_response.status}"
         response_body = JSON.parse(last_response.body)
@@ -116,14 +122,14 @@ describe 'Projects' do
     end
 
     it 'rejects user observing the project' do
-      repo.save(Paleolog::Researcher.new(user: user, project: project, manager: false))
+      repo.save(Paleolog::Researcher.new(id: researcher.id, manager: false))
       login(user)
       assert_forbidden(-> { patch '/api/projects/1', { name: 'some name' } })
     end
 
     describe 'with user' do
       before do
-        repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
+        repo.save(Paleolog::Researcher.new(id: researcher.id, manager: true))
         login(user)
       end
 

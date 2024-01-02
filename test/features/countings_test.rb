@@ -7,8 +7,11 @@ describe 'Countings' do
 
   before do
     use_javascript_driver
-    user = repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
-    project = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user)).create(
+    user = repo.find(
+      Paleolog::User,
+      repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
+    )
+    project = happy_operation_for(Paleolog::Operation::Project, user).create(
       name: 'test',
     ).value
 

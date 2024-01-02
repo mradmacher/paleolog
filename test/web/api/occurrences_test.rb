@@ -5,21 +5,62 @@ require 'web_helper'
 describe 'Occurrences' do
   include Rack::Test::Methods
 
-  let(:repo) { Paleolog::Repo }
-  let(:project) { repo.save(Paleolog::Project.new(name: 'some project')) }
-  let(:counting) { repo.save(Paleolog::Counting.new(name: 'some counting', project: project)) }
-  let(:section) { repo.save(Paleolog::Section.new(name: 'some section', project: project)) }
-  let(:sample) { repo.save(Paleolog::Sample.new(name: 'some sample', section: section)) }
-
-  let(:group1) { repo.save(Paleolog::Group.new(name: 'Dinoflagellate')) }
-  let(:group2) { repo.save(Paleolog::Group.new(name: 'Other')) }
-  let(:species11) { repo.save(Paleolog::Species.new(group: group1, name: 'Odontochitina costata')) }
-  let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
+  let(:user) do
+    Paleolog::Repo.find(
+      Paleolog::User,
+      Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
+    )
+  end
+  let(:project) do
+    happy_operation_for(Paleolog::Operation::Project, user)
+      .create(name: 'Some Project')
+      .value
+  end
+  let(:researcher) do
+    Paleolog::Repo::Researcher.find_for_project_and_user(project.id, user.id)
+  end
+  let(:counting) do
+    happy_operation_for(Paleolog::Operation::Counting, user)
+      .create(name: 'some counting', project_id: project.id)
+      .value
+  end
+  let(:section) do
+    happy_operation_for(Paleolog::Operation::Section, user)
+      .create(name: 'some section', project_id: project.id)
+      .value
+  end
+  let(:sample) do
+    happy_operation_for(Paleolog::Operation::Sample, user)
+      .create(name: 'some sample', section_id: section.id)
+      .value
+  end
+  let(:group1) do
+    happy_operation_for(Paleolog::Operation::Group, user)
+      .create(name: 'Dinoflagellate')
+      .value
+  end
+  let(:group2) do
+    happy_operation_for(Paleolog::Operation::Group, user)
+      .create(name: 'Other')
+      .value
+  end
+  let(:species11) do
+    happy_operation_for(Paleolog::Operation::Species, user)
+      .create(group_id: group1.id, name: 'Odontochitina costata')
+      .value
+  end
   let(:session) { {} }
 
   after do
-    repo.for(Paleolog::User).delete_all
-    repo.for(Paleolog::Occurrence).delete_all
+    Paleolog::Repo.delete_all(Paleolog::Occurrence)
+    Paleolog::Repo.delete_all(Paleolog::Species)
+    Paleolog::Repo.delete_all(Paleolog::Group)
+    Paleolog::Repo.delete_all(Paleolog::Sample)
+    Paleolog::Repo.delete_all(Paleolog::Section)
+    Paleolog::Repo.delete_all(Paleolog::Counting)
+    Paleolog::Repo.delete_all(Paleolog::User)
+    Paleolog::Repo.delete_all(Paleolog::Researcher)
+    Paleolog::Repo.delete_all(Paleolog::Project)
   end
 
   describe 'GET /api/projects/:project_id/occurrences' do
@@ -29,7 +70,6 @@ describe 'Occurrences' do
     end
 
     it 'accepts user participating in the project' do
-      repo.save(Paleolog::Researcher.new(user: user, project: project))
       params = { sample_id: sample.id, counting_id: counting.id }
       login(user)
       assert_permitted(-> { get "/api/projects/#{project.id}/occurrences", params })
@@ -37,7 +77,6 @@ describe 'Occurrences' do
 
     describe 'with user' do
       before do
-        repo.save(Paleolog::Researcher.new(user: user, project: project))
         login(user)
       end
 
@@ -54,11 +93,16 @@ describe 'Occurrences' do
       end
 
       it 'returns all necessary attributes' do
-        occurrence = repo.save(
-          Paleolog::Occurrence.new(
-            sample: sample, counting: counting, species: species11, quantity: 1,
-          ),
-        )
+        occurrence = happy_operation_for(Paleolog::Operation::Occurrence, user).create(
+          sample_id: sample.id,
+          counting_id: counting.id,
+          species_id: species11.id,
+        ).value
+        occurrence = happy_operation_for(Paleolog::Operation::Occurrence, user).update(
+          id: occurrence.id,
+          quantity: 1,
+        ).value
+
         params = { sample_id: sample.id, counting_id: counting.id }
         get "/api/projects/#{project.id}/occurrences", params
         result = JSON.parse(last_response.body)['occurrences']
@@ -73,8 +117,14 @@ describe 'Occurrences' do
       end
 
       it 'does not return occurrences for other sample' do
-        other_sample = repo.save(Paleolog::Sample.new(name: 'other sample', section: section))
-        repo.save(Paleolog::Occurrence.new(sample: other_sample, counting: counting, species: species11))
+        other_sample = happy_operation_for(Paleolog::Operation::Sample, user)
+                       .create(name: 'other sample', section_id: section.id)
+                       .value
+        happy_operation_for(Paleolog::Operation::Occurrence, user).create(
+          sample_id: other_sample.id,
+          counting_id: counting.id,
+          species_id: species11.id,
+        ).value
         params = { sample_id: sample.id, counting_id: counting.id }
         get "/api/projects/#{project.id}/occurrences", params
         result = JSON.parse(last_response.body)['occurrences']
@@ -82,8 +132,14 @@ describe 'Occurrences' do
       end
 
       it 'does not return occurrences for other counting' do
-        other_counting = repo.save(Paleolog::Counting.new(name: 'other counting', project: project))
-        repo.save(Paleolog::Occurrence.new(sample: sample, counting: other_counting, species: species11))
+        other_counting = happy_operation_for(Paleolog::Operation::Counting, user)
+                         .create(name: 'other counting', project_id: project.id)
+                         .value
+        happy_operation_for(Paleolog::Operation::Occurrence, user).create(
+          sample_id: sample.id,
+          counting_id: other_counting.id,
+          species_id: species11.id,
+        ).value
         params = { sample_id: sample.id, counting_id: counting.id }
         get "/api/projects/#{project.id}/occurrences", params
         result = JSON.parse(last_response.body)['occurrences']
@@ -91,12 +147,19 @@ describe 'Occurrences' do
       end
 
       it 'returns all occurrences for given sample and counting in right order' do
-        species1 = repo.save(Paleolog::Species.new(group: group1, name: 'Species 1'))
-        species2 = repo.save(Paleolog::Species.new(group: group2, name: 'Species 2'))
-        species3 = repo.save(Paleolog::Species.new(group: group1, name: 'Species 3'))
-        repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species1, rank: 3))
-        repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species2, rank: 1))
-        repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species3, rank: 2))
+        species1 = happy_operation_for(Paleolog::Operation::Species, user)
+                   .create(group_id: group1.id, name: 'Species 1')
+                   .value
+        species2 = happy_operation_for(Paleolog::Operation::Species, user)
+                   .create(group_id: group2.id, name: 'Species 2')
+                   .value
+        species3 = happy_operation_for(Paleolog::Operation::Species, user)
+                   .create(group_id: group1.id, name: 'Species 3')
+                   .value
+
+        Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species1, rank: 3))
+        Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species2, rank: 1))
+        Paleolog::Repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species3, rank: 2))
 
         params = { sample_id: sample.id, counting_id: counting.id }
         get "/api/projects/#{project.id}/occurrences", params
@@ -116,14 +179,14 @@ describe 'Occurrences' do
     end
 
     it 'rejects user observing the project' do
-      repo.save(Paleolog::Researcher.new(user: user, project: project, manager: false))
+      Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: false))
       params = { sample_id: sample.id, species_id: species11.id, counting_id: counting.id }
       login(user)
       assert_forbidden(-> { post "/api/projects/#{project.id}/occurrences", params })
     end
 
     it 'accepts user managing the project' do
-      repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
+      Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: true))
       params = { sample_id: sample.id, species_id: species11.id, counting_id: counting.id }
       login(user)
       assert_permitted(-> { post "/api/projects/#{project.id}/occurrences", params })
@@ -131,7 +194,7 @@ describe 'Occurrences' do
 
     describe 'with user' do
       before do
-        repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
+        Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: true))
         login(user)
       end
 
@@ -140,13 +203,19 @@ describe 'Occurrences' do
         post "/api/projects/#{project.id}/occurrences", params
         assert_predicate last_response, :ok?, "Expected 200, but got #{last_response.status}"
         response_body = JSON.parse(last_response.body)
-        refute_nil repo::Occurrence.find(response_body['occurrence']['id'])
+        refute_nil Paleolog::Repo.find(Paleolog::Occurrence, response_body['occurrence']['id'])
       end
 
       it 'ensures sample is from project' do
-        other_project = repo.save(Paleolog::Project.new(name: 'some other project'))
-        other_section = repo.save(Paleolog::Section.new(name: 'some other section', project: other_project))
-        other_sample = repo.save(Paleolog::Sample.new(name: 'some other sample', section: other_section))
+        other_project = happy_operation_for(Paleolog::Operation::Project, user)
+                        .create(name: 'some other project')
+                        .value
+        other_section = happy_operation_for(Paleolog::Operation::Section, user)
+                        .create(name: 'some other section', project_id: other_project.id)
+                        .value
+        other_sample = happy_operation_for(Paleolog::Operation::Sample, user)
+                       .create(name: 'some other sample', section_id: other_section.id)
+                       .value
         params = { sample_id: other_sample.id, species_id: species11.id, counting_id: counting.id }
         post "/api/projects/#{project.id}/occurrences", params
         assert_equal 400, last_response.status
@@ -155,10 +224,12 @@ describe 'Occurrences' do
       end
 
       it 'ensures counting is from project' do
-        other_project = repo.save(Paleolog::Project.new(name: 'some other project'))
-        other_counting = repo.save(
-          Paleolog::Counting.new(name: 'some other counting', project: other_project),
-        )
+        other_project = happy_operation_for(Paleolog::Operation::Project, user)
+                        .create(name: 'some other project')
+                        .value
+        other_counting = happy_operation_for(Paleolog::Operation::Counting, user)
+                         .create(name: 'some other counting', project_id: other_project.id)
+                         .value
         params = { sample_id: sample.id, species_id: species11.id, counting_id: other_counting.id }
         post "/api/projects/#{project.id}/occurrences", params
         assert_equal 400, last_response.status
@@ -179,7 +250,11 @@ describe 'Occurrences' do
 
   describe 'DELETE /api/projects/:project_id/occurrences/:id' do
     let(:occurrence) do
-      repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species11))
+      happy_operation_for(Paleolog::Operation::Occurrence, user).create(
+        sample_id: sample.id,
+        counting_id: counting.id,
+        species_id: species11.id,
+      ).value
     end
 
     it 'rejects guest access' do
@@ -187,28 +262,28 @@ describe 'Occurrences' do
     end
 
     it 'rejects user observing the project' do
-      repo.save(Paleolog::Researcher.new(user: user, project: project, manager: false))
+      Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: false))
       login(user)
       assert_forbidden(-> { delete "/api/projects/#{project.id}/occurrences/#{occurrence.id}", {} })
     end
 
     it 'accepts user managing the project' do
-      repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
+      Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: true))
       login(user)
       assert_permitted(-> { delete "/api/projects/#{project.id}/occurrences/#{occurrence.id}", {} })
     end
 
     describe 'with user' do
       before do
-        repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
+        Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: true))
         login(user)
       end
 
       it 'removes occurrence' do
-        refute_nil repo::Occurrence.find(occurrence.id)
+        refute_nil Paleolog::Repo.find(Paleolog::Occurrence, occurrence.id)
         delete "/api/projects/#{project.id}/occurrences/#{occurrence.id}"
         assert_predicate last_response, :ok?, "Expected 200 but got #{last_response.status}"
-        assert_nil repo::Occurrence.find(occurrence.id)
+        assert_nil Paleolog::Repo.find(Paleolog::Occurrence, occurrence.id)
       end
 
       it 'is 404 when occurrence does not exist' do
@@ -220,7 +295,11 @@ describe 'Occurrences' do
 
   describe 'PATCH /api/projects/:project_id/occurrences/:id' do
     let(:occurrence) do
-      repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species11))
+      happy_operation_for(Paleolog::Operation::Occurrence, user).create(
+        sample_id: sample.id,
+        counting_id: counting.id,
+        species_id: species11.id,
+      ).value
     end
 
     it 'rejects guest access' do
@@ -229,14 +308,14 @@ describe 'Occurrences' do
     end
 
     it 'rejects user observing the project' do
-      repo.save(Paleolog::Researcher.new(user: user, project: project, manager: false))
+      Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: false))
       params = { shift: '1' }
       login(user)
       assert_forbidden(-> { patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", params })
     end
 
     it 'accepts user managing the project' do
-      repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
+      Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: true))
       params = { shift: '1' }
       login(user)
       assert_permitted(-> { patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", params })
@@ -244,35 +323,35 @@ describe 'Occurrences' do
 
     describe 'with user' do
       before do
-        repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
+        Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: true))
         login(user)
       end
 
       it 'works' do
-        occurrence = repo.save(
-          Paleolog::Occurrence.new(
-            sample: sample, counting: counting, species: species11,
-          ),
-        )
         patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}"
         assert_predicate last_response, :ok?
       end
 
       it 'does not allow changing sample, species nor counting' do
-        occurrence = repo.save(
-          Paleolog::Occurrence.new(sample: sample, counting: counting, species: species11),
-        )
-        other_counting = repo.save(Paleolog::Counting.new(name: 'some other counting', project: project))
-        other_sample = repo.save(Paleolog::Sample.new(name: 'some other sample', section: section))
-        other_species = repo.save(Paleolog::Species.new(group: group1, name: 'Other costata'))
+        other_counting = happy_operation_for(Paleolog::Operation::Counting, user)
+                         .create(name: 'some other counting', project_id: project.id)
+                         .value
+        other_sample = happy_operation_for(Paleolog::Operation::Sample, user)
+                       .create(name: 'some other sample', section_id: section.id)
+                       .value
+        other_species = happy_operation_for(Paleolog::Operation::Species, user)
+                        .create(group_id: group1.id, name: 'Other costata')
+                        .value
+
         patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", {
           counting_id: other_counting.id,
           sample_id: other_sample.id,
           species_id: other_species.id,
           shift: '1',
         }
+
         assert_predicate last_response, :ok?
-        updated_occurrence = repo.find(Paleolog::Occurrence, occurrence.id)
+        updated_occurrence = Paleolog::Repo.find(Paleolog::Occurrence, occurrence.id)
         assert_equal occurrence.sample_id, updated_occurrence.sample_id
         assert_equal occurrence.counting_id, updated_occurrence.counting_id
         assert_equal occurrence.species_id, updated_occurrence.species_id
@@ -284,11 +363,6 @@ describe 'Occurrences' do
       end
 
       it 'shifts quantity up' do
-        occurrence = repo.save(
-          Paleolog::Occurrence.new(
-            sample: sample, counting: counting, species: species11,
-          ),
-        )
         patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { shift: '1' }
         assert_predicate last_response, :ok?
         result = JSON.parse(last_response.body)
@@ -300,28 +374,24 @@ describe 'Occurrences' do
       end
 
       it 'shifts quantity down' do
-        occurrence = repo.save(
-          Paleolog::Occurrence.new(
-            sample: sample, counting: counting, species: species11, quantity: 2,
-          ),
-        )
+        happy_operation_for(Paleolog::Operation::Occurrence, user)
+          .update(id: occurrence.id, quantity: 5).value
         patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { shift: '-1' }
+
         assert_predicate last_response, :ok?
         result = JSON.parse(last_response.body)
-        assert_equal 1, result['summary']['countable']
+        assert_equal 4, result['summary']['countable']
         assert_equal 0, result['summary']['uncountable']
-        assert_equal 1, result['summary']['total']
+        assert_equal 4, result['summary']['total']
         assert_equal occurrence.id, result['occurrence']['id']
-        assert_equal 1, result['occurrence']['quantity']
+        assert_equal 4, result['occurrence']['quantity']
       end
 
       it 'does not shift quantity lower than 0' do
-        occurrence = repo.save(
-          Paleolog::Occurrence.new(
-            sample: sample, counting: counting, species: species11, quantity: 1,
-          ),
-        )
+        happy_operation_for(Paleolog::Operation::Occurrence, user)
+          .update(id: occurrence.id, quantity: 1).value
         patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { shift: '-1' }
+
         assert_predicate last_response, :ok?
         result = JSON.parse(last_response.body)
         assert_equal 0, result['occurrence']['quantity']
@@ -333,12 +403,10 @@ describe 'Occurrences' do
       end
 
       it 'sets status' do
-        occurrence = repo.save(
-          Paleolog::Occurrence.new(
-            sample: sample, counting: counting, species: species11, quantity: 1,
-          ),
-        )
+        happy_operation_for(Paleolog::Operation::Occurrence, user)
+          .update(id: occurrence.id, quantity: 1).value
         patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { status: Paleolog::Occurrence::CARVING }
+
         assert_predicate last_response, :ok?
         result = JSON.parse(last_response.body)
         assert_equal 0, result['summary']['countable']
@@ -362,11 +430,8 @@ describe 'Occurrences' do
       end
 
       it 'sets uncertain' do
-        occurrence = repo.save(
-          Paleolog::Occurrence.new(
-            sample: sample, counting: counting, species: species11, quantity: 1,
-          ),
-        )
+        happy_operation_for(Paleolog::Operation::Occurrence, user)
+          .update(id: occurrence.id, quantity: 1).value
         patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { uncertain: 'true' }
         assert_predicate last_response, :ok?
         result = JSON.parse(last_response.body)

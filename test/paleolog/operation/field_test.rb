@@ -9,11 +9,16 @@ describe Paleolog::Operation::Field do
     Paleolog::Operation::Field.new(repo, authorizer)
   end
   let(:group) do
-    Paleolog::Operation::Group.new(repo, HappyAuthorizer.new(user)).create(
+    happy_operation_for(Paleolog::Operation::Group, user).create(
       name: 'Group for Field',
     ).value
   end
-  let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
+  let(:user) do
+    repo.find(
+      Paleolog::User,
+      repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
+    )
+  end
 
   after do
     repo.for(Paleolog::Group).delete_all

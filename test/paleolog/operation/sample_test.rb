@@ -6,15 +6,20 @@ describe Paleolog::Operation::Sample do
   let(:repo) { Paleolog::Repo }
   let(:authorizer) { Minitest::Mock.new }
   let(:operation) { Paleolog::Operation::Sample.new(repo, authorizer) }
-  let(:happy_operation) { Paleolog::Operation::Sample.new(repo, HappyAuthorizer.new(user)) }
-  let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
+  let(:happy_operation) { happy_operation_for(Paleolog::Operation::Sample, user) }
+  let(:user) do
+    repo.find(
+      Paleolog::User,
+      repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
+    )
+  end
   let(:project) do
-    Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user)).create(
+    happy_operation_for(Paleolog::Operation::Project, user).create(
       name: 'Project for Section',
     ).value
   end
   let(:section) do
-    Paleolog::Operation::Section.new(repo, HappyAuthorizer.new(user)).create(
+    happy_operation_for(Paleolog::Operation::Section, user).create(
       name: 'Section for Sample', project_id: project.id,
     ).value
   end
@@ -55,27 +60,27 @@ describe Paleolog::Operation::Sample do
       end
 
       it 'increases rank for each new sample' do
-        sample = happy_operation.create(name: 'Name1', section_id: section.id).value
-        assert_equal 1, sample.rank
+        result = happy_operation.create(name: 'Name1', section_id: section.id)
+        assert_equal 1, result.value.rank
 
-        sample = happy_operation.create(name: 'Name2', section_id: section.id).value
-        assert_equal 2, sample.rank
+        result = happy_operation.create(name: 'Name2', section_id: section.id)
+        assert_equal 2, result.value.rank
 
-        sample = happy_operation.create(name: 'Name3', section_id: section.id).value
-        assert_equal 3, sample.rank
+        result = happy_operation.create(name: 'Name3', section_id: section.id)
+        assert_equal 3, result.value.rank
       end
 
       it 'increases rank in the scope of a section' do
         other_section =
-          Paleolog::Operation::Section.new(repo, HappyAuthorizer.new(user)).create(
+          happy_operation_for(Paleolog::Operation::Section, user).create(
             name: 'Other Section for Sample', project_id: project.id,
           ).value
 
-        sample = happy_operation.create(name: 'Name1', section_id: section.id).value
-        assert_equal 1, sample.rank
+        result = happy_operation.create(name: 'Name1', section_id: section.id)
+        assert_equal 1, result.value.rank
 
-        sample = happy_operation.create(name: 'Name2', section_id: other_section.id).value
-        assert_equal 1, sample.rank
+        result = happy_operation.create(name: 'Name2', section_id: other_section.id)
+        assert_equal 1, result.value.rank
       end
 
       it 'complains when section_id nil' do
@@ -149,14 +154,14 @@ describe Paleolog::Operation::Sample do
       end
 
       it 'converts blank weight to nil' do
-        sample = happy_operation.create(name: 'Name1', section_id: section.id, weight: '').value
-        assert_nil sample.weight
+        result = happy_operation.create(name: 'Name1', section_id: section.id, weight: '')
+        assert_nil result.value.weight
       end
 
       it 'accepts weight passed as string' do
         result = operation.create(name: 'Name', section_id: section.id, weight: '1.3')
         assert_predicate result, :success?
-        assert_in_delta(1.3, result.value.weight)
+        assert_in_delta 1.3, result.value.weight
       end
 
       it 'accepts weight passed as decimal' do
@@ -190,28 +195,22 @@ describe Paleolog::Operation::Sample do
       end
 
       it 'requires weight just something above 0' do
-        result = operation.create(
-          { name: 'Name', section_id: section.id, weight: 0.0001 },
-        )
+        result = operation.create(name: 'Name', section_id: section.id, weight: 0.0001)
         assert_predicate result, :success?
       end
 
       it 'converts blank description to nil' do
-        sample = happy_operation.create(
-          { name: 'Name1', section_id: section.id, description: '' },
-        ).value
-        assert_nil sample.description
+        result = happy_operation.create(name: 'Name1', section_id: section.id, description: '')
+        assert_nil result.value.description
       end
     end
   end
 
   describe '#update' do
     let(:existing_sample) do
-      result = happy_operation.create(
+      happy_operation.create(
         { name: 'Some Sample', weight: 1.1, description: 'abc', section_id: section.id },
-      )
-      assert_predicate result, :success?
-      result.value
+      ).value
     end
 
     it 'returns unauthenticated error when not authenticated' do
@@ -280,27 +279,19 @@ describe Paleolog::Operation::Sample do
       end
 
       it 'complains when name already exists' do
-        result = happy_operation.create(
-          { name: 'Some Other Name', section_id: section.id },
-        )
+        result = happy_operation.create(name: 'Some Other Name', section_id: section.id)
         assert_predicate result, :success?
 
-        result = operation.update(
-          { id: existing_sample.id, name: 'Some Other Name' },
-        )
+        result = operation.update(id: existing_sample.id, name: 'Some Other Name')
         assert_predicate result, :failure?
         assert_equal Paleolog::Operation::TAKEN, result.error[:name]
       end
 
       it 'complains when name with different cases already exists' do
-        result = happy_operation.create(
-          { name: 'Some Other Name', section_id: section.id },
-        )
+        result = happy_operation.create(name: 'Some Other Name', section_id: section.id)
         assert_predicate result, :success?
 
-        result = operation.update(
-          { id: existing_sample.id, name: '  some OTHER name  ' },
-        )
+        result = operation.update(id: existing_sample.id, name: '  some OTHER name  ')
         assert_predicate result, :failure?
         assert_equal Paleolog::Operation::TAKEN, result.error[:name]
       end
@@ -308,7 +299,7 @@ describe Paleolog::Operation::Sample do
       it 'complains when name is too long' do
         max = 255
         result = operation.update(
-          { id: existing_sample.id, name: 'a' * (max + 1) },
+          id: existing_sample.id, name: 'a' * (max + 1),
         )
         assert_predicate result, :failure?
         assert_equal Paleolog::Operation::Params::TOO_LONG, result.error[:name]

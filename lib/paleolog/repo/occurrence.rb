@@ -12,15 +12,6 @@ module Paleolog
           }
         end
 
-        def find(id, *options)
-          result = ds.where(id: id).first
-          return nil unless result
-
-          Paleolog::Occurrence.new(**result) do |occurrence|
-            options.each { |opt| opt.call(occurrence) }
-          end
-        end
-
         # rubocop:disable Metrics/AbcSize
         def find_in_project(id, project_id)
           result = ds.where(Sequel[:occurrences][:id] => id, Sequel[:projects][:id] => project_id)
@@ -50,10 +41,10 @@ module Paleolog
         # rubocop:enable Metrics/AbcSize
 
         # rubocop:disable Metrics/AbcSize
-        def all_for_section(counting, section)
-          samples = Paleolog::Repo::Sample.all_for_section(section.id)
+        def all_for_section(counting_id, section_id)
+          samples = Paleolog::Repo::Sample.all_for_section(section_id)
           sample_ids = samples.map(&:id)
-          result = ds.where(counting_id: counting.id, sample_id: sample_ids).all
+          result = ds.where(counting_id: counting_id, sample_id: sample_ids).all
           species = Paleolog::Repo::Species.all_with_ids(result.map { |r| r[:species_id] }.uniq)
           result.map do |r|
             Paleolog::Occurrence.new(**r) do |occurrence|
@@ -64,9 +55,9 @@ module Paleolog
         end
         # rubocop:enable Metrics/AbcSize
 
-        def available_species_ids(counting, sample, group)
-          used_ids = ds.where(counting_id: counting.id, sample_id: sample.id).map { |result| result[:species_id] }
-          all = Paleolog::Repo::Species.all_for_group(group.id)
+        def available_species_ids(counting_id, sample_id, group_id)
+          used_ids = ds.where(counting_id: counting_id, sample_id: sample_id).map { |result| result[:species_id] }
+          all = Paleolog::Repo::Species.all_for_group(group_id)
           (used_ids.empty? ? all : all.reject { |s| used_ids.include?(s.id) }).sort_by(&:name).map(&:id)
         end
 

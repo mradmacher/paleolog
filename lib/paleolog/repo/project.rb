@@ -30,15 +30,6 @@ module Paleolog
           }
         end
 
-        def find(id, *options)
-          result = ds.where(id: id).first
-          return nil unless result
-
-          Paleolog::Project.new(**result) do |project|
-            options.each { |opt| opt.call(project) }
-          end
-        end
-
         def similar_name_exists?(name, exclude_id: nil)
           (exclude_id ? ds.exclude(id: exclude_id) : ds)
             .where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?

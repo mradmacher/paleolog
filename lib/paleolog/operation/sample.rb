@@ -23,7 +23,7 @@ module Paleolog
           .and_then { authorize(_1, can_manage(Paleolog::Section, :section_id)) }
           .and_then { verify(_1, name_uniqueness) }
           .and_then { merge(_1, next_rank) }
-          .and_then { carefully(_1, create_sample) }
+          .and_then { carefully(_1, save_sample) }
       end
 
       def update(raw_params)
@@ -31,17 +31,18 @@ module Paleolog
           .and_then { parameterize(raw_params, UPDATE_PARAMS) }
           .and_then { authorize(_1, can_manage(Paleolog::Sample, :id)) }
           .and_then { verify(_1, name_uniqueness) }
-          .and_then { carefully(_1, update_sample) }
+          .and_then { carefully(_1, save_sample) }
       end
 
       private
 
-      def create_sample
-        ->(params) { repo.for(Paleolog::Sample).create(params) }
-      end
-
-      def update_sample
-        ->(params) { repo.for(Paleolog::Sample).update(params[:id], params.except(:id)) }
+      def save_sample
+        lambda do |params|
+          repo.find(
+            Paleolog::Sample,
+            repo.save(Paleolog::Sample.new(**params)),
+          )
+        end
       end
 
       def name_uniqueness

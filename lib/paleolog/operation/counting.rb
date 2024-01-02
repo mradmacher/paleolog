@@ -21,7 +21,7 @@ module Paleolog
         authenticate
           .and_then { parameterize(raw_params, FIND_PARAMS) }
           .and_then { authorize(_1, can_view(Paleolog::Counting, :id)) }
-          .and_then { carefully(_1, ->(params) { repo.for(Paleolog::Counting).find(params[:id]) }) }
+          .and_then { carefully(_1, ->(params) { repo.find(Paleolog::Counting, params[:id]) }) }
       end
 
       def create(raw_params)
@@ -29,7 +29,7 @@ module Paleolog
           .and_then { parameterize(raw_params, CREATE_PARAMS) }
           .and_then { authorize(_1, can_manage(Paleolog::Project, :project_id)) }
           .and_then { verify(_1, name_uniqueness) }
-          .and_then { carefully(_1, create_counting) }
+          .and_then { carefully(_1, save_counting) }
       end
 
       def update(raw_params)
@@ -37,17 +37,18 @@ module Paleolog
           .and_then { parameterize(raw_params, UPDATE_PARAMS) }
           .and_then { authorize(_1, can_manage(Paleolog::Counting, :id)) }
           .and_then { verify(_1, name_uniqueness) }
-          .and_then { carefully(_1, update_counting) }
+          .and_then { carefully(_1, save_counting) }
       end
 
       private
 
-      def create_counting
-        ->(params) { repo.for(Paleolog::Counting).create(params) }
-      end
-
-      def update_counting
-        ->(params) { repo.for(Paleolog::Counting).update(params[:id], params.except(:id)) }
+      def save_counting
+        lambda do |params|
+          repo.find(
+            Paleolog::Counting,
+            repo.save(Paleolog::Counting.new(**params)),
+          )
+        end
       end
 
       def name_uniqueness

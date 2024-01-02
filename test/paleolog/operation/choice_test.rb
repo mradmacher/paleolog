@@ -9,16 +9,21 @@ describe Paleolog::Operation::Choice do
     Paleolog::Operation::Choice.new(repo, authorizer)
   end
   let(:group) do
-    Paleolog::Operation::Group.new(repo, HappyAuthorizer.new(user)).create(
+    happy_operation_for(Paleolog::Operation::Group, user).create(
       name: 'Group for Field',
     ).value
   end
   let(:field) do
-    Paleolog::Operation::Field.new(repo, HappyAuthorizer.new(user)).create(
+    happy_operation_for(Paleolog::Operation::Field, user).create(
       name: 'Field for Choice', group_id: group.id,
     ).value
   end
-  let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
+  let(:user) do
+    repo.find(
+      Paleolog::User,
+      repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
+    )
+  end
 
   after do
     repo.for(Paleolog::Group).delete_all

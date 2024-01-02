@@ -4,12 +4,22 @@ require 'features_helper'
 
 describe 'Sections' do
   let(:repo) { Paleolog::Repo }
+  let(:user) do
+    repo.find(
+      Paleolog::User,
+      repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
+    )
+  end
+  let(:project) do
+    happy_operation_for(Paleolog::Operation::Project, user)
+      .create(name: 'Test Project')
+      .value
+  end
+
   before do
     use_javascript_driver
-    user = repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
-    project = Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user)).create(
-      name: 'test', user_id: user.id,
-    ).value
+
+    user
 
     visit '/login'
     fill_in('login-field', with: 'test')
@@ -20,10 +30,10 @@ describe 'Sections' do
   end
 
   after do
-    repo.for(Paleolog::Researcher).delete_all
-    repo.for(Paleolog::Project).delete_all
-    repo.for(Paleolog::User).delete_all
-    repo.for(Paleolog::Section).delete_all
+    repo.delete_all(Paleolog::Researcher)
+    repo.delete_all(Paleolog::Project)
+    repo.delete_all(Paleolog::User)
+    repo.delete_all(Paleolog::Section)
   end
 
   it 'adds section' do

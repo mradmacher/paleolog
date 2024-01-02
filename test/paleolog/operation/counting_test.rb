@@ -9,16 +9,17 @@ describe Paleolog::Operation::Counting do
     Paleolog::Operation::Counting.new(repo, authorizer)
   end
   let(:happy_operation) do
-    Paleolog::Operation::Counting.new(repo, HappyAuthorizer.new(user))
+    happy_operation_for(Paleolog::Operation::Counting, user)
   end
   let(:happy_project_operation) do
-    Paleolog::Operation::Project.new(repo, HappyAuthorizer.new(user))
+    happy_operation_for(Paleolog::Operation::Project, user)
   end
-  let(:user) { repo.save(Paleolog::User.new(login: 'test', password: 'test123')) }
+  let(:user) do
+    id = repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
+    repo.find(Paleolog::User, id)
+  end
   let(:project) do
-    result = happy_project_operation.create(name: 'Project for Counting', user_id: user.id)
-    assert_predicate result, :success?
-    result.value
+    happy_project_operation.create(name: 'Project for Counting', user_id: user.id).value
   end
 
   after do
@@ -30,9 +31,7 @@ describe Paleolog::Operation::Counting do
 
   describe '#find' do
     let(:counting) do
-      result = happy_operation.create(name: 'Test123', project_id: project.id)
-      assert_predicate result, :success?
-      result.value
+      happy_operation.create(name: 'Test123', project_id: project.id).value
     end
 
     it 'returns unauthenticated error when not authenticated' do
@@ -112,7 +111,6 @@ describe Paleolog::Operation::Counting do
         counting = result.value
         refute_nil counting
 
-        refute_nil counting.id
         assert_equal 'Just a Name', counting.name
         assert_equal project.id, counting.project_id
       end
@@ -176,9 +174,7 @@ describe Paleolog::Operation::Counting do
 
   describe '#update' do
     let(:existing_counting) do
-      result = happy_operation.create(name: 'Some Name', project_id: project.id)
-      assert_predicate result, :success?
-      result.value
+      happy_operation.create(name: 'Some Name', project_id: project.id).value
     end
 
     it 'returns unauthenticated error when not authenticated' do
@@ -211,8 +207,8 @@ describe Paleolog::Operation::Counting do
       it 'returns counting' do
         result = operation.update(id: existing_counting.id, name: 'Other Name')
         assert_predicate result, :success?
-
         counting = result.value
+
         refute_nil counting
 
         assert_equal existing_counting.id, counting.id
@@ -251,28 +247,21 @@ describe Paleolog::Operation::Counting do
       end
 
       it 'does not complain when name exists but in other project' do
-        result = happy_project_operation.create(
+        other_project = happy_project_operation.create(
           { name: 'Other Project for Section', user_id: user.id },
-        )
-        assert_predicate result, :success?
-        other_project = result.value
-        result = happy_operation.create(
-          { name: 'Another Name', project_id: other_project.id },
-        )
+        ).value
+        result = happy_operation.create(name: 'Another Name', project_id: other_project.id)
         assert_predicate result, :success?
 
-        result = operation.update(
-          { id: existing_counting.id, name: 'Another Name' },
-        )
+        result = operation.update(id: existing_counting.id, name: 'Another Name')
         assert_predicate result, :success?
       end
 
       it 'can set the same name' do
-        result = operation.update(
-          { id: existing_counting.id, name: existing_counting.name },
-        )
+        result = operation.update(id: existing_counting.id, name: existing_counting.name)
         assert_predicate result, :success?
-        assert_equal existing_counting.name, result.value.name
+        counting = result.value
+        assert_equal existing_counting.name, counting.name
       end
 
       it 'complains when name is too long' do

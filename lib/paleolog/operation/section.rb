@@ -40,7 +40,7 @@ module Paleolog
           .and_then { parameterize(raw_params, CREATE_PARAMS) }
           .and_then { authorize(_1, can_manage(Paleolog::Project, :project_id)) }
           .and_then { verify(_1, name_uniqueness) }
-          .and_then { carefully(_1, create_section) }
+          .and_then { carefully(_1, save_section) }
       end
 
       def update(raw_params)
@@ -48,17 +48,18 @@ module Paleolog
           .and_then { parameterize(raw_params, UPDATE_PARAMS) }
           .and_then { authorize(_1, can_manage(Paleolog::Section, :id)) }
           .and_then { verify(_1, name_uniqueness) }
-          .and_then { carefully(_1, update_section) }
+          .and_then { carefully(_1, save_section) }
       end
 
       private
 
-      def create_section
-        ->(params) { repo.for(Paleolog::Section).create(params) }
-      end
-
-      def update_section
-        ->(params) { repo.for(Paleolog::Section).update(params[:id], params.except(:id)) }
+      def save_section
+        lambda do |params|
+          repo.find(
+            Paleolog::Section,
+            repo.save(Paleolog::Section.new(**params)),
+          )
+        end
       end
 
       def find_project_sections

@@ -4,8 +4,22 @@ require 'features_helper'
 
 describe 'Occurrences' do
   let(:repo) { Paleolog::Repo }
-  let(:project) { repo.save(Paleolog::Project.new(name: 'some project')) }
-  let(:counting) { repo.save(Paleolog::Counting.new(name: 'some counting', project: project)) }
+  let(:user) do
+    repo.find(
+      Paleolog::User,
+      repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
+    )
+  end
+  let(:project) do
+    happy_operation_for(Paleolog::Operation::Project, user)
+      .create(name: 'some project')
+      .value
+  end
+  let(:counting) do
+    happy_operation_for(Paleolog::Operation::Counting, user)
+      .create(name: 'some counting', project_id: project.id)
+      .value
+  end
 
   def click_to_select_species(name)
     find(:xpath, "//td[text()='#{name}']/following::button[contains(@class, 'select-species-action')]").click
@@ -13,19 +27,26 @@ describe 'Occurrences' do
 
   before do
     use_javascript_driver
-    group1 = repo.save(Paleolog::Group.new(name: 'Dinoflagellate'))
-    group2 = repo.save(Paleolog::Group.new(name: 'Other'))
-    species11 = repo.save(Paleolog::Species.new(group: group1, name: 'Odontochitina costata'))
-    species21 = repo.save(Paleolog::Species.new(group: group1, name: 'Cerodinium costata'))
-    species12 = repo.save(Paleolog::Species.new(group: group2, name: 'Cerodinium diabelli'))
-    repo.save(Paleolog::Species.new(group: group2, name: 'Diabella diabelli'))
-    section = repo.save(Paleolog::Section.new(name: 'some section', project: project))
-    sample = repo.save(Paleolog::Sample.new(name: 'some sample', section: section))
-    repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species11, rank: 1))
-    repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species21, rank: 2))
-    repo.save(Paleolog::Occurrence.new(sample: sample, counting: counting, species: species12, rank: 3))
-    user = repo.save(Paleolog::User.new(login: 'test', password: 'test123'))
-    repo.save(Paleolog::Researcher.new(user: user, project: project, manager: true))
+    group1_id = repo.save(Paleolog::Group.new(name: 'Dinoflagellate'))
+    group2_id = repo.save(Paleolog::Group.new(name: 'Other'))
+    operation = happy_operation_for(Paleolog::Operation::Species, user)
+    species11 = operation.create(group_id: group1_id, name: 'Odontochitina costata').value
+    species21 = operation.create(group_id: group1_id, name: 'Cerodinium costata').value
+    species12 = operation.create(group_id: group2_id, name: 'Cerodinium diabelli').value
+    operation.create(group_id: group2_id, name: 'Diabella diabelli').value
+
+    section = happy_operation_for(Paleolog::Operation::Section, user)
+              .create(name: 'some section', project_id: project.id)
+              .value
+    sample = happy_operation_for(Paleolog::Operation::Sample, user)
+             .create(name: 'some sample', section_id: section.id)
+             .value
+
+    happy_operation_for(Paleolog::Operation::Occurrence, user).tap do |op|
+      op.create(sample_id: sample.id, counting_id: counting.id, species_id: species11.id).value
+      op.create(sample_id: sample.id, counting_id: counting.id, species_id: species21.id).value
+      op.create(sample_id: sample.id, counting_id: counting.id, species_id: species12.id).value
+    end
 
     visit '/login'
     fill_in('login-field', with: 'test')
@@ -46,9 +67,10 @@ describe 'Occurrences' do
   end
 
   it 'suggests counted group when adding occurrences' do
-    counted_group = repo.save(Paleolog::Group.new(name: 'Counted'))
-    repo.save(Paleolog::Species.new(group: counted_group, name: 'Counted Group Species'))
-    repo.for(Paleolog::Counting).update(counting.id, group_id: counted_group.id)
+    counted_group_id = repo.save(Paleolog::Group.new(name: 'Counted'))
+    happy_operation_for(Paleolog::Operation::Species, user)
+      .create(group_id: counted_group_id, name: 'Counted Group Species').value
+    repo.save(Paleolog::Counting.new(id: counting.id, group_id: counted_group_id))
     visit "/projects/#{project.id}/countings/#{counting.id}"
 
     click_action_to('add occurrence')

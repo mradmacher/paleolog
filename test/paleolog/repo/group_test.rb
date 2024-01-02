@@ -25,9 +25,9 @@ describe Paleolog::Repo::Group do
   end
 
   it 'persists and finds groups' do
-    group = Paleolog::Repo.save(Paleolog::Group.new(name: 'Dinoflagellate'))
-    refute_nil group.id
-    result = Paleolog::Repo.find(Paleolog::Group, group.id)
-    assert_equal result, group
+    group_id = Paleolog::Repo.save(Paleolog::Group.new(name: 'Dinoflagellate'))
+    refute_nil group_id
+    result = Paleolog::Repo.find(Paleolog::Group, group_id)
+    assert_equal group_id, result.id
   end
 end
