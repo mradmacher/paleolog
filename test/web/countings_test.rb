@@ -63,7 +63,6 @@ describe 'Occurrences' do
         lambda {
           get "/projects/#{project.id}/countings/#{counting.id}"
         },
-        project,
       )
     end
 

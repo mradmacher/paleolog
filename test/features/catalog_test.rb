@@ -35,7 +35,7 @@ describe 'Catalog' do
   it 'at the beginning displays all verified species' do
     visit '/catalog'
 
-    page.must_have_content('Species list (2)')
+    assert_text('Species list (2)')
     within('.species-collection') do
       page.must_have_css('.species', count: 2)
       page.must_have_content('Odontochitina costata')

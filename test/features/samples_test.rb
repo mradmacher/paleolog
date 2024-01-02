@@ -32,10 +32,10 @@ describe 'Samples' do
 
   after do
     repo.delete_all(Paleolog::Researcher)
-    repo.delete_all(Paleolog::Project)
     repo.delete_all(Paleolog::User)
-    repo.delete_all(Paleolog::Section)
     repo.delete_all(Paleolog::Sample)
+    repo.delete_all(Paleolog::Section)
+    repo.delete_all(Paleolog::Project)
   end
 
   it 'adds sample' do

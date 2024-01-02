@@ -8,6 +8,7 @@ module Paleolog
         group_id: Params.required.(Params::IdRules),
         description: Params.optional.(Params::DescriptionRules),
         environmental_preferences: Params.optional.(Params::DescriptionRules),
+        verified: Params.optional.(Params.bool.(Params.any)),
       )
       UPDATE_PARAMS = Params.define.(
         id: Params.required.(Params::IdRules),
@@ -15,6 +16,7 @@ module Paleolog
         group_id: Params.optional.(Params::IdRules),
         description: Params.optional.(Params::DescriptionRules),
         environmental_preferences: Params.optional.(Params::DescriptionRules),
+        verified: Params.optional.(Params.bool.(Params.any)),
       )
 
       def create(raw_params)
