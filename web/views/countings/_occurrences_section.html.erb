@@ -17,7 +17,7 @@
   import { SectionSampleSelection } from '/js/section_sample_selection.js';
   import { UrlParamsUpdater } from '/js/url_params_updater.js';
 
-  $(function() {
+  document.addEventListener('DOMContentLoaded', () => {
     const projectId = <%= @project.id %>;
     const countingId = <%= @counting.id %>;
     let selectedSectionId = null;
@@ -92,10 +92,10 @@
       //verified: false,
     }
 
-    $('.add-species.action').click(() => {
+    document.querySelector('.add-species.action').addEventListener('click', () => {
       new SpeciesModalFormView(species, (result) => {
-        addOccurrence(result.species.id, countingId, selectedSampleId)
-      }).show()
+        addOccurrence(result.species.id, countingId, selectedSampleId);
+      }).show();
     });
   })
 </script>

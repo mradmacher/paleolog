@@ -226,26 +226,33 @@
 </form>
 </section>
 
-<script src="/jquery-3.6.0.min.js"></script>
 <script>
-$(document).ready(function() {
-  $('.selection-filter').change(function() {
-    filterIndex = $(this).attr('data-filter-index');
-    var columnFields = $('.selection-field[data-filter-index=' + filterIndex + ']');
-    columnFields.attr('checked', false);
-    //columnFields.removeClass('green');
-    var dataFilter = '';
-    $('.selection-filter[data-filter-index=' + filterIndex + ']').each(function(i, elem) {
-      var filterElem = $(elem);
-      filterKey = filterElem.attr('data-filter-key');
-      filterValue = filterElem.val();
-      if(filterValue) {
-        dataFilter = dataFilter + '[data-filter-' + filterKey + '=' + filterValue + ']';
-      }
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.selection-filter').forEach((selectionFilterElement) => {
+    selectionFilterElement.addEventListener('change', (event) => {
+      const filterIndex = event.target.getAttribute('data-filter-index');
+      const selectionFieldSelector = `.selection-field[data-filter-index="${filterIndex}"]`;
+      const selectionFilterSelector = `.selection-filter[data-filter-index="${filterIndex}"]`;
+      // uncheck all
+      document.querySelectorAll(selectionFieldSelector).forEach((elem) => {
+        elem.checked =  false;
+      });
+
+      // build filter from all selected values
+      let dataFilter = '';
+      document.querySelectorAll(selectionFilterSelector).forEach((elem) => {
+        const filterKey = elem.getAttribute('data-filter-key');
+        const filterValue = elem.value;
+        if(filterValue) {
+          dataFilter = `${dataFilter}[data-filter-${filterKey}="${filterValue}"]`;
+        }
+      });
+
+      // check all fulfilling the filter
+      document.querySelectorAll(`${selectionFieldSelector}${dataFilter}`).forEach((elem) => {
+        elem.checked = true;
+      });
     });
-    var filtered = $('.selection-field[data-filter-index=' + filterIndex + ']' + dataFilter)
-    filtered.attr('checked', true);
-    //filtered.addClass('green');
-  });
+  })
 });
 </script>
