@@ -13,6 +13,10 @@ module Web
         @operation = Paleolog::Operation::Species.new(Paleolog::Repo, authorizer)
       end
 
+      get '/api/species' do
+        model_or_errors(@operation.search(params), serializer, :species)
+      end
+
       post '/api/species' do
         model_or_errors(@operation.create(params), serializer)
       end
@@ -29,6 +33,7 @@ module Web
             id: species.id,
             name: species.name,
             group_id: species.group_id,
+            group_name: species.group.name,
             created_at: species.created_at,
           }
         end

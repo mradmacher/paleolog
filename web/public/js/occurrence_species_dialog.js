@@ -12,8 +12,8 @@ export class OccurrenceSpeciesDialog {
     this.callback = callback;
     this.speciesSearch = new SpeciesSearch({
       selector: '#species-search',
-      onSpeciesSearched: (result) => {
-        this.showSearchResult(result);
+      onSpeciesSearched: (species) => {
+        this.showSearchResult(species);
       },
       updatePath: false,
       initialFilter: countingGroupId ? { group_id: countingGroupId } : {},
@@ -36,10 +36,10 @@ export class OccurrenceSpeciesDialog {
     this.element.querySelector('.species-collection').innerHTML = '';
   }
 
-  showSearchResult(result, callback) {
+  showSearchResult(collection, callback) {
     this.clearSearchResult();
-    this.element.querySelector('.search-species-size').textContent = result.result.length;
-    result.result.forEach(species => {
+    this.element.querySelector('.search-species-size').textContent = collection.length;
+    collection.forEach(species => {
       let template = DomHelpers.buildFromTemplate('search-species-template');
       DomHelpers.setText(species.name, '.species-name', template);
       DomHelpers.setText(species.group_name, '.species-group-name', template);

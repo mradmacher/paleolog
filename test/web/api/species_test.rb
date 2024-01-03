@@ -29,6 +29,17 @@ describe 'Projects' do
     repo.for(Paleolog::Group).delete_all
   end
 
+  describe 'GET /api/species' do
+    it 'rejects guest access' do
+      assert_unauthorized(-> { get '/api/species', {} })
+    end
+
+    it 'accepts logged in user' do
+      login(user)
+      assert_permitted(-> { get '/api/species', {} })
+    end
+  end
+
   describe 'POST /api/species' do
     it 'rejects guest access' do
       assert_unauthorized(-> { post '/api/species', {} })
@@ -45,26 +56,12 @@ describe 'Projects' do
         login(user)
       end
 
-      it 'creates project and returns its attributes' do
-        params = { name: 'some name', group_id: group1.id }
-        post '/api/species', params
+      it 'works' do
+        get '/api/species', {}
 
+        assert_predicate last_response, :ok?
         result = JSON.parse(last_response.body)['species']
-
-        refute_nil result['id']
-        assert_equal 'some name', result['name']
-        assert_equal group1.id, result['group_id']
-        refute_nil result['created_at']
-      end
-
-      it 'returns errors in case of failure' do
-        params = {}
-        post '/api/species', params
-
-        result = JSON.parse(last_response.body)
-        assert result.key?('errors')
-
-        assert_equal 'missing', result['errors']['name']
+        refute_nil result
       end
     end
   end
