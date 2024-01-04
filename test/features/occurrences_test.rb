@@ -83,7 +83,33 @@ describe 'Occurrences' do
     end
   end
 
-  it 'adds occurrence' do
+  it 'adds occurrence with new species' do
+    visit "/projects/#{project.id}/countings/#{counting.id}"
+
+    table_rows = page.all('#occurrences-collection .occurrence')
+    assert_equal 3, table_rows.size
+    assert_match(/Odontochitina costata/, table_rows[0].text)
+    assert_match(/Cerodinium costata/, table_rows[1].text)
+    assert_match(/Cerodinium diabelli/, table_rows[2].text)
+
+    click_action_to('add occurrence')
+    click_action_to('add species')
+    within('.form-window') do
+      select('Other', from: 'Group')
+      fill_in('Name', with: 'I am new here')
+      click_on('Save')
+    end
+
+    table_rows = page.all('#occurrences-collection .occurrence')
+    assert_equal 4, table_rows.size
+    assert_match(/Odontochitina costata/, table_rows[0].text)
+    assert_match(/Cerodinium costata/, table_rows[1].text)
+    assert_match(/Cerodinium diabelli/, table_rows[2].text)
+    assert_match(/I am new here/, table_rows[3].text)
+    assert_match(/Other/, table_rows[3].text)
+  end
+
+  it 'adds occurrence with selected species' do
     visit "/projects/#{project.id}/countings/#{counting.id}"
 
     table_rows = page.all('#occurrences-collection .occurrence')
