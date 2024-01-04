@@ -38,7 +38,7 @@
   import { DomHelpers } from "/js/dom_helpers.js";
   import { UrlBuilder } from "/js/url_builder.js";
 
-  $(function() {
+  document.addEventListener('DOMContentLoaded', () => {
     let projectId = <%= @project.id %>
     let countingId = <%= @counting_id %>
     let projectName = "<%= @project.name %>"
@@ -65,7 +65,7 @@
         } else {
           DomHelpers.hideAll('.marker-name-wrapper')
         }
-        $('.edit-counting.action').click(() => {
+        document.querySelector('.edit-counting.action').addEventListener('click', () => {
           new CountingModalFormView(counting, (counting) => window.location.reload()).show()
         });
       },

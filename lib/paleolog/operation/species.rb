@@ -3,6 +3,13 @@
 module Paleolog
   module Operation
     class Species < BaseOperation
+      SEARCH_PARAMS = Params.define.(
+        group_id: Params.optional.(Params.blank_to_nil_or.(Params::IdRules)),
+        project_id: Params.optional.(Params.blank_to_nil_or.(Params::IdRules)),
+        name: Params.optional.(Params.blank_to_nil_or.(Params::NameRules)),
+        verified: Params.optional.(Params.blank_to_nil_or.(Params.bool.(Params.any))),
+      )
+
       CREATE_PARAMS = Params.define.(
         name: Params.required.(Params::NameRules),
         group_id: Params.required.(Params::IdRules),
@@ -19,6 +26,12 @@ module Paleolog
         verified: Params.optional.(Params.bool.(Params.any)),
       )
 
+      def search(raw_params)
+        authenticate
+          .and_then { parameterize(raw_params, SEARCH_PARAMS) }
+          .and_then { carefully(_1, search_species) }
+      end
+
       def create(raw_params)
         authenticate
           .and_then { parameterize(raw_params, CREATE_PARAMS) }
@@ -34,6 +47,12 @@ module Paleolog
       end
 
       private
+
+      def search_species
+        lambda do |params|
+          repo.for(Paleolog::Species).search(params)
+        end
+      end
 
       def save_species
         lambda do |params|

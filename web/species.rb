@@ -23,21 +23,6 @@ module Web
       }.to_json
     end
 
-    get '/species' do
-      filters = {}
-      filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
-      filters[:project_id] = params[:project_id] if params[:project_id] && !params[:project_id].empty?
-      filters[:name] = params[:name] if params[:name] && !params[:name].empty?
-      filters[:verified] = true if params[:verified] == 'true'
-
-      result = Paleolog::Repo::Species.search(filters)
-
-      {
-        filters: filters,
-        result: result.map { |r| { id: r.id, name: r.name, group_name: r.group.name } },
-      }.to_json
-    end
-
     get '/catalog' do
       {
         groups: Paleolog::Repo::Group.all.map { |group| { id: group.id, name: group.name } },

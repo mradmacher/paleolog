@@ -22,16 +22,16 @@
 </section>
 
 <script type="module">
-  import { ProjectModalFormView } from '/js/modal_form_views.js'
+import { ProjectModalFormView } from '/js/modal_form_views.js'
 
-  $(function() {
-    const project = {
-      id: <%= @project.id %>,
-      name: "<%= @project.name %>",
-    }
+document.addEventListener('DOMContentLoaded', () => {
+  const project = {
+    id: <%= @project.id %>,
+    name: "<%= @project.name %>",
+  }
 
-    $('.edit-project.action').click(() => {
-      new ProjectModalFormView(project, (project) => window.location.reload()).show()
-    });
+  document.querySelector('.edit-project.action').addEventListener('click', () => {
+    new ProjectModalFormView(project, (project) => window.location.reload()).show();
   });
+});
 </script>

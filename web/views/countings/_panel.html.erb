@@ -25,14 +25,14 @@
 <script type="module">
 import { CountingModalFormView } from '/js/modal_form_views.js'
 
-$(function() {
+document.addEventListener('DOMContentLoaded', () => {
   const counting = {
     project_id: <%= @project.id %>,
     name: null,
   }
 
-  $('.add-counting.action').click(() => {
-    new CountingModalFormView(counting, (counting) => window.location.reload()).show()
+  document.querySelector('.add-counting.action').addEventListener('click', () => {
+    new CountingModalFormView(counting, (counting) => window.location.reload()).show();
   })
 });
 </script>

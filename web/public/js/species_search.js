@@ -1,5 +1,6 @@
 import { DomHelpers } from '/js/dom_helpers.js';
 import { UrlParamsUpdater } from '/js/url_params_updater.js';
+import { SpeciesRequest } from '/js/requests.js';
 
 export class SpeciesSearch {
   constructor({
@@ -17,9 +18,9 @@ export class SpeciesSearch {
     this.fetchAvailableSearchFilters().then(filters => {
       this.showAvailableSearchFilters(filters);
       if(Object.keys(initialFilter).length > 0 || Object.keys(defaultFilter).length > 0) {
-        this.fetchSearchResult({ ...initialFilter, ...defaultFilter }).then(result => {
+        new SpeciesRequest().index({ ...initialFilter, ...defaultFilter }).then(result => {
           this.showFilters(initialFilter);
-          this.onSpeciesSearchedEvent(result);
+          this.onSpeciesSearchedEvent(result.species);
         })
       };
     });
@@ -34,23 +35,22 @@ export class SpeciesSearch {
       if(this.updatePath) {
         new UrlParamsUpdater().setParams(attrs);
       }
-      this.fetchSearchResult({ ...attrs, ...this.defaultFilter }).then(result => {
-        this.onSpeciesSearchedEvent(result)
+      new SpeciesRequest().index({ ...attrs, ...this.defaultFilter }).then(result => {
+        this.onSpeciesSearchedEvent(result.species)
       })
     });
   }
 
   fetchAvailableSearchFilters() {
     return new Promise((resolve, reject) => {
-      $.ajax({
-        url: '/species/search-filters',
-        type: "GET",
-        dataType: "json",
-      })
-      .done((json) => {
-        resolve(json);
-      }).fail((xhr, status, error) => {
-        reject(error)
+      fetch('/species/search-filters').then(response => {
+        response.json().then(json => {
+          if (response.ok) {
+            resolve(json);
+          } else {
+            reject(json.errors);
+          }
+        })
       })
     })
   }
@@ -82,18 +82,20 @@ export class SpeciesSearch {
   }
 
   fetchSearchResult(attrs) {
+    const searchParams = new URLSearchParams(attrs);
+
     return new Promise((resolve, reject) => {
-      $.ajax({
-        url: '/species',
-        data: attrs,
-        type: "GET",
-        dataType: "json",
+      fetch(`/species?${searchParams}`, {
+        method: 'GET',
+      }).then(response => {
+        response.json().then(json => {
+          if (response.ok) {
+            resolve(json);
+          } else {
+            reject(json.errors);
+          }
+        })
       })
-      .done(function(json) {
-        resolve(json);
-      }).fail(function(xhr, status, error) {
-        reject(error);
-      })
-    });
+    })
   }
 }

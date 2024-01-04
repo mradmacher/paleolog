@@ -29,7 +29,7 @@ module Web
       end
       @groups = Paleolog::Repo::Group.all
       @fields = Paleolog::Repo::Field.all
-      @occurrences = @counting && @section ? Paleolog::Repo::Occurrence.all_for_section(@counting, @section) : []
+      @occurrences = @counting && @section ? Paleolog::Repo::Occurrence.all_for_section(@counting.id, @section.id) : []
       @species = @occurrences.map(&:species).uniq(&:id)
 
       using_project_without_sidebar_layout { using_reports_layout { display 'reports/index.html' } }
@@ -50,7 +50,7 @@ module Web
         @counting = Paleolog::Repo::Counting.find_for_project(params[:counting_id].to_i,
                                                               @project.id,)
       end
-      @occurrences = @counting && @section ? Paleolog::Repo::Occurrence.all_for_section(@counting, @section) : []
+      @occurrences = @counting && @section ? Paleolog::Repo::Occurrence.all_for_section(@counting.id, @section.id) : []
       @report = Paleolog::Report.build(params)
       @report.counted_group = @counting.group
       @report.marker = @counting.marker
@@ -71,7 +71,7 @@ module Web
       @section = Paleolog::Repo::Section.find_for_project(params['report']['section_id'].to_i, @project.id)
       @counting = Paleolog::Repo::Counting.find_for_project(params['report']['counting_id'].to_i, @project.id)
 
-      @occurrences = @counting && @section ? Paleolog::Repo::Occurrence.all_for_section(@counting, @section) : []
+      @occurrences = @counting && @section ? Paleolog::Repo::Occurrence.all_for_section(@counting.id, @section.id) : []
       @report = Paleolog::Report.build(params['report'])
       @report.counted_group = @counting.group
       @report.marker = @counting.marker

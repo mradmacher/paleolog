@@ -42,8 +42,8 @@ DomHelpers.onDOMContentLoaded(document, () => {
 
   new SpeciesSearch({
     selector: '#species-search',
-    onSpeciesSearched: (result) => {
-      speciesCollection.replaceAll(result.result);
+    onSpeciesSearched: (species) => {
+      speciesCollection.replaceAll(species);
     },
     updatePath: true,
     initialFilter: <%= (@filters.empty? ? { verified: true } : @filters).to_json %>,

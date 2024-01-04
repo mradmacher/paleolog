@@ -43,7 +43,7 @@
 <script type="module">
   import { ProjectModalFormView, CountingModalFormView, SectionModalFormView } from '/js/modal_form_views.js'
 
-  $(function() {
+  document.addEventListener('DOMContentLoaded', () => {
     const section = {
       project_id: <%= @project.id %>,
       name: null,
@@ -54,12 +54,12 @@
       name: null,
     }
 
-    $('.add-section.action').click(() => {
-      new SectionModalFormView(section, (section) => window.location.reload()).show()
+    document.querySelector('.add-section.action').addEventListener('click', () => {
+      new SectionModalFormView(section, (section) => window.location.reload()).show();
     })
 
-    $('.add-counting.action').click(() => {
-      new CountingModalFormView(counting, (counting) => window.location.reload()).show()
+    document.querySelector('.add-counting.action').addEventListener('click', () => {
+      new CountingModalFormView(counting, (counting) => window.location.reload()).show();
     })
   });
 </script>
