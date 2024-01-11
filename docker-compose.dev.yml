@@ -9,6 +9,16 @@ services:
       POSTGRES_DB: paleolog
     volumes:
       - ./db/postgres:/var/lib/postgresql/data
+  testdb:
+    image: postgres:14.8
+    environment:
+      POSTGRES_PASSWORD: paleolog
+      POSTGRES_USER: paleolog
+      POSTGRES_DB: paleolog
+    ports:
+      - 5433:5432
+    volumes:
+      - ./db/test_postgres:/var/lib/postgresql/data
   web:
     build:
       context: .
