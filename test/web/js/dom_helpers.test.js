@@ -1,6 +1,6 @@
 import test from 'ava';
 import { JSDOM } from 'jsdom';
-import { DomHelpers } from '../../../web/public/js/dom_helpers.js';
+import { DomHelpers } from '../../../web/js/dom_helpers.js';
 
 test('#setHref adds href attribute with given url', t => {
   const html =
@@ -16,8 +16,9 @@ test('#setHref adds href attribute with given url', t => {
   t.deepEqual(actual, null);
 
   const expected = "/path/to/resource";
-  DomHelpers.setHref(".i-need-href", expected, document);
+  DomHelpers.setHref(expected, ".i-need-href", document);
   actual = document.querySelector(".i-need-href").getAttribute("href");
+  console.log(actual);
   t.deepEqual(actual, expected);
 });
 
@@ -35,7 +36,7 @@ test('#setText adds text context to element', t => {
   t.deepEqual(actual, '');
 
   const expected = "Here I am";
-  DomHelpers.setText(".i-need-text", expected, document);
+  DomHelpers.setText(expected, ".i-need-text", document);
   actual = document.querySelector(".i-need-text").textContent;
   t.deepEqual(actual, expected);
 });

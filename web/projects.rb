@@ -38,13 +38,13 @@ module Web
       @filters[:name] = params[:name] if params[:name] && !params[:name].empty?
       @filters[:verified] = true if params[:verified] == 'true'
 
-      using_project_without_sidebar_layout { display 'projects/catalog.html' }
+      using_project_layout { display 'projects/catalog.html' }
     end
 
     get '/projects/:project_id/species/:id' do
       @project = Paleolog::Repo::Project.find(params[:project_id].to_i)
       @species = Paleolog::Repo::Species.find(params[:id].to_i)
-      using_project_without_sidebar_layout { using_project_species_layout { display 'species/show.html' } }
+      using_project_layout { using_project_species_layout { display 'species/show.html' } }
     end
   end
 end

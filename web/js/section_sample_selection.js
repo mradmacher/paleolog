@@ -1,5 +1,5 @@
-import { DomHelpers } from '/js/dom_helpers.js';
-import { ProjectRequest, SectionRequest } from '/js/requests.js';
+import { DomHelpers } from './dom_helpers.js';
+import { ProjectRequest, SectionRequest } from './requests.js';
 
 export class SectionSampleSelection {
   constructor(selector, scope = document) {

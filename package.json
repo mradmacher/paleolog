@@ -3,7 +3,8 @@
   "name": "paleolog",
   "version": "0.0.1",
   "scripts": {
-    "test": "ava"
+    "test": "ava",
+    "build": "esbuild web/js/*_app.js --bundle --outdir=web/public/dist"
   },
   "ava": {
     "files": [
@@ -12,6 +13,7 @@
   },
   "devDependencies": {
     "ava": "^6.0.0",
+    "esbuild": "0.20.2",
     "jsdom": "^23.0.1"
   }
 }

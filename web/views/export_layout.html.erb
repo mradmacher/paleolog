@@ -48,21 +48,4 @@
 
 <%= yield %>
 
-<script src="/jquery-3.6.0.min.js"></script>
-<script type="text/javascript">
-$(document).ready(function() {
-	set_format = function( form_tag, format ) {
-		form_tag.attr( "action", form_tag.attr( "action" ).replace( /\.\w+/, "" ) + "." + format );
-	};
-
-  var	form_tag = $( "form" );
-  var format_tag = form_tag.find( 'select[name="report[format]"]' );
-  format_tag.change( function() {
-    format = $(this).val();
-    set_format( form_tag, format );
-    form_tag.find('.format-properties').hide();
-    form_tag.find('.' + format + '-properties').show();
-  });
-  format_tag.change();
-});
-</script>
+<script src="/dist/report_app.js"></script>

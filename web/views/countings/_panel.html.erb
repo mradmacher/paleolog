@@ -21,18 +21,3 @@
     <button class="button is-small is-black is-fullwidth add-counting action"><i class="add icon"></i>Add</button>
   </div>
 </div>
-
-<script type="module">
-import { CountingModalFormView } from '/js/modal_form_views.js'
-
-document.addEventListener('DOMContentLoaded', () => {
-  const counting = {
-    project_id: <%= @project.id %>,
-    name: null,
-  }
-
-  document.querySelector('.add-counting.action').addEventListener('click', () => {
-    new CountingModalFormView(counting, (counting) => window.location.reload()).show();
-  })
-});
-</script>
