@@ -22,20 +22,8 @@ module Web
       erb :'project_layout.html', layout: :'application.html', &block
     end
 
-    def using_project_without_sidebar_layout(&block)
-      erb :'project_without_sidebar_layout.html', layout: :'application.html', &block
-    end
-
     def using_occurrences_layout(&block)
       erb :'occurrence_layout.html', layout: nil, &block
-    end
-
-    def using_section_layout(&block)
-      erb :'section_layout.html', layout: nil, &block
-    end
-
-    def using_counting_layout(&block)
-      erb :'counting_layout.html', layout: nil, &block
     end
 
     def using_reports_layout(&block)

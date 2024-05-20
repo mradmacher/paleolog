@@ -1,3 +1,5 @@
+<input type="hidden" id="species-filters" value='<%= @filters.to_json %>' />
+
 <section class="section">
   <div class="columns">
     <div class="column is-one-quarter">
@@ -32,21 +34,4 @@
   </div>
 </section>
 
-<script type="module">
-import { SpeciesSearch } from '/js/species_search.js';
-import { SpeciesCollection } from '/js/species_collection.js';
-import { DomHelpers } from '/js/dom_helpers.js';
-
-DomHelpers.onDOMContentLoaded(document, () => {
-  const speciesCollection = new SpeciesCollection('.species-collection');
-
-  new SpeciesSearch({
-    selector: '#species-search',
-    onSpeciesSearched: (species) => {
-      speciesCollection.replaceAll(species);
-    },
-    updatePath: true,
-    initialFilter: <%= (@filters.empty? ? { verified: true } : @filters).to_json %>,
-  });
-})
-</script>
+<script src="/dist/catalog_app.js"></script>

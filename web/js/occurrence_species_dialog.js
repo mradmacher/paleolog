@@ -1,5 +1,5 @@
-import { SpeciesSearch } from '/js/species_search.js';
-import { DomHelpers } from '/js/dom_helpers.js';
+import { SpeciesSearch } from './species_search.js';
+import { DomHelpers } from './dom_helpers.js';
 
 export class OccurrenceSpeciesDialog {
   constructor({

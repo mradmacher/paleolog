@@ -12,6 +12,7 @@
 /db/postgres
 /db/test_postgres
 /node_modules
+/web/public/dist
 *.sqlite
 *.swp
 *.swo

@@ -17,18 +17,3 @@
     <button class="button is-small is-black is-fullwidth add-section action"><i class="add icon"></i>Add</button>
   </div>
 </div>
-
-<script type="module">
-import { SectionModalFormView } from '/js/modal_form_views.js'
-
-const section = {
-  project_id: <%= @project.id %>,
-  name: null,
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelector('.add-section.action').addEventListener('click', () => {
-    new SectionModalFormView(section, (section) => window.location.reload()).show();
-  })
-});
-</script>

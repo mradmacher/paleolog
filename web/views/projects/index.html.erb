@@ -53,16 +53,4 @@
   </div>
 </section>
 
-<script type="module">
-  import { ProjectModalFormView } from '/js/modal_form_views.js'
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const project = {
-      name: null,
-    }
-
-    document.querySelector('.add-project.action').addEventListener('click', () => {
-      new ProjectModalFormView(project, (project) => window.location.reload()).show();
-    });
-  });
-</script>
+<script src="/dist/projects_app.js"></script>

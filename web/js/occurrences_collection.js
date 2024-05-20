@@ -1,5 +1,5 @@
-import { OccurrenceRequest } from '/js/requests.js';
-import { DomHelpers } from '/js/dom_helpers.js';
+import { OccurrenceRequest } from './requests.js';
+import { DomHelpers } from './dom_helpers.js';
 
 class SetQuantityDialog {
   constructor(selector, scope = document) {

@@ -1,5 +1,5 @@
-import { DomHelpers } from '/js/dom_helpers.js';
-import { UrlBuilder } from '/js/url_builder.js';
+import { DomHelpers } from './dom_helpers.js';
+import { UrlBuilder } from './url_builder.js';
 
 export class SpeciesCollection {
   constructor(selector, scope = document) {

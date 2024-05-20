@@ -28,7 +28,7 @@ module Web
       )
       @section_id = params[:section]
       @sample_id = params[:sample]
-      using_project_layout { using_counting_layout { display 'countings/show.html' } }
+      using_project_layout { display 'countings/show.html' }
     end
   end
 end

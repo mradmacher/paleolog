@@ -1,6 +1,6 @@
-import { DomHelpers } from '/js/dom_helpers.js';
-import { UrlParamsUpdater } from '/js/url_params_updater.js';
-import { SpeciesRequest } from '/js/requests.js';
+import { DomHelpers } from './dom_helpers.js';
+import { UrlParamsUpdater } from './url_params_updater.js';
+import { SpeciesRequest } from './requests.js';
 
 export class SpeciesSearch {
   constructor({

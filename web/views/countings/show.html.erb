@@ -1,77 +1,55 @@
-<div class="panel">
-  <div class="panel-heading">
-    <span class="tag">counting</span>
-    <h2 class="title counting-name"></h2>
+<input type="hidden" id="counting-id" value="<%= @counting.id %>" />
+<input type="hidden" id="selected-section-id" value="<%= @section_id %>" />
+<input type="hidden" id="selected-sample-id" value="<%= @sample_id %>" />
+<input type="hidden" id="counting-group-id" value="<%= @counting.group_id %>" />
+
+<div class="columns">
+  <div class="column is-one-fifth">
+    <%= erb :'countings/_panel.html', layout: false %>
   </div>
-  <nav class="navbar">
-    <div class="navbar-menu">
-      <div class="navbar-end">
-        <div class="navbar-item">
-          <button class="button is-black is-small edit-counting action">Edit Counting</button>
+  <div class="column">
+    <div class="panel">
+      <div class="panel-heading">
+        <span class="tag">counting</span>
+        <h2 class="title counting-name"></h2>
+      </div>
+      <nav class="navbar">
+        <div class="navbar-menu">
+          <div class="navbar-end">
+            <div class="navbar-item">
+              <button class="button is-black is-small edit-counting action">Edit Counting</button>
+            </div>
+          </div>
         </div>
+      </nav>
+      <div class="panel-block">
+        <table class="table is-striped is-bordered">
+          <thead>
+            <tr>
+              <th>Counting's Group</th>
+              <th>Marker</th>
+              <th>Marker Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="group-name"></td>
+              <td><span class="marker-name"></span> <span class="marker-group-name"></span></td>
+              <td class="marker-count"></td>
+          </tbody>
+        </table>
       </div>
     </div>
-  </nav>
-  <div class="panel-block">
-    <table class="table is-striped is-bordered">
-      <thead>
-        <tr>
-          <th>Counting's Group</th>
-          <th>Marker</th>
-          <th>Marker Count</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="group-name"></td>
-          <td><span class="marker-name"></span> <span class="marker-group-name"></span></td>
-          <td class="marker-count"></td>
-      </tbody>
-    </table>
+    <div class="columns">
+      <div class="column is-four-fifths" %>
+        <%= erb :'countings/_occurrences.html', layout: false %>
+      </div>
+
+      <div class="column">
+        <%= erb :'countings/_sections_and_samples.html', layout: false %>
+      </div>
+    </div>
   </div>
 </div>
-<%= erb :'countings/_occurrences_section.html', layout: false %>
 
-<script type="module">
-  import { CountingModalFormView } from "/js/modal_form_views.js";
-  import { CountingRequest } from "/js/requests.js";
-  import { DomHelpers } from "/js/dom_helpers.js";
-  import { UrlBuilder } from "/js/url_builder.js";
-
-  document.addEventListener('DOMContentLoaded', () => {
-    let projectId = <%= @project.id %>
-    let countingId = <%= @counting_id %>
-    let projectName = "<%= @project.name %>"
-
-    new CountingRequest().get(countingId).then(
-      result => {
-        let counting = result.counting
-        DomHelpers.setHref(UrlBuilder.projectOccurrences(projectId, { projectName: projectName, countingId: counting.id }), '.occurrences-link')
-        DomHelpers.setHref(UrlBuilder.projectReports(projectId, { projectName: projectName, countingId: counting.id }), '.reports-link')
-        DomHelpers.setText(counting.name, '.counting-name')
-        if(counting.marker_count) {
-          DomHelpers.setText(counting.marker_count, '.marker-count')
-        } else {
-          DomHelpers.hideAll('.marker-count-wrapper')
-        }
-        if(counting.group_name) {
-          DomHelpers.setText(counting.group_name, '.group-name')
-        } else {
-          DomHelpers.hideAll('.group-name-wrapper')
-        }
-        if(counting.marker_name) {
-          DomHelpers.setText(counting.marker_name, '.marker-name')
-          DomHelpers.setText(counting.marker_group_name, '.marker-group-name')
-        } else {
-          DomHelpers.hideAll('.marker-name-wrapper')
-        }
-        document.querySelector('.edit-counting.action').addEventListener('click', () => {
-          new CountingModalFormView(counting, (counting) => window.location.reload()).show()
-        });
-      },
-      errors => {
-        console.log(errors)
-      }
-    )
-  });
-</script>
+<script src="/dist/counting_app.js"></script>
