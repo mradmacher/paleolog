@@ -2,24 +2,24 @@
   <div class="panel-heading">Find species
   </div>
   <div class="panel-block">
-    <form id="species-search" class="form">
+    <form class="form" data-js-species-search>
       <div class="field">
         <label for="search-group-id">Group</label>
         <template id="search-group-option-template">
-          <option value=""></option>
+          <option value="" data-js-group-option></option>
         </template>
-        <select id="search-group-id" name="group_id">
+        <select id="search-group-id" name="group_id" data-js-group-id-field>
         </select>
       </div>
       <div class="field">
         <label for="search-name">Name</label>
-        <input id="search-name" type="text" name="name" />
+        <input id="search-name" type="text" name="name" data-js-name-field/>
       </div>
       <div class="field">
         <label for="search-verified">Verified</label>
-        <input id="search-verified" type="checkbox" name="verified" />
+        <input id="search-verified" type="checkbox" name="verified" data-js-verified-field/>
       </div>
-      <button class="button" type="submit">Search</button>
+      <button class="button" type="submit" data-js-search-action>Search</button>
     </form>
   </div>
 </div>
