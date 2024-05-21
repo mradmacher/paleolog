@@ -1,4 +1,4 @@
-import { SpeciesSearch } from './species_search.js';
+import { SpeciesSearch } from './components/species_search.js';
 import { DomHelpers } from './dom_helpers.js';
 
 export class OccurrenceSpeciesDialog {
@@ -11,7 +11,7 @@ export class OccurrenceSpeciesDialog {
     this.element = scope.querySelector(selector);
     this.callback = callback;
     this.speciesSearch = new SpeciesSearch({
-      selector: '#species-search',
+      selector: '[data-js-species-search]',
       onSpeciesSearched: (species) => {
         this.showSearchResult(species);
       },
