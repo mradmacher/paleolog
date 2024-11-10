@@ -33,6 +33,10 @@ module Paleolog
         ds.delete
       end
 
+      def alike_name_exists?(name, scope = ds)
+        scope.where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
+      end
+
       def use_timestamps?
         true
       end
@@ -49,6 +53,7 @@ module Paleolog
 end
 
 require 'paleolog/repo/config'
+require 'paleolog/repo/account'
 require 'paleolog/repo/choice'
 require 'paleolog/repo/counting'
 require 'paleolog/repo/group'
@@ -66,6 +71,7 @@ require 'paleolog/repo/user'
 module Paleolog
   module Repo
     REPOS = {
+      Paleolog::Account => Paleolog::Repo::Account,
       Paleolog::Group => Paleolog::Repo::Group,
       Paleolog::Species => Paleolog::Repo::Species,
       Paleolog::Field => Paleolog::Repo::Field,

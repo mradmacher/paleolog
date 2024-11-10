@@ -3,6 +3,8 @@
 module Paleolog
   module Operation
     class Project < BaseOperation
+      include Operation::CommonValidations
+
       CREATE_PARAMS = Params.define.(
         name: Params.required.(Params::NameRules),
         user_id: Params.required.(Params::IdRules),
@@ -21,7 +23,7 @@ module Paleolog
       def create(raw_params)
         authenticate
           .and_then { parameterize(raw_params.merge(user_id: authorizer.user_id), CREATE_PARAMS) }
-          .and_then { verify(_1, name_uniqueness) }
+          .and_then { verify(_1, name_uniqueness(Paleolog::Project)) }
           .and_then { carefully(_1, create_project) }
       end
 
@@ -29,7 +31,7 @@ module Paleolog
         authenticate
           .and_then { parameterize(raw_params, UPDATE_PARAMS) }
           .and_then { authorize(_1, can_manage(Paleolog::Project, :id)) }
-          .and_then { verify(_1, name_uniqueness) }
+          .and_then { verify(_1, name_uniqueness(Paleolog::Project)) }
           .and_then { carefully(_1, update_project) }
       end
 
@@ -64,19 +66,6 @@ module Paleolog
             )
           end
           repo.find(Paleolog::Project, project_id)
-        end
-      end
-
-      def name_uniqueness
-        lambda do |params|
-          break unless params.key?(:name)
-
-          if repo.for(Paleolog::Project).similar_name_exists?(
-            params[:name],
-            exclude_id: params[:id],
-          )
-            { name: TAKEN }
-          end
         end
       end
     end

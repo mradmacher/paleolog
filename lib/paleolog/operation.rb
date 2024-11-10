@@ -14,6 +14,8 @@ module Paleolog
 end
 
 require 'paleolog/operation/base_operation'
+require 'paleolog/operation/common_validations'
+require 'paleolog/operation/account'
 require 'paleolog/operation/choice'
 require 'paleolog/operation/counting'
 require 'paleolog/operation/field'

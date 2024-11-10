@@ -17,6 +17,14 @@ module Paleolog
     end
   end
 
+  class Account
+    include Entitainer
+
+    schema do
+      attributes :name
+    end
+  end
+
   class Project
     include Entitainer
 
@@ -24,6 +32,8 @@ module Paleolog
       attributes :name,
                  :created_at,
                  :updated_at
+
+      belongs_to :account
 
       has_many :countings,
                :sections,
@@ -145,7 +155,7 @@ module Paleolog
                  :created_at,
                  :updated_at
 
-      belongs_to :group
+      belongs_to :group, :account
       has_many :features, :images
     end
   end
