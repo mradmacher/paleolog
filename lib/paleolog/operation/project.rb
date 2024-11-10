@@ -8,6 +8,7 @@ module Paleolog
       CREATE_PARAMS = Params.define.(
         name: Params.required.(Params::NameRules),
         user_id: Params.required.(Params::IdRules),
+        account_id: Params.required.(Params::IdRules),
       )
 
       UPDATE_PARAMS = Params.define.(
@@ -37,9 +38,27 @@ module Paleolog
 
       private
 
+      def ds_projects
+        Repo::Config.db[:projects]
+      end
+
+      def ds_accounts
+        Repo::Config.db[:accounts]
+      end
+
       def find_projects(user_id)
         lambda do |_|
-          repo.for(Paleolog::Researcher).all_for_user(user_id).map(&:project)
+          result = ds_projects
+            .join(:research_participations, Sequel[:research_participations][:project_id] => :id)
+            .where(Sequel[:research_participations][:user_id] => user_id)
+            .select_all(:projects)
+          account_ids = result.map { _1[:account_id] }.uniq
+          accounts = ds_accounts.where(id: account_ids).all.map { Paleolog::Account.new(**_1) }
+          result.map do
+            Paleolog::Project.new(**_1) do |project|
+              project.account = accounts.detect { |account| account.id == project.account_id }
+            end
+          end
         end
       end
 

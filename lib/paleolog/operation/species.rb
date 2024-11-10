@@ -42,7 +42,7 @@ module Paleolog
       def update(raw_params)
         authenticate
           .and_then { parameterize(raw_params, UPDATE_PARAMS) }
-          .and_then { verify(_1, name_uniqueness) }
+          .and_then { verify(_1, name_uniqueness(Paleolog::Species)) }
           .and_then { carefully(_1, save_species) }
       end
 
@@ -60,19 +60,6 @@ module Paleolog
             Paleolog::Species,
             repo.save(Paleolog::Species.new(**params)),
           )
-        end
-      end
-
-      def name_uniqueness
-        lambda do |params|
-          break unless params.key?(:name)
-
-          if repo.for(Paleolog::Species).name_exists?(
-            params[:name],
-            exclude_id: params[:id],
-          )
-            { name: TAKEN }
-          end
         end
       end
     end
