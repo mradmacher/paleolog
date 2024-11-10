@@ -83,6 +83,7 @@ describe 'Project Catalog' do
     within('#species-search') do
       click_on('Search')
     end
+
     assert_css('.species', count: 2)
     assert_text('Odontochitina costata')
     assert_text('Cerodinium costata')
@@ -97,6 +98,7 @@ describe 'Project Catalog' do
       check('Verified')
       click_on('Search')
     end
+
     assert_text('Species list (1)')
     within('.species-collection') do
       assert_css('.species', count: 1)
@@ -113,6 +115,7 @@ describe 'Project Catalog' do
       check('Verified')
       click_on('Search')
     end
+
     assert_current_path(/group_id=#{group1_id}/)
     assert_current_path(/name=costa/)
     assert_current_path(/verified=true/)
@@ -135,6 +138,7 @@ describe 'Project Catalog' do
       fill_in('Name', with: 'costa')
       click_on('Search')
     end
+
     assert_no_current_path(/group_id=/)
     assert_current_path(/name=costa/)
   end

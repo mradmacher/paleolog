@@ -33,18 +33,21 @@ describe Paleolog::Repo::Researcher do
   describe '#project_role' do
     it 'returns empty result when user does not participate in project' do
       result = repo.project_role(project_id, user_id)
+
       assert_equal Paleolog::Repo::Researcher::NONE, result
     end
 
     it 'returns observer when user participates in project as observer' do
       assign_observer_role(user_id, project_id)
       result = repo.project_role(project_id, user_id)
+
       assert_equal Paleolog::Repo::Researcher::OBSERVER, result
     end
 
     it 'returns manager when user participates in project as manager' do
       assign_manager_role(user_id, project_id)
       result = repo.project_role(project_id, user_id)
+
       assert_equal Paleolog::Repo::Researcher::MANAGER, result
     end
   end
@@ -56,18 +59,21 @@ describe Paleolog::Repo::Researcher do
 
     it 'returns empty result when user does not participate in project' do
       result = repo.section_role(section_id, user_id)
+
       assert_equal Paleolog::Repo::Researcher::NONE, result
     end
 
     it 'returns observer when user participates in project as observer' do
       assign_observer_role(user_id, project_id)
       result = repo.section_role(section_id, user_id)
+
       assert_equal Paleolog::Repo::Researcher::OBSERVER, result
     end
 
     it 'returns manager when user participates in project as manager' do
       assign_manager_role(user_id, project_id)
       result = repo.section_role(section_id, user_id)
+
       assert_equal Paleolog::Repo::Researcher::MANAGER, result
     end
   end
@@ -82,18 +88,21 @@ describe Paleolog::Repo::Researcher do
 
     it 'returns empty result when user does not participate in project' do
       result = repo.sample_role(sample_id, user_id)
+
       assert_equal Paleolog::Repo::Researcher::NONE, result
     end
 
     it 'returns observer when user participates in project as observer' do
       assign_observer_role(user_id, project_id)
       result = repo.sample_role(sample_id, user_id)
+
       assert_equal Paleolog::Repo::Researcher::OBSERVER, result
     end
 
     it 'returns manager when user participates in project as manager' do
       assign_manager_role(user_id, project_id)
       result = repo.sample_role(sample_id, user_id)
+
       assert_equal Paleolog::Repo::Researcher::MANAGER, result
     end
   end
@@ -105,18 +114,21 @@ describe Paleolog::Repo::Researcher do
 
     it 'returns empty result when user does not participate in project' do
       result = repo.counting_role(counting_id, user_id)
+
       assert_equal Paleolog::Repo::Researcher::NONE, result
     end
 
     it 'returns observer when user participates in project as observer' do
       assign_observer_role(user_id, project_id)
       result = repo.counting_role(counting_id, user_id)
+
       assert_equal Paleolog::Repo::Researcher::OBSERVER, result
     end
 
     it 'returns manager when user participates in project as manager' do
       assign_manager_role(user_id, project_id)
       result = repo.counting_role(counting_id, user_id)
+
       assert_equal Paleolog::Repo::Researcher::MANAGER, result
     end
   end
@@ -131,6 +143,7 @@ describe Paleolog::Repo::Researcher do
       Paleolog::Repo.save(Paleolog::Researcher.new(user_id: user_id, project_id: other_project_id))
 
       result = repo.all_for_project(project_id)
+
       assert_equal([researcher1_id, researcher2_id], result.map(&:id))
     end
   end

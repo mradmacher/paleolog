@@ -33,6 +33,7 @@ describe Paleolog::Repo::Occurrence do
 
     it 'returns occurrence if it is within the project' do
       result = repo.find_in_project(occurrence_id, project_id)
+
       assert result
       assert_equal occurrence_id, result.id
     end
@@ -41,6 +42,7 @@ describe Paleolog::Repo::Occurrence do
       other_project_id = Paleolog::Repo.save(Paleolog::Project.new(name: 'Other project'))
 
       result = repo.find_in_project(occurrence_id, other_project_id)
+
       assert_nil result
     end
   end
@@ -89,6 +91,7 @@ describe Paleolog::Repo::Occurrence do
       )
 
       result = repo.all_for_sample(counting_id, sample_id)
+
       assert_equal([occurrence1_id, occurrence4_id].sort, result.map(&:id).sort)
     end
 
@@ -100,6 +103,7 @@ describe Paleolog::Repo::Occurrence do
         sample_id: sample_id,
       )
       result = repo.all_for_sample(counting_id, sample_id)
+
       assert_equal(species_id, result.first.species.id)
     end
 
@@ -111,6 +115,7 @@ describe Paleolog::Repo::Occurrence do
         sample_id: sample_id,
       )
       result = repo.all_for_sample(counting_id, sample_id)
+
       assert_equal(sample_id, result.first.sample.id)
     end
   end
@@ -150,6 +155,7 @@ describe Paleolog::Repo::Occurrence do
       )
 
       result = repo.all_for_section(counting_id, section_id)
+
       assert_equal([occurrence1_id, occurrence2_id].sort, result.map(&:id).sort)
     end
 
@@ -161,6 +167,7 @@ describe Paleolog::Repo::Occurrence do
         sample_id: sample1_id,
       )
       result = repo.all_for_section(counting_id, section_id)
+
       assert_equal(species_id, result.first.species.id)
     end
 
@@ -172,6 +179,7 @@ describe Paleolog::Repo::Occurrence do
         sample_id: sample1_id,
       )
       result = repo.all_for_section(counting_id, section_id)
+
       assert_equal(sample1_id, result.first.sample.id)
     end
   end
@@ -255,6 +263,7 @@ describe Paleolog::Repo::Occurrence do
         )
 
         tested = repo.available_species_ids(counting_id, other_sample_id, group_id)
+
         assert_equal 3, tested.size
         assert_includes tested, species1_id
         assert_includes tested, species2_id

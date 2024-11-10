@@ -48,6 +48,7 @@ describe 'Sections' do
     it 'rejects user not being a researcher in the project' do
       repo.for(Paleolog::Researcher).delete(researcher.id)
       login(user)
+
       assert_forbidden(-> { get "/api/sections/#{section.id}" })
     end
 
@@ -58,13 +59,16 @@ describe 'Sections' do
 
       it 'returns error if section does not exist' do
         get "/api/sections/#{section.id + 1}"
+
         assert_equal 403, last_response.status
       end
 
       it 'returns section attributes' do
         get "/api/sections/#{section.id}"
+
         assert_equal 200, last_response.status
         result = JSON.parse(last_response.body)['section']
+
         assert_equal section.id, result['id']
         assert_equal section.name, result['name']
         assert_equal section.project_id, result['project_id']
@@ -77,6 +81,7 @@ describe 'Sections' do
           description: 'sample 1 description',
           weight: 1.0,
         )
+
         assert_predicate result, :success?
         sample1 = result.value
 
@@ -85,16 +90,20 @@ describe 'Sections' do
           name: 'sample 2 for section',
           description: 'sample 2 description',
         )
+
         assert_predicate result, :success?
         sample2 = result.value
 
         get "/api/sections/#{section.id}"
+
         assert_equal 200, last_response.status
         result = JSON.parse(last_response.body)['section']
         samples = result['samples']
-        assert samples.is_a?(Array)
+
+        assert_kind_of Array, samples
 
         found_sample = samples.detect { |s| s['id'] == sample1.id }
+
         refute_nil found_sample
         assert_equal sample1.id, found_sample['id']
         assert_equal section.id, found_sample['section_id']
@@ -103,6 +112,7 @@ describe 'Sections' do
         assert_equal '1.00', found_sample['weight']
 
         found_sample = samples.detect { |s| s['id'] == sample2.id }
+
         refute_nil found_sample
         assert_equal sample2.id, found_sample['id']
         assert_equal section.id, found_sample['section_id']
@@ -121,6 +131,7 @@ describe 'Sections' do
     it 'rejects user observing the project' do
       repo.save(Paleolog::Researcher.new(id: researcher.id, manager: false))
       login(user)
+
       assert_forbidden(-> { post '/api/sections', { project_id: project.id, name: 'some name' } })
     end
 
@@ -132,6 +143,7 @@ describe 'Sections' do
       it 'creates section and returns its attributes' do
         params = { name: 'some name', project_id: project.id }
         post '/api/sections', params
+
         assert_equal 200, last_response.status
 
         result = JSON.parse(last_response.body)['section']
@@ -145,9 +157,11 @@ describe 'Sections' do
       it 'returns errors in case of failure' do
         params = { 'name' => '', project_id: project.id }
         post '/api/sections', params
+
         assert_equal 422, last_response.status
 
         result = JSON.parse(last_response.body)
+
         assert result.key?('errors')
 
         assert_equal 'blank', result['errors']['name']
@@ -163,6 +177,7 @@ describe 'Sections' do
     it 'rejects user observing the project' do
       repo.save(Paleolog::Researcher.new(id: researcher.id, manager: false))
       login(user)
+
       assert_forbidden(-> { patch '/api/sections/1', { name: 'some new name', project_id: project.id } })
     end
 
@@ -180,6 +195,7 @@ describe 'Sections' do
       it 'updates section name and returns its attributes' do
         params = { 'name' => 'some other name' }
         patch "/api/sections/#{section.id}", params
+
         assert_equal 200, last_response.status
 
         result = JSON.parse(last_response.body)['section']
@@ -195,6 +211,7 @@ describe 'Sections' do
         assert_equal 422, last_response.status
 
         result = JSON.parse(last_response.body)
+
         assert result.key?('errors')
 
         assert_equal 'missing', result['errors']['name']

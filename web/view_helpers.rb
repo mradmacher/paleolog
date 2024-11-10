@@ -6,32 +6,32 @@ module Web
       erb view.to_sym
     end
 
-    def using_application_layout(&block)
-      erb :'application.html', layout: nil, &block
+    def using_application_layout(&)
+      erb(:'application.html', layout: nil, &)
     end
 
-    def using_species_layout(&block)
-      erb :'species_layout.html', layout: :'application.html', &block
+    def using_species_layout(&)
+      erb(:'species_layout.html', layout: :'application.html', &)
     end
 
-    def using_project_species_layout(&block)
-      erb :'species_layout.html', layout: nil, &block
+    def using_project_species_layout(&)
+      erb(:'species_layout.html', layout: nil, &)
     end
 
-    def using_project_layout(&block)
-      erb :'project_layout.html', layout: :'application.html', &block
+    def using_project_layout(&)
+      erb(:'project_layout.html', layout: :'application.html', &)
     end
 
-    def using_occurrences_layout(&block)
-      erb :'occurrence_layout.html', layout: nil, &block
+    def using_occurrences_layout(&)
+      erb(:'occurrence_layout.html', layout: nil, &)
     end
 
-    def using_reports_layout(&block)
-      erb :'report_layout.html', layout: nil, &block
+    def using_reports_layout(&)
+      erb(:'report_layout.html', layout: nil, &)
     end
 
-    def using_export_layout(&block)
-      erb :'export_layout.html', layout: nil, &block
+    def using_export_layout(&)
+      erb(:'export_layout.html', layout: nil, &)
     end
   end
 end

@@ -24,9 +24,11 @@ describe Paleolog::Repo::Project do
       )
 
       result = repo.find(project_id, repo.with_researchers)
+
       refute_empty(result.researchers, 'researchers are empty')
       assert_equal(1, result.researchers.size)
       result.researchers
+
       assert_equal('Test User', result.researchers.first.user.login)
     end
 
@@ -35,6 +37,7 @@ describe Paleolog::Repo::Project do
         Paleolog::Counting.new(name: 'Test Counting', project_id: project_id),
       )
       result = repo.find(project_id, repo.with_countings)
+
       refute_empty(result.countings, 'countings are empty')
       assert_equal(1, result.countings.size)
       assert_equal('Test Counting', result.countings.first.name)
@@ -45,6 +48,7 @@ describe Paleolog::Repo::Project do
         Paleolog::Section.new(name: 'Test Section', project_id: project_id),
       )
       result = repo.find(project_id, repo.with_sections)
+
       refute_empty(result.sections, 'sections are empty')
       assert_equal(1, result.sections.size)
       assert_equal('Test Section', result.sections.first.name)

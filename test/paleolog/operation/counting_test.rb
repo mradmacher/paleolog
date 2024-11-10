@@ -38,6 +38,7 @@ describe Paleolog::Operation::Counting do
       authorizer.expect :authenticated?, false
 
       result = operation.find(id: counting.id)
+
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
 
@@ -49,6 +50,7 @@ describe Paleolog::Operation::Counting do
       authorizer.expect :can_view?, false, [Paleolog::Counting, counting.id]
 
       result = operation.find(id: counting.id)
+
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHORIZED, result.error[:general]
 
@@ -63,9 +65,11 @@ describe Paleolog::Operation::Counting do
 
       it 'returns counting' do
         result = operation.find(id: counting.id)
+
         assert_predicate result, :success?
 
         found_counting = result.value
+
         refute_nil found_counting
 
         refute_nil found_counting.id
@@ -81,6 +85,7 @@ describe Paleolog::Operation::Counting do
       authorizer.expect :authenticated?, false
 
       result = operation.create(name: 'Just a Name', project_id: project.id)
+
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
 
@@ -92,6 +97,7 @@ describe Paleolog::Operation::Counting do
       authorizer.expect :can_manage?, false, [Paleolog::Project, project.id]
 
       result = operation.create(name: 'Just a Name', project_id: project.id)
+
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHORIZED, result.error[:general]
 
@@ -106,9 +112,11 @@ describe Paleolog::Operation::Counting do
 
       it 'returns counting' do
         result = operation.create(name: 'Just a Name', project_id: project.id)
+
         assert_predicate result, :success?
 
         counting = result.value
+
         refute_nil counting
 
         assert_equal 'Just a Name', counting.name
@@ -117,33 +125,39 @@ describe Paleolog::Operation::Counting do
 
       it 'complains when project_id is nil' do
         result = operation.create(name: 'Name', project_id: nil)
+
         assert_predicate result, :failure?
         assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:project_id]
       end
 
       it 'complains when project_id is none' do
         result = operation.create(name: 'Name', project_id: Optiomist.none)
+
         assert_predicate result, :failure?
         assert_equal Paleolog::Operation::Params::MISSING, result.error[:project_id]
       end
 
       it 'complains when name is nil' do
         result = operation.create(name: nil, project_id: project.id)
+
         assert_predicate result, :failure?
         assert_equal Paleolog::Operation::Params::BLANK, result.error[:name]
       end
 
       it 'complains when name is blank' do
         result = operation.create(name: '  ', project_id: project.id)
+
         assert_predicate result, :failure?
         assert_equal Paleolog::Operation::Params::BLANK, result.error[:name]
       end
 
       it 'complains when name already exists' do
         result = happy_operation.create(name: 'Some Name', project_id: project.id)
+
         assert_predicate result, :success?
 
         result = operation.create(name: 'Some Name', project_id: project.id)
+
         assert_predicate result, :failure?
         assert_equal :taken, result.error[:name]
       end
@@ -151,6 +165,7 @@ describe Paleolog::Operation::Counting do
       it 'complains when name is too long' do
         name = 'a' * (255 + 1)
         result = operation.create(name: name, project_id: project.id)
+
         assert_predicate result, :failure?
         assert_equal Paleolog::Operation::Params::TOO_LONG, result.error[:name]
       end
@@ -158,14 +173,17 @@ describe Paleolog::Operation::Counting do
       it 'accepts name with max length' do
         max = 255
         result = operation.create(name: 'a' * max, project_id: project.id)
+
         assert_predicate result, :success?
       end
 
       it 'complains when name with different cases already exists' do
         result = happy_operation.create(name: 'Some Name', project_id: project.id)
+
         assert_predicate result, :success?
 
         result = operation.create(name: ' some name ', project_id: project.id)
+
         assert_predicate result, :failure?
         assert_equal :taken, result.error[:name]
       end
@@ -181,6 +199,7 @@ describe Paleolog::Operation::Counting do
       authorizer.expect :authenticated?, false
 
       result = operation.update(id: existing_counting.id, name: 'Other Name')
+
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
 
@@ -192,6 +211,7 @@ describe Paleolog::Operation::Counting do
       authorizer.expect :can_manage?, false, [Paleolog::Counting, existing_counting.id]
 
       result = operation.update(id: existing_counting.id, name: 'Other Name')
+
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHORIZED, result.error[:general]
 
@@ -206,6 +226,7 @@ describe Paleolog::Operation::Counting do
 
       it 'returns counting' do
         result = operation.update(id: existing_counting.id, name: 'Other Name')
+
         assert_predicate result, :success?
         counting = result.value
 
@@ -218,30 +239,36 @@ describe Paleolog::Operation::Counting do
 
       it 'complains when name is nil' do
         result = operation.update(id: existing_counting.id, name: nil)
+
         assert_predicate result, :failure?
         assert_equal :blank, result.error[:name]
       end
 
       it 'complains when name is blank' do
         result = operation.update(id: existing_counting.id, name: '  ')
+
         assert_predicate result, :failure?
         assert_equal :blank, result.error[:name]
       end
 
       it 'complains when name already exists' do
         result = happy_operation.create(name: 'Another Name', project_id: project.id)
+
         assert_predicate result, :success?
 
         result = operation.update(id: existing_counting.id, name: 'Another Name')
+
         assert_predicate result, :failure?
         assert_equal :taken, result.error[:name]
       end
 
       it 'complains when name with different cases already exists' do
         result = happy_operation.create(name: 'Another Name', project_id: project.id)
+
         assert_predicate result, :success?
 
         result = operation.update(id: existing_counting.id, name: ' another name ')
+
         assert_predicate result, :failure?
         assert_equal :taken, result.error[:name]
       end
@@ -251,16 +278,20 @@ describe Paleolog::Operation::Counting do
           { name: 'Other Project for Section', user_id: user.id },
         ).value
         result = happy_operation.create(name: 'Another Name', project_id: other_project.id)
+
         assert_predicate result, :success?
 
         result = operation.update(id: existing_counting.id, name: 'Another Name')
+
         assert_predicate result, :success?
       end
 
       it 'can set the same name' do
         result = operation.update(id: existing_counting.id, name: existing_counting.name)
+
         assert_predicate result, :success?
         counting = result.value
+
         assert_equal existing_counting.name, counting.name
       end
 
@@ -269,6 +300,7 @@ describe Paleolog::Operation::Counting do
         result = operation.update(
           { id: existing_counting.id, name: name },
         )
+
         assert_predicate result, :failure?
         assert_equal Paleolog::Operation::Params::TOO_LONG, result.error[:name]
       end
@@ -278,6 +310,7 @@ describe Paleolog::Operation::Counting do
         result = operation.update(
           { id: existing_counting.id, name: name },
         )
+
         assert_predicate result, :success?
       end
     end

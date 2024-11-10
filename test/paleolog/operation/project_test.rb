@@ -20,6 +20,7 @@ describe Paleolog::Operation::Project do
       authorizer.expect :authenticated?, false
 
       result = operation.find_all
+
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
 
@@ -34,6 +35,7 @@ describe Paleolog::Operation::Project do
 
       it 'returns empty collection when there are no projects' do
         result = operation.find_all
+
         assert_predicate result, :success?
         assert_empty result.value
       end
@@ -69,6 +71,7 @@ describe Paleolog::Operation::Project do
       authorizer.expect :authenticated?, false
 
       result = operation.create(name: 'Just a Name')
+
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
 
@@ -83,25 +86,30 @@ describe Paleolog::Operation::Project do
 
       it 'adds new project' do
         result = operation.create(name: 'Some Name')
+
         assert_predicate result, :success?
         refute_nil result.value
       end
 
       it 'adds user as project manager' do
         result = operation.create(name: 'Some Name')
+
         assert_predicate result, :success?
         project = result.value
 
         refute_nil project
         researchers = repo.for(Paleolog::Researcher).all_for_project(project.id)
+
         assert_equal 1, researchers.size
         researcher = researchers.first
+
         assert_equal user.id, researcher.user_id
         assert_predicate researcher, :manager
       end
 
       it 'adds created_at timestamp' do
         result = operation.create({ name: 'Some Name' })
+
         assert_predicate result, :success?
         refute_nil result.value.created_at
       end
@@ -110,38 +118,45 @@ describe Paleolog::Operation::Project do
         authorizer.user_id # let's clear previously defined expectation
         authorizer.expect :user_id, nil
         result = operation.create({ name: 'Some Name' })
+
         assert_predicate result, :failure?
         assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:user_id]
       end
 
       it 'does not complain when name not taken yet' do
         result = happy_operation.create({ name: 'Some Name' })
+
         assert_predicate result, :success?
         assert_equal 'Some Name', result.value.name
 
         result = operation.create({ name: 'Other Name' })
+
         assert_predicate result, :success?
         assert_equal 'Other Name', result.value.name
       end
 
       it 'complains when name is nil' do
         result = operation.create({ name: nil })
+
         assert_predicate result, :failure?
         assert_equal :blank, result.error[:name]
       end
 
       it 'complains when name is blank' do
         result = operation.create({ name: '  ' })
+
         assert_predicate result, :failure?
         assert_equal :blank, result.error[:name]
       end
 
       it 'complains when name already exists' do
         result = happy_operation.create({ name: 'Some Name' })
+
         assert_predicate result, :success?
         refute_nil result.value
 
         result = operation.create({ name: 'Some Name' })
+
         assert_predicate result, :failure?
         assert_equal :taken, result.error[:name]
       end
@@ -149,6 +164,7 @@ describe Paleolog::Operation::Project do
       it 'complains when name is too long' do
         max = 255
         result = operation.create({ name: 'a' * (max + 1) })
+
         assert_predicate result, :failure?
         assert_equal :too_long, result.error[:name]
       end
@@ -156,15 +172,18 @@ describe Paleolog::Operation::Project do
       it 'accepts name of max length' do
         name = 'a' * 255
         result = operation.create({ name: name })
+
         assert_predicate result, :success?
         assert_equal name, result.value.name
       end
 
       it 'complains when name with different cases already exists' do
         result = happy_operation.create({ name: 'Some Name', user_id: user.id })
+
         assert_predicate result, :success?
 
         result = operation.create({ name: ' some name ', user_id: user.id })
+
         assert_predicate result, :failure?
         assert_equal :taken, result.error[:name]
       end
@@ -180,6 +199,7 @@ describe Paleolog::Operation::Project do
       authorizer.expect :authenticated?, false
 
       result = operation.rename({ id: project.id, name: 'Just Another Name' })
+
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
 
@@ -191,6 +211,7 @@ describe Paleolog::Operation::Project do
       authorizer.expect :can_manage?, false, [Paleolog::Project, project.id]
 
       result = operation.rename({ id: project.id, name: 'Just Another Name' })
+
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHORIZED, result.error[:general]
 
@@ -205,33 +226,39 @@ describe Paleolog::Operation::Project do
 
       it 'renames project' do
         result = operation.rename(id: project.id, name: 'Other Name')
+
         assert_predicate result, :success?
         assert_equal 'Other Name', result.value.name
       end
 
       it 'can set the same name' do
         result = operation.rename(id: project.id, name: 'Some Name')
+
         assert_predicate result, :success?
         assert_equal 'Some Name', result.value.name
       end
 
       it 'complains when name is nil' do
         result = operation.rename(id: project.id, name: nil)
+
         assert_predicate result, :failure?
         assert_equal :blank, result.error[:name]
       end
 
       it 'complains when name is blank' do
         result = operation.rename(id: project.id, name: '   ')
+
         assert_predicate result, :failure?
         assert_equal :blank, result.error[:name]
       end
 
       it 'complains when name already exists' do
         result = happy_operation.create(name: 'Other Name', user_id: user.id)
+
         assert_predicate result, :success?
 
         result = operation.rename(id: project.id, name: 'Other Name')
+
         assert_predicate result, :failure?
         assert_equal :taken, result.error[:name]
       end
@@ -239,6 +266,7 @@ describe Paleolog::Operation::Project do
       it 'complains when name is too long' do
         max = 255
         result = operation.rename(id: project.id, name: 'a' * (max + 1))
+
         assert_predicate result, :failure?
         assert_equal :too_long, result.error[:name]
       end
@@ -246,15 +274,18 @@ describe Paleolog::Operation::Project do
       it 'accepts name of max length' do
         name = 'a' * 255
         result = operation.rename(id: project.id, name: name)
+
         assert_predicate result, :success?
         assert_equal name, result.value.name
       end
 
       it 'complains when name with different cases already exists' do
         result = happy_operation.create(name: 'Other Name', user_id: user.id)
+
         assert_predicate result, :success?
 
         result = operation.rename(id: project.id, name: ' other name ')
+
         assert_predicate result, :failure?
         assert_equal :taken, result.error[:name]
       end

@@ -66,12 +66,14 @@ describe 'Occurrences' do
   describe 'GET /api/projects/:project_id/occurrences' do
     it 'rejects guest access' do
       params = { sample_id: sample.id, counting_id: counting.id }
+
       assert_unauthorized(-> { get "/api/projects/#{project.id}/occurrences", params })
     end
 
     it 'accepts user participating in the project' do
       params = { sample_id: sample.id, counting_id: counting.id }
       login(user)
+
       assert_permitted(-> { get "/api/projects/#{project.id}/occurrences", params })
     end
 
@@ -83,8 +85,10 @@ describe 'Occurrences' do
       it 'returns empty collection when there are no occurrences' do
         params = { sample_id: sample.id, counting_id: counting.id }
         get "/api/projects/#{project.id}/occurrences", params
+
         assert_predicate last_response, :ok?, "Expected 200, but got #{last_response.status}"
         response_body = JSON.parse(last_response.body)
+
         assert_empty response_body['occurrences']
 
         assert_equal 0, response_body['summary']['countable']
@@ -106,8 +110,10 @@ describe 'Occurrences' do
         params = { sample_id: sample.id, counting_id: counting.id }
         get "/api/projects/#{project.id}/occurrences", params
         result = JSON.parse(last_response.body)['occurrences']
+
         assert_equal 1, result.size
         result = result.first
+
         assert_equal occurrence.id, result['id']
         assert_equal species11.name, result['species_name']
         assert_equal species11.group.name, result['group_name']
@@ -128,6 +134,7 @@ describe 'Occurrences' do
         params = { sample_id: sample.id, counting_id: counting.id }
         get "/api/projects/#{project.id}/occurrences", params
         result = JSON.parse(last_response.body)['occurrences']
+
         assert_equal 0, result.size
       end
 
@@ -143,6 +150,7 @@ describe 'Occurrences' do
         params = { sample_id: sample.id, counting_id: counting.id }
         get "/api/projects/#{project.id}/occurrences", params
         result = JSON.parse(last_response.body)['occurrences']
+
         assert_equal 0, result.size
       end
 
@@ -164,6 +172,7 @@ describe 'Occurrences' do
         params = { sample_id: sample.id, counting_id: counting.id }
         get "/api/projects/#{project.id}/occurrences", params
         result = JSON.parse(last_response.body)['occurrences']
+
         assert_equal 3, result.size
         assert_equal 'Species 2', result[0]['species_name']
         assert_equal 'Species 3', result[1]['species_name']
@@ -175,6 +184,7 @@ describe 'Occurrences' do
   describe 'POST /api/projects/:project_id/occurrences' do
     it 'rejects guest access' do
       params = { sample_id: sample.id, species_id: species11.id, counting_id: counting.id }
+
       assert_unauthorized(-> { post "/api/projects/#{project.id}/occurrences", params })
     end
 
@@ -182,6 +192,7 @@ describe 'Occurrences' do
       Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: false))
       params = { sample_id: sample.id, species_id: species11.id, counting_id: counting.id }
       login(user)
+
       assert_forbidden(-> { post "/api/projects/#{project.id}/occurrences", params })
     end
 
@@ -189,6 +200,7 @@ describe 'Occurrences' do
       Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: true))
       params = { sample_id: sample.id, species_id: species11.id, counting_id: counting.id }
       login(user)
+
       assert_permitted(-> { post "/api/projects/#{project.id}/occurrences", params })
     end
 
@@ -201,8 +213,10 @@ describe 'Occurrences' do
       it 'creates new occurrence' do
         params = { sample_id: sample.id, species_id: species11.id, counting_id: counting.id }
         post "/api/projects/#{project.id}/occurrences", params
+
         assert_predicate last_response, :ok?, "Expected 200, but got #{last_response.status}"
         response_body = JSON.parse(last_response.body)
+
         refute_nil Paleolog::Repo.find(Paleolog::Occurrence, response_body['occurrence']['id'])
       end
 
@@ -218,8 +232,10 @@ describe 'Occurrences' do
                        .value
         params = { sample_id: other_sample.id, species_id: species11.id, counting_id: counting.id }
         post "/api/projects/#{project.id}/occurrences", params
+
         assert_equal 400, last_response.status
         response_body = JSON.parse(last_response.body)
+
         assert_equal 'non_integer', response_body['sample_id']
       end
 
@@ -232,16 +248,20 @@ describe 'Occurrences' do
                          .value
         params = { sample_id: sample.id, species_id: species11.id, counting_id: other_counting.id }
         post "/api/projects/#{project.id}/occurrences", params
+
         assert_equal 400, last_response.status
         response_body = JSON.parse(last_response.body)
+
         assert_equal 'non_integer', response_body['counting_id']
       end
 
       it 'validates created occurrence' do
         params = {}
         post "/api/projects/#{project.id}/occurrences", params
+
         assert_equal 400, last_response.status
         response_body = JSON.parse(last_response.body)
+
         assert_equal %w[counting_id sample_id species_id], response_body.keys
         assert_equal %w[non_integer non_integer non_integer], response_body.values
       end
@@ -264,12 +284,14 @@ describe 'Occurrences' do
     it 'rejects user observing the project' do
       Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: false))
       login(user)
+
       assert_forbidden(-> { delete "/api/projects/#{project.id}/occurrences/#{occurrence.id}", {} })
     end
 
     it 'accepts user managing the project' do
       Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: true))
       login(user)
+
       assert_permitted(-> { delete "/api/projects/#{project.id}/occurrences/#{occurrence.id}", {} })
     end
 
@@ -282,12 +304,14 @@ describe 'Occurrences' do
       it 'removes occurrence' do
         refute_nil Paleolog::Repo.find(Paleolog::Occurrence, occurrence.id)
         delete "/api/projects/#{project.id}/occurrences/#{occurrence.id}"
+
         assert_predicate last_response, :ok?, "Expected 200 but got #{last_response.status}"
         assert_nil Paleolog::Repo.find(Paleolog::Occurrence, occurrence.id)
       end
 
       it 'is 404 when occurrence does not exist' do
         delete "/api/projects/#{project.id}/occurrences/0"
+
         assert_equal 404, last_response.status
       end
     end
@@ -304,6 +328,7 @@ describe 'Occurrences' do
 
     it 'rejects guest access' do
       params = { shift: '1' }
+
       assert_unauthorized(-> { patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", params })
     end
 
@@ -311,6 +336,7 @@ describe 'Occurrences' do
       Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: false))
       params = { shift: '1' }
       login(user)
+
       assert_forbidden(-> { patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", params })
     end
 
@@ -318,6 +344,7 @@ describe 'Occurrences' do
       Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: true))
       params = { shift: '1' }
       login(user)
+
       assert_permitted(-> { patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", params })
     end
 
@@ -329,6 +356,7 @@ describe 'Occurrences' do
 
       it 'works' do
         patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}"
+
         assert_predicate last_response, :ok?
       end
 
@@ -352,6 +380,7 @@ describe 'Occurrences' do
 
         assert_predicate last_response, :ok?
         updated_occurrence = Paleolog::Repo.find(Paleolog::Occurrence, occurrence.id)
+
         assert_equal occurrence.sample_id, updated_occurrence.sample_id
         assert_equal occurrence.counting_id, updated_occurrence.counting_id
         assert_equal occurrence.species_id, updated_occurrence.species_id
@@ -359,13 +388,16 @@ describe 'Occurrences' do
 
       it 'is 404 when occurrence does not exist' do
         patch "/api/projects/#{project.id}/occurrences/0"
+
         assert_equal 404, last_response.status
       end
 
       it 'shifts quantity up' do
         patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { shift: '1' }
+
         assert_predicate last_response, :ok?
         result = JSON.parse(last_response.body)
+
         assert_equal 1, result['summary']['countable']
         assert_equal 0, result['summary']['uncountable']
         assert_equal 1, result['summary']['total']
@@ -380,6 +412,7 @@ describe 'Occurrences' do
 
         assert_predicate last_response, :ok?
         result = JSON.parse(last_response.body)
+
         assert_equal 4, result['summary']['countable']
         assert_equal 0, result['summary']['uncountable']
         assert_equal 4, result['summary']['total']
@@ -394,11 +427,14 @@ describe 'Occurrences' do
 
         assert_predicate last_response, :ok?
         result = JSON.parse(last_response.body)
+
         assert_equal 0, result['occurrence']['quantity']
 
         patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { shift: '-1' }
+
         assert_predicate last_response, :ok?, "Expected 200, but got #{last_response.status}"
         result = JSON.parse(last_response.body)
+
         assert_nil result['occurrence']['quantity']
       end
 
@@ -409,6 +445,7 @@ describe 'Occurrences' do
 
         assert_predicate last_response, :ok?
         result = JSON.parse(last_response.body)
+
         assert_equal 0, result['summary']['countable']
         assert_equal 1, result['summary']['uncountable']
         assert_equal 1, result['summary']['total']
@@ -418,8 +455,10 @@ describe 'Occurrences' do
         assert_equal 'c', result['occurrence']['status_symbol']
 
         patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { status: Paleolog::Occurrence::NORMAL }
+
         assert_predicate last_response, :ok?
         result = JSON.parse(last_response.body)
+
         assert_equal 1, result['summary']['countable']
         assert_equal 0, result['summary']['uncountable']
         assert_equal 1, result['summary']['total']
@@ -433,8 +472,10 @@ describe 'Occurrences' do
         happy_operation_for(Paleolog::Operation::Occurrence, user)
           .update(id: occurrence.id, quantity: 1).value
         patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { uncertain: 'true' }
+
         assert_predicate last_response, :ok?
         result = JSON.parse(last_response.body)
+
         assert_equal 1, result['summary']['countable']
         assert_equal 0, result['summary']['uncountable']
         assert_equal 1, result['summary']['total']
@@ -443,8 +484,10 @@ describe 'Occurrences' do
         assert result['occurrence']['uncertain']
 
         patch "/api/projects/#{project.id}/occurrences/#{occurrence.id}", { uncertain: 'false' }
+
         assert_predicate last_response, :ok?
         result = JSON.parse(last_response.body)
+
         assert_equal 1, result['summary']['countable']
         assert_equal 0, result['summary']['uncountable']
         assert_equal 1, result['summary']['total']

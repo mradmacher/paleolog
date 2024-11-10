@@ -43,18 +43,21 @@ describe Paleolog::Authorizer do
 
     it 'is false for guest' do
       authorizer.login(other_user)
+
       refute authorizer.can_manage?(Paleolog::Project, project.id)
     end
 
     it 'is false for observer' do
       authorizer.login(user)
       Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: false))
+
       refute authorizer.can_manage?(Paleolog::Project, project.id)
     end
 
     it 'is true for manager' do
       authorizer.login(user)
       Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: true))
+
       assert authorizer.can_manage?(Paleolog::Project, project.id)
     end
   end
@@ -72,18 +75,21 @@ describe Paleolog::Authorizer do
 
     it 'is false for guest' do
       authorizer.login(other_user)
+
       refute authorizer.can_manage?(Paleolog::Section, section.id)
     end
 
     it 'is false for observer' do
       authorizer.login(user)
       Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: false))
+
       refute authorizer.can_manage?(Paleolog::Section, section.id)
     end
 
     it 'is true for manager' do
       authorizer.login(user)
       Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: true))
+
       assert authorizer.can_manage?(Paleolog::Section, section.id)
     end
   end
@@ -101,18 +107,21 @@ describe Paleolog::Authorizer do
 
     it 'is false for guest' do
       authorizer.login(other_user)
+
       refute authorizer.can_view?(Paleolog::Section, section.id)
     end
 
     it 'is true for observer' do
       authorizer.login(user)
       Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: false))
+
       assert authorizer.can_view?(Paleolog::Section, section.id)
     end
 
     it 'is true for manager' do
       authorizer.login(user)
       Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: true))
+
       assert authorizer.can_view?(Paleolog::Section, section.id)
     end
   end
@@ -134,18 +143,21 @@ describe Paleolog::Authorizer do
 
     it 'is false for guest' do
       authorizer.login(other_user)
+
       refute authorizer.can_manage?(Paleolog::Counting, counting.id)
     end
 
     it 'is false for observer' do
       authorizer.login(user)
       Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: false))
+
       refute authorizer.can_manage?(Paleolog::Counting, counting.id)
     end
 
     it 'is true for manager' do
       authorizer.login(user)
       Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: true))
+
       assert authorizer.can_manage?(Paleolog::Counting, counting.id)
     end
   end
@@ -167,18 +179,21 @@ describe Paleolog::Authorizer do
 
     it 'is false for guest' do
       authorizer.login(other_user)
+
       refute authorizer.can_view?(Paleolog::Counting, counting.id)
     end
 
     it 'is true for observer' do
       authorizer.login(user)
       Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: false))
+
       assert authorizer.can_view?(Paleolog::Counting, counting.id)
     end
 
     it 'is true for manager' do
       authorizer.login(user)
       Paleolog::Repo.save(Paleolog::Researcher.new(id: researcher.id, manager: true))
+
       assert authorizer.can_view?(Paleolog::Counting, counting.id)
     end
   end

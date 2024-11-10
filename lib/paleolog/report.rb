@@ -140,8 +140,8 @@ module Paleolog
       @splits = []
     end
 
-    def each_value(&block)
-      values.each(&block)
+    def each_value(&)
+      values.each(&)
     end
 
     # rubocop:disable Metrics/AbcSize
@@ -202,7 +202,7 @@ module Paleolog
         end
       else
         column_group.headers.clear
-        column_group.values.each(&:clear)
+        column_group.each_value(&:clear)
       end
     end
     # rubocop:enable Metrics/AbcSize
@@ -343,9 +343,9 @@ module Paleolog
         b = (fb ? fb.value : 0)
         c = (fc ? fc.value : 0)
 
-        formula.gsub!(/A/, a.to_f.to_s)
-        formula.gsub!(/B/, b.to_f.to_s)
-        formula.gsub!(/C/, c.to_f.to_s)
+        formula.gsub!('A', a.to_f.to_s)
+        formula.gsub!('B', b.to_f.to_s)
+        formula.gsub!('C', c.to_f.to_s)
         begin
           # rubocop:disable Security/Eval
           result = eval formula

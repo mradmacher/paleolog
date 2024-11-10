@@ -66,6 +66,7 @@ describe Paleolog::Report do
       @occurrences_summary.each_with_index do |row, i|
         expected[i] = row.max_by { |o| o&.quantity ? o.quantity : 0 }.quantity.to_s
       end
+
       expected.each_with_index do |v, i|
         assert_equal v, @report.values[i][0]
       end
@@ -97,6 +98,7 @@ describe Paleolog::Report do
         second_most_abundant = row.reject { |v| v == most_abundant }.max_by { |o| o&.quantity ? o.quantity : 0 }
         expected[i] = second_most_abundant&.quantity&.to_s
       end
+
       expected.each_with_index do |v, i|
         assert_equal v, @report.values[i][0]
       end
@@ -185,6 +187,7 @@ describe Paleolog::Report do
         sum_count = (count.zero? ? 0 : (sum.to_f / count).round(1))
         ratio = ((sum + count).zero? ? 0 : ((count - sum).to_f / (count + sum)).round(1))
         expected = [count.to_s, sum.to_s, count_sum.to_s, sum_count.to_s, ratio.to_s]
+
         assert_equal expected, @report.values[i]
       end
     end
@@ -218,6 +221,7 @@ describe Paleolog::Report do
             expected = occurrence.quantity.to_s
             expected += Paleolog::CountingSummary::UNCERTAIN_SYMBOL if occurrence.uncertain
           end
+
           assert_equal expected, @report.values[row][column]
         end
       end
@@ -257,6 +261,7 @@ describe Paleolog::Report do
           expected = ''
           expected = (occurrence.quantity.to_f / row_sum * 100).round(2).to_s unless occurrence.nil?
           perc_sum += @report.values[row][column].to_f
+
           assert_equal expected, @report.values[row][column]
         end
         assert_in_delta(100.0, perc_sum.round(1))

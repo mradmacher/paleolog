@@ -11,8 +11,8 @@ module Paleolog
         @values ||= []
       end
 
-      def each_value(&block)
-        values.each(&block)
+      def each_value(&)
+        values.each(&)
       end
 
       def combine(header)

@@ -19,6 +19,7 @@ describe 'Projects' do
     fill_in('login-field', with: 'test')
     fill_in('password-field', with: 'test123')
     within('.form') { click_on('Login') }
+
     assert_link('Logout')
   end
 

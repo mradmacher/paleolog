@@ -19,6 +19,7 @@ describe 'Countings' do
     fill_in('login-field', with: 'test')
     fill_in('password-field', with: 'test123')
     within('.form') { click_on('Login') }
+
     assert_link('Logout')
     visit "/projects/#{project.id}"
   end
@@ -36,6 +37,7 @@ describe 'Countings' do
       fill_in('Name', with: 'Some Counting')
       click_on('Save')
     end
+
     within('.project-countings') do
       assert_text('Some Counting')
     end
@@ -47,6 +49,7 @@ describe 'Countings' do
       fill_in('Name', with: '')
       click_on('Save')
     end
+
     assert_text("Name can't be blank")
   end
 
@@ -62,6 +65,7 @@ describe 'Countings' do
       fill_in('Name', with: 'Other Counting')
       click_on('Save')
     end
+
     refute_text('Some Counting')
     within('.project-countings') do
       assert_text('Other Counting')
@@ -80,8 +84,10 @@ describe 'Countings' do
       fill_in('Name', with: '')
       click_on('Save')
     end
+
     assert_text("Name can't be blank")
     click_on('Save')
+
     assert_text('Some Counting')
   end
 end

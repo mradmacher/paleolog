@@ -38,6 +38,7 @@ describe 'Projects' do
 
     it 'accepts logged in user' do
       login(user)
+
       assert_permitted(-> { get '/api/projects', {} })
     end
 
@@ -50,8 +51,10 @@ describe 'Projects' do
         repo.delete_all(Paleolog::Researcher)
         repo.delete_all(Paleolog::Project)
         get '/api/projects'
+
         assert_predicate last_response, :ok?, "Expected 200, but got #{last_response.status}"
         response_body = JSON.parse(last_response.body)
+
         assert_empty response_body['projects']
       end
 
@@ -60,6 +63,7 @@ describe 'Projects' do
 
         get '/api/projects'
         result = JSON.parse(last_response.body)['projects']
+
         assert_equal 2, result.size
         assert_equal([project.id, other_project.id], result.map { |r| r['id'] })
       end
@@ -70,6 +74,7 @@ describe 'Projects' do
 
         assert_equal 1, result.size
         result = result.first
+
         assert_equal project.id, result['id']
         assert_equal project.name, result['name']
         assert_equal project.created_at.to_s, result['created_at']
@@ -85,6 +90,7 @@ describe 'Projects' do
     it 'accepts logged in user' do
       params = { name: 'some name' }
       login(user)
+
       assert_permitted(-> { post '/api/projects', params })
     end
 
@@ -109,6 +115,7 @@ describe 'Projects' do
         post '/api/projects', params
 
         result = JSON.parse(last_response.body)
+
         assert result.key?('errors')
 
         assert_equal 'missing', result['errors']['name']
@@ -124,6 +131,7 @@ describe 'Projects' do
     it 'rejects user observing the project' do
       repo.save(Paleolog::Researcher.new(id: researcher.id, manager: false))
       login(user)
+
       assert_forbidden(-> { patch '/api/projects/1', { name: 'some name' } })
     end
 
@@ -149,6 +157,7 @@ describe 'Projects' do
         patch '/api/projects/1', params
 
         result = JSON.parse(last_response.body)
+
         assert result.key?('errors')
 
         assert_equal 'missing', result['errors']['name']

@@ -26,6 +26,7 @@ describe 'Samples' do
     fill_in('login-field', with: 'test')
     fill_in('password-field', with: 'test123')
     within('.form') { click_on('Login') }
+
     assert_link('Logout')
     visit "/projects/#{project.id}"
   end
@@ -60,6 +61,7 @@ describe 'Samples' do
       fill_in('Weight', with: 'xyz')
       click_on('Save')
     end
+
     assert_text("Name can't be blank")
     assert_text('Weight needs to be a decimal number')
   end
@@ -83,6 +85,7 @@ describe 'Samples' do
       fill_in('Weight', with: '3.21')
       click_on('Save')
     end
+
     refute_text('Some Sample')
     within('.section-samples') do
       assert_text('Other Sample')
@@ -103,9 +106,11 @@ describe 'Samples' do
       fill_in('Weight', with: 'xyz')
       click_on('Save')
     end
+
     assert_text("Name can't be blank")
     assert_text('Weight needs to be a decimal number')
     click_on('Save')
+
     assert_text('Some Sample')
   end
 end

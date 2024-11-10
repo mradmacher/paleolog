@@ -19,6 +19,7 @@ describe Paleolog::Repo::Choice do
       Paleolog::Repo.save(Paleolog::Choice.new(field_id: other_field_id, name: 'Other choice'))
 
       result = repo.all_for_field(field_id)
+
       assert_equal(['Some choice 1', 'Some choice 2'], result.map(&:name))
     end
   end
@@ -36,11 +37,13 @@ describe Paleolog::Repo::Choice do
 
     it 'returns choices for given ids' do
       result = repo.all_for([@choice11_id, @choice22_id])
+
       assert_equal([@choice11_id, @choice22_id], result.map(&:id))
     end
 
     it 'returns choices together with field' do
       result = repo.all_for([@choice11_id, @choice22_id])
+
       assert_equal([field_id, other_field_id], result.map(&:field_id))
     end
   end

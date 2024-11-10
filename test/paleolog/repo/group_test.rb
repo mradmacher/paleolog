@@ -26,8 +26,10 @@ describe Paleolog::Repo::Group do
 
   it 'persists and finds groups' do
     group_id = Paleolog::Repo.save(Paleolog::Group.new(name: 'Dinoflagellate'))
+
     refute_nil group_id
     result = Paleolog::Repo.find(Paleolog::Group, group_id)
+
     assert_equal group_id, result.id
   end
 end

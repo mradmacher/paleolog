@@ -46,6 +46,7 @@ describe Paleolog::Repo::Feature do
       Paleolog::Repo.save(Paleolog::Feature.new(species_id: other_species_id, choice_id: choice12.id))
 
       result = repo.all_for_species(species_id)
+
       assert_equal([f1_id, f2_id], result.map(&:id))
     end
 
@@ -54,6 +55,7 @@ describe Paleolog::Repo::Feature do
       Paleolog::Repo.save(Paleolog::Feature.new(species_id: species_id, choice_id: choice21.id))
 
       result = repo.all_for_species(species_id)
+
       assert_equal([choice11.name, choice21.name], result.map { |feature| feature.choice.name })
     end
   end

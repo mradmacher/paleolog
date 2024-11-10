@@ -1,5 +1,5 @@
 # this is the base of all images
-FROM ruby:3.0.3-slim-buster AS base
+FROM ruby:3.2.2-slim-buster AS base
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     libpq-dev
 

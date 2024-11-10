@@ -12,7 +12,7 @@ module Paleolog
       UPDATE_PARAMS = Params.define.(
         id: Params.required.(Params::IdRules),
         quantity: Params.optional.(Params.blank_to_nil_or.(Params.integer.(Params.gte.(0)))),
-        status: Params.optional.((Params.integer.(Params.included_in.(Paleolog::Occurrence::STATUSES)))),
+        status: Params.optional.(Params.integer.(Params.included_in.(Paleolog::Occurrence::STATUSES))),
         uncertain: Params.optional.(Params.bool.(Params.any)),
       )
 

@@ -20,6 +20,7 @@ describe Paleolog::Repo::Image do
       Paleolog::Repo.save(Paleolog::Image.new(image_file_name: 'img3.png', species_id: other_species_id))
 
       result = repo.all_for_species(species_id)
+
       assert_equal([image1_id, image2_id], result.map(&:id))
     end
   end

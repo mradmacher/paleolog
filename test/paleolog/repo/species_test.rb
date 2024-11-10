@@ -18,6 +18,7 @@ describe Paleolog::Repo::Species do
       species_id = Paleolog::Repo.save(Paleolog::Species.new(name: 'Costata', verified: true, group_id: group_id))
 
       result = Paleolog::Repo.find(Paleolog::Species, species_id)
+
       assert_equal 'Dinoflagellate', result.group.name
     end
 
@@ -32,6 +33,7 @@ describe Paleolog::Repo::Species do
       Paleolog::Repo.save(Paleolog::Image.new(species_id: species_id, image_file_name: 'nice_picture.jpg'))
 
       result = Paleolog::Repo.find(Paleolog::Species, species_id)
+
       refute_nil result.group
       refute_empty result.features
 
@@ -51,6 +53,7 @@ describe Paleolog::Repo::Species do
       species3_id = Paleolog::Repo.save(Paleolog::Species.new(name: 'S3', group_id: group_id))
 
       result = repo.all_with_ids([species1_id, species3_id])
+
       assert_equal([species1_id, species3_id].sort, result.map(&:id))
     end
 
@@ -61,6 +64,7 @@ describe Paleolog::Repo::Species do
       species2_id = Paleolog::Repo.save(Paleolog::Species.new(name: 'S2', group_id: group2_id))
 
       result = repo.all_with_ids([species1_id, species2_id])
+
       assert_equal(%w[G1 G2], result.map { |s| s.group.name })
     end
 
@@ -73,6 +77,7 @@ describe Paleolog::Repo::Species do
       Paleolog::Repo.save(Paleolog::Feature.new(species_id: species_id, choice_id: choice_id))
 
       result = repo.all_with_ids([species_id]).first
+
       refute_empty result.features
 
       assert_equal 1, result.features.size
@@ -91,6 +96,7 @@ describe Paleolog::Repo::Species do
       Paleolog::Repo.save(Paleolog::Species.new(name: 'S3', group_id: other_group_id))
 
       result = repo.all_for_group(group_id)
+
       assert_equal([species1_id, species2_id].sort, result.map(&:id))
     end
   end

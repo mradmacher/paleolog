@@ -21,9 +21,11 @@ describe Paleolog::Repo::Counting do
       Paleolog::Repo.save(Paleolog::Counting.new(name: 'C4', project_id: other_project_id))
 
       result = repo.find_for_project(c1_id, project_id)
+
       assert_equal(c1_id, result.id)
 
       result = repo.find_for_project(c1_id, other_project_id)
+
       assert_nil(result)
     end
 
@@ -39,6 +41,7 @@ describe Paleolog::Repo::Counting do
       )
 
       result = repo.find_for_project(counting_id, project_id)
+
       assert_equal(group_id, result.group.id)
       assert_equal(marker_id, result.marker.id)
     end

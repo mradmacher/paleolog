@@ -33,6 +33,7 @@ describe 'Occurrences' do
 
   def assert_requires_observer(action)
     action.call
+
     assert_predicate last_response, :redirect?, 'Expected redirect when no user'
 
     other_user = Paleolog::Repo.find(
@@ -41,10 +42,12 @@ describe 'Occurrences' do
     )
     login(other_user)
     action.call
+
     assert_predicate last_response, :redirect?, 'Expected redirect when user not in project'
 
     login(user)
     action.call
+
     assert_predicate last_response, :ok?
   end
 
@@ -74,6 +77,7 @@ describe 'Occurrences' do
 
       it 'returns 200' do
         get "/projects/#{project.id}/countings/#{counting.id}"
+
         assert_predicate last_response, :ok?, "Expected 200, but got #{last_response.status}"
       end
     end

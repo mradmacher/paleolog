@@ -52,6 +52,7 @@ describe 'Occurrences' do
     fill_in('login-field', with: 'test')
     fill_in('password-field', with: 'test123')
     within('.form') { click_on('Login') }
+
     assert_link('Logout')
   end
 
@@ -74,10 +75,12 @@ describe 'Occurrences' do
     visit "/projects/#{project.id}/countings/#{counting.id}"
 
     click_action_to('add occurrence')
+
     within page.find('.species-collection') do
       assert_text('Counted Group Species')
     end
     click_to_select_species('Counted Group Species')
+
     within page.find('#occurrences-collection') do
       assert_text('Counted Group Species')
     end
@@ -87,6 +90,7 @@ describe 'Occurrences' do
     visit "/projects/#{project.id}/countings/#{counting.id}"
 
     table_rows = page.all('#occurrences-collection .occurrence')
+
     assert_equal 3, table_rows.size
     assert_match(/Odontochitina costata/, table_rows[0].text)
     assert_match(/Cerodinium costata/, table_rows[1].text)
@@ -101,6 +105,7 @@ describe 'Occurrences' do
     end
 
     table_rows = page.all('#occurrences-collection .occurrence')
+
     assert_equal 4, table_rows.size
     assert_match(/Odontochitina costata/, table_rows[0].text)
     assert_match(/Cerodinium costata/, table_rows[1].text)
@@ -113,6 +118,7 @@ describe 'Occurrences' do
     visit "/projects/#{project.id}/countings/#{counting.id}"
 
     table_rows = page.all('#occurrences-collection .occurrence')
+
     assert_equal 3, table_rows.size
     assert_match(/Odontochitina costata/, table_rows[0].text)
     assert_match(/Cerodinium costata/, table_rows[1].text)
@@ -139,10 +145,12 @@ describe 'Occurrences' do
     url_before = current_url
     select('Other', from: 'Group')
     click_on('Search')
+
     assert_current_path(url_before) # searching should not update query string
     click_to_select_species('Diabella diabelli')
 
     table_rows = page.all('#occurrences-collection .occurrence')
+
     assert_match(/Odontochitina costata/, table_rows[0].text)
     assert_match(/Cerodinium costata/, table_rows[1].text)
     assert_match(/Cerodinium diabelli/, table_rows[2].text)
@@ -159,6 +167,7 @@ describe 'Occurrences' do
 
     visit "/projects/#{project.id}/countings/#{counting.id}"
     table_rows = page.all('#occurrences-collection .occurrence')
+
     assert_match(/Odontochitina costata/, table_rows[0].text)
     assert_match(/Cerodinium costata/, table_rows[1].text)
     assert_match(/Cerodinium diabelli/, table_rows[2].text)
@@ -179,6 +188,7 @@ describe 'Occurrences' do
     assert page.find(:table_row, ['Odontochitina costata']).has_content?('100')
 
     visit "/projects/#{project.id}/countings/#{counting.id}"
+
     assert page.find(:table_row, ['Odontochitina costata']).has_content?('100')
   end
 
@@ -198,6 +208,7 @@ describe 'Occurrences' do
     assert page.find(:table_row, ['Cerodinium diabelli']).has_content?('1')
 
     visit "/projects/#{project.id}/countings/#{counting.id}"
+
     assert page.find(:table_row, ['Odontochitina costata']).has_content?('3')
     assert page.find(:table_row, ['Cerodinium diabelli']).has_content?('1')
   end
@@ -335,6 +346,7 @@ describe 'Occurrences' do
     end
 
     visit "/projects/#{project.id}/countings/#{counting.id}"
+
     assert page.find(:table_row, ['Odontochitina costata']).has_checked_field?('occurrence-uncertain')
     within('.occurrences-countable-sum') do
       page.must_have_content('1')
@@ -374,6 +386,7 @@ describe 'Occurrences' do
         click_button(class: 'delete-occurrence')
       end
     end
+
     assert_no_text('Cerodinium diabelli')
 
     within('.occurrences-countable-sum') do
@@ -391,6 +404,7 @@ describe 'Occurrences' do
         click_button(class: 'delete-occurrence')
       end
     end
+
     assert_text('Odontochitina costata')
     within('.occurrences-countable-sum') do
       page.must_have_content('0')
@@ -405,6 +419,7 @@ describe 'Occurrences' do
     within page.find(:table_row, ['Odontochitina costata']) do
       accept_confirm { click_action_to('delete occurrence') }
     end
+
     assert_no_text('Odontochitina costata')
 
     within('.occurrences-countable-sum') do
@@ -418,6 +433,7 @@ describe 'Occurrences' do
     end
 
     visit "/projects/#{project.id}/countings/#{counting.id}"
+
     assert_no_text('Cerodinium diabelli')
     assert_no_text('Odontochitina costata')
 

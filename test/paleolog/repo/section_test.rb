@@ -18,9 +18,11 @@ describe Paleolog::Repo::Section do
       Paleolog::Repo.save(Paleolog::Section.new(name: 'S2', project_id: other_project_id))
 
       result = repo.find_for_project(section.id, project_id)
+
       assert_equal(section, result)
 
       result = repo.find_for_project(section.id, other_project_id)
+
       assert_nil(result)
     end
 
@@ -30,6 +32,7 @@ describe Paleolog::Repo::Section do
       sample2_id = Paleolog::Repo.save(Paleolog::Sample.new(name: 'S2', section_id: section_id))
 
       result = repo.find_for_project(section_id, project_id)
+
       assert_equal([sample1_id, sample2_id].sort, result.samples.map(&:id).sort)
     end
   end
@@ -43,6 +46,7 @@ describe Paleolog::Repo::Section do
       Paleolog::Repo.save(Paleolog::Section.new(name: 'S3', section_id: other_project_id))
 
       result = repo.all_for_project(project_id)
+
       assert_equal([section1_id, section2_id].sort, result.map(&:id).sort)
     end
   end
@@ -54,11 +58,13 @@ describe Paleolog::Repo::Section do
 
     it 'returns section with given id' do
       result = repo.find(section.id)
+
       assert_equal(section, result)
     end
 
     it 'returns nil when section with given id does not exist' do
       result = repo.find(section.id + 1)
+
       assert_nil result
     end
 
@@ -69,6 +75,7 @@ describe Paleolog::Repo::Section do
       Paleolog::Repo.save(Paleolog::Sample.new(name: 'Sample2', section: section))
 
       result = repo.find(section.id, repo.with_samples)
+
       assert_equal 2, result.samples.size
       assert_equal %w[Sample1 Sample2], result.samples.map(&:name)
     end

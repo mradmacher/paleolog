@@ -25,6 +25,7 @@ describe 'Sections' do
     fill_in('login-field', with: 'test')
     fill_in('password-field', with: 'test123')
     within('.form') { click_on('Login') }
+
     assert_link('Logout')
     visit "/projects/#{project.id}"
   end
@@ -42,6 +43,7 @@ describe 'Sections' do
       fill_in('Name', with: 'Some Section')
       click_on('Save')
     end
+
     within('.project-sections') do
       assert_text('Some Section')
     end
@@ -53,6 +55,7 @@ describe 'Sections' do
       fill_in('Name', with: '')
       click_on('Save')
     end
+
     assert_text("Name can't be blank")
   end
 
@@ -68,6 +71,7 @@ describe 'Sections' do
       fill_in('Name', with: 'Other Section')
       click_on('Save')
     end
+
     refute_text('Some Section')
     within('.project-sections') do
       assert_text('Other Section')
@@ -86,8 +90,10 @@ describe 'Sections' do
       fill_in('Name', with: '')
       click_on('Save')
     end
+
     assert_text("Name can't be blank")
     click_on('Save')
+
     assert_text('Some Section')
   end
 end

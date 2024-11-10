@@ -81,6 +81,7 @@ describe 'Catalog' do
       check('Verified')
       click_on('Search')
     end
+
     assert_current_path(/group_id=#{group1_id}/)
     assert_current_path(/name=costa/)
     assert_current_path(/verified=true/)
@@ -103,6 +104,7 @@ describe 'Catalog' do
       fill_in('Name', with: 'costa')
       click_on('Search')
     end
+
     assert_no_current_path(/group_id=/)
     assert_current_path(/name=costa/)
   end

@@ -21,9 +21,11 @@ describe Paleolog::Repo::Sample do
       Paleolog::Repo.save(Paleolog::Sample.new(name: 'S2', section_id: other_section_id))
 
       result = repo.find_for_section(sample_id, section_id)
+
       assert_equal(sample_id, result.id)
 
       result = repo.find_for_section(sample_id, other_section_id)
+
       assert_nil(result)
     end
   end
@@ -37,6 +39,7 @@ describe Paleolog::Repo::Sample do
       Paleolog::Repo.save(Paleolog::Sample.new(name: 'S3', section_id: other_section_id))
 
       result = repo.all_for_section(section_id)
+
       assert_equal([sample1_id, sample2_id].sort, result.map(&:id).sort)
     end
   end

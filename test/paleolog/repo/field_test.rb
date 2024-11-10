@@ -15,6 +15,7 @@ describe Paleolog::Repo::Field do
       field1_id = Paleolog::Repo.save(Paleolog::Field.new(name: 'Field1', group_id: group_id))
       field2_id = Paleolog::Repo.save(Paleolog::Field.new(name: 'Field2', group_id: group_id))
       result = repo.all
+
       assert_equal([field1_id, field2_id], result.map(&:id))
     end
 
@@ -33,6 +34,7 @@ describe Paleolog::Repo::Field do
       field1_id = Paleolog::Repo.save(Paleolog::Field.new(name: 'Field1', group_id: group_id))
       Paleolog::Repo.save(Paleolog::Field.new(name: 'Field2', group_id: group_id))
       result = repo.all_for([field1_id])
+
       assert_equal([field1_id], result.map(&:id))
     end
   end

@@ -36,6 +36,7 @@ describe 'Projects' do
 
     it 'accepts logged in user' do
       login(user)
+
       assert_permitted(-> { get '/api/species', {} })
     end
   end
@@ -48,6 +49,7 @@ describe 'Projects' do
     it 'accepts logged in user' do
       params = { name: 'some name', group_id: group1.id }
       login(user)
+
       assert_permitted(-> { post '/api/species', params })
     end
 
@@ -61,6 +63,7 @@ describe 'Projects' do
 
         assert_predicate last_response, :ok?
         result = JSON.parse(last_response.body)['species']
+
         refute_nil result
       end
     end
@@ -69,6 +72,7 @@ describe 'Projects' do
   describe 'PATCH /api/species/:id' do
     let(:species) do
       result = happy_operation.create(name: 'some test species', group_id: group1.id)
+
       assert_predicate result, :success?
       result.value
     end
@@ -98,6 +102,7 @@ describe 'Projects' do
         patch '/api/species/1', params
 
         result = JSON.parse(last_response.body)
+
         assert result.key?('errors')
 
         assert_equal 'blank', result['errors']['name']

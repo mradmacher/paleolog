@@ -33,6 +33,7 @@ describe Paleolog::Repo::Species do
 
         repo.update(species2_id, verified: true)
         result = repo.search(filters)
+
         assert_equal 1, result.size
         assert_equal result.first.id, species2_id
         refute_nil result.first.group
@@ -44,6 +45,7 @@ describe Paleolog::Repo::Species do
 
       it 'returns only species that match filter' do
         result = repo.search(filters)
+
         assert_equal 2, result.size
 
         assert_equal result.map(&:id), [species1_id, species2_id]
@@ -56,6 +58,7 @@ describe Paleolog::Repo::Species do
 
       it 'returns only species that match filter' do
         result = repo.search(filters)
+
         assert_equal 1, result.size
         assert_equal result.first.id, species1_id
         refute_nil result.first.group
@@ -85,6 +88,7 @@ describe Paleolog::Repo::Species do
         )
 
         result = repo.search({ project_id: project_id, name: 'costa' })
+
         assert_equal 1, result.size
         assert_equal result.first.id, species1_id
         refute_nil result.first.group
@@ -101,6 +105,7 @@ describe Paleolog::Repo::Species do
         repo.update(species2_id, verified: true)
         repo.update(species3_id, verified: true)
         result = repo.search(filters)
+
         assert_equal 1, result.size
         assert_equal result.first.id, species1_id
         refute_nil result.first.group

@@ -64,6 +64,7 @@ describe Paleolog::CountingSummary do
         ]
         samples, species, occurrences =
           Paleolog::CountingSummary.new(@occurrences.flatten.compact).summary(@samples, occurrence: :last)
+
         assert_equal expected_samples.size, samples.size
         assert_equal expected_samples, samples
         assert_equal expected_species.size, species.size
@@ -99,6 +100,7 @@ describe Paleolog::CountingSummary do
         ]
         samples, species, occurrences =
           Paleolog::CountingSummary.new(@occurrences.flatten.compact).summary(@samples, occurrence: :first)
+
         assert_equal expected_samples.size, samples.size
         assert_equal expected_samples, samples
         assert_equal expected_species.size, species.size
@@ -146,6 +148,7 @@ describe Paleolog::CountingSummary do
       expected_specimens = sorted.map { |v| v[:species] }.uniq
 
       received_specimens = Paleolog::CountingSummary.new(@occurrences).specimens_by_occurrence(@samples)
+
       assert_equal expected_specimens.size, received_specimens.size
       assert_equal expected_specimens, received_specimens
     end
@@ -161,6 +164,7 @@ describe Paleolog::CountingSummary do
       received_specimens = Paleolog::CountingSummary.new(
         @occurrences.select { |occ| selected_samples.include?(occ.sample) },
       ).specimens_by_occurrence(selected_samples)
+
       assert_equal expected_specimens.size, received_specimens.size
       assert_equal expected_specimens, received_specimens
     end

@@ -18,15 +18,18 @@ end
 
 def assert_unauthorized(action)
   action.call
+
   assert_equal 401, last_response.status
 end
 
 def assert_forbidden(action)
   action.call
+
   assert_equal 403, last_response.status
 end
 
 def assert_permitted(action)
   action.call
+
   assert_predicate last_response, :ok?
 end
