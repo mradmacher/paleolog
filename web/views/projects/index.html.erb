@@ -35,6 +35,7 @@
           <thead>
             <tr>
               <th>Project name</th>
+              <th>Account</th>
               <th>Date created</th>
             </tr>
           </thead>
@@ -42,6 +43,7 @@
             <% @projects.each do |project| %>
               <tr>
                 <td><a href="<%= project_path(project) %>"><%= project.name %></a></td>
+                <td><%= project.account&.name %></td>
                 <td><%= project.created_at&.to_date %></td>
               </tr>
             <% end %>

@@ -8,10 +8,16 @@ describe Paleolog::Operation::Project do
   let(:operation) { Paleolog::Operation::Project.new(repo, authorizer) }
   let(:happy_operation) { happy_operation_for(Paleolog::Operation::Project, user) }
   let(:user) { repo.find(Paleolog::User, repo.save(Paleolog::User.new(login: 'test', password: 'test123'))) }
+  let(:account) do
+    happy_operation_for(Paleolog::Operation::Account, user).create(
+      name: 'Default Account',
+    ).value
+  end
 
   after do
     repo.for(Paleolog::Researcher).delete_all
     repo.for(Paleolog::Project).delete_all
+    repo.for(Paleolog::Account).delete_all
     repo.for(Paleolog::User).delete_all
   end
 
@@ -52,7 +58,7 @@ describe Paleolog::Operation::Project do
       end
 
       it 'returns all necessary attributes' do
-        project = happy_operation.create(name: 'some project').value
+        project = happy_operation.create(name: 'some project', account_id: account.id).value
         result = operation.find_all
         projects = result.value
 
@@ -61,6 +67,14 @@ describe Paleolog::Operation::Project do
         assert_equal(project.name, projects.first.name)
         assert_equal(project.created_at, projects.first.created_at)
       end
+
+      it 'assignes account to project' do
+        happy_operation.create(name: 'some project', account_id: account.id).value
+        projects = operation.find_all.value
+
+        assert_equal account.id, projects.first.account_id
+        refute_nil projects.first.account
+      end
     end
   end
 
@@ -68,7 +82,7 @@ describe Paleolog::Operation::Project do
     it 'returns unauthenticated error when not authenticated' do
       authorizer.expect :authenticated?, false
 
-      result = operation.create(name: 'Just a Name')
+      result = operation.create(name: 'Just a Name', account_id: account.id)
       assert_predicate result, :failure?
       assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
 
@@ -82,13 +96,13 @@ describe Paleolog::Operation::Project do
       end
 
       it 'adds new project' do
-        result = operation.create(name: 'Some Name')
+        result = operation.create(name: 'Some Name', account_id: account.id)
         assert_predicate result, :success?
         refute_nil result.value
       end
 
       it 'adds user as project manager' do
-        result = operation.create(name: 'Some Name')
+        result = operation.create(name: 'Some Name', account_id: account.id)
         assert_predicate result, :success?
         project = result.value
 
@@ -101,70 +115,76 @@ describe Paleolog::Operation::Project do
       end
 
       it 'adds created_at timestamp' do
-        result = operation.create({ name: 'Some Name' })
+        result = operation.create(name: 'Some Name', account_id: account.id)
         assert_predicate result, :success?
         refute_nil result.value.created_at
+      end
+
+      it 'complains when account missing' do
+        result = operation.create(name: 'Some Name')
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Operation::Params::MISSING, result.error[:account_id]
       end
 
       it 'complains when user missing' do
         authorizer.user_id # let's clear previously defined expectation
         authorizer.expect :user_id, nil
-        result = operation.create({ name: 'Some Name' })
+        result = operation.create(name: 'Some Name', account_id: account.id)
         assert_predicate result, :failure?
         assert_equal Paleolog::Operation::Params::NON_INTEGER, result.error[:user_id]
       end
 
       it 'does not complain when name not taken yet' do
-        result = happy_operation.create({ name: 'Some Name' })
+        result = happy_operation.create(name: 'Some Name', account_id: account.id)
         assert_predicate result, :success?
         assert_equal 'Some Name', result.value.name
 
-        result = operation.create({ name: 'Other Name' })
+        result = operation.create(name: 'Other Name', account_id: account.id)
         assert_predicate result, :success?
         assert_equal 'Other Name', result.value.name
       end
 
       it 'complains when name is nil' do
-        result = operation.create({ name: nil })
+        result = operation.create(name: nil, account_id: account.id)
         assert_predicate result, :failure?
         assert_equal :blank, result.error[:name]
       end
 
       it 'complains when name is blank' do
-        result = operation.create({ name: '  ' })
+        result = operation.create(name: '  ', account_id: account.id)
         assert_predicate result, :failure?
         assert_equal :blank, result.error[:name]
       end
 
       it 'complains when name already exists' do
-        result = happy_operation.create({ name: 'Some Name' })
+        result = happy_operation.create(name: 'Some Name', account_id: account.id)
         assert_predicate result, :success?
         refute_nil result.value
 
-        result = operation.create({ name: 'Some Name' })
+        result = operation.create(name: 'Some Name', account_id: account.id)
         assert_predicate result, :failure?
         assert_equal :taken, result.error[:name]
       end
 
       it 'complains when name is too long' do
         max = 255
-        result = operation.create({ name: 'a' * (max + 1) })
+        result = operation.create(name: 'a' * (max + 1), account_id: account.id)
         assert_predicate result, :failure?
         assert_equal :too_long, result.error[:name]
       end
 
       it 'accepts name of max length' do
         name = 'a' * 255
-        result = operation.create({ name: name })
+        result = operation.create(name: name, account_id: account.id)
         assert_predicate result, :success?
         assert_equal name, result.value.name
       end
 
       it 'complains when name with different cases already exists' do
-        result = happy_operation.create({ name: 'Some Name', user_id: user.id })
+        result = happy_operation.create(name: 'Some Name', user_id: user.id, account_id: account.id)
         assert_predicate result, :success?
 
-        result = operation.create({ name: ' some name ', user_id: user.id })
+        result = operation.create(name: ' some name ', user_id: user.id, account_id: account.id)
         assert_predicate result, :failure?
         assert_equal :taken, result.error[:name]
       end
@@ -173,7 +193,7 @@ describe Paleolog::Operation::Project do
 
   describe '#rename' do
     let(:project) do
-      happy_operation.create({ name: 'Some Name', user_id: user.id }).value
+      happy_operation.create(name: 'Some Name', user_id: user.id, account_id: account.id).value
     end
 
     it 'returns unauthenticated error when not authenticated' do
@@ -228,7 +248,7 @@ describe Paleolog::Operation::Project do
       end
 
       it 'complains when name already exists' do
-        result = happy_operation.create(name: 'Other Name', user_id: user.id)
+        result = happy_operation.create(name: 'Other Name', user_id: user.id, account_id: account.id)
         assert_predicate result, :success?
 
         result = operation.rename(id: project.id, name: 'Other Name')
@@ -251,7 +271,7 @@ describe Paleolog::Operation::Project do
       end
 
       it 'complains when name with different cases already exists' do
-        result = happy_operation.create(name: 'Other Name', user_id: user.id)
+        result = happy_operation.create(name: 'Other Name', user_id: user.id, account_id: account.id)
         assert_predicate result, :success?
 
         result = operation.rename(id: project.id, name: ' other name ')

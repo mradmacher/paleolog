@@ -13,7 +13,7 @@ gem 'rake'
 gem 'redcarpet'
 gem 'resonad'
 gem 'sequel'
-gem 'sinatra'
+gem 'sinatra', '~> 3.2'
 
 group :development do
   gem 'sinatra-contrib'
@@ -32,5 +32,5 @@ group :test do
   gem 'minitest-hooks'
   gem 'minitest-rg'
   gem 'rack-test'
-  gem 'selenium-webdriver'
+  gem 'selenium-webdriver', '~> 4.8.0'
 end

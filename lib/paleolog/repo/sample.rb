@@ -39,14 +39,14 @@ module Paleolog
             else
               ds
             end
-          query = exclude_id ? scope.exclude(id: exclude_id) : scope
-          query.where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
+          alike_name_exists?(name, exclude_id ? scope.exclude(id: exclude_id) : scope)
         end
 
         def name_exists_within_same_section?(name, sample_id:)
-          ds.exclude(id: sample_id)
-            .where(section_id: ds.where(id: sample_id).select(:section_id))
-            .where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
+          alike_name_exists?(
+            name,
+            ds.exclude(id: sample_id).where(section_id: ds.where(id: sample_id).select(:section_id))
+          )
         end
 
         def rank_exists_within_section?(rank, section_id)
