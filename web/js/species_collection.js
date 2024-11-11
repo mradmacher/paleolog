@@ -1,5 +1,6 @@
 import { DomHelpers } from './dom_helpers.js';
 import { UrlBuilder } from './url_builder.js';
+import { SpeciesModalFormView } from "./modal_form_views.js";
 
 export class SpeciesCollection {
   constructor(selector, scope = document) {

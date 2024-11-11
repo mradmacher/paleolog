@@ -4,13 +4,19 @@
 <template id="species-form-template">
   <input id="species-id" type="hidden" name="id" />
   <div class="field">
-    <label for="species-name">Name</label>
-    <input id="species-name" type="text" name="name" />
+    <label class="label" for="species-name">Name</label>
+    <div class="control">
+      <input class="input" id="species-name" type="text" name="name" />
+    </div>
   </div>
   <div class="field">
-    <label for="species-group-id">Group</label>
-    <select id="species-group-id" name="group_id">
-    </select>
+    <label class="label" for="species-group-id">Group</label>
+    <div class="control">
+      <div class="select">
+        <select id="species-group-id" name="group_id">
+        </select>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -44,16 +50,22 @@
   <input id="sample-id" name="id" type="hidden" />
   <input id="sample-section-id" name="section_id" type="hidden" />
   <div class="field">
-    <label for="sample-name">Name</label>
-    <input id="sample-name" name="name" type="text" />
+    <label class="label" for="sample-name">Name</label>
+    <div class="control">
+      <input class="input" id="sample-name" name="name" type="text" />
+    </div>
   </div>
   <div class="field">
-    <label for="sample-description">Description</label>
-    <textarea id="sample-description" name="description"></textarea>
+    <label class="label" for="sample-description">Description</label>
+    <div class="control">
+      <textarea class="textarea" id="sample-description" name="description"></textarea>
+    </div>
   </div>
   <div class="field">
-    <label for="sample-weight">Weight</label>
-    <input id="sample-weight" name="weight" type="text" />
+    <label class="label" for="sample-weight">Weight</label>
+    <div class="control">
+      <input class="input" id="sample-weight" name="weight" type="text" />
+    </div>
   </div>
 </template>
 
