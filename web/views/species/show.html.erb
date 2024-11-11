@@ -1,4 +1,7 @@
 <div class="panel">
+  <div class="panel-heading">
+    Images
+  </div>
   <div class="panel-block">
   <% @species.images.each do |image| %>
     <% id = image.id.to_s.rjust(9, '0') %>
@@ -6,28 +9,30 @@
   <% end %>
   </div>
 </div>
-<% if @species.description && !@species.description.empty? %>
+
 <div class="panel">
   <div class="panel-heading">
     Description
   </div>
-  <% markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(hard_wrap: true)) %>
   <div class="panel-block">
     <div class="content">
+    <% if @species.description && !@species.description.empty? %>
+      <% markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(hard_wrap: true)) %>
       <%= markdown.render(@species.description) %>
+    <% end %>
     </div>
   </div>
 </div>
-<% end %>
-<% if @species.environmental_preferences && !@species.environmental_preferences.empty? %>
+
 <div class="panel">
   <div class="panel-heading">
   Environmental Preferences
   </div>
   <div class="panel-block">
     <div class="content">
+    <% if @species.environmental_preferences && !@species.environmental_preferences.empty? %>
       <%= markdown.render(@species.environmental_preferences) %>
+    <% end %>
     </div>
   </div>
 </div>
-<% end %>

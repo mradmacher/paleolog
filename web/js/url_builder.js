@@ -14,7 +14,7 @@ export class UrlBuilder {
   static species(speciesId, { projectId = null } = {}) {
     const speciesPath = `/species/${speciesId}`;
     if (projectId) {
-      return `/projects/${projectId}/${speciesPath}`;
+      return `/projects/${projectId}${speciesPath}`;
     } else {
       return speciesPath;
     }

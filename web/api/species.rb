@@ -13,6 +13,10 @@ module Web
         @operation = Paleolog::Operation::Species.new(Paleolog::Repo, authorizer)
       end
 
+      get '/api/species/:id' do
+        model_or_errors(@operation.find(params), serializer)
+      end
+
       get '/api/species' do
         model_or_errors(@operation.search(params), serializer, :species)
       end

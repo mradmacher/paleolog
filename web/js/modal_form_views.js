@@ -43,20 +43,24 @@ export class ModalFormView {
     }
   }
 
-  loadFormData(form) {}
+  loadFormData(form) {
+    return new Promise((resolve, reject) => {
+      resolve();
+    });
+  }
 
   show() {
     this.hideErrors()
     let form = this.modal.querySelector('form')
     form.reset()
-    for (const field in this.attrs) {
-      let element = form.querySelector(`[name=${field}]`)
-      if (element) {
-        element.value = this.attrs[field]
+    this.loadFormData(form).then(() => {
+      for (const field in this.attrs) {
+        let element = form.querySelector(`[name=${field}]`)
+        if (element) {
+          element.value = this.attrs[field];
+        }
       }
-    }
-    this.loadFormData(form)
-    var that = this;
+    })
     this.modal.classList.add('is-active');
     this.modal.querySelector('.button.is-cancel').addEventListener('click', () => {
       this.modal.classList.remove('is-active');
@@ -95,14 +99,17 @@ export class SpeciesModalFormView extends ModalFormView {
   }
 
   loadFormData(form) {
-    fetch('/species/search-filters').then(response => {
-      response.json().then(json => {
-        json.groups.forEach(group => {
-          let template = DomHelpers.buildFromTemplate('species-group-option-template');
-          template.querySelector('option').value = group.id;
-          template.querySelector('option').textContent = group.name;
-          form.querySelector('#species-group-id').append(template);
-        });
+    return new Promise((resolve, reject) => {
+      fetch('/species/search-filters').then(response => {
+        response.json().then(json => {
+          json.groups.forEach(group => {
+            let template = DomHelpers.buildFromTemplate('species-group-option-template');
+            template.querySelector('option').value = group.id;
+            template.querySelector('option').textContent = group.name;
+            form.querySelector('#species-group-id').append(template);
+          });
+          resolve();
+        })
       })
     })
   }

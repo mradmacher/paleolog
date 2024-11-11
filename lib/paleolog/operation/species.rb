@@ -10,6 +10,10 @@ module Paleolog
         verified: Params.optional.(Params.blank_to_nil_or.(Params.bool.(Params.any))),
       )
 
+      FIND_PARAMS = Params.define.(
+        id: Params.required.(Params::IdRules),
+      )
+
       CREATE_PARAMS = Params.define.(
         name: Params.required.(Params::NameRules),
         group_id: Params.required.(Params::IdRules),
@@ -17,6 +21,7 @@ module Paleolog
         environmental_preferences: Params.optional.(Params::DescriptionRules),
         verified: Params.optional.(Params.bool.(Params.any)),
       )
+
       UPDATE_PARAMS = Params.define.(
         id: Params.required.(Params::IdRules),
         name: Params.optional.(Params::NameRules),
@@ -25,6 +30,13 @@ module Paleolog
         environmental_preferences: Params.optional.(Params::DescriptionRules),
         verified: Params.optional.(Params.bool.(Params.any)),
       )
+
+      def find(raw_params)
+        authenticate
+          .and_then { parameterize(raw_params, FIND_PARAMS) }
+          .and_then { authorize(_1, can_view(Paleolog::Species, :id)) }
+          .and_then { carefully(_1, find_species) }
+      end
 
       def search(raw_params)
         authenticate
@@ -47,6 +59,12 @@ module Paleolog
       end
 
       private
+
+      def find_species
+        lambda do |params|
+          repo.for(Paleolog::Species).find(params[:id])
+        end
+      end
 
       def search_species
         lambda do |params|

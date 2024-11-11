@@ -20,6 +20,9 @@ module Paleolog
       Paleolog::Sample => lambda do |user_id, id|
         Repo::Researcher.sample_role(id, user_id)
       end,
+      Paleolog::Species => lambda do |user_id, _id|
+        user_id ? Repo::Researcher::MANAGER : Repo::Researcher::NONE
+      end,
     }.tap { |h| h.default = ->(_user_id, _id) { Repo::Researcher::NONE } }
 
     attr_reader :session

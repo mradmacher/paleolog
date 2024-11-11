@@ -1,46 +1,55 @@
-<section class="section">
-  <div class="panel">
-    <div class="panel-heading">
-      <span class="tag">species</span>
-      <h1 class="title"><%= @species.name %></h1>
+<input type="hidden" id="species-id" value="<%= @species.id %>" />
+<div class="columns">
+  <div class="column is-one-fifth">
+    <% unless @species.verified %>
+    <div class="panel">
+      <div class="panel-block">
+        <div class="tag is-danger">UNVERIFIED</div>
+      </div>
     </div>
-  </div>
-  <div class="panel-block">
-    <div class="columns">
-      <div class="column is-one-quarter">
-        <% unless @species.verified %>
-        <div class="panel">
-          <div class="panel-block">
-            <div class="tag is-danger">UNVERIFIED</div>
-          </div>
-        </div>
+    <% end %>
+    <div class="panel">
+      <div class="panel-heading">
+        Group
+      </div>
+      <div class="panel-block">
+        <%= @species.group.name %>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-heading">
+        Features
+      </div>
+      <div class="panel-block">
+        <dl>
+        <% @species.features.each do |feature| %>
+          <dt><%= feature.choice.field.name %></dt>
+          <dd><%= feature.choice.name %></dd>
         <% end %>
-        <div class="panel">
-          <div class="panel-heading">
-            Group
-          </div>
-          <div class="panel-block">
-            <%= @species.group.name %>
-          </div>
-        </div>
-        <div class="panel">
-          <div class="panel-heading">
-            Features
-          </div>
-          <div class="panel-block">
-            <dl>
-            <% @species.features.each do |feature| %>
-              <dt><%= feature.choice.field.name %></dt>
-              <dd><%= feature.choice.name %></dd>
-            <% end %>
-            </dl>
-          </div>
-        </div>
-      </div>
-
-      <div class="column">
-        <%= yield %>
+        </dl>
       </div>
     </div>
   </div>
-</section>
+
+  <div class="column">
+    <div class="panel">
+      <div class="panel-heading">
+        <span class="tag">species</span>
+        <h1 class="title"><%= @species.name %></h1>
+      </div>
+      <nav class="navbar">
+        <div class="navbar-menu">
+          <div class="navbar-end">
+            <div class="navbar-item">
+              <button class="button is-black is-small edit-species action">Edit</button>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </div>
+
+    <%= yield %>
+  </div>
+</div>
+
+<script src="/dist/species_app.js"></script>
