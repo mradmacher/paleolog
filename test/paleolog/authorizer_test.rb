@@ -30,6 +30,26 @@ describe Paleolog::Authorizer do
     Paleolog::Repo.delete_all(Paleolog::Project)
   end
 
+  describe '#can_view?(Species)' do
+    let(:group) do
+      happy_operation_for(Paleolog::Operation::Group, user).create(name: 'A Group').value
+    end
+    let(:species) do
+      happy_operation_for(Paleolog::Operation::Species, user)
+        .create(name: 'Just a Test', group_id: group.id).value
+    end
+
+    it 'is false for not authenticated' do
+      refute authorizer.can_view?(Paleolog::Species, species.id)
+    end
+
+    it 'is true for logged user' do
+      authorizer.login(user)
+
+      assert authorizer.can_view?(Paleolog::Species, species.id)
+    end
+  end
+
   describe '#can_manage?(Project)' do
     let(:project) do
       happy_operation_for(Paleolog::Operation::Project, user)

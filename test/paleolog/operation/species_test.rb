@@ -204,6 +204,58 @@ describe Paleolog::Operation::Species do
     end
   end
 
+  describe '#find' do
+    let(:species) do
+      happy_operation.create(name: 'Some Name', group_id: group.id).value
+    end
+
+    it 'returns unauthenticated error when not authenticated' do
+      authorizer.expect :authenticated?, false
+
+      result = operation.find(id: species.id)
+
+      assert_predicate result, :failure?
+      assert_equal Paleolog::Operation::UNAUTHENTICATED, result.error[:general]
+
+      authorizer.verify
+    end
+
+    it 'returns unauthorized error when not authorized' do
+      authorizer.expect :authenticated?, true
+      authorizer.expect :can_view?, false, [Paleolog::Species, species.id]
+
+      result = operation.find(id: species.id)
+
+      assert_predicate result, :failure?
+      assert_equal Paleolog::Operation::UNAUTHORIZED, result.error[:general]
+
+      authorizer.verify
+    end
+
+    describe 'for authorized user' do
+      before do
+        authorizer.expect :authenticated?, true
+        authorizer.expect :can_view?, true, [Paleolog::Species, species.id]
+      end
+
+      it 'returns species' do
+        result = operation.find(id: species.id)
+
+        assert_predicate result, :success?
+
+        found_species = result.value
+
+        refute_nil found_species
+
+        refute_nil found_species.id
+        assert_equal found_species.id, species.id
+        assert_equal found_species.name, species.name
+        assert_equal found_species.group_id, species.group_id
+        refute_nil found_species.group
+      end
+    end
+  end
+
   describe '#update' do
     let(:species) do
       happy_operation.create(name: 'Some Name', group_id: group.id).value

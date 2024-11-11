@@ -63,4 +63,3 @@ describe 'Species' do
     assert_text('Test Species')
   end
 end
-

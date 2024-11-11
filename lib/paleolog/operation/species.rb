@@ -21,6 +21,7 @@ module Paleolog
         environmental_preferences: Params.optional.(Params::DescriptionRules),
         verified: Params.optional.(Params.bool.(Params.any)),
       )
+
       UPDATE_PARAMS = Params.define.(
         id: Params.required.(Params::IdRules),
         name: Params.optional.(Params::NameRules),
@@ -33,7 +34,7 @@ module Paleolog
       def find(raw_params)
         authenticate
           .and_then { parameterize(raw_params, FIND_PARAMS) }
-          #.and_then { authorize(_1, can_view(Paleolog::Section, :id)) }
+          .and_then { authorize(_1, can_view(Paleolog::Species, :id)) }
           .and_then { carefully(_1, find_species) }
       end
 
