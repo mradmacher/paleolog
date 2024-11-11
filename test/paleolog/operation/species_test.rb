@@ -322,6 +322,18 @@ describe Paleolog::Operation::Species do
         assert_equal :taken, result.error[:name]
       end
 
+      it 'allows same name for different group' do
+        other_group = happy_operation_for(Paleolog::Operation::Group, user).create(name: 'Other Group').value
+        result = happy_operation.create(name: 'Some Name', group_id: other_group.id)
+
+        assert_predicate result, :success?
+
+        result = operation.update(id: species.id, name: 'Some Other Name')
+
+        assert_predicate result, :success?
+        assert_equal 'Some Other Name', result.value.name
+      end
+
       it 'complains when name is too long' do
         max = 255
         result = operation.update(id: species.id, name: 'a' * (max + 1))
@@ -440,6 +452,18 @@ describe Paleolog::Operation::Species do
 
         assert_predicate result, :failure?
         assert_equal :taken, result.error[:name]
+      end
+
+      it 'allows same name for different group' do
+        other_group = happy_operation_for(Paleolog::Operation::Group, user).create(name: 'Other Group').value
+        result = happy_operation.create(name: 'Some Name', group_id: other_group.id)
+
+        assert_predicate result, :success?
+
+        result = operation.create(name: 'Some Name', group_id: group.id)
+
+        assert_predicate result, :success?
+        assert_equal 'Some Name', result.value.name
       end
 
       it 'complains when name is too long' do

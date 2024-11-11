@@ -61,9 +61,17 @@ module Paleolog
           end
         end
 
-        def name_exists?(name, exclude_id: nil)
-          (exclude_id ? ds.exclude(id: exclude_id) : ds)
-            .where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
+        def name_exists?(name, group_id: nil, exclude_id: nil)
+          scope =
+            if group_id
+              ds.where(group_id: group_id)
+            elsif exclude_id
+              ds.where(group_id: ds.where(id: exclude_id).select(:group_id))
+            else
+              ds
+            end
+          query = exclude_id ? scope.exclude(id: exclude_id) : scope
+          query.where(Sequel.ilike(:name, name.upcase)).limit(1).count.positive?
         end
 
         def entity_class

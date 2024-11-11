@@ -4,7 +4,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     libpq-dev
 
 # build dependencies
-FROM base as dependencies
+FROM base AS dependencies
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     gcc \
     git \
@@ -25,7 +25,7 @@ COPY Gemfile Gemfile.lock ./
 
 # production
 FROM environemnt AS production
-ENV RACK_ENV production
+ENV RACK_ENV=production
 USER root
 RUN bundle config set --local deployment true
 USER paleolog
@@ -34,7 +34,7 @@ CMD ["bundle", "exec", "rackup"]
 
 # development
 FROM environemnt AS development
-ENV RACK_ENV development
+ENV RACK_ENV=development
 USER root
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     gcc \

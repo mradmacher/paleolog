@@ -87,6 +87,7 @@ module Paleolog
 
           if repo.for(Paleolog::Species).name_exists?(
             params[:name],
+            group_id: params[:group_id],
             exclude_id: params[:id],
           )
             { name: TAKEN }
