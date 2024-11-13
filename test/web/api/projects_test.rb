@@ -65,7 +65,7 @@ describe 'Projects' do
         result = JSON.parse(last_response.body)['projects']
 
         assert_equal 2, result.size
-        assert_equal([project.id, other_project.id], result.map { |r| r['id'] })
+        assert_equal([other_project.id, project.id], result.map { |r| r['id'] })
       end
 
       it 'returns all necessary attributes' do

@@ -37,7 +37,13 @@ module Paleolog
 
       def find_projects(user_id)
         lambda do |_|
-          repo.for(Paleolog::Researcher).all_for_user(user_id).map(&:project)
+          Paleolog::Repo
+            .db[:projects]
+            .join(:research_participations, Sequel[:research_participations][:project_id] => :id)
+            .where(user_id: user_id)
+            .reverse_order(:created_at)
+            .select_all(:projects)
+            .map { Paleolog::Project.new(**_1) }
         end
       end
 

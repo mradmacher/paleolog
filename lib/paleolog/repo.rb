@@ -110,5 +110,17 @@ module Paleolog
         block.call
       end
     end
+
+    def self.db
+      Config.db
+    end
+
+    def self.researchers
+      Config.db[:research_participations]
+    end
+
+    def self.projects
+      Config.db[:projects]
+    end
   end
 end

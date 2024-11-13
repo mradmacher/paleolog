@@ -17,7 +17,6 @@ module Web
 
     get '/projects' do
       @filters = {}
-      @projects = Paleolog::Repo::Project.all
       using_application_layout { display 'projects/index.html' }
     end
 

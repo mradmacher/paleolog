@@ -48,14 +48,6 @@ module Paleolog
           Paleolog::Researcher.new(**result)
         end
 
-        def all_for_user(user_id)
-          ds.where(user_id: user_id).all.map do |result|
-            Paleolog::Researcher.new(**result) do |participation|
-              participation.project = Paleolog::Repo::Project.find(participation.project_id)
-            end
-          end
-        end
-
         def all_for_project(project_id)
           ds.where(project_id: project_id).all.map do |result|
             Paleolog::Researcher.new(**result) do |participation|

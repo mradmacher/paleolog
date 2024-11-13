@@ -16,10 +16,17 @@
       </div>
     </div>
 
+    <template id="project-template">
+      <tr>
+        <td><a class="project-name project-link" href=""></a></td>
+        <td class="project-date"></td>
+      </tr>
+    </template>
+
     <div class="column">
       <div class="panel">
         <div class="panel-heading">
-          <h1 class="title">Projects (<%= @projects.size %>)</h1>
+          <h1 class="title">Projects (<span class="projects-size"></span>)</h1>
         </div>
         <nav class="navbar">
           <div class="navbar-menu">
@@ -31,7 +38,7 @@
           </div>
         </nav>
         <div class="panel-block">
-          <table class="table is-striped is-fullwidth">
+          <table class="projects table is-striped is-fullwidth">
           <thead>
             <tr>
               <th>Project name</th>
@@ -39,12 +46,6 @@
             </tr>
           </thead>
           <tbody>
-            <% @projects.each do |project| %>
-              <tr>
-                <td><a href="<%= project_path(project) %>"><%= project.name %></a></td>
-                <td><%= project.created_at&.to_date %></td>
-              </tr>
-            <% end %>
           </tbody>
           </table>
         </div>
