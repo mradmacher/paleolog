@@ -20,11 +20,6 @@ describe Paleolog::Operation::Field do
     )
   end
 
-  after do
-    repo.for(Paleolog::Group).delete_all
-    repo.for(Paleolog::Field).delete_all
-  end
-
   describe '#create' do
     it 'does not complain when name not taken yet' do
       result = operation.create(name: 'Some Name', group_id: group.id)

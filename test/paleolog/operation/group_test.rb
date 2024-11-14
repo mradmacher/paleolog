@@ -9,10 +9,6 @@ describe Paleolog::Operation::Group do
     Paleolog::Operation::Group.new(repo, authorizer)
   end
 
-  after do
-    repo.for(Paleolog::Group).delete_all
-  end
-
   describe '#create' do
     it 'does not complain when name not taken yet' do
       result = operation.create(name: 'Some Name')

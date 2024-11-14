@@ -55,17 +55,6 @@ describe 'Project Catalog' do
     within('.form') { click_on('Login') }
   end
 
-  after do
-    repo.for(Paleolog::Species).delete_all
-    repo.for(Paleolog::Group).delete_all
-    repo.for(Paleolog::Occurrence).delete_all
-    repo.for(Paleolog::Sample).delete_all
-    repo.for(Paleolog::Section).delete_all
-    repo.for(Paleolog::Counting).delete_all
-    repo.for(Paleolog::Project).delete_all
-    repo.for(Paleolog::User).delete_all
-  end
-
   it 'at the beginning displays all project species' do
     visit "/projects/#{project.id}/species"
 

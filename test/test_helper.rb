@@ -3,8 +3,10 @@
 $LOAD_PATH << File.join(__dir__, '..', 'lib')
 ENV['RACK_ENV'] = 'test'
 ENV['PALEOLOG_DB_URI'] = 'postgres://paleolog:paleolog@localhost:5433/paleolog'
+ENV['PALEOLOG_DB_MAX_CONNECTIONS'] = '1' # for transactional feature tests
 
 require 'minitest/autorun'
+require 'minitest/hooks/default'
 require 'minitest/spec'
 require 'minitest/rg'
 require 'paleolog'
@@ -24,3 +26,11 @@ end
 def happy_operation_for(operation_class, user)
   operation_class.new(Paleolog::Repo, HappyAuthorizer.new(user))
 end
+
+# rubocop:disable Style/ClassAndModuleChildren
+class Minitest::HooksSpec
+  def around
+    Paleolog::Repo::Config.db.transaction(rollback: :always, auto_savepoint: true) { super }
+  end
+end
+# rubocop:enable Style/ClassAndModuleChildren

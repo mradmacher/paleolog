@@ -30,13 +30,6 @@ describe 'Sections' do
     visit "/projects/#{project.id}"
   end
 
-  after do
-    repo.delete_all(Paleolog::Researcher)
-    repo.delete_all(Paleolog::Project)
-    repo.delete_all(Paleolog::User)
-    repo.delete_all(Paleolog::Section)
-  end
-
   it 'adds section' do
     click_button(class: 'add-section action')
     within('.form-window') do

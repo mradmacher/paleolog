@@ -31,14 +31,6 @@ describe 'Samples' do
     visit "/projects/#{project.id}"
   end
 
-  after do
-    repo.delete_all(Paleolog::Researcher)
-    repo.delete_all(Paleolog::User)
-    repo.delete_all(Paleolog::Sample)
-    repo.delete_all(Paleolog::Section)
-    repo.delete_all(Paleolog::Project)
-  end
-
   it 'adds sample' do
     click_on('Section for Sample')
     click_button(class: 'add-sample action')

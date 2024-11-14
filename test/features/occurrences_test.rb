@@ -56,17 +56,6 @@ describe 'Occurrences' do
     assert_link('Logout')
   end
 
-  after do
-    repo.for(Paleolog::Occurrence).delete_all
-    repo.for(Paleolog::Sample).delete_all
-    repo.for(Paleolog::Section).delete_all
-    repo.for(Paleolog::Counting).delete_all
-    repo.for(Paleolog::Species).delete_all
-    repo.for(Paleolog::Group).delete_all
-    repo.for(Paleolog::Project).delete_all
-    repo.for(Paleolog::User).delete_all
-  end
-
   it 'suggests counted group when adding occurrences' do
     counted_group_id = repo.save(Paleolog::Group.new(name: 'Counted'))
     happy_operation_for(Paleolog::Operation::Species, user)

@@ -14,6 +14,7 @@ module Paleolog
         @db ||= Sequel.connect(
           ENV.fetch('PALEOLOG_DB_URI', nil),
           # loggers: [Logger.new($stdout)],
+          max_connections: ENV.fetch('PALEOLOG_DB_MAX_CONNECTIONS', 4),
         )
       end
 

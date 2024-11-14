@@ -9,12 +9,12 @@ gem 'param_param', '~> 0.1.0'
 gem 'pdfkit'
 gem 'pg'
 gem 'puma'
+gem 'rackup'
 gem 'rake'
 gem 'redcarpet'
 gem 'resonad'
 gem 'sequel'
 gem 'sinatra', '~> 4.0'
-gem 'rackup'
 
 group :development do
   gem 'sinatra-contrib'

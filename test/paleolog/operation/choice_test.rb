@@ -25,12 +25,6 @@ describe Paleolog::Operation::Choice do
     )
   end
 
-  after do
-    repo.for(Paleolog::Group).delete_all
-    repo.for(Paleolog::Field).delete_all
-    repo.for(Paleolog::Choice).delete_all
-  end
-
   describe '#create' do
     it 'does not complain when name not taken yet' do
       result = operation.create(name: 'Some Name', field_id: field.id)

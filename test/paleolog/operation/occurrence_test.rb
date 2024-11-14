@@ -43,17 +43,6 @@ describe Paleolog::Operation::Occurrence do
       .value
   end
 
-  after do
-    repo.for(Paleolog::Sample).delete_all
-    repo.for(Paleolog::Section).delete_all
-    repo.for(Paleolog::Counting).delete_all
-    repo.for(Paleolog::Researcher).delete_all
-    repo.for(Paleolog::Project).delete_all
-    repo.for(Paleolog::User).delete_all
-    repo.for(Paleolog::Species).delete_all
-    repo.for(Paleolog::Group).delete_all
-  end
-
   describe '#create' do
     it 'creates new occurrence' do
       result = operation.create(sample_id: sample.id, species_id: species.id, counting_id: counting.id)

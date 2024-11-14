@@ -14,10 +14,6 @@ describe Paleolog::Operation::Species do
       repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
     )
   end
-  after do
-    repo.for(Paleolog::Species).delete_all
-    repo.for(Paleolog::Group).delete_all
-  end
 
   describe '#search' do
     let(:other_group) do

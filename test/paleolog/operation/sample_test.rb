@@ -24,13 +24,6 @@ describe Paleolog::Operation::Sample do
     ).value
   end
 
-  after do
-    repo.for(Paleolog::Sample).delete_all
-    repo.for(Paleolog::Section).delete_all
-    repo.for(Paleolog::Researcher).delete_all
-    repo.for(Paleolog::Project).delete_all
-  end
-
   describe '#create' do
     it 'returns unauthenticated error when not authenticated' do
       authorizer.expect :authenticated?, false

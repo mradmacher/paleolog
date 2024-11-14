@@ -32,13 +32,6 @@ describe 'Species' do
     visit "/species/#{species.id}"
   end
 
-  after do
-    repo.delete_all(Paleolog::Species)
-    repo.delete_all(Paleolog::Group)
-    repo.delete_all(Paleolog::Researcher)
-    repo.delete_all(Paleolog::User)
-  end
-
   it 'updates name' do
     click_button(class: 'edit-species action')
     within('.form-window') do

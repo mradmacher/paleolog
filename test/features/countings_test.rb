@@ -24,13 +24,6 @@ describe 'Countings' do
     visit "/projects/#{project.id}"
   end
 
-  after do
-    repo.for(Paleolog::Researcher).delete_all
-    repo.for(Paleolog::Project).delete_all
-    repo.for(Paleolog::User).delete_all
-    repo.for(Paleolog::Counting).delete_all
-  end
-
   it 'adds counting' do
     click_button(class: 'add-counting action')
     within('.form-window') do

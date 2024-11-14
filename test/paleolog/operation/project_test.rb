@@ -9,12 +9,6 @@ describe Paleolog::Operation::Project do
   let(:happy_operation) { happy_operation_for(Paleolog::Operation::Project, user) }
   let(:user) { repo.find(Paleolog::User, repo.save(Paleolog::User.new(login: 'test', password: 'test123'))) }
 
-  after do
-    repo.for(Paleolog::Researcher).delete_all
-    repo.for(Paleolog::Project).delete_all
-    repo.for(Paleolog::User).delete_all
-  end
-
   describe '#find_all' do
     it 'returns unauthenticated error when not authenticated' do
       authorizer.expect :authenticated?, false

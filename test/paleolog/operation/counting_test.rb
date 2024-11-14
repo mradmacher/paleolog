@@ -22,13 +22,6 @@ describe Paleolog::Operation::Counting do
     happy_project_operation.create(name: 'Project for Counting', user_id: user.id).value
   end
 
-  after do
-    repo.for(Paleolog::Counting).delete_all
-    repo.for(Paleolog::Researcher).delete_all
-    repo.for(Paleolog::Project).delete_all
-    repo.for(Paleolog::User).delete_all
-  end
-
   describe '#find' do
     let(:counting) do
       happy_operation.create(name: 'Test123', project_id: project.id).value

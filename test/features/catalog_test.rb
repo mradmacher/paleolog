@@ -26,12 +26,6 @@ describe 'Catalog' do
     within('.form') { click_on('Login') }
   end
 
-  after do
-    Paleolog::Repo.delete_all(Paleolog::Species)
-    Paleolog::Repo.delete_all(Paleolog::Group)
-    Paleolog::Repo.delete_all(Paleolog::User)
-  end
-
   it 'at the beginning displays all verified species' do
     visit '/catalog'
 

@@ -23,12 +23,6 @@ describe 'Projects' do
     assert_link('Logout')
   end
 
-  after do
-    repo.delete_all(Paleolog::Researcher)
-    repo.delete_all(Paleolog::Project)
-    repo.delete_all(Paleolog::User)
-  end
-
   it 'adds project' do
     visit '/projects'
 
