@@ -7,23 +7,27 @@ module Paleolog
     class InvalidLogin < StandardError; end
     class InvalidPassword < StandardError; end
 
+    NONE = :none
+    MANAGER = :manager
+    OBSERVER = :observer
+
     ROLES = {
       Project => lambda do |user_id, id|
-        Repo::Researcher.project_role(id, user_id)
+        project_role(id, user_id)
       end,
       Paleolog::Counting => lambda do |user_id, id|
-        Repo::Researcher.counting_role(id, user_id)
+        counting_role(id, user_id)
       end,
       Paleolog::Section => lambda do |user_id, id|
-        Repo::Researcher.section_role(id, user_id)
+        section_role(id, user_id)
       end,
       Paleolog::Sample => lambda do |user_id, id|
-        Repo::Researcher.sample_role(id, user_id)
+        sample_role(id, user_id)
       end,
       Paleolog::Species => lambda do |user_id, _id|
-        user_id ? Repo::Researcher::MANAGER : Repo::Researcher::NONE
+        user_id ? MANAGER : NONE
       end,
-    }.tap { |h| h.default = ->(_user_id, _id) { Repo::Researcher::NONE } }
+    }.tap { |h| h.default = ->(_user_id, _id) { NONE } }
 
     attr_reader :session
 
@@ -36,8 +40,10 @@ module Paleolog
     end
 
     def authorize(login, password)
-      user = Paleolog::Repo::User.find_by_login(login)
-      raise InvalidLogin unless user
+      result = Paleolog.db[:users].where(login: login).first
+      raise InvalidLogin unless result
+
+      user = Paleolog::User.new(**result)
       raise InvalidPassword unless BCrypt::Password.new(user.password) == "#{user.password_salt}#{password}"
 
       login(user)
@@ -58,11 +64,52 @@ module Paleolog
     end
 
     def can_manage?(entity_class, id)
-      ROLES[entity_class].call(user_id, id) == Repo::Researcher::MANAGER
+      ROLES[entity_class].call(user_id, id) == MANAGER
     end
 
     def can_view?(entity_class, id)
-      ROLES[entity_class].call(user_id, id) != Repo::Researcher::NONE
+      ROLES[entity_class].call(user_id, id) != NONE
+    end
+
+    def self.project_role(project_id, user_id)
+      role_for(
+        ds.where(project_id: project_id, user_id: user_id).select_map(:manager),
+      )
+    end
+
+    def self.section_role(section_id, user_id)
+      role_for(
+        ds.where(user_id: user_id, Sequel[:sections][:id] => section_id)
+          .join(:projects, Sequel[:projects][:id] => :project_id)
+          .join(:sections, Sequel[:sections][:project_id] => :id).select_map(:manager),
+      )
+    end
+
+    def self.sample_role(sample_id, user_id)
+      role_for(
+        ds.where(user_id: user_id, Sequel[:samples][:id] => sample_id)
+          .join(:projects, Sequel[:projects][:id] => :project_id)
+          .join(:sections, Sequel[:sections][:project_id] => :id)
+          .join(:samples, Sequel[:samples][:section_id] => :id).select_map(:manager),
+      )
+    end
+
+    def self.counting_role(counting_id, user_id)
+      role_for(
+        ds.where(user_id: user_id, Sequel[:countings][:id] => counting_id)
+           .join(:projects, Sequel[:projects][:id] => :project_id)
+           .join(:countings, Sequel[:countings][:project_id] => :id).select_map(:manager),
+      )
+    end
+
+    def self.ds
+      Paleolog.db[:research_participations]
+    end
+
+    def self.role_for(booleans)
+      return NONE if booleans.empty?
+
+      booleans.any? ? MANAGER : OBSERVER
     end
   end
 end

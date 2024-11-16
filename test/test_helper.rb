@@ -24,13 +24,13 @@ class HappyAuthorizer
 end
 
 def happy_operation_for(operation_class, user)
-  operation_class.new(Paleolog::Repo, HappyAuthorizer.new(user))
+  operation_class.new(Paleolog.db, HappyAuthorizer.new(user))
 end
 
 # rubocop:disable Style/ClassAndModuleChildren
 class Minitest::HooksSpec
   def around
-    Paleolog::Repo::Config.db.transaction(rollback: :always, auto_savepoint: true) { super }
+    Paleolog::Config.db.transaction(rollback: :always, auto_savepoint: true) { super }
   end
 end
 # rubocop:enable Style/ClassAndModuleChildren

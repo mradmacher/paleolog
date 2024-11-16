@@ -10,7 +10,7 @@ module Web
       helpers Web::AuthHelpers, Web::ApiHelpers
 
       before do
-        @operation = Paleolog::Operation::Species.new(Paleolog::Repo, authorizer)
+        @operation = Paleolog::Repository::Species.new(Paleolog.db, authorizer)
       end
 
       get '/api/species/:id' do

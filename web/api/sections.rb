@@ -10,7 +10,7 @@ module Web
       helpers Web::AuthHelpers, Web::ApiHelpers
 
       before do
-        @operation = Paleolog::Operation::Section.new(Paleolog::Repo, authorizer)
+        @operation = Paleolog::Repository::Section.new(Paleolog.db, authorizer)
       end
 
       get '/api/projects/:project_id/sections' do

@@ -10,7 +10,7 @@ module Web
       helpers Web::AuthHelpers, Web::ApiHelpers
 
       before do
-        @operation = Paleolog::Operation::Sample.new(Paleolog::Repo, authorizer)
+        @operation = Paleolog::Repository::Sample.new(Paleolog.db, authorizer)
       end
 
       post '/api/samples' do

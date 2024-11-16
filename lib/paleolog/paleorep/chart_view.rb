@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/ClassLength
-# rubocop:disable Metrics/MethodLength
 # rubocop:disable Metrics/CyclomaticComplexity
-# rubocop:disable Metrics/AbcSize
 module Paleolog
   module Paleorep
     class ChartView
@@ -198,7 +195,4 @@ module Paleolog
     end
   end
 end
-# rubocop:enable Metrics/AbcSize
 # rubocop:enable Metrics/CyclomaticComplexity
-# rubocop:enable Metrics/MethodLength
-# rubocop:enable Metrics/ClassLength

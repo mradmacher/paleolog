@@ -7,13 +7,8 @@ describe 'Countings' do
 
   before do
     use_javascript_driver
-    user = repo.find(
-      Paleolog::User,
-      repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
-    )
-    project = happy_operation_for(Paleolog::Operation::Project, user).create(
-      name: 'test',
-    ).value
+    user = Paleolog::Repository::User.new(Paleolog.db, nil).create(login: 'test', password: 'test123').value
+    project = happy_operation_for(Paleolog::Repository::Project, user).create(name: 'test').value
 
     visit '/login'
     fill_in('login-field', with: 'test')

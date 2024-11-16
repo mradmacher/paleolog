@@ -3,21 +3,18 @@
 require 'features_helper'
 
 describe 'Catalog' do
-  let(:group1_id) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Dinoflagellate')) }
-  let(:group2_id) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Other')) }
+  let(:group1) { happy_operation_for(Paleolog::Repository::Group, user).create(name: 'Dinoflagellate').value }
+  let(:group2) { happy_operation_for(Paleolog::Repository::Group, user).create(name: 'Other').value }
   let(:user) do
-    Paleolog::Repo.find(
-      Paleolog::User,
-      Paleolog::Repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
-    )
+    Paleolog::Repository::User.new(Paleolog.db, nil).create(login: 'test', password: 'test123').value
   end
 
   before do
     use_javascript_driver
-    happy_operation_for(Paleolog::Operation::Species, user).tap do |operation|
-      operation.create(group_id: group1_id, name: 'Odontochitina costata', verified: true).value
-      operation.create(group_id: group1_id, name: 'Cerodinium costata', verified: false).value
-      operation.create(group_id: group2_id, name: 'Cerodinium diabelli', verified: true).value
+    happy_operation_for(Paleolog::Repository::Species, user).tap do |operation|
+      operation.create(group_id: group1.id, name: 'Odontochitina costata', verified: true).value
+      operation.create(group_id: group1.id, name: 'Cerodinium costata', verified: false).value
+      operation.create(group_id: group2.id, name: 'Cerodinium diabelli', verified: true).value
     end
 
     visit '/login'
@@ -76,13 +73,13 @@ describe 'Catalog' do
       click_on('Search')
     end
 
-    assert_current_path(/group_id=#{group1_id}/)
+    assert_current_path(/group_id=#{group1.id}/)
     assert_current_path(/name=costa/)
     assert_current_path(/verified=true/)
   end
 
   it 'allows passing search params in url' do
-    visit "/catalog?group_id=#{group1_id}&name=odonto&verified=true"
+    visit "/catalog?group_id=#{group1.id}&name=odonto&verified=true"
 
     page.must_have_content('Species list (1)')
     within('.species-collection') do

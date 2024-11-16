@@ -36,7 +36,6 @@ module Paleolog
       STATUSES[status]
     end
 
-    # rubocop:disable Metrics/AbcSize
     # occurrence: in: [:first, :last]
     def summary(samples, occurrence: :first)
       samples_summary = samples.sort_by(&:rank)
@@ -54,7 +53,6 @@ module Paleolog
 
       [samples_summary, species_summary, occurrences_summary]
     end
-    # rubocop:enable Metrics/AbcSize
 
     def specimens_by_occurrence_for_section(counting, section)
       specimens_by_occurrence(counting, section.samples.sort_by(&:rank))
