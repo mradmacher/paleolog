@@ -5,10 +5,6 @@ require 'test_helper'
 describe Paleolog::Repo::Image do
   let(:repo) { Paleolog::Repo::Image }
 
-  after do
-    repo.delete_all
-  end
-
   describe '#all_for_species' do
     let(:group_id) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Group')) }
     let(:species_id) { Paleolog::Repo.save(Paleolog::Species.new(name: 'Species', group_id: group_id)) }

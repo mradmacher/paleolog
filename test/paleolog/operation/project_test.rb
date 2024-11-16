@@ -9,6 +9,48 @@ describe Paleolog::Operation::Project do
   let(:happy_operation) { happy_operation_for(Paleolog::Operation::Project, user) }
   let(:user) { repo.find(Paleolog::User, repo.save(Paleolog::User.new(login: 'test', password: 'test123'))) }
 
+  describe '#find' do
+    let(:project) { happy_operation.create(name: 'Test Project').value }
+
+    it 'loads researchers' do
+      result = operation.find(id: project.id)
+      assert_predicate result, :success?
+      project = result.value
+
+      refute_empty(project.researchers, 'researchers are empty')
+      assert_equal(1, project.researchers.size)
+
+      assert_equal(user.login, project.researchers.first.user.login)
+    end
+
+    it 'loads countings' do
+      Paleolog::Repo.save(
+        Paleolog::Counting.new(name: 'Test Counting', project_id: project.id),
+      )
+
+      result = operation.find(id: project.id)
+      assert_predicate result, :success?
+      project = result.value
+
+      refute_empty(project.countings, 'countings are empty')
+      assert_equal(1, project.countings.size)
+      assert_equal('Test Counting', project.countings.first.name)
+    end
+
+    it 'loads sections' do
+      Paleolog::Repo.save(
+        Paleolog::Section.new(name: 'Test Section', project_id: project.id),
+      )
+      result = operation.find(id: project.id)
+      assert_predicate result, :success?
+      project = result.value
+
+      refute_empty(project.sections, 'sections are empty')
+      assert_equal(1, project.sections.size)
+      assert_equal('Test Section', project.sections.first.name)
+    end
+  end
+
   describe '#find_all' do
     it 'returns unauthenticated error when not authenticated' do
       authorizer.expect :authenticated?, false

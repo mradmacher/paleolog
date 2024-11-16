@@ -5,11 +5,6 @@ require 'test_helper'
 describe Paleolog::Repo::Choice do
   let(:repo) { Paleolog::Repo::Choice }
 
-  after do
-    Paleolog::Repo.delete_all(Paleolog::Field)
-    repo.delete_all
-  end
-
   describe '#all_for_field' do
     it 'returns choices for given field id' do
       field_id = Paleolog::Repo.save(Paleolog::Field.new(name: 'Some field'))

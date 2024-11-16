@@ -18,18 +18,6 @@ describe Paleolog::Authorizer do
     )
   end
 
-  after do
-    Paleolog::Repo.delete_all(Paleolog::Occurrence)
-    Paleolog::Repo.delete_all(Paleolog::Species)
-    Paleolog::Repo.delete_all(Paleolog::Group)
-    Paleolog::Repo.delete_all(Paleolog::Sample)
-    Paleolog::Repo.delete_all(Paleolog::Section)
-    Paleolog::Repo.delete_all(Paleolog::Counting)
-    Paleolog::Repo.delete_all(Paleolog::User)
-    Paleolog::Repo.delete_all(Paleolog::Researcher)
-    Paleolog::Repo.delete_all(Paleolog::Project)
-  end
-
   describe '#can_view?(Species)' do
     let(:group) do
       happy_operation_for(Paleolog::Operation::Group, user).create(name: 'A Group').value

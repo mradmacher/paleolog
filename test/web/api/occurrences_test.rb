@@ -51,18 +51,6 @@ describe 'Occurrences' do
   end
   let(:session) { {} }
 
-  after do
-    Paleolog::Repo.delete_all(Paleolog::Occurrence)
-    Paleolog::Repo.delete_all(Paleolog::Species)
-    Paleolog::Repo.delete_all(Paleolog::Group)
-    Paleolog::Repo.delete_all(Paleolog::Sample)
-    Paleolog::Repo.delete_all(Paleolog::Section)
-    Paleolog::Repo.delete_all(Paleolog::Counting)
-    Paleolog::Repo.delete_all(Paleolog::User)
-    Paleolog::Repo.delete_all(Paleolog::Researcher)
-    Paleolog::Repo.delete_all(Paleolog::Project)
-  end
-
   describe 'GET /api/projects/:project_id/occurrences' do
     it 'rejects guest access' do
       params = { sample_id: sample.id, counting_id: counting.id }

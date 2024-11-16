@@ -163,14 +163,6 @@ describe Paleolog::Operation::Species do
         end
         let(:filters) { { project_id: project.id } }
 
-        after do
-          repo.delete_all(Paleolog::Sample)
-          repo.delete_all(Paleolog::Section)
-          repo.delete_all(Paleolog::Counting)
-          repo.delete_all(Paleolog::Occurrence)
-          repo.delete_all(Paleolog::Project)
-        end
-
         it 'displays species from occurrences' do
           section = happy_operation_for(Paleolog::Operation::Section, user)
                     .create(name: 'Some section', project_id: project.id)

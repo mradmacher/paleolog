@@ -18,10 +18,7 @@ module Web
     get '/projects/:project_id/countings/:id' do
       redirect projects_path unless authorizer.can_view?(Paleolog::Project, params[:project_id].to_i)
 
-      @project = Paleolog::Repo::Project.find(
-        params[:project_id].to_i,
-        Paleolog::Repo::Project.with_countings,
-      )
+      @project = Paleolog::Operation::Project.new(Paleolog::Repo, authorizer).find(id: params[:project_id]).value
       @counting_id = params[:id].to_i
       @counting = Paleolog::Repo::Counting.find_for_project(
         params[:id].to_i, @project.id,

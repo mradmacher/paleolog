@@ -25,12 +25,6 @@ describe 'Projects' do
     project
   end
 
-  after do
-    repo.delete_all(Paleolog::Researcher)
-    repo.delete_all(Paleolog::Project)
-    repo.delete_all(Paleolog::User)
-  end
-
   describe 'GET /api/projects' do
     it 'rejects guest access' do
       assert_unauthorized(-> { get '/api/projects', {} })

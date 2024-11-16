@@ -6,11 +6,6 @@ describe Paleolog::Repo::Counting do
   let(:repo) { Paleolog::Repo::Counting }
   let(:project_id) { Paleolog::Repo.save(Paleolog::Project.new(name: 'Some Project')) }
 
-  after do
-    repo.delete_all
-    Paleolog::Repo.delete_all(Paleolog::Project)
-  end
-
   describe '#find_for_project' do
     let(:other_project_id) { Paleolog::Repo.save(Paleolog::Project.new(name: 'Other Project')) }
 

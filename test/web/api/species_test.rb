@@ -23,12 +23,6 @@ describe 'Projects' do
   end
   let(:app) { Web::Api::Species.new }
 
-  after do
-    repo.for(Paleolog::Species).delete_all
-    repo.for(Paleolog::User).delete_all
-    repo.for(Paleolog::Group).delete_all
-  end
-
   describe 'GET /api/species' do
     it 'rejects guest access' do
       assert_unauthorized(-> { get '/api/species', {} })

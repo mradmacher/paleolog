@@ -5,13 +5,6 @@ require 'test_helper'
 describe Paleolog::Repo::Species do
   let(:repo) { Paleolog::Repo::Species }
 
-  after do
-    repo.delete_all
-    Paleolog::Repo::Group.delete_all
-
-    Paleolog::Repo::Project.delete_all
-  end
-
   describe '#find' do
     it 'find species and assigns group' do
       group_id = Paleolog::Repo.save(Paleolog::Group.new(name: 'Dinoflagellate'))

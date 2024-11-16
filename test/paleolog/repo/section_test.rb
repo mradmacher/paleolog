@@ -6,11 +6,6 @@ describe Paleolog::Repo::Section do
   let(:repo) { Paleolog::Repo::Section }
   let(:project_id) { Paleolog::Repo.save(Paleolog::Project.new(name: 'Some Project')) }
 
-  after do
-    repo.delete_all
-    Paleolog::Repo::Project.delete_all
-  end
-
   describe '#find_for_project' do
     it 'returns section by id for given project' do
       other_project_id = Paleolog::Repo.save(Paleolog::Project.new(name: 'Other Project'))

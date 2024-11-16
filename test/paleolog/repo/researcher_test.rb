@@ -13,15 +13,6 @@ describe Paleolog::Repo::Researcher do
   end
   let(:user_id) { user.id }
 
-  after do
-    repo.delete_all
-    Paleolog::Repo.delete_all(Paleolog::User)
-    Paleolog::Repo.delete_all(Paleolog::Sample)
-    Paleolog::Repo.delete_all(Paleolog::Section)
-    Paleolog::Repo.delete_all(Paleolog::Counting)
-    Paleolog::Repo.delete_all(Paleolog::Project)
-  end
-
   def assign_observer_role(user_id, project_id)
     Paleolog::Repo.save(Paleolog::Researcher.new(user_id: user_id, project_id: project_id))
   end

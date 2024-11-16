@@ -6,10 +6,6 @@ describe Paleolog::Repo::Field do
   let(:repo) { Paleolog::Repo::Field }
   let(:group_id) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Group')) }
 
-  after do
-    repo.delete_all
-  end
-
   describe '#all' do
     it 'returns all fields' do
       field1_id = Paleolog::Repo.save(Paleolog::Field.new(name: 'Field1', group_id: group_id))

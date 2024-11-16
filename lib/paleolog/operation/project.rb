@@ -3,6 +3,10 @@
 module Paleolog
   module Operation
     class Project < BaseOperation
+      FIND_PARAMS = Params.define.(
+        id: Params.required.(Params::IdRules)
+      )
+
       CREATE_PARAMS = Params.define.(
         name: Params.required.(Params::NameRules),
         user_id: Params.required.(Params::IdRules),
@@ -12,6 +16,11 @@ module Paleolog
         id: Params.required.(Params::IdRules),
         name: Params.required.(Params::NameRules),
       )
+
+      def find(raw_params)
+        parameterize(raw_params, FIND_PARAMS)
+          .and_then { carefully(_1, find_project) }
+      end
 
       def find_all
         authenticate
@@ -35,9 +44,28 @@ module Paleolog
 
       private
 
+      def find_project
+        lambda do  |params|
+          result = repo.db[:projects].where(id: params[:id]).first
+          return nil unless result
+
+          Paleolog::Project.new(**result) do |project|
+            Paleolog::Repo::Counting.all_for_project(project.id).each do |counting|
+              project.countings << counting
+            end
+            Paleolog::Repo::Section.all_for_project(project.id).each do |section|
+              project.sections << section
+            end
+            Paleolog::Repo::Researcher.all_for_project(project.id).each do |researcher|
+              project.researchers << researcher
+            end
+          end
+        end
+      end
+
       def find_projects(user_id)
         lambda do |_|
-          Paleolog::Repo
+          repo
             .db[:projects]
             .join(:research_participations, Sequel[:research_participations][:project_id] => :id)
             .where(user_id: user_id)

@@ -22,14 +22,6 @@ describe 'Sections' do
     Paleolog::Repo::Researcher.find_for_project_and_user(project.id, user.id)
   end
 
-  after do
-    repo.for(Paleolog::Researcher).delete_all
-    repo.for(Paleolog::User).delete_all
-    repo.for(Paleolog::Sample).delete_all
-    repo.for(Paleolog::Section).delete_all
-    repo.for(Paleolog::Project).delete_all
-  end
-
   describe 'GET /api/sections/:id' do
     let(:section) do
       happy_operation_for(Paleolog::Operation::Section, user).create(

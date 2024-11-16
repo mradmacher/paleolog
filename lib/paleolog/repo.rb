@@ -29,10 +29,6 @@ module Paleolog
         ds.all.map { |result| entity_class.new(**result) }
       end
 
-      def delete_all
-        ds.delete
-      end
-
       def use_timestamps?
         true
       end

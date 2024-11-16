@@ -51,15 +51,6 @@ describe 'Occurrences' do
     assert_predicate last_response, :ok?
   end
 
-  after do
-    Paleolog::Repo::Researcher.delete_all
-    Paleolog::Repo::User.delete_all
-    Paleolog::Repo::Project.delete_all
-    Paleolog::Repo::Counting.delete_all
-    Paleolog::Repo::Sample.delete_all
-    Paleolog::Repo::Section.delete_all
-  end
-
   describe 'GET /projects/:project_id/countings/:id' do
     it 'requires user participating in the project as observer' do
       assert_requires_observer(

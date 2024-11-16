@@ -5,10 +5,6 @@ require 'test_helper'
 describe Paleolog::Repo::Group do
   let(:repo) { Paleolog::Repo::Group }
 
-  after do
-    repo.delete_all
-  end
-
   describe '#name_exists?' do
     it 'checks name uniqueness' do
       Paleolog::Repo.save(Paleolog::Group.new(name: 'Some name'))

@@ -11,16 +11,6 @@ describe Paleolog::Repo::Occurrence do
   let(:counting_id) { Paleolog::Repo.save(Paleolog::Counting.new(name: 'Some counting', project_id: project_id)) }
   let(:sample_id) { Paleolog::Repo.save(Paleolog::Sample.new(name: 'Some sample', section_id: section_id)) }
 
-  after do
-    repo.delete_all
-    Paleolog::Repo.delete_all(Paleolog::Species)
-    Paleolog::Repo.delete_all(Paleolog::Group)
-    Paleolog::Repo.delete_all(Paleolog::Sample)
-    Paleolog::Repo.delete_all(Paleolog::Section)
-    Paleolog::Repo.delete_all(Paleolog::Counting)
-    Paleolog::Repo.delete_all(Paleolog::Project)
-  end
-
   describe '#find_in_project' do
     let(:occurrence_id) do
       repo.create(
