@@ -3,18 +3,14 @@
 require 'features_helper'
 
 describe 'Species' do
-  let(:repo) { Paleolog::Repo }
-  let(:group1_id) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Dinoflagellate')) }
-  let(:group2_id) { Paleolog::Repo.save(Paleolog::Group.new(name: 'Other')) }
+  let(:group1) { happy_operation_for(Paleolog::Repository::Group, user).create(name: 'Dinoflagellate').value }
+  let(:group2) { happy_operation_for(Paleolog::Repository::Group, user).create(name: 'Other').value }
   let(:user) do
-    repo.find(
-      Paleolog::User,
-      repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
-    )
+    Paleolog::Repository::User.new(Paleolog.db, nil).create(login: 'test', password: 'test123').value
   end
   let(:species) do
-    happy_operation_for(Paleolog::Operation::Species, user)
-      .create(name: 'Test Species', group_id: group1_id)
+    happy_operation_for(Paleolog::Repository::Species, user)
+      .create(name: 'Test Species', group_id: group1.id)
       .value
   end
 

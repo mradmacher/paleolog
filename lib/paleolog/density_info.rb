@@ -32,7 +32,6 @@ module Paleolog
       @marker_quantity = marker_quantity
     end
 
-    # rubocop:disable Metrics/AbcSize
     # rubocop:disable Metrics/CyclomaticComplexity
     def group_density(occurrences, sample)
       sample_occurrences = occurrences.select { |occ| occ.sample == sample }
@@ -53,11 +52,8 @@ module Paleolog
 
       (counted_group_quantity / counted_marker_quantity) * (marker_quantity / sample.weight)
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
-    # rubocop:enable Metrics/AbcSize
 
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/AbcSize
+    # rubocop:enable Metrics/CyclomaticComplexity
     # rubocop:disable Metrics/CyclomaticComplexity
     # rubocop:disable Metrics/PerceivedComplexity
     def occurrence_density_map(occurrences, samples)
@@ -83,8 +79,6 @@ module Paleolog
     end
     # rubocop:enable Metrics/PerceivedComplexity
     # rubocop:enable Metrics/CyclomaticComplexity
-    # rubocop:enable Metrics/AbcSize
-    # rubocop:enable Metrics/MethodLength
 
     private
 

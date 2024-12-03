@@ -13,44 +13,48 @@ module Web
 
     before '/projects/:project_id/reports*' do
       authorize!
+      @occurrence_operation = Paleolog::Repository::Occurrence.new(Paleolog.db, authorizer)
     end
 
     get '/projects/:project_id/reports' do
-      @project = Paleolog::Repo::Project.find(
-        params[:project_id].to_i,
-        Paleolog::Repo::Project.with_countings,
-        Paleolog::Repo::Project.with_sections,
-        Paleolog::Repo::Project.with_researchers,
-      )
-      @section = Paleolog::Repo::Section.find_for_project(params[:section].to_i, @project.id) if params[:section]
-      if params[:counting]
-        @counting = Paleolog::Repo::Counting.find_for_project(params[:counting].to_i,
-                                                              @project.id,)
+      @project = Paleolog::Repository::Project.new(Paleolog.db, authorizer).find(id: params[:project_id]).value
+      if params[:section]
+        @section = Paleolog::Repository::Section.new(Paleolog.db, authorizer).find(id: params[:section],
+                                                                                   project_id: @project.id,).value
       end
-      @groups = Paleolog::Repo::Group.all
-      @fields = Paleolog::Repo::Field.all
-      @occurrences = @counting && @section ? Paleolog::Repo::Occurrence.all_for_section(@counting.id, @section.id) : []
+      if params[:counting]
+        @counting = Paleolog::Repository::Counting.new(Paleolog.db, authorizer).find(id: params[:counting],
+                                                                                     project_id: @project.id,).value
+      end
+      @groups = Paleolog::Repository::Group.new(Paleolog.db, authorizer).find_all.value
+      @fields = Paleolog::Repository::Field.new(Paleolog.db, authorizer).find_all.value
+      @occurrences = if @counting && @section
+                       @occurrence_operation.find_all(counting_id: @counting.id,
+                                                      section_id: @section.id,).value
+                     else
+                       []
+                     end
       @species = @occurrences.map(&:species).uniq(&:id)
 
       using_project_layout { using_reports_layout { display 'reports/index.html' } }
     end
 
     post '/projects/:project_id/reports' do
-      @project = Paleolog::Repo::Project.find(
-        params[:project_id].to_i,
-        Paleolog::Repo::Project.with_countings,
-        Paleolog::Repo::Project.with_sections,
-        Paleolog::Repo::Project.with_researchers,
-      )
+      @project = Paleolog::Repository::Project.new(Paleolog.db, authorizer).find(id: params[:project_id]).value
       if params[:section_id]
-        @section = Paleolog::Repo::Section.find_for_project(params[:section_id].to_i,
-                                                            @project.id,)
+        @section = Paleolog::Repository::Section.new(Paleolog.db, authorizer).find(id: params[:section],
+                                                                                   project_id: @project.id,).value
       end
       if params[:counting_id]
-        @counting = Paleolog::Repo::Counting.find_for_project(params[:counting_id].to_i,
-                                                              @project.id,)
+        @counting = Paleolog::Repository::Counting.new(Paleolog.db, authorizer).find(id: params[:counting],
+                                                                                     project_id: @project.id,).value
       end
-      @occurrences = @counting && @section ? Paleolog::Repo::Occurrence.all_for_section(@counting.id, @section.id) : []
+      @occurrences = if @counting && @section
+                       @occurrence_operation.find_all(counting_id: @counting.id,
+                                                      section_id: @section.id,).value
+                     else
+                       []
+                     end
       @report = Paleolog::Report.build(params)
       @report.counted_group = @counting.group
       @report.marker = @counting.marker
@@ -62,16 +66,18 @@ module Web
     end
 
     post '/projects/:project_id/reports/export.csv' do
-      @project = Paleolog::Repo::Project.find(
-        params[:project_id].to_i,
-        Paleolog::Repo::Project.with_countings,
-        Paleolog::Repo::Project.with_sections,
-        Paleolog::Repo::Project.with_researchers,
-      )
-      @section = Paleolog::Repo::Section.find_for_project(params['report']['section_id'].to_i, @project.id)
-      @counting = Paleolog::Repo::Counting.find_for_project(params['report']['counting_id'].to_i, @project.id)
+      @project = Paleolog::Repository::Project.new(Paleolog.db, authorizer).find(id: params[:project_id]).value
+      @section = Paleolog::Repository::Section.new(Paleolog.db, authorizer).find(id: params[:section],
+                                                                                 project_id: @project.id,).value
+      @counting = Paleolog::Repository::Counting.new(Paleolog.db, authorizer).find(id: params[:counting],
+                                                                                   project_id: @project.id,).value
 
-      @occurrences = @counting && @section ? Paleolog::Repo::Occurrence.all_for_section(@counting.id, @section.id) : []
+      @occurrences = if @counting && @section
+                       @occurrence_operation.find_all(counting_id: @counting.id,
+                                                      section_id: @section.id,).value
+                     else
+                       []
+                     end
       @report = Paleolog::Report.build(params['report'])
       @report.counted_group = @counting.group
       @report.marker = @counting.marker

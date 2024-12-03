@@ -144,7 +144,6 @@ module Paleolog
       values.each(&)
     end
 
-    # rubocop:disable Metrics/AbcSize
     def self.build(params)
       Report.new.tap do |report|
         report.type = params[:type]
@@ -157,7 +156,6 @@ module Paleolog
         report.reverse_rows = params[:reverse_rows] == '1'
       end
     end
-    # rubocop:enable Metrics/AbcSize
 
     def name
       TYPE_NAMES[@type]
@@ -184,8 +182,6 @@ module Paleolog
       [filtered_samples, filtered_occurrences]
     end
 
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/AbcSize
     def filter_column(column_group, filter)
       if filter['species_ids']
         filtered = []
@@ -205,11 +201,7 @@ module Paleolog
         column_group.each_value(&:clear)
       end
     end
-    # rubocop:enable Metrics/AbcSize
-    # rubocop:enable Metrics/MethodLength
 
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/AbcSize
     def process_column(column_group, species, samples, occurrences)
       return if species.empty?
 
@@ -235,12 +227,8 @@ module Paleolog
         end
       end
     end
-    # rubocop:enable Metrics/AbcSize
-    # rubocop:enable Metrics/MethodLength
 
-    # rubocop:disable Metrics/AbcSize
     # rubocop:disable Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/PerceivedComplexity
     def post_process_column(column_group, criteria)
       return unless criteria['percentages'] == '1'
@@ -262,11 +250,9 @@ module Paleolog
         end
       end
     end
-    # rubocop:enable Metrics/PerceivedComplexity
-    # rubocop:enable Metrics/MethodLength
-    # rubocop:enable Metrics/CyclomaticComplexity
-    # rubocop:enable Metrics/AbcSize
 
+    # rubocop:enable Metrics/PerceivedComplexity
+    # rubocop:enable Metrics/CyclomaticComplexity
     def get0or_value(value)
       value || 0
     end
@@ -277,7 +263,6 @@ module Paleolog
 
     # rubocop:disable Metrics/AbcSize
     # rubocop:disable Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/PerceivedComplexity
     def reduce_column(column_group, criteria)
       return if column_group.headers.empty?
@@ -310,13 +295,11 @@ module Paleolog
       end
     end
     # rubocop:enable Metrics/PerceivedComplexity
-    # rubocop:enable Metrics/MethodLength
     # rubocop:enable Metrics/CyclomaticComplexity
     # rubocop:enable Metrics/AbcSize
 
     # rubocop:disable Metrics/PerceivedComplexity
     # rubocop:disable Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/AbcSize
     def process_computed_column(report, criteria)
       return if criteria['computed'].nil? || criteria['computed'].empty?
@@ -357,7 +340,6 @@ module Paleolog
       end
     end
     # rubocop:enable Metrics/AbcSize
-    # rubocop:enable Metrics/MethodLength
     # rubocop:enable Metrics/CyclomaticComplexity
     # rubocop:enable Metrics/PerceivedComplexity
 
@@ -392,8 +374,6 @@ module Paleolog
       end
     end
 
-    # rubocop:disable Metrics/AbcSize
-    # rubocop:disable Metrics/MethodLength
     def generate(occurrences, samples)
       samples_summary, species_summary, occurrences_summary =
         Paleolog::CountingSummary.new(occurrences).summary(samples)
@@ -428,8 +408,6 @@ module Paleolog
       concat_values(report)
       concat_splits(report)
     end
-    # rubocop:enable Metrics/MethodLength
-    # rubocop:enable Metrics/AbcSize
 
     def self.model_name
       ActiveModel::Name.new(self, false)

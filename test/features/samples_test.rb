@@ -3,22 +3,18 @@
 require 'features_helper'
 
 describe 'Samples' do
-  let(:repo) { Paleolog::Repo }
   let(:user) do
-    repo.find(
-      Paleolog::User,
-      repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
-    )
+    Paleolog::Repository::User.new(Paleolog.db, nil).create(login: 'test', password: 'test123').value
   end
   let(:project) do
-    happy_operation_for(Paleolog::Operation::Project, user)
+    happy_operation_for(Paleolog::Repository::Project, user)
       .create(name: 'Test Project')
       .value
   end
 
   before do
     use_javascript_driver
-    happy_operation_for(Paleolog::Operation::Section, user).create(
+    happy_operation_for(Paleolog::Repository::Section, user).create(
       name: 'Section for Sample', project_id: project.id,
     ).value
 

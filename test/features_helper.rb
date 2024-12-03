@@ -25,12 +25,12 @@ module Minitest
   end
 end
 
-Paleolog::Repo::Config.db.extension :temporarily_release_connection
+Paleolog::Config.db.extension :temporarily_release_connection
 # rubocop:disable Style/ClassAndModuleChildren
 class Minitest::HooksSpec
   def around(&block)
-    Paleolog::Repo::Config.db.transaction(rollback: :always, auto_savepoint: true) do |conn|
-      Paleolog::Repo::Config.db.temporarily_release_connection(conn, &block)
+    Paleolog::Config.db.transaction(rollback: :always, auto_savepoint: true) do |conn|
+      Paleolog::Config.db.temporarily_release_connection(conn, &block)
     end
   end
 end

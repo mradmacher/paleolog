@@ -11,6 +11,10 @@ module Web
       # name.gsub('/', '').gsub(/[[:space:]]+/, '-')
     end
 
+    def home_path
+      '/'
+    end
+
     def projects_path
       '/projects'
     end

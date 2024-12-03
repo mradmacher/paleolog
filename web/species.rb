@@ -19,13 +19,17 @@ module Web
 
     get '/species/search-filters' do
       {
-        groups: Paleolog::Repo::Group.all.map { |group| { id: group.id, name: group.name } },
+        groups: Paleolog::Repository::Group.new(Paleolog.db, authorizer).find_all.value.map do |group|
+          { id: group.id, name: group.name }
+        end,
       }.to_json
     end
 
     get '/catalog' do
       {
-        groups: Paleolog::Repo::Group.all.map { |group| { id: group.id, name: group.name } },
+        groups: Paleolog::Repository::Group.new(Paleolog.db, authorizer).find_all.value.map do |group|
+          { id: group.id, name: group.name }
+        end,
         initial: {
           group_id: 1,
         },
@@ -39,8 +43,13 @@ module Web
     end
 
     get '/species/:id' do
-      @species = Paleolog::Repo::Species.find(params[:id].to_i)
-      using_species_layout { display 'species/show.html' }
+      case Paleolog::Repository::Species.new(Paleolog.db, authorizer).find(id: params[:id])
+      in { value: }
+        @species = value
+        using_species_layout { display 'species/show.html' }
+      in { error: }
+        redirect_to home_path
+      end
     end
   end
 end

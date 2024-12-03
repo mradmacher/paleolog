@@ -5,18 +5,15 @@ require 'features_helper'
 describe 'Occurrences' do
   let(:repo) { Paleolog::Repo }
   let(:user) do
-    repo.find(
-      Paleolog::User,
-      repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
-    )
+    Paleolog::Repository::User.new(Paleolog.db, nil).create(login: 'test', password: 'test123').value
   end
   let(:project) do
-    happy_operation_for(Paleolog::Operation::Project, user)
+    happy_operation_for(Paleolog::Repository::Project, user)
       .create(name: 'some project')
       .value
   end
   let(:counting) do
-    happy_operation_for(Paleolog::Operation::Counting, user)
+    happy_operation_for(Paleolog::Repository::Counting, user)
       .create(name: 'some counting', project_id: project.id)
       .value
   end
@@ -27,22 +24,22 @@ describe 'Occurrences' do
 
   before do
     use_javascript_driver
-    group1_id = repo.save(Paleolog::Group.new(name: 'Dinoflagellate'))
-    group2_id = repo.save(Paleolog::Group.new(name: 'Other'))
-    operation = happy_operation_for(Paleolog::Operation::Species, user)
-    species11 = operation.create(group_id: group1_id, name: 'Odontochitina costata').value
-    species21 = operation.create(group_id: group1_id, name: 'Cerodinium costata').value
-    species12 = operation.create(group_id: group2_id, name: 'Cerodinium diabelli').value
-    operation.create(group_id: group2_id, name: 'Diabella diabelli').value
+    group1 = happy_operation_for(Paleolog::Repository::Group, user).create(name: 'Dinoflagellate').value
+    group2 = happy_operation_for(Paleolog::Repository::Group, user).create(name: 'Other').value
+    operation = happy_operation_for(Paleolog::Repository::Species, user)
+    species11 = operation.create(group_id: group1.id, name: 'Odontochitina costata').value
+    species21 = operation.create(group_id: group1.id, name: 'Cerodinium costata').value
+    species12 = operation.create(group_id: group2.id, name: 'Cerodinium diabelli').value
+    operation.create(group_id: group2.id, name: 'Diabella diabelli').value
 
-    section = happy_operation_for(Paleolog::Operation::Section, user)
+    section = happy_operation_for(Paleolog::Repository::Section, user)
               .create(name: 'some section', project_id: project.id)
               .value
-    sample = happy_operation_for(Paleolog::Operation::Sample, user)
+    sample = happy_operation_for(Paleolog::Repository::Sample, user)
              .create(name: 'some sample', section_id: section.id)
              .value
 
-    happy_operation_for(Paleolog::Operation::Occurrence, user).tap do |op|
+    happy_operation_for(Paleolog::Repository::Occurrence, user).tap do |op|
       op.create(sample_id: sample.id, counting_id: counting.id, species_id: species11.id).value
       op.create(sample_id: sample.id, counting_id: counting.id, species_id: species21.id).value
       op.create(sample_id: sample.id, counting_id: counting.id, species_id: species12.id).value
@@ -57,10 +54,10 @@ describe 'Occurrences' do
   end
 
   it 'suggests counted group when adding occurrences' do
-    counted_group_id = repo.save(Paleolog::Group.new(name: 'Counted'))
-    happy_operation_for(Paleolog::Operation::Species, user)
-      .create(group_id: counted_group_id, name: 'Counted Group Species').value
-    repo.save(Paleolog::Counting.new(id: counting.id, group_id: counted_group_id))
+    counted_group = happy_operation_for(Paleolog::Repository::Group, user).create(name: 'Counted').value
+    happy_operation_for(Paleolog::Repository::Species, user)
+      .create(group_id: counted_group.id, name: 'Counted Group Species').value
+    happy_operation_for(Paleolog::Repository::Counting, user).update(id: counting.id, group_id: counted_group.id)
     visit "/projects/#{project.id}/countings/#{counting.id}"
 
     click_action_to('add occurrence')

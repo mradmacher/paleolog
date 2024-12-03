@@ -8,31 +8,17 @@ describe 'Sections' do
   let(:app) { Web::Api::Sections.new }
   let(:repo) { Paleolog::Repo }
   let(:user) do
-    repo.find(
-      Paleolog::User,
-      repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
-    )
+    Paleolog::Repository::User.new(Paleolog.db, nil).create(login: 'test', password: 'test123').value
   end
   let(:project) do
-    happy_operation_for(Paleolog::Operation::Project, user)
+    happy_operation_for(Paleolog::Repository::Project, user)
       .create(name: 'project for section')
       .value
-  end
-  let(:researcher) do
-    Paleolog::Repo::Researcher.find_for_project_and_user(project.id, user.id)
-  end
-
-  after do
-    repo.for(Paleolog::Researcher).delete_all
-    repo.for(Paleolog::User).delete_all
-    repo.for(Paleolog::Sample).delete_all
-    repo.for(Paleolog::Section).delete_all
-    repo.for(Paleolog::Project).delete_all
   end
 
   describe 'GET /api/sections/:id' do
     let(:section) do
-      happy_operation_for(Paleolog::Operation::Section, user).create(
+      happy_operation_for(Paleolog::Repository::Section, user).create(
         name: 'some project', project_id: project.id,
       ).value
     end
@@ -46,7 +32,8 @@ describe 'Sections' do
     end
 
     it 'rejects user not being a researcher in the project' do
-      repo.for(Paleolog::Researcher).delete(researcher.id)
+      happy_operation_for(Paleolog::Repository::Project, user)
+        .remove_researcher(project_id: project.id, user_id: user.id)
       login(user)
 
       assert_forbidden(-> { get "/api/sections/#{section.id}" })
@@ -75,7 +62,7 @@ describe 'Sections' do
       end
 
       it 'returns section samples' do
-        result = happy_operation_for(Paleolog::Operation::Sample, user).create(
+        result = happy_operation_for(Paleolog::Repository::Sample, user).create(
           section_id: section.id,
           name: 'sample 1 for section',
           description: 'sample 1 description',
@@ -85,7 +72,7 @@ describe 'Sections' do
         assert_predicate result, :success?
         sample1 = result.value
 
-        result = happy_operation_for(Paleolog::Operation::Sample, user).create(
+        result = happy_operation_for(Paleolog::Repository::Sample, user).create(
           section_id: section.id,
           name: 'sample 2 for section',
           description: 'sample 2 description',
@@ -129,7 +116,8 @@ describe 'Sections' do
     end
 
     it 'rejects user observing the project' do
-      repo.save(Paleolog::Researcher.new(id: researcher.id, manager: false))
+      happy_operation_for(Paleolog::Repository::Project, user)
+        .update_researcher(project_id: project.id, user_id: user.id, manager: false)
       login(user)
 
       assert_forbidden(-> { post '/api/sections', { project_id: project.id, name: 'some name' } })
@@ -175,7 +163,8 @@ describe 'Sections' do
     end
 
     it 'rejects user observing the project' do
-      repo.save(Paleolog::Researcher.new(id: researcher.id, manager: false))
+      happy_operation_for(Paleolog::Repository::Project, user)
+        .update_researcher(project_id: project.id, user_id: user.id, manager: false)
       login(user)
 
       assert_forbidden(-> { patch '/api/sections/1', { name: 'some new name', project_id: project.id } })
@@ -183,7 +172,7 @@ describe 'Sections' do
 
     describe 'with user' do
       let(:section) do
-        happy_operation_for(Paleolog::Operation::Section, user).create(
+        happy_operation_for(Paleolog::Repository::Section, user).create(
           name: 'some project', project_id: project.id,
         ).value
       end

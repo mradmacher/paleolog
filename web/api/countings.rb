@@ -10,7 +10,7 @@ module Web
       helpers Web::AuthHelpers, Web::ApiHelpers
 
       before do
-        @operation = Paleolog::Operation::Counting.new(Paleolog::Repo, authorizer)
+        @operation = Paleolog::Repository::Counting.new(Paleolog.db, authorizer)
       end
 
       get '/api/countings/:id' do
@@ -27,7 +27,6 @@ module Web
 
       private
 
-      # rubocop:disable Metrics/AbcSize
       def serializer
         lambda do |counting|
           {
@@ -44,7 +43,6 @@ module Web
           end
         end
       end
-      # rubocop:enable Metrics/AbcSize
     end
   end
 end

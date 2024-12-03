@@ -17,10 +17,22 @@ Metrics/BlockLength:
     - 'test/**/*_test.rb'
 
 Metrics/MethodLength:
-  Max: 15
+  Max: 30
+
+Metrics/ClassLength:
+  Max: 200
+
+Metrics/AbcSize:
+  Max: 40
 
 Style/Documentation:
   Enabled: false
 
 Style/LambdaCall:
+  Enabled: false
+
+Style/MultilineBlockChain:
+  Enabled: false
+
+Layout/MultilineMethodCallIndentation:
   Enabled: false

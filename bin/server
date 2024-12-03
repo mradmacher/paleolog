@@ -1,2 +1,6 @@
 #!/bin/sh
+export RACK_ENV="development"
+export PALEOLOG_DB_URI="postgres://paleolog:paleolog@localhost:5434/paleolog"
+export PALEOLOG_DB_MAX_CONNECTIONS=4
+
 npm run build && bundle exec rackup -p 9292 -o 0.0.0.0

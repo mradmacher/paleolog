@@ -16,12 +16,7 @@ module Web
     end
 
     get '/projects/:project_id/sections/:id' do
-      @project = Paleolog::Repo::Project.find(
-        params[:project_id].to_i,
-        Paleolog::Repo::Project.with_countings,
-        Paleolog::Repo::Project.with_sections,
-        Paleolog::Repo::Project.with_researchers,
-      )
+      @project = Paleolog::Repository::Project.new(Paleolog.db, authorizer).find(id: params[:project_id]).value
       @section_id = params[:id].to_i
       using_project_layout { display 'sections/show.html' }
     end

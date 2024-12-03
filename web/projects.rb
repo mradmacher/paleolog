@@ -21,17 +21,12 @@ module Web
     end
 
     get '/projects/:id' do
-      @project = Paleolog::Repo::Project.find(
-        params[:id].to_i,
-        Paleolog::Repo::Project.with_countings,
-        Paleolog::Repo::Project.with_sections,
-        Paleolog::Repo::Project.with_researchers,
-      )
+      @project = Paleolog::Repository::Project.new(Paleolog.db, authorizer).find(id: params[:id]).value
       using_project_layout { display 'projects/show.html' }
     end
 
     get '/projects/:id/species' do
-      @project = Paleolog::Repo::Project.find(params[:id].to_i)
+      @project = Paleolog::Repository::Project.new(Paleolog.db, authorizer).find(id: params[:id]).value
       @filters = {}
       @filters[:group_id] = params[:group_id] if params[:group_id] && !params[:group_id].empty?
       @filters[:name] = params[:name] if params[:name] && !params[:name].empty?
@@ -41,8 +36,8 @@ module Web
     end
 
     get '/projects/:project_id/species/:id' do
-      @project = Paleolog::Repo::Project.find(params[:project_id].to_i)
-      @species = Paleolog::Repo::Species.find(params[:id].to_i)
+      @project = Paleolog::Repository::Project.new(Paleolog.db, authorizer).find(id: params[:project_id]).value
+      @species = Paleolog::Repository::Species.new(Paleolog.db, authorizer).find(id: params[:id]).value
       using_project_layout { using_project_species_layout { display 'species/show.html' } }
     end
   end

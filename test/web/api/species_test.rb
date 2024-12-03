@@ -7,27 +7,18 @@ describe 'Projects' do
 
   let(:repo) { Paleolog::Repo }
   let(:user) do
-    repo.find(
-      Paleolog::User,
-      repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
-    )
+    Paleolog::Repository::User.new(Paleolog.db, nil).create(login: 'test', password: 'test123').value
   end
-  let(:happy_operation) { happy_operation_for(Paleolog::Operation::Species, user) }
+  let(:happy_operation) { happy_operation_for(Paleolog::Repository::Species, user) }
   let(:group1) do
-    happy_operation_for(Paleolog::Operation::Group, user)
+    happy_operation_for(Paleolog::Repository::Group, user)
       .create(name: 'Dinoflagellate').value
   end
   let(:group2) do
-    happy_operation_for(Paleolog::Operation::Group, user)
+    happy_operation_for(Paleolog::Repository::Group, user)
       .create(name: 'Other').value
   end
   let(:app) { Web::Api::Species.new }
-
-  after do
-    repo.for(Paleolog::Species).delete_all
-    repo.for(Paleolog::User).delete_all
-    repo.for(Paleolog::Group).delete_all
-  end
 
   describe 'GET /api/species' do
     it 'rejects guest access' do

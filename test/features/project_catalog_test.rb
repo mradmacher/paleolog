@@ -4,16 +4,13 @@ require 'features_helper'
 
 describe 'Project Catalog' do
   let(:repo) { Paleolog::Repo }
-  let(:group1_id) { repo.save(Paleolog::Group.new(name: 'Dinoflagellate')) }
-  let(:group2_id) { repo.save(Paleolog::Group.new(name: 'Other')) }
+  let(:group1) { happy_operation_for(Paleolog::Repository::Group, user).create(name: 'Dinoflagellate').value }
+  let(:group2) { happy_operation_for(Paleolog::Repository::Group, user).create(name: 'Other').value }
   let(:user) do
-    repo.find(
-      Paleolog::User,
-      repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
-    )
+    Paleolog::Repository::User.new(Paleolog.db, nil).create(login: 'test', password: 'test123').value
   end
   let(:project) do
-    happy_operation_for(Paleolog::Operation::Project, user)
+    happy_operation_for(Paleolog::Repository::Project, user)
       .create(name: 'Test Project')
       .value
   end
@@ -21,22 +18,22 @@ describe 'Project Catalog' do
   before do
     use_javascript_driver
 
-    operation = happy_operation_for(Paleolog::Operation::Species, user)
-    species1 = operation.create(group_id: group1_id, name: 'Odontochitina costata', verified: false).value
-    species2 = operation.create(group_id: group1_id, name: 'Cerodinium costata', verified: true).value
-    operation.create(group_id: group2_id, name: 'Cerodinium diabelli', verified: true).value
+    operation = happy_operation_for(Paleolog::Repository::Species, user)
+    species1 = operation.create(group_id: group1.id, name: 'Odontochitina costata', verified: false).value
+    species2 = operation.create(group_id: group1.id, name: 'Cerodinium costata', verified: true).value
+    operation.create(group_id: group2.id, name: 'Cerodinium diabelli', verified: true).value
 
-    counting = happy_operation_for(Paleolog::Operation::Counting, user)
+    counting = happy_operation_for(Paleolog::Repository::Counting, user)
                .create(name: 'Some counting', project_id: project.id)
                .value
-    section = happy_operation_for(Paleolog::Operation::Section, user)
+    section = happy_operation_for(Paleolog::Repository::Section, user)
               .create(name: 'Some section', project_id: project.id)
               .value
-    sample = happy_operation_for(Paleolog::Operation::Sample, user)
+    sample = happy_operation_for(Paleolog::Repository::Sample, user)
              .create(name: 'Some sample', section_id: section.id)
              .value
 
-    happy_operation_for(Paleolog::Operation::Occurrence, user).tap do |op|
+    happy_operation_for(Paleolog::Repository::Occurrence, user).tap do |op|
       op.create(
         species_id: species1.id,
         counting_id: counting.id,
@@ -105,13 +102,13 @@ describe 'Project Catalog' do
       click_on('Search')
     end
 
-    assert_current_path(/group_id=#{group1_id}/)
+    assert_current_path(/group_id=#{group1.id}/)
     assert_current_path(/name=costa/)
     assert_current_path(/verified=true/)
   end
 
   it 'allows passing search params in url' do
-    visit "/catalog?group_id=#{group1_id}&name=cero&verified=true"
+    visit "/catalog?group_id=#{group1.id}&name=cero&verified=true"
 
     assert_text('Species list (1)')
     within('.species-collection') do

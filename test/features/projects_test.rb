@@ -3,12 +3,8 @@
 require 'features_helper'
 
 describe 'Projects' do
-  let(:repo) { Paleolog::Repo }
   let(:user) do
-    repo.find(
-      Paleolog::User,
-      repo.save(Paleolog::User.new(login: 'test', password: 'test123')),
-    )
+    Paleolog::Repository::User.new(Paleolog.db, nil).create(login: 'test', password: 'test123').value
   end
 
   before do
