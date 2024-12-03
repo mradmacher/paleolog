@@ -50,18 +50,24 @@ module Paleolog
         errors ? Resonad.failure(errors) : Resonad.success(params)
       end
 
+      def verify_name_uniqueness(params, collection, scope: nil)
+        if name_taken?(collection, params, scope:)
+          Resonad.failure({ name: Operation::TAKEN })
+        else
+          Resonad.success(params)
+        end
+      end
+
       def merge(params, func)
         Resonad.success(params.merge(func.call(params)))
       end
 
-      def carefully(params, func)
+      def carefully(&)
         thrown = true
         result = catch(:stop) do
-          func.call(params).tap { thrown = false }
+          yield.tap { thrown = false }
         end
         thrown ? Resonad.failure(result) : Resonad.success(result)
-      rescue StandardError => e
-        Resonad.failure(e)
       end
 
       def break_with(reason)
@@ -76,7 +82,7 @@ module Paleolog
         ->(params) { authorizer.can_view?(model, params[key]) }
       end
 
-      def name_exists?(collection, params, scope: nil)
+      def name_taken?(collection, params, scope: nil)
         return false unless params.key?(:name)
 
         query = collection

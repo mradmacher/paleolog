@@ -8,45 +8,31 @@ module Paleolog
       )
 
       def find_all
-        carefully({}, find_groups)
+        carefully { find_groups }
       end
 
-      def create(params)
-        parameterize(params, CREATE_PARAMS)
-          .and_then { verify(_1, name_uniqueness) }
-          .and_then { carefully(_1, create_group) }
+      def create(raw_params)
+        parameterize(raw_params, CREATE_PARAMS)
+          .and_then { verify_name_uniqueness(_1, db[:groups]) }
+          .and_then { |params| carefully { create_group(params) } }
       end
 
       private
 
       def find_groups
-        lambda do |_params|
-          db[:groups].all.map { Paleolog::Group.new(**_1) }
-        end
+        db[:groups].all.map { Paleolog::Group.new(**_1) }
       end
 
-      def find_group
-        lambda do |params|
-          result = db[:groups].where(id: params[:id]).first
-          break_with(Operation::NOT_FOUND) unless result
+      def find_group(params)
+        result = db[:groups].where(id: params[:id]).first
+        break_with(Operation::NOT_FOUND) unless result
 
-          Paleolog::Group.new(**result)
-        end
+        Paleolog::Group.new(**result)
       end
 
-      def create_group
-        lambda do |params|
-          group_id = db[:groups].insert(**params)
-          find_group.(id: group_id)
-        end
-      end
-
-      def name_uniqueness
-        lambda do |params|
-          break unless params.key?(:name)
-
-          { name: Operation::TAKEN } if name_exists?(db[:groups], params)
-        end
+      def create_group(params)
+        group_id = db[:groups].insert(**params)
+        find_group(id: group_id)
       end
     end
   end
