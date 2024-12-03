@@ -14,7 +14,7 @@ gem 'rake'
 gem 'redcarpet'
 gem 'resonad'
 gem 'sequel'
-gem 'sinatra', '~> 4.0'
+gem 'sinatra', '>= 4.1.0'
 
 group :development do
   gem 'sinatra-contrib'
