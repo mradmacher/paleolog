@@ -44,9 +44,9 @@ module Paleolog
 
       def create(raw_params)
         parameterize(raw_params, CREATE_PARAMS)
-          .and_then { verify(_1, species_uniqueness) }
-          .and_then { merge(_1, default_status) }
-          .and_then { merge(_1, next_rank) }
+          .and_then { verify_species_uniqueness(_1) }
+          .and_then { pass(with_default_status(_1)) }
+          .and_then { pass(with_next_rank(_1)) }
           .and_then { |params| carefully { create_occurrence(params) } }
       end
 
@@ -136,31 +136,25 @@ module Paleolog
         db[:occurrences].where(id: params[:id]).delete
       end
 
-      def species_uniqueness
-        lambda do |params|
-          exists = db[:occurrences].where(
-            species_id: params[:species_id],
-            counting_id: params[:counting_id],
-            sample_id: params[:sample_id],
-          ).limit(1).count.positive?
+      def verify_species_uniqueness(params)
+        exists = db[:occurrences].where(
+          species_id: params[:species_id],
+          counting_id: params[:counting_id],
+          sample_id: params[:sample_id],
+        ).limit(1).count.positive?
 
-          { species_id: Operation::TAKEN } if exists
-        end
+        exists ? stop_with(species_id: Operation::TAKEN) : pass(params)
       end
 
-      def default_status
-        lambda do |_|
-          { status: Paleolog::Occurrence::NORMAL }
-        end
+      def with_default_status(params)
+        params.merge(status: Paleolog::Occurrence::NORMAL)
       end
 
-      def next_rank
-        lambda do |params|
-          max_rank = db[:occurrences]
-                     .where(counting_id: params[:counting_id], sample_id: params[:sample_id])
-                     .max(:rank)
-          { rank: (max_rank || 0) + 1 }
-        end
+      def with_next_rank(params)
+        max_rank = db[:occurrences]
+                   .where(counting_id: params[:counting_id], sample_id: params[:sample_id])
+                   .max(:rank)
+        params.merge(rank: (max_rank || 0) + 1)
       end
 
       # def available_species_ids(counting_id, sample_id, group_id)

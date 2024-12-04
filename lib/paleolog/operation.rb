@@ -31,35 +31,33 @@ module Paleolog
 
       protected
 
-      # TODO: remove that nil
-      def authenticate(params = nil)
-        authorizer.authenticated? ? Resonad.success(params) : Resonad.failure(UNAUTHENTICATED)
+      def authenticate
+        authorizer.authenticated? ? pass(nil) : stop_with(UNAUTHENTICATED)
       end
 
       def authorize(params, func)
-        func.call(params) ? Resonad.success(params) : Resonad.failure(UNAUTHORIZED)
+        func.call(params) ? pass(params) : stop_with(UNAUTHORIZED)
       end
 
       def parameterize(params, rules)
         normalized_params, errors = rules.(params)
-        errors.empty? ? Resonad.success(normalized_params) : Resonad.failure(errors)
-      end
-
-      def verify(params, func)
-        errors = func.call(params)
-        errors ? Resonad.failure(errors) : Resonad.success(params)
+        errors.empty? ? pass(normalized_params) : stop_with(errors)
       end
 
       def verify_name_uniqueness(params, collection, scope: nil)
         if name_taken?(collection, params, scope:)
-          Resonad.failure({ name: Operation::TAKEN })
+          stop_with({ name: Operation::TAKEN })
         else
-          Resonad.success(params)
+          pass(params)
         end
       end
 
-      def merge(params, func)
-        Resonad.success(params.merge(func.call(params)))
+      def pass(value)
+        Resonad.success(value)
+      end
+
+      def stop_with(value)
+        Resonad.failure(value)
       end
 
       def carefully(&)
@@ -67,7 +65,7 @@ module Paleolog
         result = catch(:stop) do
           yield.tap { thrown = false }
         end
-        thrown ? Resonad.failure(result) : Resonad.success(result)
+        thrown ? stop_with(result) : pass(result)
       end
 
       def break_with(reason)

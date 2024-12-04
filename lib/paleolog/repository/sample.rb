@@ -23,7 +23,7 @@ module Paleolog
       )
 
       def find(raw_params)
-        authenticate(raw_params)
+        authenticate
           .and_then { parameterize(raw_params, FIND_PARAMS) }
           .and_then { authorize(_1, can_view(Paleolog::Sample, :id)) }
           .and_then { |params| carefully { find_sample(params) } }
@@ -34,7 +34,7 @@ module Paleolog
           .and_then { parameterize(raw_params, CREATE_PARAMS) }
           .and_then { authorize(_1, can_manage(Paleolog::Section, :section_id)) }
           .and_then { verify_name_uniqueness(_1, db[:samples], scope: :section_id) }
-          .and_then { merge(_1, next_rank) }
+          .and_then { pass(with_next_rank(_1)) }
           .and_then { |params| carefully { create_sample(params) } }
       end
 
@@ -74,11 +74,9 @@ module Paleolog
         find_sample(id: params[:id])
       end
 
-      def next_rank
-        lambda do |params|
-          max_rank = db[:samples].where(section_id: params[:section_id]).max(:rank) || 0
-          { rank: max_rank + 1 }
-        end
+      def with_next_rank(params)
+        max_rank = db[:samples].where(section_id: params[:section_id]).max(:rank) || 0
+        params.merge(rank: max_rank + 1)
       end
     end
   end
