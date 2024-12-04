@@ -3,18 +3,18 @@
 module Paleolog
   module Repository
     class Species < Operation::Base
-      SearchParams = Params.define.(
+      SEARCH_PARAMS = Params.define.(
         group_id: Params.optional.(Params.blank_to_nil_or.(Params::IdRules)),
         project_id: Params.optional.(Params.blank_to_nil_or.(Params::IdRules)),
         name: Params.optional.(Params.blank_to_nil_or.(Params::NameRules)),
         verified: Params.optional.(Params.blank_to_nil_or.(Params.bool.(Params.any))),
       )
 
-      FindParams = Params.define.(
+      FIND_PARAMS = Params.define.(
         id: Params.required.(Params::IdRules),
       )
 
-      CreateParams = Params.define.(
+      CREATE_PARAMS = Params.define.(
         name: Params.required.(Params::NameRules),
         group_id: Params.required.(Params::IdRules),
         description: Params.optional.(Params::DescriptionRules),
@@ -22,7 +22,7 @@ module Paleolog
         verified: Params.optional.(Params.bool.(Params.any)),
       )
 
-      UpdateParams = Params.define.(
+      UPDATE_PARAMS = Params.define.(
         id: Params.required.(Params::IdRules),
         name: Params.optional.(Params::NameRules),
         group_id: Params.optional.(Params::IdRules),
@@ -31,52 +31,52 @@ module Paleolog
         verified: Params.optional.(Params.bool.(Params.any)),
       )
 
-      AddFeatureParams = Params.define.(
+      ADD_FEATURE_PARAMS = Params.define.(
         species_id: Params.required.(Params::IdRules),
         choice_id: Params.required.(Params::IdRules),
       )
 
-      AddImageParams = Params.define.(
+      ADD_IMAGE_PARAMS = Params.define.(
         species_id: Params.required.(Params::IdRules),
         image_file_name: Params.required.(Params::NameRules),
       )
 
       def find(raw_params)
         authenticate
-          .and_then { parameterize(raw_params, FindParams) }
+          .and_then { parameterize(raw_params, FIND_PARAMS) }
           .and_then { authorize(_1, can_view(Paleolog::Species, :id)) }
           .and_then { |params| carefully { find_species(params) } }
       end
 
       def search(raw_params)
         authenticate
-          .and_then { parameterize(raw_params, SearchParams) }
+          .and_then { parameterize(raw_params, SEARCH_PARAMS) }
           .and_then { |params| carefully { search_species(params) } }
       end
 
       def create(raw_params)
         authenticate
-          .and_then { parameterize(raw_params, CreateParams) }
+          .and_then { parameterize(raw_params, CREATE_PARAMS) }
           .and_then { verify_name_uniqueness(_1, db[:species], scope: :group_id) }
           .and_then { |params| carefully { create_species(params) } }
       end
 
       def update(raw_params)
         authenticate
-          .and_then { parameterize(raw_params, UpdateParams) }
+          .and_then { parameterize(raw_params, UPDATE_PARAMS) }
           .and_then { verify_name_uniqueness(_1, db[:species], scope: :group_id) }
           .and_then { |params| carefully { update_species(params) } }
       end
 
       def add_feature(raw_params)
         authenticate
-          .and_then { parameterize(raw_params, AddFeatureParams) }
+          .and_then { parameterize(raw_params, ADD_FEATURE_PARAMS) }
           .and_then { |params| carefully { create_feature(params) } }
       end
 
       def add_image(raw_params)
         authenticate
-          .and_then { parameterize(raw_params, AddImageParams) }
+          .and_then { parameterize(raw_params, ADD_IMAGE_PARAMS) }
           .and_then { |params| carefully { create_image(params) } }
       end
 

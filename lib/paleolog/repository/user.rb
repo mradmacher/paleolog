@@ -3,23 +3,23 @@
 module Paleolog
   module Repository
     class User < Operation::Base
-      CreateParams = Params.define.(
+      CREATE_PARAMS = Params.define.(
         login: Params.required.(Params::NameRules),
         password: Params.required.(Params::NameRules),
       )
 
-      FindParams = Params.define.(
+      FIND_PARAMS = Params.define.(
         id: Params.optional.(Params::IdRules),
         login: Params.optional.(Params::NameRules),
       )
 
       def find(raw_params)
-        parameterize(raw_params, FindParams)
+        parameterize(raw_params, FIND_PARAMS)
           .and_then { |params| carefully { find_user(params) } }
       end
 
       def create(raw_params)
-        parameterize(raw_params, CreateParams)
+        parameterize(raw_params, CREATE_PARAMS)
           .and_then { |params| carefully { create_user(params) } }
       end
 
