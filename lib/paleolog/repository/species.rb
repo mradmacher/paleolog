@@ -3,18 +3,18 @@
 module Paleolog
   module Repository
     class Species < Operation::Base
-      SearchParams = Params.define.(
+      SEARCH_PARAMS = Params.define.(
         group_id: Params.optional.(Params.blank_to_nil_or.(Params::IdRules)),
         project_id: Params.optional.(Params.blank_to_nil_or.(Params::IdRules)),
         name: Params.optional.(Params.blank_to_nil_or.(Params::NameRules)),
         verified: Params.optional.(Params.blank_to_nil_or.(Params.bool.(Params.any))),
       )
 
-      FindParams = Params.define.(
+      FIND_PARAMS = Params.define.(
         id: Params.required.(Params::IdRules),
       )
 
-      CreateParams = Params.define.(
+      CREATE_PARAMS = Params.define.(
         name: Params.required.(Params::NameRules),
         group_id: Params.required.(Params::IdRules),
         description: Params.optional.(Params::DescriptionRules),
@@ -22,7 +22,7 @@ module Paleolog
         verified: Params.optional.(Params.bool.(Params.any)),
       )
 
-      UpdateParams = Params.define.(
+      UPDATE_PARAMS = Params.define.(
         id: Params.required.(Params::IdRules),
         name: Params.optional.(Params::NameRules),
         group_id: Params.optional.(Params::IdRules),
@@ -31,84 +31,84 @@ module Paleolog
         verified: Params.optional.(Params.bool.(Params.any)),
       )
 
-      AddFeatureParams = Params.define.(
+      ADD_FEATURE_PARAMS = Params.define.(
         species_id: Params.required.(Params::IdRules),
         choice_id: Params.required.(Params::IdRules),
       )
 
-      AddImageParams = Params.define.(
+      ADD_IMAGE_PARAMS = Params.define.(
         species_id: Params.required.(Params::IdRules),
         image_file_name: Params.required.(Params::NameRules),
       )
 
       def find(raw_params)
         authenticate
-          .and_then { parameterize(raw_params, FindParams) }
+          .and_then { parameterize(raw_params, FIND_PARAMS) }
           .and_then { authorize(_1, can_view(Paleolog::Species, :id)) }
-          .and_then { carefully(_1, FindSpecies.(db)) }
+          .and_then { |params| carefully { find_species(params) } }
       end
 
       def search(raw_params)
         authenticate
-          .and_then { parameterize(raw_params, SearchParams) }
-          .and_then { carefully(_1, search_species) }
+          .and_then { parameterize(raw_params, SEARCH_PARAMS) }
+          .and_then { |params| carefully { search_species(params) } }
       end
 
       def create(raw_params)
         authenticate
-          .and_then { parameterize(raw_params, CreateParams) }
-          .and_then { verify(_1, name_uniqueness) }
-          .and_then { carefully(_1, create_species) }
+          .and_then { parameterize(raw_params, CREATE_PARAMS) }
+          .and_then { verify_name_uniqueness(_1, db[:species], scope: :group_id) }
+          .and_then { |params| carefully { create_species(params) } }
       end
 
-      def update(params)
+      def update(raw_params)
         authenticate
-          .and_then { parameterize(params, UpdateParams) }
-          .and_then { verify(_1, name_uniqueness) }
-          .and_then { carefully(_1, update_species) }
+          .and_then { parameterize(raw_params, UPDATE_PARAMS) }
+          .and_then { verify_name_uniqueness(_1, db[:species], scope: :group_id) }
+          .and_then { |params| carefully { update_species(params) } }
       end
 
-      def add_feature(params)
+      def add_feature(raw_params)
         authenticate
-          .and_then { parameterize(params, AddFeatureParams) }
-          .and_then { carefully(_1, CreateFeature.(db)) }
+          .and_then { parameterize(raw_params, ADD_FEATURE_PARAMS) }
+          .and_then { |params| carefully { create_feature(params) } }
       end
 
-      def add_image(params)
+      def add_image(raw_params)
         authenticate
-          .and_then { parameterize(params, AddImageParams) }
-          .and_then { carefully(_1, CreateImage.(db)) }
+          .and_then { parameterize(raw_params, ADD_IMAGE_PARAMS) }
+          .and_then { |params| carefully { create_image(params) } }
       end
 
       private
 
-      FindFeature = lambda do |db, params|
+      def find_feature(params)
         result = db[:features].where(id: params[:id]).first
         break_with(Operation::NOT_FOUND) unless result
 
         Paleolog::Feature.new(**result)
-      end.curry
+      end
 
-      CreateFeature = lambda do |db, params|
+      def create_feature(params)
         id = db[:features].insert(**params)
 
-        FindFeature.(db, id: id)
-      end.curry
+        find_feature(id: id)
+      end
 
-      FindImage = lambda do |db, params|
+      def find_image(params)
         result = db[:images].where(species_id: params[:id]).first
         break_with(Operation::NOT_FOUND) unless result
 
         Paleolog::Image.new(**result)
       end
 
-      CreateImage = lambda do |db, params|
+      def create_image(params)
         id = db[:images].insert(**params)
 
-        FindImage.(db, id: id)
-      end.curry
+        find_image(id: id)
+      end
 
-      FindSpecies = lambda do |db, params|
+      def find_species(params)
         result = db[:species].where(id: params[:id]).first
         break_with(Operation::NOT_FOUND) unless result
 
@@ -117,7 +117,7 @@ module Paleolog
           WithFeatures.(db, species)
           WithImages.(db, species)
         end
-      end.curry
+      end
 
       WithGroup = lambda do |db, species|
         species.group = Paleolog::Group.new(**db[:groups].where(id: species.group_id).first)
@@ -151,13 +151,11 @@ module Paleolog
         end
       end
 
-      def search_species
-        lambda do |params|
-          groups = db[:groups].all.map { Paleolog::Group.new(**_1) }
-          search_query(params).all.map do |result|
-            Paleolog::Species.new(**result) do |species|
-              species.group = groups.detect { |group| group.id == species.group_id }
-            end
+      def search_species(params)
+        groups = db[:groups].all.map { Paleolog::Group.new(**_1) }
+        search_query(params).all.map do |result|
+          Paleolog::Species.new(**result) do |species|
+            species.group = groups.detect { |group| group.id == species.group_id }
           end
         end
       end
@@ -180,26 +178,14 @@ module Paleolog
         query.where(id: occurrences_refs.select(:species_id))
       end
 
-      def create_species
-        lambda do |params|
-          species_id = db[:species].insert(timestamps_for_create.merge(**params))
-          FindSpecies.(db, id: species_id)
-        end
+      def create_species(params)
+        species_id = db[:species].insert(timestamps_for_create.merge(**params))
+        find_species(id: species_id)
       end
 
-      def update_species
-        lambda do |params|
-          db[:species].where(id: params[:id]).update(timestamps_for_update.merge(**params))
-          FindSpecies.(db, id: params[:id])
-        end
-      end
-
-      def name_uniqueness
-        lambda do |params|
-          break unless params.key?(:name)
-
-          { name: Operation::TAKEN } if name_exists?(db[:species], params, scope: :group_id)
-        end
+      def update_species(params)
+        db[:species].where(id: params[:id]).update(timestamps_for_update.merge(**params))
+        find_species(id: params[:id])
       end
     end
   end
