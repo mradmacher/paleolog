@@ -54,24 +54,24 @@ describe Paleolog::Repository::Field do
       result = operation.create(name: 'Name', group_id: nil)
 
       assert_predicate result, :failure?
-      assert_equal Paleolog::Repository::Params::NON_INTEGER, result.error[:group_id]
+      assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:group_id]
 
       result = operation.create(name: 'Name', group_id: Optiomist.none)
 
       assert_predicate result, :failure?
-      assert_equal Paleolog::Repository::Params::MISSING, result.error[:group_id]
+      assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:group_id]
     end
 
     it 'complains when name is blank' do
       result = operation.create(name: nil, group_id: group.id)
 
       assert_predicate result, :failure?
-      assert_equal :blank, result.error[:name]
+      assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
 
       result = operation.create(name: '  ', group_id: group.id)
 
       assert_predicate result, :failure?
-      assert_equal :blank, result.error[:name]
+      assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
     end
 
     it 'complains when name already exists' do
@@ -90,7 +90,7 @@ describe Paleolog::Repository::Field do
       result = operation.create(name: 'a' * (max + 1), group_id: group.id)
 
       assert_predicate result, :failure?
-      assert_equal Paleolog::Repository::Params::TOO_LONG, result.error[:name]
+      assert_equal Paleolog::Repository::Params::TOO_LONG_ERR, result.error[:name]
 
       result = operation.create(name: 'a' * max, group_id: group.id)
 
@@ -130,24 +130,24 @@ describe Paleolog::Repository::Field do
       result = operation.add_choice(name: 'Name', field_id: nil)
 
       assert_predicate result, :failure?
-      assert_equal Paleolog::Repository::Params::NON_INTEGER, result.error[:field_id]
+      assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:field_id]
 
       result = operation.add_choice(name: 'Name', field_id: Optiomist.none)
 
       assert_predicate result, :failure?
-      assert_equal :missing, result.error[:field_id]
+      assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:field_id]
     end
 
     it 'complains when name is blank' do
       result = operation.add_choice(name: nil, field_id: field.id)
 
       assert_predicate result, :failure?
-      assert_equal :blank, result.error[:name]
+      assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
 
       result = operation.add_choice(name: '  ', field_id: field.id)
 
       assert_predicate result, :failure?
-      assert_equal :blank, result.error[:name]
+      assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
     end
 
     it 'complains when name already exists' do

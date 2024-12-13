@@ -3,30 +3,40 @@
 module Paleolog
   module Repository
     class Project < Operation::Base
-      FIND_PARAMS = Params.define.(
-        id: Params.required.(Params::SoftIdRules),
-      )
+      FIND_PARAMS = Params.define do |p|
+        {
+          id: p::REQUIRED.(p::SLUG_ID),
+        }
+      end
 
-      CREATE_PARAMS = Params.define.(
-        name: Params.required.(Params::NameRules),
-        user_id: Params.required.(Params::IdRules),
-      )
+      CREATE_PARAMS = Params.define do |p|
+        {
+          name: p::REQUIRED.(p::NAME),
+          user_id: p::REQUIRED.(p::ID),
+        }
+      end
 
-      UPDATE_PARAMS = Params.define.(
-        id: Params.required.(Params::IdRules),
-        name: Params.required.(Params::NameRules),
-      )
+      UPDATE_PARAMS = Params.define do |p|
+        {
+          id: p::REQUIRED.(p::ID),
+          name: p::REQUIRED.(p::NAME),
+        }
+      end
 
-      UPDATE_RESEARCHER_PARAMS = Params.define.(
-        project_id: Params.required.(Params::IdRules),
-        user_id: Params.required.(Params::IdRules),
-        manager: Params.required.(Params.bool.(Params.any)),
-      )
+      UPDATE_RESEARCHER_PARAMS = Params.define do |p|
+        {
+          project_id: p::REQUIRED.(p::ID),
+          user_id: p::REQUIRED.(p::ID),
+          manager: p::REQUIRED.(p::BOOL),
+        }
+      end
 
-      REMOVE_RESEARCHER_PARAMS = Params.define.(
-        project_id: Params.required.(Params::IdRules),
-        user_id: Params.required.(Params::IdRules),
-      )
+      REMOVE_RESEARCHER_PARAMS = Params.define do |p|
+        {
+          project_id: p::REQUIRED.(p::ID),
+          user_id: p::REQUIRED.(p::ID),
+        }
+      end
 
       def find(raw_params)
         # authenticate

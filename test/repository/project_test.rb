@@ -173,7 +173,7 @@ describe Paleolog::Repository::Project do
         result = operation.create({ name: 'Some Name' })
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::NON_INTEGER, result.error[:user_id]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:user_id]
       end
 
       it 'does not complain when name not taken yet' do
@@ -192,14 +192,14 @@ describe Paleolog::Repository::Project do
         result = operation.create({ name: nil })
 
         assert_predicate result, :failure?
-        assert_equal :blank, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name is blank' do
         result = operation.create({ name: '  ' })
 
         assert_predicate result, :failure?
-        assert_equal :blank, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name already exists' do
@@ -307,14 +307,14 @@ describe Paleolog::Repository::Project do
         result = operation.rename(id: project.id, name: nil)
 
         assert_predicate result, :failure?
-        assert_equal :blank, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name is blank' do
         result = operation.rename(id: project.id, name: '   ')
 
         assert_predicate result, :failure?
-        assert_equal :blank, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name already exists' do

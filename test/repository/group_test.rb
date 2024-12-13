@@ -21,12 +21,12 @@ describe Paleolog::Repository::Group do
       result = operation.create(name: nil)
 
       assert_predicate result, :failure?
-      assert_equal :blank, result.error[:name]
+      assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
 
       result = operation.create(name: '  ')
 
       assert_predicate result, :failure?
-      assert_equal :blank, result.error[:name]
+      assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
     end
 
     it 'complains when name already exists' do

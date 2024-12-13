@@ -3,24 +3,30 @@
 module Paleolog
   module Repository
     class Counting < Operation::Base
-      FIND_PARAMS = Params.define.(
-        id: Params.required.(Params::SoftIdRules),
-        project_id: Params.optional.(Params::SoftIdRules),
-      )
+      FIND_PARAMS = Params.define do |p|
+        {
+          id: p::REQUIRED.(p::SLUG_ID),
+          project_id: p::OPTIONAL.(p::SLUG_ID),
+        }
+      end
 
-      CREATE_PARAMS = Params.define.(
-        project_id: Params.required.(Params::IdRules),
-        name: Params.required.(Params::NameRules),
-        marker_id: Params.optional.(Params::IdRules),
-        group_id: Params.optional.(Params::IdRules),
-      )
+      CREATE_PARAMS = Params.define do |p|
+        {
+          project_id: p::REQUIRED.(p::ID),
+          name: p::REQUIRED.(p::NAME),
+          marker_id: p::OPTIONAL.(p::ID),
+          group_id: p::OPTIONAL.(p::ID),
+        }
+      end
 
-      UPDATE_PARAMS = Params.define.(
-        id: Params.required.(Params::IdRules),
-        name: Params.optional.(Params::NameRules),
-        marker_id: Params.optional.(Params::IdRules),
-        group_id: Params.optional.(Params::IdRules),
-      )
+      UPDATE_PARAMS = Params.define do |p|
+        {
+          id: p::REQUIRED.(p::ID),
+          name: p::OPTIONAL.(p::NAME),
+          marker_id: p::OPTIONAL.(p::ID),
+          group_id: p::OPTIONAL.(p::ID),
+        }
+      end
 
       def find(raw_params)
         authenticate

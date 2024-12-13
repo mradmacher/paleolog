@@ -277,9 +277,9 @@ describe Paleolog::Repository::Occurrence do
       result = operation.create(counting_id: nil, species_id: nil, sample_id: nil)
 
       assert_predicate result, :failure?
-      assert_equal Paleolog::Repository::Params::NON_INTEGER, result.error[:counting_id]
-      assert_equal Paleolog::Repository::Params::NON_INTEGER, result.error[:sample_id]
-      assert_equal Paleolog::Repository::Params::NON_INTEGER, result.error[:species_id]
+      assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:counting_id]
+      assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:sample_id]
+      assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:species_id]
     end
 
     # it 'ensures counting and sample are from same project' do
@@ -322,7 +322,7 @@ describe Paleolog::Repository::Occurrence do
         result = operation.update(id: occurrence.id, status: value)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::NOT_INCLUDED, result.error[:status]
+        assert_equal Paleolog::Repository::Params::NOT_INCLUDED_ERR, result.error[:status]
       end
     end
 
@@ -373,7 +373,7 @@ describe Paleolog::Repository::Occurrence do
       result = operation.update(id: occurrence.id, quantity: -1)
 
       assert_predicate result, :failure?
-      assert_equal Paleolog::Repository::Params::NOT_GTE, result.error[:quantity]
+      assert_equal Paleolog::Repository::Params::NOT_GTE_ERR, result.error[:quantity]
     end
 
     it 'accepts integer quantity passed as string' do
@@ -387,14 +387,14 @@ describe Paleolog::Repository::Occurrence do
       result = operation.update(id: occurrence.id, quantity: 'five')
 
       assert_predicate result, :failure?
-      assert_equal Paleolog::Repository::Params::NON_INTEGER, result.error[:quantity]
+      assert_equal Paleolog::Repository::Params::NOT_INTEGER_ERR, result.error[:quantity]
     end
 
     it 'rejects double quantity' do
       result = operation.update(id: occurrence.id, quantity: '1.1')
 
       assert_predicate result, :failure?
-      assert_equal Paleolog::Repository::Params::NON_INTEGER, result.error[:quantity]
+      assert_equal Paleolog::Repository::Params::NOT_INTEGER_ERR, result.error[:quantity]
     end
   end
 
@@ -406,7 +406,7 @@ describe Paleolog::Repository::Occurrence do
     it 'requires id' do
       operation.delete({})
                .on_success { |value| flunk "Expected error, got #{value}" }
-               .on_failure { |error| assert_equal Paleolog::Repository::Params::MISSING, error[:id] }
+               .on_failure { |error| assert_equal Paleolog::Repository::Params::MISSING_ERR, error[:id] }
     end
 
     it 'removes occurrence' do

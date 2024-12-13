@@ -159,28 +159,28 @@ describe Paleolog::Repository::Counting do
         result = operation.create(name: 'Name', project_id: nil)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::NON_INTEGER, result.error[:project_id]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:project_id]
       end
 
       it 'complains when project_id is none' do
         result = operation.create(name: 'Name', project_id: Optiomist.none)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::MISSING, result.error[:project_id]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:project_id]
       end
 
       it 'complains when name is nil' do
         result = operation.create(name: nil, project_id: project.id)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::BLANK, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name is blank' do
         result = operation.create(name: '  ', project_id: project.id)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::BLANK, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name already exists' do
@@ -199,7 +199,7 @@ describe Paleolog::Repository::Counting do
         result = operation.create(name: name, project_id: project.id)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::TOO_LONG, result.error[:name]
+        assert_equal Paleolog::Repository::Params::TOO_LONG_ERR, result.error[:name]
       end
 
       it 'accepts name with max length' do
@@ -273,14 +273,14 @@ describe Paleolog::Repository::Counting do
         result = operation.update(id: existing_counting.id, name: nil)
 
         assert_predicate result, :failure?
-        assert_equal :blank, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name is blank' do
         result = operation.update(id: existing_counting.id, name: '  ')
 
         assert_predicate result, :failure?
-        assert_equal :blank, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name already exists' do
@@ -334,7 +334,7 @@ describe Paleolog::Repository::Counting do
         )
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::TOO_LONG, result.error[:name]
+        assert_equal Paleolog::Repository::Params::TOO_LONG_ERR, result.error[:name]
       end
 
       it 'accepts max length name' do

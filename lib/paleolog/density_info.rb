@@ -9,13 +9,16 @@ module Paleolog
       include ParamParam
       include ParamParam::Std
 
-      RULES = define.(
-        sample_weight: required.(decimal.(gt.(0))),
-        counted_group: required.(any),
-        marker: required.(any),
-        marker_quantity: required.(integer.(gt.(0))),
-        occurrences: required.(any),
-      )
+      RULES = define do |p|
+        {
+          sample_weight: p::REQUIRED.(p::ALL_OF.([p::DECIMAL, p::GT.(0)])),
+          counted_group: p::REQUIRED.(p::ANY),
+          marker: p::REQUIRED.(p::ANY),
+          marker_quantity: p::REQUIRED.(p::ALL_OF.([p::INTEGER, p::GT.(0)])),
+          occurrences: p::REQUIRED.(p::ANY),
+        }
+      end
+
 
       def self.verify(params)
         RULES.(params)

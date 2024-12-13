@@ -3,15 +3,19 @@
 module Paleolog
   module Repository
     class Field < Operation::Base
-      CREATE_FIELD_PARAMS = Params.define.(
-        name: Params.required.(Params::NameRules),
-        group_id: Params.required.(Params::IdRules),
-      )
+      CREATE_FIELD_PARAMS = Params.define do |p|
+        {
+          name: p::REQUIRED.(p::NAME),
+          group_id: p::REQUIRED.(p::ID),
+        }
+      end
 
-      CREATE_CHOICE_PARAMS = Params.define.(
-        name: Params.required.(Params::NameRules),
-        field_id: Params.required.(Params::IdRules),
-      )
+      CREATE_CHOICE_PARAMS = Params.define do |p|
+        {
+          name: p::REQUIRED.(p::NAME),
+          field_id: p::REQUIRED.(p::ID),
+        }
+      end
 
       def find_all
         carefully { find_fields }

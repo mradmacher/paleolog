@@ -49,7 +49,7 @@ describe Paleolog::Repository::Section do
         result = operation.all_for_project({})
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::MISSING, result.error[:project_id]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:project_id]
       end
 
       it 'returns all project sections' do
@@ -215,7 +215,7 @@ describe Paleolog::Repository::Section do
         result = operation.create(name: 'Name', project_id: nil)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::NON_INTEGER, result.error[:project_id]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:project_id]
       end
 
       it 'complains when project_id is none' do
@@ -224,21 +224,21 @@ describe Paleolog::Repository::Section do
         )
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::MISSING, result.error[:project_id]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:project_id]
       end
 
       it 'complains when name is nil' do
         result = operation.create(name: nil, project_id: project.id)
 
         assert_predicate result, :failure?
-        assert_equal :blank, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name is blank' do
         result = operation.create(name: '  ', project_id: project.id)
 
         assert_predicate result, :failure?
-        assert_equal :blank, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name already exists' do
@@ -257,7 +257,7 @@ describe Paleolog::Repository::Section do
         result = operation.create(name: 'a' * (max + 1), project_id: project.id)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::TOO_LONG, result.error[:name]
+        assert_equal Paleolog::Repository::Params::TOO_LONG_ERR, result.error[:name]
       end
 
       it 'allows name lenght to be of max size' do
@@ -339,7 +339,7 @@ describe Paleolog::Repository::Section do
         )
 
         assert_predicate result, :failure?
-        assert_equal :blank, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name is blank' do
@@ -348,7 +348,7 @@ describe Paleolog::Repository::Section do
         )
 
         assert_predicate result, :failure?
-        assert_equal :blank, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name already exists' do
@@ -400,7 +400,7 @@ describe Paleolog::Repository::Section do
         result = operation.update(id: existing_section.id, name: 'a' * (max + 1))
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::TOO_LONG, result.error[:name]
+        assert_equal Paleolog::Repository::Params::TOO_LONG_ERR, result.error[:name]
       end
 
       it 'allows name to be of max length' do
