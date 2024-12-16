@@ -167,34 +167,34 @@ describe Paleolog::Repository::Sample do
       it 'complains when section_id nil' do
         operation.create(name: 'Name', section_id: nil)
                  .on_success { |value| flunk "Expected error, got #{value}" }
-                 .on_failure { |error| assert_equal Paleolog::Repository::Params::NON_INTEGER, error[:section_id] }
+                 .on_failure { |error| assert_equal Paleolog::Repository::Params::MISSING_ERR, error[:section_id] }
       end
 
       it 'complains when section_id missing' do
         result = operation.create(name: 'Name')
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::MISSING, result.error[:section_id]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:section_id]
       end
 
       it 'complains when name is nil' do
         result = operation.create(name: nil, section_id: section.id)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::BLANK, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name is blank' do
         result = operation.create(name: '  ', section_id: section.id)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::BLANK, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name is missing' do
         operation.create(section_id: section.id)
                  .on_success { |value| flunk "Expected error, got #{value}" }
-                 .on_failure { |error| assert_equal Paleolog::Repository::Params::MISSING, error[:name] }
+                 .on_failure { |error| assert_equal Paleolog::Repository::Params::MISSING_ERR, error[:name] }
       end
 
       it 'complains when name already exists' do
@@ -218,7 +218,7 @@ describe Paleolog::Repository::Sample do
 
         operation.create(name: 'a' * (max + 1), section_id: section.id)
                  .on_success { funk "Expected failure, got #{_1}" }
-                 .on_failure { |error| assert_equal Paleolog::Repository::Params::TOO_LONG, error[:name] }
+                 .on_failure { |error| assert_equal Paleolog::Repository::Params::TOO_LONG_ERR, error[:name] }
       end
 
       it 'accepts max length name' do
@@ -234,7 +234,7 @@ describe Paleolog::Repository::Sample do
           result = happy_operation.create(section_id: section.id, weight: value)
 
           assert_predicate result, :failure?
-          assert_equal Paleolog::Repository::Params::NON_DECIMAL, result.error[:weight]
+          assert_equal Paleolog::Repository::Params::NOT_DECIMAL_ERR, result.error[:weight]
         end
       end
 
@@ -269,21 +269,21 @@ describe Paleolog::Repository::Sample do
         result = operation.create(name: 'Name', section_id: section.id, weight: 0)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::NOT_GT, result.error[:weight]
+        assert_equal Paleolog::Repository::Params::NOT_GT_ERR, result.error[:weight]
       end
 
       it 'requires weight greater than 0.0' do
         result = operation.create(name: 'Name', section_id: section.id, weight: 0.0)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::NOT_GT, result.error[:weight]
+        assert_equal Paleolog::Repository::Params::NOT_GT_ERR, result.error[:weight]
       end
 
       it 'requires weight greater than something just below 0' do
         result = operation.create(name: 'Name', section_id: section.id, weight: -0.0001)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::NOT_GT, result.error[:weight]
+        assert_equal Paleolog::Repository::Params::NOT_GT_ERR, result.error[:weight]
       end
 
       it 'requires weight just something above 0' do
@@ -370,14 +370,14 @@ describe Paleolog::Repository::Sample do
         result = operation.update(id: existing_sample.id, name: nil)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::BLANK, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name is blank' do
         result = operation.update(id: existing_sample.id, name: '   ')
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::BLANK, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name already exists' do
@@ -409,7 +409,7 @@ describe Paleolog::Repository::Sample do
         )
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::TOO_LONG, result.error[:name]
+        assert_equal Paleolog::Repository::Params::TOO_LONG_ERR, result.error[:name]
       end
 
       it 'accepts max length name' do
@@ -427,7 +427,7 @@ describe Paleolog::Repository::Sample do
           )
 
           assert_predicate result, :failure?
-          assert_equal Paleolog::Repository::Params::NON_DECIMAL, result.error[:weight]
+          assert_equal Paleolog::Repository::Params::NOT_DECIMAL_ERR, result.error[:weight]
         end
       end
 
@@ -446,7 +446,7 @@ describe Paleolog::Repository::Sample do
         )
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::NOT_GT, result.error[:weight]
+        assert_equal Paleolog::Repository::Params::NOT_GT_ERR, result.error[:weight]
       end
     end
   end

@@ -3,24 +3,32 @@
 module Paleolog
   module Repository
     class Section < Operation::Base
-      ALL_FOR_PROJECT_PARAMS = Params.define.(
-        project_id: Params.required.(Params::IdRules),
-      )
+      ALL_FOR_PROJECT_PARAMS = Params.define do |p|
+        {
+          project_id: p::REQUIRED.(p::ID),
+        }
+      end
 
-      FIND_PARAMS = Params.define.(
-        id: Params.required.(Params::SoftIdRules),
-        project_id: Params.optional.(Params::SoftIdRules),
-      )
+      FIND_PARAMS = Params.define do |p|
+        {
+          id: p::REQUIRED.(p::SLUG_ID),
+          project_id: p::OPTIONAL.(p::SLUG_ID),
+        }
+      end
 
-      CREATE_PARAMS = Params.define.(
-        name: Params.required.(Params::NameRules),
-        project_id: Params.required.(Params::IdRules),
-      )
+      CREATE_PARAMS = Params.define do |p|
+        {
+          name: p::REQUIRED.(p::NAME),
+          project_id: p::REQUIRED.(p::ID),
+        }
+      end
 
-      UPDATE_PARAMS = Params.define.(
-        id: Params.required.(Params::IdRules),
-        name: Params.required.(Params::NameRules),
-      )
+      UPDATE_PARAMS = Params.define do |p|
+        {
+          id: p::REQUIRED.(p::ID),
+          name: p::REQUIRED.(p::NAME),
+        }
+      end
 
       def all_for_project(raw_params)
         authenticate

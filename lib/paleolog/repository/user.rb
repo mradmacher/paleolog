@@ -3,15 +3,19 @@
 module Paleolog
   module Repository
     class User < Operation::Base
-      CREATE_PARAMS = Params.define.(
-        login: Params.required.(Params::NameRules),
-        password: Params.required.(Params::NameRules),
-      )
+      CREATE_PARAMS = Params.define do |p|
+        {
+          login: p::REQUIRED.(p::NAME),
+          password: p::REQUIRED.(p::NAME),
+        }
+      end
 
-      FIND_PARAMS = Params.define.(
-        id: Params.optional.(Params::IdRules),
-        login: Params.optional.(Params::NameRules),
-      )
+      FIND_PARAMS = Params.define do |p|
+        {
+          id: p::OPTIONAL.(p::ID),
+          login: p::OPTIONAL.(p::NAME),
+        }
+      end
 
       def find(raw_params)
         parameterize(raw_params, FIND_PARAMS)

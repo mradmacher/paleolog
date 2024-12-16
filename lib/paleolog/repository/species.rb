@@ -3,43 +3,55 @@
 module Paleolog
   module Repository
     class Species < Operation::Base
-      SEARCH_PARAMS = Params.define.(
-        group_id: Params.optional.(Params.blank_to_nil_or.(Params::IdRules)),
-        project_id: Params.optional.(Params.blank_to_nil_or.(Params::IdRules)),
-        name: Params.optional.(Params.blank_to_nil_or.(Params::NameRules)),
-        verified: Params.optional.(Params.blank_to_nil_or.(Params.bool.(Params.any))),
-      )
+      SEARCH_PARAMS = Params.define do |p|
+        {
+          group_id: p::OPTIONAL.(p::BLANK_TO_NIL_OR.(p::ID)),
+          project_id: p::OPTIONAL.(p::BLANK_TO_NIL_OR.(p::ID)),
+          name: p::OPTIONAL.(p::BLANK_TO_NIL_OR.(p::NAME)),
+          verified: p::OPTIONAL.(p::BLANK_TO_NIL_OR.(p::BOOL)),
+        }
+      end
 
-      FIND_PARAMS = Params.define.(
-        id: Params.required.(Params::IdRules),
-      )
+      FIND_PARAMS = Params.define do |p|
+        {
+          id: p::REQUIRED.(p::ID),
+        }
+      end
 
-      CREATE_PARAMS = Params.define.(
-        name: Params.required.(Params::NameRules),
-        group_id: Params.required.(Params::IdRules),
-        description: Params.optional.(Params::DescriptionRules),
-        environmental_preferences: Params.optional.(Params::DescriptionRules),
-        verified: Params.optional.(Params.bool.(Params.any)),
-      )
+      CREATE_PARAMS = Params.define do |p|
+        {
+          name: p::REQUIRED.(p::NAME),
+          group_id: p::REQUIRED.(p::ID),
+          description: p::OPTIONAL.(p::DESCRIPTION),
+          environmental_preferences: p::OPTIONAL.(p::DESCRIPTION),
+          verified: p::OPTIONAL.(p::BOOL),
+        }
+      end
 
-      UPDATE_PARAMS = Params.define.(
-        id: Params.required.(Params::IdRules),
-        name: Params.optional.(Params::NameRules),
-        group_id: Params.optional.(Params::IdRules),
-        description: Params.optional.(Params::DescriptionRules),
-        environmental_preferences: Params.optional.(Params::DescriptionRules),
-        verified: Params.optional.(Params.bool.(Params.any)),
-      )
+      UPDATE_PARAMS = Params.define do |p|
+        {
+          id: p::REQUIRED.(p::ID),
+          name: p::OPTIONAL.(p::NAME),
+          group_id: p::OPTIONAL.(p::ID),
+          description: p::OPTIONAL.(p::DESCRIPTION),
+          environmental_preferences: p::OPTIONAL.(p::DESCRIPTION),
+          verified: p::OPTIONAL.(p::BOOL),
+        }
+      end
 
-      ADD_FEATURE_PARAMS = Params.define.(
-        species_id: Params.required.(Params::IdRules),
-        choice_id: Params.required.(Params::IdRules),
-      )
+      ADD_FEATURE_PARAMS = Params.define do |p|
+        {
+          species_id: p::REQUIRED.(p::ID),
+          choice_id: p::REQUIRED.(p::ID),
+        }
+      end
 
-      ADD_IMAGE_PARAMS = Params.define.(
-        species_id: Params.required.(Params::IdRules),
-        image_file_name: Params.required.(Params::NameRules),
-      )
+      ADD_IMAGE_PARAMS = Params.define do |p|
+        {
+          species_id: p::REQUIRED.(p::ID),
+          image_file_name: p::REQUIRED.(p::NAME),
+        }
+      end
 
       def find(raw_params)
         authenticate

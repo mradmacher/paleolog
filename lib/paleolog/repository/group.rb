@@ -3,9 +3,11 @@
 module Paleolog
   module Repository
     class Group < Operation::Base
-      CREATE_PARAMS = Params.define.(
-        name: Params.required.(Params::NameRules),
-      )
+      CREATE_PARAMS = Params.define do |p|
+        {
+          name: p::REQUIRED.(p::NAME),
+        }
+      end
 
       def find_all
         carefully { find_groups }

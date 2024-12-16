@@ -233,7 +233,7 @@ describe 'Occurrences' do
         assert_equal 422, last_response.status
         response_body = JSON.parse(last_response.body)
 
-        assert_equal 'non_integer', response_body['errors']['sample_id']
+        assert_equal 'missing', response_body['errors']['sample_id']
       end
 
       it 'ensures counting is from project' do
@@ -249,7 +249,7 @@ describe 'Occurrences' do
         assert_equal 422, last_response.status
         response_body = JSON.parse(last_response.body)
 
-        assert_equal 'non_integer', response_body['errors']['counting_id']
+        assert_equal 'missing', response_body['errors']['counting_id']
       end
 
       it 'validates created occurrence' do
@@ -260,7 +260,7 @@ describe 'Occurrences' do
         response_body = JSON.parse(last_response.body)
 
         assert_equal %w[counting_id sample_id species_id], response_body['errors'].keys
-        assert_equal %w[non_integer non_integer non_integer], response_body['errors'].values
+        assert_equal %w[missing missing missing], response_body['errors'].values
       end
     end
   end

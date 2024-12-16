@@ -3,24 +3,30 @@
 module Paleolog
   module Repository
     class Sample < Operation::Base
-      FIND_PARAMS = Params.define.(
-        id: Params.required.(Params::SoftIdRules),
-        project_id: Params.optional.(Params::SoftIdRules),
-      )
+      FIND_PARAMS = Params.define do |p|
+        {
+          id: p::REQUIRED.(p::SLUG_ID),
+          project_id: p::OPTIONAL.(p::SLUG_ID),
+        }
+      end
 
-      CREATE_PARAMS = Params.define.(
-        name: Params.required.(Params::NameRules),
-        section_id: Params.required.(Params::IdRules),
-        description: Params.optional.(Params::DescriptionRules),
-        weight: Params.optional.(Params.blank_to_nil_or.(Params.decimal.(Params.gt.(0.0)))),
-      )
+      CREATE_PARAMS = Params.define do |p|
+        {
+          name: p::REQUIRED.(p::NAME),
+          section_id: p::REQUIRED.(p::ID),
+          description: p::OPTIONAL.(p::DESCRIPTION),
+          weight: p::OPTIONAL.(p::BLANK_TO_NIL_OR.(p::ALL_OF.([p::DECIMAL, p::GT.(0.0)]))),
+        }
+      end
 
-      UPDATE_PARAMS = Params.define.(
-        id: Params.required.(Params::IdRules),
-        name: Params.optional.(Params::NameRules),
-        description: Params.optional.(Params::DescriptionRules),
-        weight: Params.optional.(Params.blank_to_nil_or.(Params.decimal.(Params.gt.(0.0)))),
-      )
+      UPDATE_PARAMS = Params.define do |p|
+        {
+          id: p::REQUIRED.(p::ID),
+          name: p::OPTIONAL.(p::NAME),
+          description: p::OPTIONAL.(p::DESCRIPTION),
+          weight: p::OPTIONAL.(p::BLANK_TO_NIL_OR.(p::ALL_OF.([p::DECIMAL, p::GT.(0.0)]))),
+        }
+      end
 
       def find(raw_params)
         authenticate

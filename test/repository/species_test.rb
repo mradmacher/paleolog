@@ -291,7 +291,7 @@ describe Paleolog::Repository::Species do
         result = operation.update(id: species.id, group_id: nil)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::NON_INTEGER, result.error[:group_id]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:group_id]
       end
 
       it 'can set the same name' do
@@ -311,14 +311,14 @@ describe Paleolog::Repository::Species do
         result = operation.update(id: species.id, name: nil)
 
         assert_predicate result, :failure?
-        assert_equal :blank, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name is blank' do
         result = operation.update(id: species.id, name: '  ')
 
         assert_predicate result, :failure?
-        assert_equal :blank, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name already exists' do
@@ -349,7 +349,7 @@ describe Paleolog::Repository::Species do
         result = operation.update(id: species.id, name: 'a' * (max + 1))
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::TOO_LONG, result.error[:name]
+        assert_equal Paleolog::Repository::Params::TOO_LONG_ERR, result.error[:name]
       end
 
       it 'does not complain when name is max length' do
@@ -375,7 +375,7 @@ describe Paleolog::Repository::Species do
         result = operation.update(id: species.id, description: description)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::TOO_LONG, result.error[:description]
+        assert_equal Paleolog::Repository::Params::TOO_LONG_ERR, result.error[:description]
       end
 
       it 'allows description length to be equal to 4096 characters' do
@@ -390,7 +390,7 @@ describe Paleolog::Repository::Species do
         result = operation.update(id: species.id, environmental_preferences: environmental_preferences)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::TOO_LONG, result.error[:environmental_preferences]
+        assert_equal Paleolog::Repository::Params::TOO_LONG_ERR, result.error[:environmental_preferences]
       end
 
       it 'allows environmental preferences length to be equal to 4096 characters' do
@@ -448,28 +448,28 @@ describe Paleolog::Repository::Species do
         result = operation.add_feature(species_id: species.id, choice_id: nil)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::NON_INTEGER, result.error[:choice_id]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:choice_id]
       end
 
       it 'complains when species_id blank' do
         result = operation.add_feature(species_id: nil, choice_id: choice.id)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::NON_INTEGER, result.error[:species_id]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:species_id]
       end
 
       it 'complains when choice_id missing' do
         result = operation.add_feature(species_id: species.id)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::MISSING, result.error[:choice_id]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:choice_id]
       end
 
       it 'complains when species_id missing' do
         result = operation.add_feature(choice_id: choice.id)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::MISSING, result.error[:species_id]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:species_id]
       end
     end
   end
@@ -501,28 +501,28 @@ describe Paleolog::Repository::Species do
         result = operation.create(name: 'Name', group_id: nil)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::NON_INTEGER, result.error[:group_id]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:group_id]
       end
 
       it 'complains when group_id missing' do
         result = operation.create(name: 'Name')
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::MISSING, result.error[:group_id]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:group_id]
       end
 
       it 'complains when name is nil' do
         result = operation.create(name: nil, group_id: group.id)
 
         assert_predicate result, :failure?
-        assert_equal :blank, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name is blank' do
         result = operation.create(name: '  ', group_id: group.id)
 
         assert_predicate result, :failure?
-        assert_equal :blank, result.error[:name]
+        assert_equal Paleolog::Repository::Params::MISSING_ERR, result.error[:name]
       end
 
       it 'complains when name already exists' do
@@ -553,7 +553,7 @@ describe Paleolog::Repository::Species do
         result = operation.create(name: 'a' * (max + 1), group_id: group.id)
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::TOO_LONG, result.error[:name]
+        assert_equal Paleolog::Repository::Params::TOO_LONG_ERR, result.error[:name]
       end
 
       it 'does not complain when name is max length' do
@@ -581,7 +581,7 @@ describe Paleolog::Repository::Species do
         )
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::TOO_LONG, result.error[:description]
+        assert_equal Paleolog::Repository::Params::TOO_LONG_ERR, result.error[:description]
       end
 
       it 'allows description length to be equal to 4096 characters' do
@@ -600,7 +600,7 @@ describe Paleolog::Repository::Species do
         )
 
         assert_predicate result, :failure?
-        assert_equal Paleolog::Repository::Params::TOO_LONG, result.error[:environmental_preferences]
+        assert_equal Paleolog::Repository::Params::TOO_LONG_ERR, result.error[:environmental_preferences]
       end
 
       it 'allows environmental preferences length to be equal to 4096 characters' do

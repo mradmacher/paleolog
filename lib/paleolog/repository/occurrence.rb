@@ -3,33 +3,43 @@
 module Paleolog
   module Repository
     class Occurrence < Operation::Base
-      FIND_ALL_PARAMS = Params.define.(
-        counting_id: Params.required.(Params::SoftIdRules),
-        sample_id: Params.optional.(Params::SoftIdRules),
-        section_id: Params.optional.(Params::SoftIdRules),
-      )
+      FIND_ALL_PARAMS = Params.define do |p|
+        {
+          counting_id: p::REQUIRED.(p::SLUG_ID),
+          sample_id: p::OPTIONAL.(p::SLUG_ID),
+          section_id: p::OPTIONAL.(p::SLUG_ID),
+        }
+      end
 
-      FIND_PARAMS = Params.define.(
-        id: Params.required.(Params::SoftIdRules),
-        project_id: Params.optional.(Params::SoftIdRules),
-      )
+      FIND_PARAMS = Params.define do |p|
+        {
+          id: p::REQUIRED.(p::SLUG_ID),
+          project_id: p::OPTIONAL.(p::SLUG_ID),
+        }
+      end
 
-      CREATE_PARAMS = Params.define.(
-        counting_id: Params.required.(Params::IdRules),
-        sample_id: Params.required.(Params::IdRules),
-        species_id: Params.required.(Params::IdRules),
-      )
+      CREATE_PARAMS = Params.define do |p|
+        {
+          counting_id: p::REQUIRED.(p::ID),
+          sample_id: p::REQUIRED.(p::ID),
+          species_id: p::REQUIRED.(p::ID),
+        }
+      end
 
-      UPDATE_PARAMS = Params.define.(
-        id: Params.required.(Params::IdRules),
-        quantity: Params.optional.(Params.blank_to_nil_or.(Params.integer.(Params.gte.(0)))),
-        status: Params.optional.(Params.integer.(Params.included_in.(Paleolog::Occurrence::STATUSES))),
-        uncertain: Params.optional.(Params.bool.(Params.any)),
-      )
+      UPDATE_PARAMS = Params.define do |p|
+        {
+          id: p::REQUIRED.(p::ID),
+          quantity: p::OPTIONAL.(p::BLANK_TO_NIL_OR.(p::ALL_OF.([p::INTEGER, p::GTE.(0)]))),
+          status: p::OPTIONAL.(p::ALL_OF.([p::INTEGER, p::INCLUDED_IN.(Paleolog::Occurrence::STATUSES)])),
+          uncertain: p::OPTIONAL.(p::BOOL),
+        }
+      end
 
-      DELETE_PARAMS = Params.define.(
-        id: Params.required.(Params::IdRules),
-      )
+      DELETE_PARAMS = Params.define do |p|
+        {
+          id: p::REQUIRED.(p::ID),
+        }
+      end
 
       def find_all(raw_params)
         parameterize(raw_params, FIND_ALL_PARAMS)

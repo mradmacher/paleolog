@@ -96,7 +96,7 @@ describe 'Projects' do
 
         assert result.key?('errors')
 
-        assert_equal 'blank', result['errors']['name']
+        assert_equal 'missing', result['errors']['name']
       end
     end
   end

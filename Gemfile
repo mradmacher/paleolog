@@ -3,9 +3,9 @@
 source 'https://rubygems.org'
 
 gem 'bcrypt'
-gem 'entitainer', git: 'https://github.com/mradmacher/entitainer.git', tag: 'adef45a'
+gem 'entitainer', '~> 0.0.1'
 gem 'optiomist', '~> 0.0.3'
-gem 'param_param', '~> 0.1.0'
+gem 'param_param', '~> 1.0.0'
 gem 'pdfkit'
 gem 'pg'
 gem 'puma'
