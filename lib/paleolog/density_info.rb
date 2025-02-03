@@ -19,7 +19,6 @@ module Paleolog
         }
       end
 
-
       def self.verify(params)
         RULES.(params)
       end

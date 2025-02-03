@@ -67,9 +67,9 @@ module Web
 
     post '/projects/:project_id/reports/export.csv' do
       @project = Paleolog::Repository::Project.new(Paleolog.db, authorizer).find(id: params[:project_id]).value
-      @section = Paleolog::Repository::Section.new(Paleolog.db, authorizer).find(id: params[:section],
+      @section = Paleolog::Repository::Section.new(Paleolog.db, authorizer).find(id: params[:report][:section_id],
                                                                                  project_id: @project.id,).value
-      @counting = Paleolog::Repository::Counting.new(Paleolog.db, authorizer).find(id: params[:counting],
+      @counting = Paleolog::Repository::Counting.new(Paleolog.db, authorizer).find(id: params[:report][:counting_id],
                                                                                    project_id: @project.id,).value
 
       @occurrences = if @counting && @section

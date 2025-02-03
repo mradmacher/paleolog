@@ -11,6 +11,7 @@
 /tmp/
 /db/postgres
 /db/test_postgres
+/data/
 /node_modules
 /web/public/dist
 *.sqlite

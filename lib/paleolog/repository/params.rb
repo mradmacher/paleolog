@@ -22,7 +22,9 @@ module Paleolog
         blank?(option.value) ? Success.new(Optiomist.some(nil)) : fn.call(option)
       end.curry
 
-      SOFT_INTEGER = lambda { |fn, option| fn.call(Optiomist.some(option.value.to_i)) }.curry
+      SOFT_INTEGER = lambda do |fn, option|
+        fn.call(Optiomist.some(option.value.to_i))
+      end.curry
 
       ID = ALL_OF.([NOT_NIL, INTEGER, GT.(0)])
       SLUG_ID = SOFT_INTEGER.(GT.(0))
