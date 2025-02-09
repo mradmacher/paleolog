@@ -1,5 +1,6 @@
 import { OccurrenceRequest } from './requests.js';
 import { DomHelpers } from './dom_helpers.js';
+import { MotivatingSlogan } from './motivating_slogan.js';
 
 class SetQuantityDialog {
   constructor(selector, scope = document) {
@@ -134,10 +135,17 @@ export class OccurrencesCollection {
   updateOccurrence(occurrenceId, attrs) {
     new OccurrenceRequest(this.projectId).save({ ...attrs, ...{ id: occurrenceId }}).then(result => {
       this.occurrenceElementFor(result.occurrence.id).querySelector('.occurrence-quantity').textContent = result.occurrence.quantity;
-      this.updateSummary(result.summary)
+      this.updateSummary(result.summary);
+      this.displayMotivatingSlogan(result.occurrence, result.summary);
     }).catch(errors => {
       alert('Please refresh the page and try again.')
     })
+  }
+
+  displayMotivatingSlogan(occurrence, summary) {
+    if (occurrence.status == 0 && summary.countable % 100 == 0) {
+      alert(`You've just counted up to ${summary.countable}. ${MotivatingSlogan.randomPhrase()}\n\n${MotivatingSlogan.randomQuote()}`);
+    }
   }
 
   removeOccurrence(occurrenceId) {
