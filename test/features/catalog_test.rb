@@ -37,7 +37,7 @@ describe 'Catalog' do
   it 'displays all when searching with empty criteria' do
     visit '/catalog'
 
-    within('#species-search') do
+    within('[data-js-species-search]') do
       uncheck('Verified')
       click_on('Search')
     end
@@ -50,7 +50,7 @@ describe 'Catalog' do
   it 'allows searching species' do
     visit '/catalog'
 
-    within('#species-search') do
+    within('[data-js-species-search]') do
       fill_in('Name', with: 'costa')
       select('Dinoflagellate', from: 'Group')
       check('Verified')
@@ -66,7 +66,7 @@ describe 'Catalog' do
   it 'updates path after searching' do
     visit '/catalog'
 
-    within('#species-search') do
+    within('[data-js-species-search]') do
       fill_in('Name', with: 'costa')
       select('Dinoflagellate', from: 'Group')
       check('Verified')
@@ -91,7 +91,7 @@ describe 'Catalog' do
   it 'updates path to only include provided attributes' do
     visit '/catalog'
 
-    within('#species-search') do
+    within('[data-js-species-search]') do
       fill_in('Name', with: 'costa')
       click_on('Search')
     end
