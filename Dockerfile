@@ -1,7 +1,8 @@
 # this is the base of all images
-FROM ruby:3.2.2-slim-buster AS base
+FROM ruby:3.4.1-slim-bookworm AS base
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
-    libpq-dev
+    libpq-dev \
+    sqlite3
 
 # build dependencies
 FROM base AS dependencies
@@ -11,6 +12,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     make
 COPY Gemfile Gemfile.lock ./
 RUN bundle config set --local without "development test" && \
+  bundle config set --local path "/usr/local/bundle" && \
   bundle install --jobs=3 --retry=3
 
 # set base for all environments

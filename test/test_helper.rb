@@ -2,7 +2,7 @@
 
 $LOAD_PATH << File.join(__dir__, '..', 'lib')
 ENV['RACK_ENV'] = 'test'
-ENV['PALEOLOG_DB_URI'] = 'postgres://paleolog:paleolog@localhost:5433/paleolog'
+ENV['PALEOLOG_DB_URI'] = 'sqlite://data/db/test.db'
 ENV['PALEOLOG_DB_MAX_CONNECTIONS'] = '1' # for transactional feature tests
 
 require 'minitest/autorun'

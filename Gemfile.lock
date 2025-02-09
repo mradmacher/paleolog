@@ -16,6 +16,7 @@ GEM
       rack-test (>= 0.6.3)
       regexp_parser (>= 1.5, < 3.0)
       xpath (~> 3.2)
+    csv (3.3.2)
     entitainer (0.0.1)
       optiomist (~> 0.0.3)
     json (2.8.2)
@@ -33,10 +34,10 @@ GEM
     mustermann (3.0.3)
       ruby2_keywords (~> 0.0.1)
     nio4r (2.7.4)
-    nokogiri (1.16.7)
+    nokogiri (1.18.2)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.16.7-x86_64-linux)
+    nokogiri (1.18.2-x86_64-linux-gnu)
       racc (~> 1.4)
     optiomist (0.0.3)
     parallel (1.26.3)
@@ -46,7 +47,6 @@ GEM
       ast (~> 2.4.1)
       racc
     pdfkit (0.8.7.3)
-    pg (1.5.9)
     public_suffix (6.0.1)
     puma (6.4.3)
       nio4r (~> 2.0)
@@ -109,6 +109,9 @@ GEM
       rack-protection (= 4.1.1)
       sinatra (= 4.1.1)
       tilt (~> 2.0)
+    sqlite3 (2.5.0)
+      mini_portile2 (~> 2.8.0)
+    sqlite3 (2.5.0-x86_64-linux-gnu)
     tilt (2.4.0)
     unicode-display_width (2.6.0)
     websocket (1.2.11)
@@ -122,6 +125,7 @@ PLATFORMS
 DEPENDENCIES
   bcrypt
   capybara
+  csv
   entitainer (~> 0.0.1)
   minitest
   minitest-hooks
@@ -129,7 +133,6 @@ DEPENDENCIES
   optiomist (~> 0.0.3)
   param_param (~> 1.0.0)
   pdfkit
-  pg
   puma
   rack-test
   rackup
@@ -144,6 +147,7 @@ DEPENDENCIES
   sequel
   sinatra (>= 4.1.0)
   sinatra-contrib
+  sqlite3
 
 BUNDLED WITH
    2.5.23
