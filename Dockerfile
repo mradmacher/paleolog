@@ -1,7 +1,6 @@
 # this is the base of all images
 FROM ruby:3.4.1-slim-bookworm AS base
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
-    libpq-dev \
     sqlite3
 
 # build dependencies

@@ -170,6 +170,7 @@ describe 'Occurrences' do
       fill_in('occurrence-quantity', with: '100')
       click_on('Save')
     end
+    accept_alert("counted up to 100")
 
     assert page.find(:table_row, ['Odontochitina costata']).has_content?('100')
 
