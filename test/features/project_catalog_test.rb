@@ -66,7 +66,7 @@ describe 'Project Catalog' do
   it 'displays all when searching with empty criteria' do
     visit "/projects/#{project.id}/species"
 
-    within('#species-search') do
+    within('[data-js-species-search]') do
       click_on('Search')
     end
 
@@ -78,7 +78,7 @@ describe 'Project Catalog' do
   it 'allows searching species' do
     visit "/projects/#{project.id}/species"
 
-    within('#species-search') do
+    within('[data-js-species-search]') do
       fill_in('Name', with: 'cero')
       select('Dinoflagellate', from: 'Group')
       check('Verified')
@@ -95,7 +95,7 @@ describe 'Project Catalog' do
   it 'updates path after searching' do
     visit "/projects/#{project.id}/species"
 
-    within('#species-search') do
+    within('[data-js-species-search]') do
       fill_in('Name', with: 'costa')
       select('Dinoflagellate', from: 'Group')
       check('Verified')
@@ -120,7 +120,7 @@ describe 'Project Catalog' do
   it 'updates path to only include provided attributes' do
     visit "/projects/#{project.id}/species"
 
-    within('#species-search') do
+    within('[data-js-species-search]') do
       fill_in('Name', with: 'costa')
       click_on('Search')
     end
