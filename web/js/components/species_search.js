@@ -1,6 +1,6 @@
-import { DomHelpers } from './dom_helpers.js';
-import { UrlParamsUpdater } from './url_params_updater.js';
-import { SpeciesRequest } from './requests.js';
+import { DomHelpers } from '../dom_helpers.js';
+import { UrlParamsUpdater } from '../url_params_updater.js';
+import { SpeciesRequest } from '../requests.js';
 
 export class SpeciesSearch {
   constructor({
@@ -25,12 +25,12 @@ export class SpeciesSearch {
       };
     });
 
-    this.element.querySelector('[type="submit"]').addEventListener('click', (event) => {
+    this.element.querySelector('[data-js-search-action]').addEventListener('click', (event) => {
       event.preventDefault();
       const attrs = {
-        group_id: this.element.querySelector('[name="group_id"]').value,
-        name: this.element.querySelector('[name="name"]').value,
-        verified: this.element.querySelector('[name="verified"]').checked,
+        group_id: this.element.querySelector('[data-js-group-id-field]').value,
+        name: this.element.querySelector('[data-js-name-field]').value,
+        verified: this.element.querySelector('[data-js-verified-field]').checked,
       };
       if(this.updatePath) {
         new UrlParamsUpdater().setParams(attrs);
@@ -58,14 +58,14 @@ export class SpeciesSearch {
   showAvailableSearchFilters(filters) {
     return new Promise((resolve, reject) => {
       let template = DomHelpers.buildFromTemplate('search-group-option-template')
-      template.querySelector('option').value = '';
-      template.querySelector('option').textContent = '';
-      let selectElement = this.element.querySelector('[name="group_id"]');
+      template.querySelector('[data-js-group-option]').value = '';
+      template.querySelector('[data-js-group-option]').textContent = '';
+      let selectElement = this.element.querySelector('[data-js-group-id-field]');
       selectElement.append(template);
       filters.groups.forEach((group) => {
         let template = DomHelpers.buildFromTemplate('search-group-option-template')
-        template.querySelector('option').value = group.id
-        template.querySelector('option').textContent = group.name
+        template.querySelector('[data-js-group-option]').value = group.id
+        template.querySelector('[data-js-group-option]').textContent = group.name
         selectElement.append(template);
       });
     });
@@ -74,9 +74,9 @@ export class SpeciesSearch {
   showFilters(attrs) {
     for(let attr in attrs) {
       if(attr == 'verified') {
-        this.element.querySelector(`[name="${attr}"]`).checked = true;
+        this.element.querySelector('[data-js-verified-field]').checked = true;
       } else {
-        this.element.querySelector(`[name="${attr}"]`).value = attrs[attr];
+        this.element.querySelector(`[data-js-${attr.replace('_', '-')}-field]`).value = attrs[attr];
       }
     }
   }
