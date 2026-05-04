@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-gem 'bcrypt'
+gem 'bcrypt', '>= 3.1.22'
 gem 'csv'
 gem 'entitainer', '~> 0.0.1'
 gem 'optiomist', '~> 0.0.3'
