@@ -94,7 +94,7 @@ module Paleolog
         break_with(Operation::NOT_FOUND) unless result
 
         Paleolog::Section.new(**result) do |section|
-          db[:samples].where(section_id: section.id).all.map do |sample_result|
+          db[:samples].where(section_id: section.id).order(:rank).all.map do |sample_result|
             section.samples << Paleolog::Sample.new(**sample_result)
           end
         end
