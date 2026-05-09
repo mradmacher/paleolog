@@ -56,10 +56,6 @@ module Web
                        []
                      end
       @report = Paleolog::Report.build(params)
-      @report.counted_group = @counting.group
-      @report.marker = @counting.marker
-      @report.marker_quantity = @counting.marker_count
-      # def occurrence_density_map(samples, counted_group:, marker:, marker_quantity:)
       @report.generate(@occurrences, @section.samples)
       @chart = Paleolog::Paleorep::ChartView.new(@report)
       using_export_layout { display 'reports/create.html' }
@@ -79,9 +75,6 @@ module Web
                        []
                      end
       @report = Paleolog::Report.build(params['report'])
-      @report.counted_group = @counting.group
-      @report.marker = @counting.marker
-      @report.marker_quantity = @counting.marker_count
       @report.generate(@occurrences, @section.samples)
       content_type 'text/csv'
       @report.to_csv

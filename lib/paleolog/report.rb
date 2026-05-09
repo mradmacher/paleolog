@@ -6,7 +6,7 @@ module Paleolog
   # rubocop:disable Metrics/ClassLength
   class Report
     attr_accessor :type, :species_ids, :samples_ids, :view, :charts, :orientation, :show_symbols, :percentages,
-                  :reverse_rows, :column_criteria, :counted_group, :marker, :marker_quantity
+                  :reverse_rows, :column_criteria
     attr_reader :column_headers, :row_headers, :values, :splits, :title
 
     QUANTITY = 'quantity'
@@ -78,7 +78,7 @@ module Paleolog
           '0'
         else
           if show_symbols?
-            occurrence.normal? ? occurrence.quantity : occurrence.status_symbol
+            occurrence.normal? ? occurrence.quantity : Paleolog::CountingSummary.status_symbol(occurrence.status)
           else
             occurrence.quantity
           end.to_s + (occurrence.uncertain ? Paleolog::CountingSummary::UNCERTAIN_SYMBOL : '')
@@ -211,11 +211,7 @@ module Paleolog
       end
       occurrence_textizer =
         if type == DENSITY
-          density_map = DensityInfo.new(
-            counted_group: counted_group,
-            marker: marker,
-            marker_quantity: marker_quantity,
-          ).occurrence_density_map(occurrences.flatten.compact, samples)
+          density_map = DensityInfo.new.occurrence_density_map(occurrences.flatten.compact, samples)
           OccurrenceDensityTextizer.new(density_map)
         else
           OccurrenceQuantityTextizer.new(show_symbols: @show_symbols.to_i.positive?)

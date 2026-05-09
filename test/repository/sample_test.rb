@@ -292,6 +292,28 @@ describe Paleolog::Repository::Sample do
         assert_predicate result, :success?
       end
 
+      it 'requires numerical marker_quantity' do
+        ['a', '#', '34a', 'a34'].each do |value|
+          result = happy_operation.create(section_id: section.id, marker_quantity: value)
+
+          assert_predicate result, :failure?
+          assert_equal Paleolog::Repository::Params::NOT_INTEGER_ERR, result.error[:marker_quantity]
+        end
+      end
+
+      it 'converts blank marker_quantity to nil' do
+        result = happy_operation.create(name: 'Name1', section_id: section.id, marker_quantity: '')
+
+        assert_nil result.value.marker_quantity
+      end
+
+      it 'requires marker quantity greater than 0' do
+        result = operation.create(name: 'Name', section_id: section.id, marker_quantity: 0)
+
+        assert_predicate result, :failure?
+        assert_equal Paleolog::Repository::Params::NOT_GT_ERR, result.error[:marker_quantity]
+      end
+
       it 'converts blank description to nil' do
         result = happy_operation.create(name: 'Name1', section_id: section.id, description: '')
 

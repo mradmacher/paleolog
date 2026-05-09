@@ -9,6 +9,7 @@ module Paleolog
       Paleolog::Occurrence::OUTSIDE_COUNT => '+',
       Paleolog::Occurrence::CARVING => 'c',
       Paleolog::Occurrence::REWORKING => 'r',
+      Paleolog::Occurrence::MARKER => 'marker',
     }.freeze
     UNCERTAIN_SYMBOL = '?'
 

@@ -31,6 +31,7 @@ module Web
             name: sample.name,
             description: sample.description,
             weight: sample.weight,
+            marker_quantity: sample.marker_quantity,
           }
         end
       end

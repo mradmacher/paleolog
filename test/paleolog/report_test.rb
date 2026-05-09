@@ -7,6 +7,7 @@ describe Paleolog::Report do
     project = Paleolog::Project.new(name: 'Test')
     @section = Paleolog::Section.new(project: project, name: 'Section1')
     @counting = Paleolog::Counting.new(project: project, name: 'Counting1')
+    @marker_quantity = 30
     @samples = []
     [100, 200, 300].each_with_index do |depth, index|
       @samples << Paleolog::Sample.new(
@@ -15,6 +16,7 @@ describe Paleolog::Report do
         name: "Sample#{depth}",
         bottom_depth: depth,
         weight: 10.0,
+        marker_quantity: @marker_quantity,
       )
     end
     @groups = [Paleolog::Group.new(name: 'Group1'), Paleolog::Group.new(name: 'Group2')]
@@ -25,6 +27,9 @@ describe Paleolog::Report do
       4.times { |j| @species[i] << Paleolog::Species.new(id: (i * 10) + j, group: group, name: "Species#{i}#{j}") }
     end
 
+    @counted_group = @groups[0]
+    @marker = @species[1][0]
+
     @occurrences = []
     # sample, rank, group, species
     [
@@ -32,13 +37,20 @@ describe Paleolog::Report do
       [1, 0, 0, 0], [1, 1, 0, 1], [1, 2, 0, 3], [1, 3, 0, 2], [1, 4, 1, 0],
       [2, 0, 0, 1], [2, 1, 0, 2], [2, 2, 1, 1], [2, 3, 1, 2]
     ].each do |value|
+      group = value[2]
+      species = @species[value[2]][value[3]]
+      status = if group.zero?
+                 Paleolog::Occurrence::NORMAL
+               else
+                 species == @marker ? Paleolog::Occurrence::MARKER : Paleolog::Occurrence::OUTSIDE_COUNT
+               end
       @occurrences << Paleolog::Occurrence.new(
         counting: @counting,
         sample: @samples[value[0]],
-        species: @species[value[2]][value[3]],
+        species: species,
         rank: value[1],
         quantity: (1..100).to_a.sample,
-        status: (value[2]).zero? ? Paleolog::Occurrence::NORMAL : Paleolog::Occurrence::OUTSIDE_COUNT,
+        status: status,
       )
     end
   end
@@ -271,9 +283,6 @@ describe Paleolog::Report do
 
   describe 'densities' do
     before do
-      @counted_group = @groups[0]
-      @marker = @species[1][0]
-      @marker_quantity = 30
       @samples_summary, @species_summary, @occurrences_summary =
         Paleolog::CountingSummary.new(@occurrences).summary(@samples)
       @selected_species_ids = @species_summary.select { |s| s.group == @counted_group }.map { |s| s.id.to_s }
@@ -289,12 +298,8 @@ describe Paleolog::Report do
           },
         },
       )
-      @report.counted_group = @counted_group
-      @report.marker = @marker
-      @report.marker_quantity = @marker_quantity
       @report.generate(@occurrences, @samples)
-      @density_info = Paleolog::DensityInfo.new(counted_group: @counted_group, marker: @marker,
-                                                marker_quantity: @marker_quantity,)
+      @density_info = Paleolog::DensityInfo.new
     end
 
     it 'generate proper row headers' do
