@@ -16,6 +16,7 @@ module Paleolog
           section_id: p::REQUIRED.(p::ID),
           description: p::OPTIONAL.(p::DESCRIPTION),
           weight: p::OPTIONAL.(p::BLANK_TO_NIL_OR.(p::ALL_OF.([p::DECIMAL, p::GT.(0.0)]))),
+          marker_quantity: p::OPTIONAL.(p::BLANK_TO_NIL_OR.(p::ALL_OF.([p::INTEGER, p::GT.(0)]))),
         }
       end
 
@@ -25,6 +26,7 @@ module Paleolog
           name: p::OPTIONAL.(p::NAME),
           description: p::OPTIONAL.(p::DESCRIPTION),
           weight: p::OPTIONAL.(p::BLANK_TO_NIL_OR.(p::ALL_OF.([p::DECIMAL, p::GT.(0.0)]))),
+          marker_quantity: p::OPTIONAL.(p::BLANK_TO_NIL_OR.(p::ALL_OF.([p::INTEGER, p::GT.(0)]))),
         }
       end
 

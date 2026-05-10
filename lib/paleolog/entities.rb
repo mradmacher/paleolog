@@ -78,6 +78,7 @@ module Paleolog
                  :top_depth,
                  :description,
                  :weight,
+                 :marker_quantity,
                  :rank
 
       belongs_to :section
@@ -157,7 +158,8 @@ module Paleolog
     OUTSIDE_COUNT = 1
     CARVING = 2
     REWORKING = 3
-    STATUSES = [NORMAL, OUTSIDE_COUNT, CARVING, REWORKING].freeze
+    MARKER = 4
+    STATUSES = [NORMAL, OUTSIDE_COUNT, CARVING, REWORKING, MARKER].freeze
 
     schema do
       attributes :quantity,
@@ -167,5 +169,8 @@ module Paleolog
 
       belongs_to :species, :counting, :sample
     end
+
+    def marker? = status == MARKER
+    def normal? = status == NORMAL
   end
 end

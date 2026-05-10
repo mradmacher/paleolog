@@ -13,8 +13,7 @@ describe Paleolog::DensityInfo do
     @marker_quantity = 37
     @counting = Paleolog::Counting.new(name: 'Counting1', project: @project, group: @counted_group, marker: @marker,
                                        marker_count: @marker_quantity,)
-    @subject = Paleolog::DensityInfo.new(counted_group: @counted_group, marker: @marker,
-                                         marker_quantity: @marker_quantity,)
+    @subject = Paleolog::DensityInfo.new
   end
 
   describe 'group_density' do
@@ -26,14 +25,46 @@ describe Paleolog::DensityInfo do
     end
 
     it 'gets proper result' do
-      sample = Paleolog::Sample.new(name: 'Sample1', section: @section, weight: 4.1234)
+      sample = Paleolog::Sample.new(
+        name: 'Sample1', section: @section, weight: 4.1234, marker_quantity: @marker_quantity,
+      )
 
       occurrences = []
-      occurrences << Paleolog::Occurrence.new(counting: @counting, sample: sample, species: @species1, quantity: 15)
-      occurrences << Paleolog::Occurrence.new(counting: @counting, sample: sample, species: @species2, quantity: 42)
-      occurrences << Paleolog::Occurrence.new(counting: @counting, sample: sample, species: @species3, quantity: nil)
-      occurrences << Paleolog::Occurrence.new(counting: @counting, sample: sample, species: @species4, quantity: nil)
-      occurrences << Paleolog::Occurrence.new(counting: @counting, sample: sample, species: @marker, quantity: 20)
+      occurrences << Paleolog::Occurrence.new(
+        counting: @counting,
+        sample: sample,
+        species: @species1,
+        quantity: 15,
+        status: Paleolog::Occurrence::NORMAL,
+      )
+      occurrences << Paleolog::Occurrence.new(
+        counting: @counting,
+        sample: sample,
+        species: @species2,
+        quantity: 42,
+        status: Paleolog::Occurrence::NORMAL,
+      )
+      occurrences << Paleolog::Occurrence.new(
+        counting: @counting,
+        sample: sample,
+        species: @species3,
+        quantity: nil,
+        status: Paleolog::Occurrence::OUTSIDE_COUNT,
+      )
+      occurrences << Paleolog::Occurrence.new(
+        counting: @counting,
+        sample: sample,
+        species: @species4,
+        quantity: nil,
+        status: Paleolog::Occurrence::OUTSIDE_COUNT,
+      )
+      occurrences << Paleolog::Occurrence.new(
+        counting: @counting,
+        sample: sample,
+        species: @marker,
+        quantity: 20,
+        status: Paleolog::Occurrence::MARKER,
+      )
 
       result = @subject.group_density(occurrences, sample)
 
@@ -44,7 +75,12 @@ describe Paleolog::DensityInfo do
 
   describe '#occurrence_density_map' do
     before do
-      @sample = Paleolog::Sample.new(name: 'Sample1', section: @section, weight: 4.1234)
+      @sample = Paleolog::Sample.new(
+        name: 'Sample1',
+        section: @section,
+        weight: 4.1234,
+        marker_quantity: @marker_quantity,
+      )
       @samples = [@sample]
       @species15 = Paleolog::Species.new(name: 'Species15', group: @counted_group)
       @species41 = Paleolog::Species.new(name: 'Species41', group: @counted_group)
@@ -56,34 +92,45 @@ describe Paleolog::DensityInfo do
         sample: @sample,
         species: @species15,
         quantity: 15,
+        status: Paleolog::Occurrence::NORMAL,
       )
       @occurrences << @occurrence41 = Paleolog::Occurrence.new(
         counting: @counting,
         sample: @sample,
         species: @species41,
         quantity: 41,
+        status: Paleolog::Occurrence::NORMAL,
       )
       @occurrences << @occurrence0 = Paleolog::Occurrence.new(
         counting: @counting,
         sample: @sample,
         species: @species0,
         quantity: nil,
+        status: Paleolog::Occurrence::NORMAL,
       )
 
       @occurrences << Paleolog::Occurrence.new(
         counting: @counting,
         sample: @sample,
         species: Paleolog::Species.new(name: 'Species111', group: @other_group),
+        status: Paleolog::Occurrence::OUTSIDE_COUNT,
       )
       @occurrences << Paleolog::Occurrence.new(
         counting: @counting,
         sample: @sample,
         species: Paleolog::Species.new(name: 'Species222', group: @other_group),
+        status: Paleolog::Occurrence::OUTSIDE_COUNT,
       )
     end
 
     it 'returns proper result' do
-      @occurrences << Paleolog::Occurrence.new(counting: @counting, sample: @sample, species: @marker, quantity: 20)
+      @occurrences << Paleolog::Occurrence.new(
+        counting: @counting,
+        sample: @sample,
+        species: @marker,
+        quantity: 20,
+        status: Paleolog::Occurrence::MARKER,
+      )
 
       result = @subject.occurrence_density_map(@occurrences, @samples)
 

@@ -51,6 +51,7 @@ module Web
           name: sample.name,
           description: sample.description,
           weight: sample.weight ? Kernel.format('%.2f', sample.weight) : nil,
+          marker_quantity: sample.marker_quantity,
         }
       end
     end

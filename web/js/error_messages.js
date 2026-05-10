@@ -26,6 +26,10 @@ export const errorMessages = {
       not_decimal: "Weight needs to be a decimal number",
       not_gt: "Weight needs to be greater than 0",
     },
+    marker_quantity: {
+      not_integer: "Marker quantity needs to be an integer number",
+      not_gt: "Marker quantity needs to be greater than 0",
+    },
   },
   species: {
     name: {

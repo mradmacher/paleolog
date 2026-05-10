@@ -318,7 +318,7 @@ describe Paleolog::Repository::Occurrence do
     end
 
     it 'refutes invalid statuses' do
-      [-100, -1, 4, 5, 100].each do |value|
+      [-100, -1, 5, 100].each do |value|
         result = operation.update(id: occurrence.id, status: value)
 
         assert_predicate result, :failure?

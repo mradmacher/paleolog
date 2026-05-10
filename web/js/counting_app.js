@@ -31,22 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
       DomHelpers.setHref(UrlBuilder.projectOccurrences(projectId, { projectName: projectName, countingId: counting.id }), '.occurrences-link')
       DomHelpers.setHref(UrlBuilder.projectReports(projectId, { projectName: projectName, countingId: counting.id }), '.reports-link')
       DomHelpers.setText(counting.name, '.counting-name')
-      if(counting.marker_count) {
-        DomHelpers.setText(counting.marker_count, '.marker-count')
-      } else {
-        DomHelpers.hideAll('.marker-count-wrapper')
-      }
-      if(counting.group_name) {
-        DomHelpers.setText(counting.group_name, '.group-name')
-      } else {
-        DomHelpers.hideAll('.group-name-wrapper')
-      }
-      if(counting.marker_name) {
-        DomHelpers.setText(counting.marker_name, '.marker-name')
-        DomHelpers.setText(counting.marker_group_name, '.marker-group-name')
-      } else {
-        DomHelpers.hideAll('.marker-name-wrapper')
-      }
       document.querySelector('.edit-counting.action').addEventListener('click', () => {
         new CountingModalFormView(counting, (counting) => window.location.reload()).show()
       });

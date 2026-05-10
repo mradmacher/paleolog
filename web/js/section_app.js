@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     name: null,
     description: null,
     weight: null,
+    marker_quantity: null,
   }
 
   document.querySelector('.add-section.action').addEventListener('click', () => {
@@ -38,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DomHelpers.setText(sample.name, '.sample-name', template)
         DomHelpers.setText(sample.description, '.sample-description', template)
         DomHelpers.setText(sample.weight, '.sample-weight', template)
+        DomHelpers.setText(sample.marker_quantity, '.sample-marker-quantity', template)
 
         template.querySelector('.edit-sample.action').addEventListener('click', (event) => {
           new SampleModalFormView(sample, (sample) => window.location.reload()).show()
