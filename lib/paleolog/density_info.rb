@@ -39,8 +39,8 @@ module Paleolog
 
       (counted_group_quantity / marker_counted) * (sample.marker_quantity / sample.weight)
     end
-
     # rubocop:enable Metrics/CyclomaticComplexity
+
     # rubocop:disable Metrics/CyclomaticComplexity
     # rubocop:disable Metrics/PerceivedComplexity
     def occurrence_density_map(occurrences, samples)
@@ -56,7 +56,7 @@ module Paleolog
           occurrences: sample_occurrences,
         )
 
-        sample_occurrences.select(&:normal?).each do |occ|
+        sample_occurrences.each do |occ|
           occ_quantity = (occ.quantity || 0) * 1.0
           density_map << [
             occ,
